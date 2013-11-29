@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<robot name="person"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find bwi_gazebo_entities)/urdf/common.urdf.xacro" />
+  <xacro:include filename="$(find bwi_gazebo_entities)/urdf/person.urdf.xacro" />
+  <xacro:include filename="$(find bwi_gazebo_entities)/gazebo/automated_person.gazebo.xacro" />
+
+  <!-- Add the person -->
+  <xacro:person />
+
+  <!-- Add the generic laser to do obstacle avoidance -->
+  <xacro:generic_laser name="lidar" ros_topic="scan" update_rate="10" min_angle="${-M_PI/2}" max_angle="${M_PI/2}" />
+
+</robot>
+

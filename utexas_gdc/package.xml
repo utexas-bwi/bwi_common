@@ -1,0 +1,23 @@
+<package>
+  <name>utexas_gdc</name>
+  <version>0.0.1</version>
+  <description>utexas_gdc</description>
+
+  <license>BSD</license>
+
+  <author>Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>map_server</run_depend>
+  <run_depend>bwi_gazebo_entities</run_depend>
+  <run_depend>segbot_navigation</run_depend>
+  <run_depend>segbot_gazebo</run_depend>
+
+  <export>
+    <gazebo_ros gazebo_media_path="${prefix}"/>
+  </export>
+
+</package>

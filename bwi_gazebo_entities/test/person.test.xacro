@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<robot name="person"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find bwi_gazebo_entities)/urdf/common.urdf.xacro" />
+  <xacro:include filename="$(find bwi_gazebo_entities)/urdf/person.urdf.xacro" />
+
+  <!-- Add the person -->
+  <xacro:person />
+
+</robot>

@@ -1,0 +1,24 @@
+<launch>
+
+  <arg name="ballid" default="ballid" />
+  <arg name="world" default="gazebo" />
+  <arg name="x" default="0" />
+  <arg name="y" default="0" />
+  <arg name="urdf_file" 
+    default="$(find bwi_gazebo_entities)/entities/ball.urdf.xacro" />
+
+  <param name="$(arg ballid)_description" 
+    command="$(find xacro)/xacro.py '$(arg urdf_file)'" />
+
+  <node name="spawn_ball" pkg="gazebo_ros" type="spawn_model"
+    args="-param $(arg ballid)_description
+    -urdf
+    -x $(arg x)
+    -y $(arg y)
+    -z 0
+    -model $(arg ballid)
+    -gazebo_namespace /$(arg world)"
+    respawn="false" output="screen">
+  </node>
+
+</launch>

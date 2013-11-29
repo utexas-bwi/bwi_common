@@ -1,0 +1,8 @@
+<launch>
+  <arg name="personid" default="person" />
+  <include file="$(find bwi_gazebo_entities)/launch/controllable_person.launch">
+    <arg name="x" value="-2.0" />
+    <arg name="y" value="8.1" />
+    <arg name="personid" default="$(arg personid)" />
+  </include>
+</launch>

@@ -1,0 +1,19 @@
+<package>
+  <name>bwi_gazebo_entities</name>
+  <version>0.0.1</version>
+  <description>bwi_gazebo_entities</description>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/bwi_gazebo_entities</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+ 
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>xacro</run_depend>
+  <run_depend>gazebo_ros</run_depend>
+
+</package>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<root
+  xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+  xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+  xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="default_surface" params="name">
+    <gazebo reference="${name}_link" >
+      <mu1 value="100.0" />
+      <mu2 value="100.0" />
+      <kp  value="1000000.0" />
+      <kd  value="1.0" />
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="gazebo_ros_controller">
+    <canonicalBody>base_footprint</canonicalBody>
+    <plugin name="gazebo_ros_controller_manager" filename="libgazebo_ros_controller_manager.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>5.0</updateRate>
+    </plugin>
+  </xacro:macro>
+
+  <xacro:macro name="gazebo_person_drive">
+    <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>20.0</odometryRate>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+    </plugin>
+  </xacro:macro>
+
+</root>

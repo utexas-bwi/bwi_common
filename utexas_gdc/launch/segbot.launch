@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find segbot_gazebo)/launch/segbot_mobile_base.launch">
+    <arg name="x" value="-6.7" />
+    <arg name="y" value="8.1" />
+  </include>
+</launch>

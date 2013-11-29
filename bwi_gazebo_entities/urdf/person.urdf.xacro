@@ -1,0 +1,271 @@
+<?xml version="1.0"?>
+
+<root xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find bwi_gazebo_entities)/urdf/person.gazebo.xacro" />
+
+  <xacro:macro name="person">
+    
+    <!-- root link, on the ground just below the person origin (torso) -->
+    <link name="base_footprint">
+     <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.001 0.001 0.001" />
+        </geometry>
+      </visual>
+    </link>
+
+    <joint name="base_link_joint" type="fixed">
+      <origin xyz="0.0 0 1.25" rpy="0 0 0" />
+      <parent link="base_footprint"/>
+      <child link="base_link" />
+    </joint>
+
+    <!-- the person's torso -->
+    <link name="base_link">
+      <inertial>
+        <mass value="50" />
+        <origin xyz="0 0 -1.25" />
+        <inertia ixx="50.0" ixy="0.0" ixz="0.0"
+          iyy="50.0" iyz="0.0" 
+          izz="50.0" />
+      </inertial>
+      <visual>
+        <geometry>
+          <box size="0.2 0.4 0.7" />
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -1.0" />
+        <geometry>
+          <cylinder length="0.5" radius="0.25" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- depth perception lidar -->
+    <joint name="lidar_joint" type="fixed">
+      <origin xyz="0.3 0 0" rpy="0 0 0" />
+      <parent link="base_link"/>
+      <child link="lidar_link" />
+    </joint>
+    <link name="lidar_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0"
+          iyy="0.01" iyz="0.0" 
+          izz="0.01" />
+      </inertial>
+    </link>
+
+    <!-- left leg -->
+    <joint name="left_leg_joint" type="fixed">
+      <origin xyz="0.0 0.11 -0.35" rpy="0 0 0" />
+      <parent link="base_link"/>
+      <child link="left_leg_link" />
+    </joint>
+    <link name="left_leg_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+          iyy="1.0" iyz="0.0" 
+          izz="1.0" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 -0.45" />
+        <geometry>
+          <cylinder length="0.9" radius="0.09" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <xacro:default_surface name="left_leg" />
+
+    <!-- right leg -->
+    <joint name="right_leg_joint" type="fixed">
+      <origin xyz="0.0 -0.11 -0.35" rpy="0 0 0" />
+      <parent link="base_link"/>
+      <child link="right_leg_link" />
+    </joint>
+    <link name="right_leg_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+          iyy="1.0" iyz="0.0" 
+          izz="1.0" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 -0.45" />
+        <geometry>
+          <cylinder length="0.9" radius="0.09" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <xacro:default_surface name="right_leg" />
+
+    <!-- head -->
+    <joint name="head_joint" type="fixed">
+      <origin xyz="0 0 0.50" rpy="0 0 0" />
+      <parent link="base_link"/>
+      <child link="head_link" />
+    </joint>
+    <link name="head_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <geometry>
+          <sphere radius="0.15" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <!-- camera -->
+    <joint name="camera_joint" type="fixed">
+      <origin xyz="0.151 0 0" rpy="0 ${M_PI/12} 0" />
+      <parent link="head_link"/>
+      <child link="camera_link" />
+    </joint>
+    <!-- <joint name="camera_joint" type="fixed"> -->
+    <!--   <origin xyz="-1.0 0 0.25" rpy="0 ${M_PI/12} 0" /> -->
+    <!--   <parent link="head_link"/> -->
+    <!--   <child link="camera_link" /> -->
+    <!-- </joint> -->
+    <link name="camera_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+    </link>
+
+    <!-- camera optical frame -->
+    <joint name="camera_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="-${M_PI/2} 0 -${M_PI/2}" />
+      <parent link="camera_link"/>
+      <child link="camera_optical_link" />
+    </joint>
+    <link name="camera_optical_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+    </link>
+
+    <!-- left arm -->
+    <joint name="left_arm_joint" type="fixed">
+      <origin xyz="0 0.27 0.28" rpy="0 ${M_PI} 0" />
+      <parent link="base_link"/>
+      <child link="left_arm_link" />
+    </joint>
+    <link name="left_arm_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.175" />
+        <geometry>
+          <cylinder length="0.35" radius="0.07" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <!-- left fore arm -->
+    <joint name="left_forearm_joint" type="fixed">
+      <origin xyz="0 0 0.35" rpy="0 -${M_PI/6} 0" />
+      <parent link="left_arm_link"/>
+      <child link="left_forearm_link" />
+    </joint>
+    <link name="left_forearm_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.175" />
+        <geometry>
+          <cylinder length="0.35" radius="0.07" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <!-- right arm -->
+    <joint name="right_arm_joint" type="fixed">
+      <origin xyz="0 -0.27 0.28" rpy="0 ${M_PI} 0" />
+      <parent link="base_link"/>
+      <child link="right_arm_link" />
+    </joint>
+    <link name="right_arm_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.175" />
+        <geometry>
+          <cylinder length="0.35" radius="0.07" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <!-- right fore arm -->
+    <joint name="right_forearm_joint" type="fixed">
+      <origin xyz="0 0 0.35" rpy="0 -${M_PI/6} 0" />
+      <parent link="right_arm_link"/>
+      <child link="right_forearm_link" />
+    </joint>
+    <link name="right_forearm_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+          iyy="0.001" iyz="0.0" 
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.175" />
+        <geometry>
+          <cylinder length="0.35" radius="0.07" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <gazebo>
+      <xacro:gazebo_person_drive />
+      <!-- <xacro:gazebo_ros_controller_manager /> -->
+    </gazebo>
+
+  </xacro:macro>
+
+</root>

@@ -1,0 +1,21 @@
+<package>
+  <name>bwi_common</name>
+  <version>0.1.0</version>
+  <description>bwi_common</description>
+
+  <license>BSD</license>
+
+  <author>Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>bwi_gazebo_entities</run_depend>
+  <run_depend>bwi_tools</run_depend>
+  <run_depend>utexas_gdc</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+
+</package>
