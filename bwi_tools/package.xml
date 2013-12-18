@@ -2,12 +2,18 @@
 <package>
   <name>bwi_tools</name>
   <version>0.0.0</version>
-  <description>The bwi_tools package</description>
+  <description>
+    Contains commonly used python and C++ structures and tools
+  </description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
   <author email="piyushk@gmail.com">Piyush Khandelwal</author>
 
   <license>BSD</license>
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>opencv2</build_depend>
+
+  <run_depend>opencv2</run_depend>
 
 </package>
