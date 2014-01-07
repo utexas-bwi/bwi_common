@@ -98,7 +98,7 @@ def saveMapToFile(map, yaml_file, image_file, negate, free_thresh,
     origin[2] = a[2] #yaw
     map_info['origin'] = origin
 
-    map_info['negate'] = negate
+    map_info['negate'] = 1 if negate else 0
     map_info['occupied_thresh'] = occupied_thresh
     map_info['free_thresh'] = free_thresh
 
