@@ -83,7 +83,7 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
         if second_level_names:
             ax.set_xticklabels(second_level_names)
 
-    ax.legend(rects, top_level_names)
+    ax.legend(rects, top_level_names, mode='expand', ncol=3)
 
     return fig, ax, rects, means
 
