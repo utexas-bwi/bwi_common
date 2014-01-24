@@ -114,7 +114,8 @@ namespace bwi_mapper {
   float getShortestPathWithDistance(size_t start_idx, size_t goal_idx, 
       std::vector<size_t> &path_from_goal, const Graph &graph);
 
-  float getShortestPathDistance(size_t start_idx, size_t goal_idx);
+  float getShortestPathDistance(size_t start_idx, size_t goal_idx,
+      const Graph &graph);
 
   void getAdjacentNodes(size_t v, const Graph& graph,
       std::vector<size_t>& adjacent_vertices);
