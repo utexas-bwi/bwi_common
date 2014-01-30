@@ -86,7 +86,8 @@ namespace bwi_mapper {
 
   void drawSquareOnGraph(cv::Mat &image, const Graph& graph, 
       size_t node, cv::Scalar color = cv::Scalar(0,0,255),
-      uint32_t orig_x = 0, uint32_t orig_y = 0);
+      uint32_t orig_x = 0, uint32_t orig_y = 0, int size = 30, 
+      int thickness = 2);
 
   void writeGraphToFile(const std::string &filename, 
       const Graph& graph, const nav_msgs::MapMetaData& info); 

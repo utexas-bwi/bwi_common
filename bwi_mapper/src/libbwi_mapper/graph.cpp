@@ -160,11 +160,11 @@ namespace bwi_mapper {
 
   void drawSquareOnGraph(cv::Mat &image, const Graph& graph, 
       size_t node, cv::Scalar color,
-      uint32_t orig_x, uint32_t orig_y) {
+      uint32_t orig_x, uint32_t orig_y, int size, int thickness) {
     Point2f loc = getLocationFromGraphId(node, graph);
     cv::Point square_loc(loc.x + orig_x, loc.y + orig_y); 
-    cv::Rect rect(square_loc.x - 15, square_loc.y - 15, 30, 30);
-    cv::rectangle(image, rect, color, 2, CV_AA); 
+    cv::Rect rect(square_loc.x - size/2, square_loc.y - size/2, size, size);
+    cv::rectangle(image, rect, color, thickness, CV_AA); 
   }
 
   void writeGraphToFile(const std::string &filename, 
