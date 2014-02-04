@@ -166,7 +166,8 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
     return fig, ax, rects, means
 
 def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None, 
-                  title=None, xlabel=None, ylabel=None, zlabel=None):
+                  title=None, xlabel=None, ylabel=None, zlabel=None,
+                     xtickrotation=0):
 
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
@@ -228,8 +229,8 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
     #     rects.append(ax.bar3d(xs, ys, zs, dxs, dys, dzs, color=colors_ts, zsort=''))
     rects = ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors_t, zsort=True)
 
-    #if xlabel:
-        #ax.set_xlabel(xlabel)
+    if xlabel:
+        ax.set_xlabel(xlabel)
     if ylabel:
         ax.set_ylabel(ylabel)
     if zlabel:
@@ -246,10 +247,8 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
     tick_multiplier = int(math.ceil(float(top_level_methods)/float(len(top_level_names))))
     ax.set_xticks(tick_multiplier * np.arange(len(top_level_names)))
     if top_level_names:
-        ax.set_xticklabels(top_level_names, rotation=45)
+        ax.set_xticklabels(top_level_names, rotation=xtickrotation)
 #    ax.legend(rects, top_level_names, mode='expand', ncol=3)
-
-    ax.view_init(20, -60)
 
     return fig, ax, rects, means
 
