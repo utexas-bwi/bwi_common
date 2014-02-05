@@ -12,6 +12,7 @@ import scipy.stats as stats
 # Keep the following at different length to produce more distinct combinations
 METHOD_COLORS = ['yellow', 'red', 'aqua', 'green', 'lightgray', 'blue']
 METHOD_HATCH = ['/', '\\', 'x', '*', 'o', 'O', '.']
+LINE_COLORS = ['red', 'blue', 'green']
 LINE_HATCH = [(20,0),(20,5),(5,5),(15,5,5,5),(15,5,2,5)]
 
 def mean_standard_error(data):
@@ -40,7 +41,7 @@ def color_to_html_string(c):
 
 def draw_bar_chart(samples, top_level_names, second_level_names=None, 
                   title=None, xlabel=None, ylabel=None, color=None,
-                   bottom=None):
+                   bottom=None, yticklabels=None):
 
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
@@ -101,13 +102,16 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
         if second_level_names:
             ax.set_xticklabels(second_level_names)
 
+    if yticklabels:
+        ax.set_yticklabels(yticklabels)
+
     if top_level_names:
         ax.legend(rects, top_level_names)
 
     return fig, ax, rects, means
 
 def draw_line_graph(samples, top_level_names, second_level_names=None, 
-                  title=None, xlabel=None, ylabel=None):
+                  title=None, xlabel=None, ylabel=None, yticklabels=None):
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
     # samples (top_level_grouping_only = true)
@@ -144,9 +148,9 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
     rects = []
     for i in range(top_level_methods):
         rect, = ax.plot(np.arange(0, second_level_methods), means[i],
-                        color=METHOD_COLORS[i%len(METHOD_COLORS)],
+                        color=LINE_COLORS[i%len(LINE_COLORS)],
                         dashes=LINE_HATCH[i%len(LINE_HATCH)],
-                        linewidth = 2)
+                        linewidth = 4)
         rects.append(rect)
 
     if xlabel:
@@ -161,13 +165,15 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
         if second_level_names:
             ax.set_xticklabels(second_level_names)
 
-    ax.legend(rects, top_level_names, handlelength=4, ncol=2) #mode='expand', ncol=4)
+    if yticklabels:
+        ax.set_yticklabels(yticklabels)
+    ax.legend(rects, top_level_names, handlelength=4) #mode='expand', ncol=4)
 
     return fig, ax, rects, means
 
 def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None, 
                   title=None, xlabel=None, ylabel=None, zlabel=None,
-                     xtickrotation=0):
+                     xtickrotation=0, flip_y=True, third_level_names=None):
 
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
@@ -213,7 +219,10 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
     for j in range(second_level_methods):
         for i in range(top_level_methods):
             xpos = np.append(xpos, i)
-            ypos = np.append(ypos, second_level_methods - j - 1)
+            if flip_y:
+                ypos = np.append(ypos, second_level_methods - j - 1)
+            else:
+                ypos = np.append(ypos, j)
             zpos = np.append(zpos, 0)
             dx = np.append(dx, 1.0)
             dy = np.append(dy, 0.5)
@@ -239,13 +248,17 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
         ax.set_title(title)
 
     if second_level_grouping_available:
-        ax.set_yticks(ind)
+        ax.set_yticks(ind + 0.5)
         if second_level_names:
-            second_level_names.reverse()
+            if flip_y:
+                second_level_names.reverse()
             ax.set_yticklabels(second_level_names)
 
+    if third_level_names:
+        ax.set_zticklabels(third_level_names)
+
     tick_multiplier = int(math.ceil(float(top_level_methods)/float(len(top_level_names))))
-    ax.set_xticks(tick_multiplier * np.arange(len(top_level_names)))
+    ax.set_xticks(tick_multiplier * np.arange(len(top_level_names)) + 0.5)
     if top_level_names:
         ax.set_xticklabels(top_level_names, rotation=xtickrotation)
 #    ax.legend(rects, top_level_names, mode='expand', ncol=3)
