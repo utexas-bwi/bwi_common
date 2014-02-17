@@ -1,11 +1,13 @@
 <package>
   <name>bwi_common</name>
   <version>0.1.0</version>
-  <description>bwi_common</description>
-
+  <description>
+    Common Components used in the BWI Project at the University of Texas at
+    Austin
+  </description> 
   <license>BSD</license>
 
-  <author>Piyush Khandelwal</author>
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
 
   <buildtool_depend>catkin</buildtool_depend>

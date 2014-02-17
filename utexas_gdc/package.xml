@@ -1,12 +1,16 @@
 <package>
   <name>utexas_gdc</name>
   <version>0.0.1</version>
-  <description>utexas_gdc</description>
+  <description>Simulation environment for the Gates Dell Complex at the
+    University of Texas At Austin</description>
 
   <license>BSD</license>
 
-  <author>Piyush Khandelwal</author>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
+
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 

@@ -18,8 +18,7 @@ pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 catkin_package(
   DEPENDS 
-    opencv2 
-    yaml-cpp
+    OpenCV 
   CATKIN_DEPENDS 
     map_server
     nav_msgs 
