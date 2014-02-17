@@ -78,7 +78,7 @@ void drawElementsFile(const std::string& elements_file, cv::Mat& image,
     drawCircleOnGraph(image, graph, circles[i]);  
   }
   for(unsigned i = 0; i < squares.size(); ++i) {
-    drawSquareOnGraph(image, graph, squares[i]);  
+    drawSquareOnGraph(image, graph, squares[i]);//, cv::Scalar(0,0,255),0,0,30,-1);  
   }
   for(unsigned i = 0; i < arrows.size(); ++i) {
     drawArrowOnGraph(image, graph, arrows[i], info.width, info.height);  

@@ -82,7 +82,7 @@ namespace bwi_mapper {
             cv::Point end_shift = end_pt + shift_ratio * (start_pt - end_pt); 
             cv::line(image, start_shift, end_shift, 
                 cv::Scalar(160, 160, 255),
-                2, CV_AA); // draw an anti aliased line
+                4, CV_AA); // draw an anti aliased line
           }
         }
       }
@@ -102,8 +102,8 @@ namespace bwi_mapper {
         cv::putText(image, boost::lexical_cast<std::string>(count), text_loc,
             cv::FONT_HERSHEY_SIMPLEX, 0.7, cvScalar(0,0,255), 2, CV_AA);
       } else {
-        size_t vertex_size = 15; // + graph[*vi].pixels / 10;
-        cv::circle(image, vertex_loc, vertex_size, cv::Scalar(0,0,255), -1);
+        size_t vertex_size = 13; // + graph[*vi].pixels / 10;
+        cv::circle(image, vertex_loc, vertex_size, cv::Scalar(0,0,255), -1, CV_AA);
       }
       count++;
     }

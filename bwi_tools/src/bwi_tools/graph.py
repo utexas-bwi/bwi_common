@@ -161,7 +161,8 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
         ax.set_title(title)
 
     if second_level_grouping_available:
-        ax.set_xticks(ind)
+        tick_multiplier = int(math.ceil(float(second_level_methods)/float(len(second_level_names))))
+        ax.set_xticks(tick_multiplier * ind)
         if second_level_names:
             ax.set_xticklabels(second_level_names)
 
