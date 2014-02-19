@@ -6,7 +6,7 @@
 # code-release. Please contact the package distributors in case of licensing
 # discrepancies
 #
-# Copyright (C) 2014, The Assembla Dev Team, Jack O'Quin, Piyush Khandelwal
+# Copyright (C) 2014, The XD_DSbot Dev Team, Jack O'Quin, Piyush Khandelwal
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -182,59 +182,70 @@ class MaestroDevice:
         self.__send_command_var_i(0x9F, first_servo, angles, device)
 
     def set_speed(self, servo, speed, device=0x80):
-        #set the speed for a servo
+        """ Set the speed for a servo
         :param servo: is the servo number (typically 0-23)
-        :param speed: is the servo speed (0=full, 1=slower), in (0.25 us)/(10 ms) when T=20ms. see http://www.pololu.com/docs/0J40/4.e for details
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
-
+        :param speed: is the servo speed (0=full, 1=slower), in 
+                      (0.25 us)/(10 ms) when T=20ms. 
+                      see http://www.pololu.com/docs/0J40/4.e for details
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
         self.__send_command_bi(0x87, servo, speed, device)
 
     def set_acceleration(self, servo, acceleration, device=0x80):
-        #set the acceleration for a servo
-        #servo is the servo number (typically 0-23)
-        #acceleration is servo acceleration (0=full, 1=slower), in (0.25 us)/(10 ms)/(80 ms) when T=20ms. see http://www.pololu.com/docs/0J40/4.e for details
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
-
+        """ Set the acceleration for a servo
+        :param servo: is the servo number (typically 0-23)
+        :param acceleration: is servo acceleration (0=full, 1=slower), 
+                             in (0.25 us)/(10 ms)/(80 ms) when T=20ms. 
+                             see http://www.pololu.com/docs/0J40/4.e for details
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
         self.__send_command_bi(0x89, servo, acceleration, device)
 
     def set_pwm(self, on_time, period, device=0x80):
-        #set the pwm output of a channel (Mini MaestroDevice 12, 18 and 24 only)
-        #on_time is the part of the period the output will be high (unit : 1/48 us)
-        #period is the total period length (unit : 1/48 us)
-        # see http://www.pololu.com/docs/0J40/4.a for details
+        """ Set the pwm output of a channel (Mini MaestroDevice 12, 18 and 24
+        only)
+        :param on_time: is the part of the period the output will be high 
+                        (unit : 1/48 us)
+        :param period: is the total period length (unit : 1/48 us)
+                       see http://www.pololu.com/docs/0J40/4.a for details
+        """
         self.__send_command_ii(0x8A, on_time, period, device)
-    
+
     def go_home(self, device=0x80):
-        #set all servos to their home position. Servos set to "ignore" will remain unchanged, servos set to "off" will turn off.
-        #servo is the servo number (typically 0-23)
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
+        """ Set all servos to their home position. Servos set to "ignore" will
+        remain unchanged, servos set to "off" will turn off.
+        :param servo: is the servo number (typically 0-23)
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
 
         self.__send_command(0xA2, device)
 
     def get_position(self, servo, device=0x80):
-        #gets the current position of a servo
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
-        
+        """ Gets the current position of a servo
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
         self.__send_command_b(0x90, servo, device)
         return self.__receive_int()
 
     def get_moving_state(self, device=0x80):
-        #checks if some servos are moving
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
-        
+        """ Checks if some servos are moving
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
         self.__send_command(0x93, device)
         return self.__receive_byte()
 
     def get_errors(self, device=0x80):
-        #gets the current error flags
-        #device is the id of the MaestroDevice device (0-127, default on boards is 12, all device if not set)
-        
+        """ Gets the current error flags
+        :param device: is the id of the MaestroDevice device (0-127, default on
+                       boards is 12, all device if not set)
+        """
         self.__send_command(0xA1, device)
         return self.__receive_int()
-
-from art_msgs.msg import SteeringCommand
-from art_msgs.msg import SteeringState
-
 
 class PololuDriver(object):
     def __init__(self):
