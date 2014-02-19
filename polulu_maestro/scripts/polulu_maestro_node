@@ -50,6 +50,7 @@ also work with the Polulu Mini MaestroDevice 12, 18 and 24.
 import math
 import rospy
 import serial
+import threading
 import time
 
 from std_msgs.msg import Float32
@@ -75,6 +76,7 @@ class MaestroDevice:
         """ Baud rate for Arduino serial port. """
         self.dev = None
         """ Arduino serial device connection. """
+        self.lock = threading.Lock()
 
     def close(self):
         if self.dev:
@@ -172,7 +174,9 @@ class MaestroDevice:
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command_bi(0x84, servo, angle, device)
+        self.lock.release()
 
     def set_target_minissc(self,servo, angle):
         """ Set the target using the Mini-SSC protocol
@@ -181,7 +185,9 @@ class MaestroDevice:
         :param angle: is the target, from 0 to 254, mapped between
                       neutral-range and neutral+range. 127 is neutral.
         """
+        self.lock.acquire()
         self.dev.write("\xFF"+chr(servo)+chr(angle))
+        self.lock.release()
 
     def set_multiple_targets(self, first_servo, angles, device=0x80):
         """ Set simultaneously targets for a contiguous block of servos (Mini
@@ -193,7 +199,9 @@ class MaestroDevice:
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command_var_i(0x9F, first_servo, angles, device)
+        self.lock.release()
 
     def set_speed(self, servo, speed, device=0x80):
         """ Set the speed for a servo
@@ -204,7 +212,9 @@ class MaestroDevice:
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command_bi(0x87, servo, speed, device)
+        self.lock.release()
 
     def set_acceleration(self, servo, acceleration, device=0x80):
         """ Set the acceleration for a servo
@@ -215,7 +225,9 @@ class MaestroDevice:
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command_bi(0x89, servo, acceleration, device)
+        self.lock.release()
 
     def set_pwm(self, on_time, period, device=0x80):
         """ Set the pwm output of a channel (Mini MaestroDevice 12, 18 and 24
@@ -225,7 +237,9 @@ class MaestroDevice:
         :param period: is the total period length (unit : 1/48 us)
                        see http://www.pololu.com/docs/0J40/4.a for details
         """
+        self.lock.acquire()
         self.__send_command_ii(0x8A, on_time, period, device)
+        self.lock.release()
 
     def go_home(self, device=0x80):
         """ Set all servos to their home position. Servos set to "ignore" will
@@ -234,32 +248,42 @@ class MaestroDevice:
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
-
+        self.lock.acquire()
         self.__send_command(0xA2, device)
+        self.lock.release()
 
     def get_position(self, servo, device=0x80):
         """ Gets the current position of a servo
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command_b(0x90, servo, device)
-        return self.__receive_int()
+        val = self.__receive_int()
+        self.lock.release()
+        return val
 
     def get_moving_state(self, device=0x80):
         """ Checks if some servos are moving
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command(0x93, device)
-        return self.__receive_byte()
+        val =  self.__receive_byte()
+        self.lock.release()
+        return val
 
     def get_errors(self, device=0x80):
         """ Gets the current error flags
         :param device: is the id of the MaestroDevice device (0-127, default on
                        boards is 12, all device if not set)
         """
+        self.lock.acquire()
         self.__send_command(0xA1, device)
-        return self.__receive_int()
+        val = self.__receive_int()
+        self.lock.release()
+        return val
 
 class Servo(object):
 
@@ -283,14 +307,15 @@ class Servo(object):
         self.status_pub.publish(angle)
 
     def cmd_callback(self, msg):
+        rospy.loginfo('Setting servo ' + str(self.servo_number) + ' to ' + str(msg.data) + ' radians.')
         angle = msg.data + self.angle_offset
         if angle < -math.pi/2 or angle > math.pi/2:
             rospy.logerr('Angle outside servo range. Moving servo to max value')
             angle = max(angle,-math.pi/2)
             angle = min(angle, math.pi/2)
         ticks = radians_to_ticks(angle)
+        rospy.loginfo('  Setting servo ' + str(self.servo_number) + ' to ' + str(ticks) + ' ticks.')
         # Slow down servo for now
-        rospy.loginfo('Setting servo to ' + str(ticks) + ' ticks.')
         self.maestro.set_speed(self.servo_number, 100)
         self.maestro.set_target(self.servo_number, ticks)
 

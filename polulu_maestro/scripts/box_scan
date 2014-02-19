@@ -1,18 +1,35 @@
-#!/bin/bash -e 
+#!/usr/bin/env python
 
-rostopic pub --once /camera_pan_cmd std_msgs/Float32 -- -1.0
-rostopic pub --once /camera_pan_tilt std_msgs/Float32 -- -0.2
-sleep 5
+import rospy
+from std_msgs.msg import Float32
+import time
 
-rostopic pub --once /camera_pan_cmd std_msgs/Float32 -- -1.0
-rostopic pub --once /camera_pan_tilt std_msgs/Float32 -- 0.2
-sleep 1
+def box_scan():
+    pan_pub = rospy.Publisher('/camera_pan_cmd', Float32)
+    tilt_pub = rospy.Publisher('/camera_tilt_cmd', Float32)
+    rospy.init_node('talker')
+    count = 0
+    while not rospy.is_shutdown():
+        if count % 4 == 0:
+            pan_pub.publish(-1.0)
+            tilt_pub.publish(-0.2)
+            time.sleep(1)
+        elif count % 4 == 1:
+            pan_pub.publish(-1.0)
+            tilt_pub.publish(0.2)
+            time.sleep(0.4)
+        elif count % 4 == 2:
+            pan_pub.publish(1.0)
+            tilt_pub.publish(0.2)
+            time.sleep(1)
+        else:
+            pan_pub.publish(1.0)
+            tilt_pub.publish(-0.2)
+            time.sleep(0.4)
+        count += 1
 
-rostopic pub --once /camera_pan_cmd std_msgs/Float32 -- 1.0
-rostopic pub --once /camera_pan_tilt std_msgs/Float32 -- 0.2
-sleep 5
-
-rostopic pub --once /camera_pan_cmd std_msgs/Float32 -- 1.0
-rostopic pub --once /camera_pan_tilt std_msgs/Float32 -- -0.2
-sleep 1
-
+if __name__ == '__main__':
+    try:
+        box_scan()
+    except rospy.ROSInterruptException:
+        pass
