@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import rospy
+from std_msgs.msg import Float32
+import time
+
+def servo_test():
+    rospy.init_node('servo_test')
+    servo_pub = rospy.Publisher('/servo0_cmd', Float32)
+    count = 0
+    values = [1.0, -1.0]
+    while not rospy.is_shutdown():
+        servo_pub.publish(values[count])
+        count = (count + 1) % len(values)
+        time.sleep(1.0)
+
+if __name__ == '__main__':
+    try:
+        servo_test()
+    except rospy.ROSInterruptException:
+        pass

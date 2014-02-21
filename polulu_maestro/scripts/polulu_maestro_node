@@ -49,22 +49,26 @@ also work with the Polulu Mini MaestroDevice 12, 18 and 24.
 
 import math
 import rospy
+import select
 import serial
+import sys
 import threading
 import time
 
 from std_msgs.msg import Float32
 
-MIN_TICK = 2080
-MAX_TICK = 9920
+HS422_MIN_TICK = 2080
+HS422_MAX_TICK = 9920
+min_tick = HS422_MIN_TICK
+max_tick = HS422_MAX_TICK
 
 def radians_to_ticks(rads):
-    return (MIN_TICK + MAX_TICK) / 2 + \
-           int((rads / math.pi) * (MAX_TICK - MIN_TICK)) 
+    return (min_tick + max_tick) / 2 + \
+           int((rads / math.pi) * (max_tick - min_tick)) 
 
 def ticks_to_radians(ticks):
-    return (ticks - (MIN_TICK + MAX_TICK) / 2) * \
-            math.pi / (MAX_TICK - MIN_TICK)
+    return (ticks - (min_tick + max_tick) / 2) * \
+            math.pi / (max_tick - min_tick)
 
 class MaestroDevice:
     """ Class for managing the Polulu Maestro Servo Controller """
@@ -114,14 +118,51 @@ class MaestroDevice:
                           + str(self.baud) + ' baud.')
             self.dev.flushInput()       # discard any old data
             return True
+
+    def __read(self):
+        """ Reads one byte of data from the serial device 
+
+        :returns: read byte
+        """
+        if not self.ok():
+            rospy.logdebug('Tried to read from a closed device')
+            return ' '
+        try:
+            readbyte = self.dev.read()
+            return readbyte
+        except serial.SerialException as e:
+            rospy.logerr('Serial port ' + self.port +
+                         ' read failed: ' + str(e))
+            self.close()
+        except (select.error, OSError) as e:
+            errno_, perror = e.args
+            rospy.logwarn('Serial port read error: ' + str(perror))
+            self.close()
+        return ' '
+
+    def __write(self, data):
+        """ Writes specified data to file """
+        if not self.ok():
+            rospy.logdebug('Tried to write to a closed device')
+            return 0
+        try:
+            self.dev.write(data)
+        except serial.SerialException as e:
+            rospy.logerr('Serial port ' + self.port +
+                         ' write failed: ' + str(e))
+            self.close()
+        except (select.error, OSError) as e:
+            errno_, perror = e.args
+            rospy.logwarn('Serial port write error: ' + str(perror))
+            self.close()
   
     def __send_header(self, cmd, device):
         """ Sends the header of the command, depending ont the protocol """
         if  (device & 0x80) == 0 :              #Pololu protocol
-            self.dev.write(chr(0xAA))           #start byte
-            self.dev.write(chr(device & 0x7f))  #device
+            self.__write(chr(0xAA))           #start byte
+            self.__write(chr(device & 0x7f))  #device
             cmd &= 0x7f                         #in this mode, the MSB of the 
-        self.dev.write(chr(cmd))                #command is cleared
+        self.__write(chr(cmd))                #command is cleared
 
     def __send_command(self, cmd, device):
         """ Sends a command without data """
@@ -130,41 +171,41 @@ class MaestroDevice:
     def __send_command_b(self, cmd, byte_arg, device):
         """ Sends a command with 1 byte of data """
         self.__send_header(cmd, device)
-        self.dev.write(chr(byte_arg & 0x7f))
+        self.__write(chr(byte_arg & 0x7f))
 
     def __send_command_bi(self, cmd, byte_arg, int_arg, device):
         """ sends a command with 3 byte of data """
         self.__send_header(cmd, device) 
-        self.dev.write(chr(byte_arg & 0x7f))
-        self.dev.write(chr(int_arg & 0x7f))        #data lower 7 bits
-        self.dev.write(chr((int_arg >> 7) & 0x7f)) #data bits 7-13
+        self.__write(chr(byte_arg & 0x7f))
+        self.__write(chr(int_arg & 0x7f))        #data lower 7 bits
+        self.__write(chr((int_arg >> 7) & 0x7f)) #data bits 7-13
 
     def __send_command_ii(self, cmd, int_arg1, int_arg2, device):
         """ sends a command with 4 bytes of data """
         self.__send_header(cmd, device) 
-        self.dev.write(chr(int_arg1 & 0x7f))        #data lower 7 bits
-        self.dev.write(chr((int_arg1 >> 7) & 0x7f)) #data bits 7-13
-        self.dev.write(chr(int_arg2 & 0x7f))        #data lower 7 bits
-        self.dev.write(chr((int_arg2 >> 7) & 0x7f)) #data bits 7-13
+        self.__write(chr(int_arg1 & 0x7f))        #data lower 7 bits
+        self.__write(chr((int_arg1 >> 7) & 0x7f)) #data bits 7-13
+        self.__write(chr(int_arg2 & 0x7f))        #data lower 7 bits
+        self.__write(chr((int_arg2 >> 7) & 0x7f)) #data bits 7-13
 
     def __send_command_var_i(self, cmd, byte_arg, int_values, device):
         """ Sends a command with variable bytes of data """
         self.__send_header(cmd, device)
-        self.dev.write(chr(len(int_values)))     #number of int values
-        self.dev.write(chr(byte_arg & 0x7f))     
+        self.__write(chr(len(int_values)))     #number of int values
+        self.__write(chr(byte_arg & 0x7f))     
         for i in int_values:
-            self.dev.write(chr(i & 0x7f))        #data lower 7 bits
-            self.dev.write(chr((i >> 7) & 0x7f)) #data bits 7-13
+            self.__write(chr(i & 0x7f))        #data lower 7 bits
+            self.__write(chr((i >> 7) & 0x7f)) #data bits 7-13
 
     def __receive_int(self):
         """ Receives 2 bytes of data """
-        low  = self.dev.read()
-        high = self.dev.read()
+        low  = self.__read()
+        high = self.__read()
         return int(ord(low) | (ord(high) << 8))
 
     def __receive_byte(self):
         """ Receives 1 byte of data """
-        return ord(self.dev.read())
+        return ord(self.__read())
 
     def set_target(self, servo, angle, device=0x80):
         """ Set the target for a servo
@@ -186,7 +227,7 @@ class MaestroDevice:
                       neutral-range and neutral+range. 127 is neutral.
         """
         self.lock.acquire()
-        self.dev.write("\xFF"+chr(servo)+chr(angle))
+        self.__write("\xFF"+chr(servo)+chr(angle))
         self.lock.release()
 
     def set_multiple_targets(self, first_servo, angles, device=0x80):
@@ -287,19 +328,29 @@ class MaestroDevice:
 
 class Servo(object):
 
-    def __init__(self, maestro, servo_number, name=None, offset_param=None):
-        if name is None:
-            name = 'servo' + str(servo_number)
-        if offset_param is None:
-            offset_param = '~servo_offset'
-        cmd_name = name + '_cmd'
-        status_name = name + '_status'
+    def __init__(self, maestro, servo_number, name=None, offset=None,
+                min_angle=None, max_angle=None, speed=None):
+
         self.maestro = maestro
         self.servo_number = servo_number
+
+        if name is None:
+            name = 'servo' + str(servo_number)
+        self.name = name
+        cmd_name = name + '_cmd'
+        status_name = name + '_status'
         self.cmd_sub = rospy.Subscriber(cmd_name, Float32,
                                         self.cmd_callback)
         self.status_pub = rospy.Publisher(status_name, Float32) 
-        self.angle_offset = rospy.get_param(offset_param, 0)
+
+        self.angle_offset = offset if offset is not None else 0
+        self.min_angle = min_angle if min_angle is not None else -math.pi/2
+        self.max_angle = max_angle if max_angle is not None else math.pi/2
+        self.speed = speed if speed is not None else 4.0 #rad/s
+
+        # Convert speed to ticks per 10 ms
+        self.speed /= 100.0
+        self.speed = int(self.speed * (max_tick - min_tick) / math.pi)
 
     def publish(self):
         ticks = self.maestro.get_position(self.servo_number)
@@ -307,16 +358,20 @@ class Servo(object):
         self.status_pub.publish(angle)
 
     def cmd_callback(self, msg):
-        rospy.loginfo('Setting servo ' + str(self.servo_number) + ' to ' + str(msg.data) + ' radians.')
+        # rospy.loginfo('Setting servo ' + self.name + '(servo ' +
+        #               str(self.servo_number) + ') to ' + str(msg.data) + 
+        #               ' radians.')
         angle = msg.data + self.angle_offset
-        if angle < -math.pi/2 or angle > math.pi/2:
+        if angle < self.min_angle or angle > self.max_angle:
             rospy.logerr('Angle outside servo range. Moving servo to max value')
-            angle = max(angle,-math.pi/2)
-            angle = min(angle, math.pi/2)
+            angle = max(angle, self.min_angle)
+            angle = min(angle, self.max_angle)
         ticks = radians_to_ticks(angle)
-        rospy.loginfo('  Setting servo ' + str(self.servo_number) + ' to ' + str(ticks) + ' ticks.')
+        # rospy.loginfo('  Setting servo ' + self.name + '(servo ' +
+        #               str(self.servo_number) + ') to ' + str(ticks) + 
+        #               ' ticks.')
         # Slow down servo for now
-        self.maestro.set_speed(self.servo_number, 100)
+        self.maestro.set_speed(self.servo_number, self.speed)
         self.maestro.set_target(self.servo_number, ticks)
 
     def shutdown(self):
@@ -325,18 +380,46 @@ class Servo(object):
 
 class PololuDriver(object):
 
-    def __init__(self, port='/dev/polulu_servo0', baud=9600):
+    def __init__(self, port='/dev/polulu_servo_serial', baud=9600):
+
         rospy.init_node('pololu_driver')
+        rospy.on_shutdown(self.shutdown)
+
         port = rospy.get_param('~port', port)
         baud = rospy.get_param('~baud', baud)
         self.maestro = MaestroDevice(port, baud)
-        rospy.on_shutdown(self.shutdown)
 
-        #TODO: Define this configuration information using ROS parameters
-        self.servos = [
-            Servo(self.maestro, 0, 'camera_pan', '~pan_offset'),
-            Servo(self.maestro, 1, 'camera_tilt', '~tilt_offset')
-        ]
+        # Get servo configuration
+        min_tick = rospy.get_param('~min_tick', HS422_MIN_TICK)
+        max_tick = rospy.get_param('~max_tick', HS422_MAX_TICK)
+        global_min_angle = rospy.get_param('~min_angle', None)
+        global_max_angle = rospy.get_param('~min_angle', None)
+        global_speed = rospy.get_param('~speed', None)
+
+        num_servos = rospy.get_param('~num_servos', 1)
+        servos = rospy.get_param('~servos', None)
+
+        self.servos = []
+        if servos is not None: 
+            for servo in servos:
+                if 'number' not in servo:
+                    rospy.logfatal('A servo in ~servos does not specify number')
+                    sys.exit(-1)
+                name = servo['name'] if 'name' in servo else None
+                offset = servo['offset'] if 'offset' in servo else None
+                min_angle = servo['min_angle'] if 'min_angle' in servo \
+                                               else global_min_angle
+                max_angle = servo['max_angle'] if 'max_angle' in servo \
+                                               else global_max_angle
+                speed = servo['speed'] if 'speed' in servo else global_speed
+                self.servos.insert(Servo(self.maestro, servo['number'], name,
+                                         offset, min_angle, max_angle, speed))
+        else:
+            self.servos = [Servo(self.maestro, i, 
+                                 min_angle=global_min_angle,
+                                 max_angle=global_max_angle,
+                                 speed=global_speed) 
+                           for i in range(num_servos)]
 
         self.spin()
 
