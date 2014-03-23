@@ -1,0 +1,17 @@
+<package>
+  <name>bwi_web</name>
+  <version>0.0.1</version>
+  <description>bwi_web</description>
+
+  <license>BSD</license>
+
+  <author>Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rosapi</run_depend>
+  <run_depend>rosbridge_server</run_depend>
+  <run_depend>mjpeg_server</run_depend>
+
+</package>
