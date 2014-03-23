@@ -43,6 +43,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="base_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- depth perception lidar -->
     <joint name="lidar_joint" type="fixed">
@@ -79,9 +82,12 @@
         <geometry>
           <cylinder length="0.9" radius="0.09" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="left_leg_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <xacro:default_surface name="left_leg" />
 
@@ -104,9 +110,12 @@
         <geometry>
           <cylinder length="0.9" radius="0.09" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="right_leg_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <xacro:default_surface name="right_leg" />
 
@@ -128,9 +137,12 @@
         <geometry>
           <sphere radius="0.15" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="head_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- camera -->
     <joint name="camera_joint" type="fixed">
@@ -188,9 +200,12 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="left_arm_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- left fore arm -->
     <joint name="left_forearm_joint" type="fixed">
@@ -211,9 +226,12 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="left_forearm_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- right arm -->
     <joint name="right_arm_joint" type="fixed">
@@ -234,9 +252,12 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="right_arm_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- right fore arm -->
     <joint name="right_forearm_joint" type="fixed">
@@ -257,9 +278,12 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="dark_grey" />
+        <material name="black" />
       </visual>
     </link>
+    <gazebo reference="right_forearm_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
 
     <gazebo>
       <xacro:gazebo_person_drive />
