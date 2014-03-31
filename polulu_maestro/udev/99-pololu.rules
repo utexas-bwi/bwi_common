@@ -1,6 +1,0 @@
-# Required for Maestro Control Conter
-SUBSYSTEM=="usb", ACTION=="add", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="008[0-f]", MODE="666", GROUP="dialout"
-
-# https://bbs.archlinux.org/viewtopic.php?id=143864
-KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ACTION=="add", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="008[0-f]", MODE="666", PROGRAM="/bin/bash -c '/bin/echo %p | /bin/grep -c :1.0", RESULT=="1", SYMLINK+="polulu_servo_serial", GROUP="dialout"
-KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ACTION=="add", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="008[0-f]", MODE="666", PROGRAM="/bin/bash -c '/bin/echo %p | /bin/grep -c :1.2", RESULT=="1", SYMLINK+="polulu_servo_ttl", GROUP="dialout"
