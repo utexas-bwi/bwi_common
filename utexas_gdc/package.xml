@@ -17,8 +17,9 @@
   <run_depend>gazebo_ros</run_depend>
   <run_depend>map_server</run_depend>
   <run_depend>bwi_gazebo_entities</run_depend>
-  <run_depend>segbot_navigation</run_depend>
-  <run_depend>segbot_gazebo</run_depend>
+
+  <!-- testing dependencies -->
+  <build_depend>roslaunch</build_depend>
 
   <export>
     <gazebo_ros gazebo_media_path="${prefix}"/>
