@@ -2,8 +2,8 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2014-04-16)
+------------------
 
 * Initial release to Hydro.
 * Changed person color to black for easy visualization.

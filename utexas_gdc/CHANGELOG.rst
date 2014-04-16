@@ -2,8 +2,8 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2014-04-16)
+------------------
 
 * Initial release to Hydro.
 * Move high-level launch scripts to bwi repo.

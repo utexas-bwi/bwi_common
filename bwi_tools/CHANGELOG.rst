@@ -2,8 +2,8 @@
 Changelog for package bwi_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2014-04-16)
+------------------
 
 * Initial release to Hydro.
 * Now passes catkin_lint checks.
