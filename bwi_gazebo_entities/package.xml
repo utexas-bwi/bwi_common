@@ -13,10 +13,14 @@
 
   <author>Piyush Khandelwal</author>
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
  
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>xacro</run_depend>
   <run_depend>gazebo_ros</run_depend>
+  <run_depend>xacro</run_depend>
+
+  <!-- testing dependencies -->
+  <build_depend>roslaunch</build_depend>
 
 </package>
