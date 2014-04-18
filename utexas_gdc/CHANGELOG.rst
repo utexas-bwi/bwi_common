@@ -2,6 +2,10 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.1 (2014-04-18)
+------------------
+* Updated map PGM file to be obstacle free.
+
 0.2.0 (2014-04-16)
 ------------------
 

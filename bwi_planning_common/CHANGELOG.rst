@@ -2,11 +2,12 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.1 (2014-04-18)
+------------------
 
 * Initial release to Hydro.
-* Add roslaunch file checks.
+* Add roslaunch file checks.  This required providing default values
+  for the ``map_file`` arguments.
 * Install launch files.
 * Move ``bwi_planning_common`` to ``bwi_common`` from the
   ``bwi_planning`` repository (`bwi_planning#1`_).

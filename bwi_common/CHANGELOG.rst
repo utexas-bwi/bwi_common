@@ -2,8 +2,8 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.1 (2014-04-18)
+------------------
 
 * Move ``bwi_planning_common`` here from the ``bwi_planning``
   repository (`bwi_planning#1`_).
