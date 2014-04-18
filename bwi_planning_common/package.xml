@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_planning_common</name>
+  <version>0.0.0</version>
+  <description>
+    Common data structures, messages and service defintions used for
+    deterministic planning work in the BWI project at the University of Texas
+    at Austin
+  </description>
+
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://wiki.ros.org/bwi_planning_common</url>
+  <url type="repository">https://github.com/utexas-bwi/segbot.git</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/segbot/issues</url>
+
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>bwi_mapper</build_depend>
+  <build_depend>bwi_tools</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>std_msgs</build_depend>
+  
+  <run_depend>bwi_mapper</run_depend>
+  <run_depend>bwi_tools</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>opencv2</run_depend>
+  <run_depend>std_msgs</run_depend>
+
+</package>

@@ -13,8 +13,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>bwi_mapper</run_depend>
   <run_depend>bwi_gazebo_entities</run_depend>
+  <run_depend>bwi_mapper</run_depend>
+  <run_depend>bwi_planning_common</run_depend>
   <run_depend>bwi_tools</run_depend>
   <run_depend>utexas_gdc</run_depend>
 

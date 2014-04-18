@@ -1,0 +1,5 @@
+PlannerAtom command
+---
+bool success
+string status
+PlannerAtom[] observations

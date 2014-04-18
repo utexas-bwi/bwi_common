@@ -2,6 +2,12 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+* Move ``bwi_planning_common`` here from the ``bwi_planning``
+  repository (`bwi_planning#1`_).
+
 0.2.0 (2014-04-16)
 ------------------
 
@@ -10,3 +16,5 @@ Changelog for package bwi_common
 * Added missing dependency in metapackage.
 * Moved common research components from bwi_experimental to bwi_common
   repository in preparation of release.
+
+.. _`bwi_planning#1`: https://github.com/utexas-bwi/bwi_planning/issues/1
