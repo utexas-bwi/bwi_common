@@ -6,6 +6,8 @@ Forthcoming
 -----------
 
 * Initial release to Hydro.
+* Add roslaunch file checks.
+* Install launch files.
 * Move ``bwi_planning_common`` to ``bwi_common`` from the
   ``bwi_planning`` repository (`bwi_planning#1`_).
 * Updating bwi_planning code for the ICAPS 2014 paper.

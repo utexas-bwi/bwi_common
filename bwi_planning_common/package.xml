@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_planning_common</name>
-  <version>0.0.0</version>
+  <version>0.2.0</version>
   <description>
     Common data structures, messages and service defintions used for
     deterministic planning work in the BWI project at the University of Texas
@@ -32,5 +32,9 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>opencv2</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>utexas_gdc</run_depend>
+
+  <!-- testing dependencies -->
+  <build_depend>roslaunch</build_depend>
 
 </package>
