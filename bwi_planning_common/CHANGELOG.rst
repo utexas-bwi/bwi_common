@@ -2,8 +2,8 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.2 (2014-04-19)
+------------------
 * Install header correctly
   (`#1 <https://github.com/utexas-bwi/bwi_common/issues/1>`_)
 
