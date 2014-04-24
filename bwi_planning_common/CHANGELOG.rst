@@ -2,6 +2,9 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.3 (2014-04-24)
+------------------
+
 0.2.2 (2014-04-19)
 ------------------
 * Install header correctly

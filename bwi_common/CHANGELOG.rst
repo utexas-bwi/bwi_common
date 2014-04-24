@@ -2,6 +2,12 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.3 (2014-04-24)
+------------------
+* Update package.xml to also pull in bwi_web.
+  closes `#2 <https://github.com/utexas-bwi/bwi_common/issues/2>`_
+* Contributors: Piyush Khandelwal
+
 0.2.2 (2014-04-19)
 ------------------
 
