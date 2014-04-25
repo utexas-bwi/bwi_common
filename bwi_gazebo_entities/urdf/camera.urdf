@@ -20,8 +20,7 @@
   <gazebo reference="gazebo_camera_link">
     <turnGravityOff>true</turnGravityOff>
     <material>Gazebo/Blue</material>
-    <sensor name="canera_sensor" type="camera">
-      <always_on>true</always_on>
+    <sensor name="camera_sensor" type="camera">
       <update_rate>20.0</update_rate>
       <camera>
         <horizontal_fov>0.75</horizontal_fov>
@@ -34,8 +33,13 @@
           <near>0.1</near>
           <far>100</far>
         </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.0</stddev>
+        </noise>
       </camera>
-      <plugin name="${name}_controller" filename="libgazebo_ros_camera.so">
+      <plugin name="gazebo_camera_controller" filename="libgazebo_ros_camera.so">
         <cameraName>gazebo_camera</cameraName>
         <imageTopicName>gazebo/image_raw</imageTopicName>
         <cameraInfoTopicName>gazebo/camera_info</cameraInfoTopicName>
