@@ -44,6 +44,18 @@
 #include <bwi_mapper/map_loader.h>
 #include <bwi_mapper/map_utils.h>
 
+#ifdef HAVE_NEW_YAMLCPP
+namespace YAML {
+  // The >> operator disappeared in yaml-cpp 0.5, so this function is
+  // added to provide support for code written under the yaml-cpp 0.3 API.
+  template<typename T>
+  void operator >> (const YAML::Node& node, T& i)
+  {
+    i = node.as<T>();
+  }
+}
+#endif
+
 namespace bwi_mapper {
 
   /**
@@ -66,9 +78,13 @@ namespace bwi_mapper {
     }
 
     // Initilize parameters
-    YAML::Parser parser(fin);   
     YAML::Node doc;
+#ifdef HAVE_NEW_YAMLCPP
+    doc = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);   
     parser.GetNextDocument(doc);
+#endif
     try { 
       doc["resolution"] >> res; 
     } catch (YAML::InvalidScalar) { 

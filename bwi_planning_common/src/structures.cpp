@@ -6,6 +6,18 @@
 #include <bwi_planning_common/structures.h>
 #include <tf/transform_datatypes.h> 
 
+#ifdef HAVE_NEW_YAMLCPP
+namespace YAML {
+  // The >> operator disappeared in yaml-cpp 0.5, so this function is
+  // added to provide support for code written under the yaml-cpp 0.3 API.
+  template<typename T>
+  void operator >> (const YAML::Node& node, T& i)
+  {
+    i = node.as<T>();
+  }
+}
+#endif
+
 namespace bwi_planning_common {
   
   void readLocationFile(const std::string& filename, 
@@ -15,10 +27,14 @@ namespace bwi_planning_common {
       throw std::runtime_error("Location file does not exist: " + filename);
     }
     std::ifstream fin(filename.c_str());
-    YAML::Parser parser(fin);
 
     YAML::Node doc;
+#ifdef HAVE_NEW_YAMLCPP
+    doc = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);
     parser.GetNextDocument(doc);
+#endif
 
     locations.clear();
     const YAML::Node &loc_node = doc["locations"];
@@ -42,10 +58,14 @@ namespace bwi_planning_common {
     }
 
     std::ifstream fin(filename.c_str());
-    YAML::Parser parser(fin);
 
     YAML::Node doc;
+#ifdef HAVE_NEW_YAMLCPP
+    doc = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);
     parser.GetNextDocument(doc);
+#endif
 
     doors.clear();
     for (size_t i = 0; i < doc.size(); i++) {
@@ -77,10 +97,14 @@ namespace bwi_planning_common {
     }
 
     std::ifstream fin(filename.c_str());
-    YAML::Parser parser(fin);
 
     YAML::Node doc;
+#ifdef HAVE_NEW_YAMLCPP
+    doc = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);
     parser.GetNextDocument(doc);
+#endif
 
     for (size_t i = 0; i < doc.size(); i++) {
       std::string name;

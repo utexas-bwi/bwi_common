@@ -44,6 +44,18 @@
 #include <bwi_mapper/map_utils.h>
 #include <bwi_mapper/point_utils.h>
 
+#ifdef HAVE_NEW_YAMLCPP
+namespace YAML {
+  // The >> operator disappeared in yaml-cpp 0.5, so this function is
+  // added to provide support for code written under the yaml-cpp 0.3 API.
+  template<typename T>
+  void operator >> (const YAML::Node& node, T& i)
+  {
+    i = node.as<T>();
+  }
+}
+#endif
+
 namespace bwi_mapper {
 
   /**
@@ -213,9 +225,13 @@ namespace bwi_mapper {
     std::vector<std::vector<size_t> > edges;
 
     std::ifstream fin(filename.c_str());
-    YAML::Parser parser(fin);
     YAML::Node doc;
+#ifdef HAVE_NEW_YAMLCPP
+    doc = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);
     parser.GetNextDocument(doc);
+#endif
     for (size_t i = 0; i < doc.size(); ++i) {
       float x, y;
       doc[i]["x"] >> x;
