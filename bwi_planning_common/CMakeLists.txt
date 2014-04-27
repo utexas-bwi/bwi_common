@@ -7,6 +7,10 @@ find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
+if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
+add_definitions(-DHAVE_NEW_YAMLCPP)
+endif(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
+
 add_message_files(
   FILES
   PlannerAtom.msg
