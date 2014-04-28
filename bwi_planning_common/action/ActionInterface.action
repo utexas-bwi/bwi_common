@@ -1,0 +1,9 @@
+# Define the goal
+PlannerAtom command
+---
+# Define the result
+bool success
+PlannerAtom[] observations
+---
+# Define a feedback message
+string status
