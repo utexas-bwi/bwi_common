@@ -9,7 +9,7 @@ pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
 add_definitions(-DHAVE_NEW_YAMLCPP)
-endif(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
+endif()
 
 add_message_files(
   FILES
@@ -58,21 +58,18 @@ target_link_libraries(${PROJECT_NAME}
   ${YAML_CPP_LIBRARIES}
 )
 
-add_executable(mark_locations
-  src/mark_locations.cpp
-)
-target_link_libraries(mark_locations
-  ${PROJECT_NAME}
-)
+add_executable(${PROJECT_NAME}/mark_locations src/mark_locations.cpp)
+set_target_properties(${PROJECT_NAME}/mark_locations PROPERTIES OUTPUT_NAME "mark_locations")
+target_link_libraries(${PROJECT_NAME}/mark_locations ${PROJECT_NAME})
 
-add_executable(mark_doors
-  src/mark_doors.cpp
-)
-target_link_libraries(mark_doors
-  ${PROJECT_NAME}
-)
+add_executable(${PROJECT_NAME}/mark_doors src/mark_doors.cpp)
+set_target_properties(${PROJECT_NAME}/mark_doors PROPERTIES OUTPUT_NAME "mark_doors")
+target_link_libraries(${PROJECT_NAME}/mark_doors ${PROJECT_NAME})
   
-install(TARGETS ${PROJECT_NAME} mark_doors mark_locations
+install(TARGETS 
+  ${PROJECT_NAME} 
+  ${PROJECT_NAME}/mark_doors 
+  ${PROJECT_NAME}/mark_locations
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -87,7 +84,7 @@ install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
 # unit tests are enabled selectively
-if (CATKIN_ENABLE_TESTING)
+if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
   roslaunch_add_file_check(launch)
-endif (CATKIN_ENABLE_TESTING)
+endif()
