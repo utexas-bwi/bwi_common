@@ -2,6 +2,15 @@
 Changelog for package bwi_mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.4 (2014-04-29)
+------------------
+* cleaned up most catkin_lint warnings. closes `#6
+  <https://github.com/utexas-bwi/bwi_common/issues/6>`_
+* Added support for YAML-CPP 0.5+.  The new yaml-cpp API removes the
+  "node >> outputvar;" operator, and it has a new way of loading
+  documents.
+* Contributors: Piyush Khandelwal, Scott K Logan
+
 0.2.3 (2014-04-24)
 ------------------
 

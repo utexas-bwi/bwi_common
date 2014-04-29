@@ -2,6 +2,9 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.4 (2014-04-29)
+------------------
+
 0.2.3 (2014-04-24)
 ------------------
 * Update package.xml to also pull in bwi_web.

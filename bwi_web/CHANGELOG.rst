@@ -2,6 +2,12 @@
 Changelog for package bwi_web
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.4 (2014-04-29)
+------------------
+* cleaned up most catkin_lint warnings. closes `#6
+  <https://github.com/utexas-bwi/bwi_common/issues/6>`_
+* Contributors: Piyush Khandelwal
+
 0.2.3 (2014-04-24)
 ------------------
 

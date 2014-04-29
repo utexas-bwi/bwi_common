@@ -2,6 +2,15 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.4 (2014-04-29)
+------------------
+* cleaned up most catkin_lint warnings. closes `#6
+  <https://github.com/utexas-bwi/bwi_common/issues/6>`_
+* it is now necessary to specify noise for a sensor, otherwise the
+  camera plugin does not work. closes `#4
+  <https://github.com/utexas-bwi/bwi_common/issues/4>`_
+* Contributors: Piyush Khandelwal
+
 0.2.3 (2014-04-24)
 ------------------
 
