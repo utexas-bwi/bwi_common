@@ -21,8 +21,15 @@ add_service_files(
   PlannerInterface.srv
 )
 
+add_action_files(
+  FILES
+  ActionInterface.action
+)
+
 generate_messages(
-  DEPENDENCIES std_msgs
+  DEPENDENCIES 
+    std_msgs
+    actionlib_msgs
 )
 
 catkin_package(
@@ -34,6 +41,7 @@ catkin_package(
     bwi_tools
     message_runtime
     std_msgs
+    actionlib_msgs
   INCLUDE_DIRS
     include
   LIBRARIES
