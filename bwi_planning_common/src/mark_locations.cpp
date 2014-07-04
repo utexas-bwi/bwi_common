@@ -90,7 +90,36 @@ int main(int argc, char** argv) {
 
   std::vector<int> component_map(info.height * info.width, -1);
   std::vector<std::string> locations;
-  int current_location_id = 0;
+  
+	std::ifstream inputFile(location_file.c_str());
+	if (inputFile) { //the file exists
+		std::vector<int> readMap;
+		std::vector<std::string> readLocations;
+		bwi_planning_common::readLocationFile(location_file, readLocations, readMap);
+		
+		if (readMap.size() != component_map.size())
+			std::cerr << "The location file seems to belong to a different map. Skipping." << std::endl;
+		else {
+			locations = readLocations;
+			component_map = readMap;
+			readLocations.clear(); //free some memory
+			readMap.clear();
+
+			mapper.drawMap(image,0,0);
+			for (int pixel = 0, size = component_map.size(); pixel < size ; ++ pixel) {
+				if(component_map[pixel] >=0) {
+					int x = pixel % image.cols;
+					int y = pixel / image.cols;
+					image.at<cv::Vec3b>(y,x) = cv::Vec3b(64, 0, 0);
+				}
+			}
+		}
+
+
+	}
+	inputFile.close();
+
+	int current_location_id = locations.size();
 
   bool region_under_consideration = false;
   bool region_awaiting_approval = false;
