@@ -225,9 +225,21 @@ int main(int argc, char** argv) {
           bwi_mapper::Point2f grid_pt = toGrid(door.approach_points[j], info);
           size_t map_idx = 
             MAP_IDX(image.cols, (int) grid_pt.x, (int) grid_pt.y); 
-          size_t loc_idx = location_map[map_idx];
-          std::string from_loc = locations[loc_idx];
-          door_ss << "    - from: " << from_loc << std::endl;
+
+		  //Matteo: can be -1 in case of unassigned location
+          int loc_idx = location_map[map_idx];
+		  
+		  door_ss << "    - from: ";
+		  
+		  if(loc_idx >= 0 && loc_idx < locations.size()) {
+			std::string from_loc = locations[loc_idx];
+			door_ss << from_loc << std::endl;
+		  }
+		  else {
+			std::cerr << "Approach point of door " << door.name << " does not belong to any location. Leaving \"from\" empty." << std::endl;
+			std::cerr << "Please fix manually." << std::endl;
+			door_ss <<  std::endl;
+		  }
           door_ss << "      point: " << "[" << door.approach_points[j].x << 
             ", " << door.approach_points[j].y << ", " << door.approach_yaw[j] <<
             "]" << std::endl;
