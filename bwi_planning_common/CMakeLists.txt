@@ -62,14 +62,20 @@ add_executable(${PROJECT_NAME}/mark_locations src/mark_locations.cpp)
 set_target_properties(${PROJECT_NAME}/mark_locations PROPERTIES OUTPUT_NAME "mark_locations")
 target_link_libraries(${PROJECT_NAME}/mark_locations ${PROJECT_NAME})
 
+add_executable(${PROJECT_NAME}/merge_locations src/merge_locations.cpp)
+set_target_properties(${PROJECT_NAME}/merge_locations PROPERTIES OUTPUT_NAME "merge_locations")
+target_link_libraries(${PROJECT_NAME}/merge_locations ${PROJECT_NAME})
+
 add_executable(${PROJECT_NAME}/mark_doors src/mark_doors.cpp)
 set_target_properties(${PROJECT_NAME}/mark_doors PROPERTIES OUTPUT_NAME "mark_doors")
 target_link_libraries(${PROJECT_NAME}/mark_doors ${PROJECT_NAME})
+
   
 install(TARGETS 
   ${PROJECT_NAME} 
   ${PROJECT_NAME}/mark_doors 
   ${PROJECT_NAME}/mark_locations
+  ${PROJECT_NAME}/merge_locations
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
