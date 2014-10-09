@@ -27,7 +27,9 @@ namespace bwi_tools {
     if (!ofs.is_open()) {
       return false;
     }
-boost::algorithm::join(list, ",
+    ofs << boost::algorithm::join(all_keys, ",");
+
+    // Go through each record and each key
 
 
   }
