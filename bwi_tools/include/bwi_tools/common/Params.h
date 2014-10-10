@@ -2,6 +2,9 @@
 #define PARAMS_2128H8YJ
 
 #include <boost/lexical_cast.hpp>
+#include <map>
+#include <string>
+
 #include <bwi_tools/json/json.h>
 
 #define SET_FROM_JSON(type,jsonCmd) \
@@ -43,8 +46,8 @@ SET_FROM_JSON(std::string,asString)
       (void)opts; /* to remove any compiler warnings if params is empty */ \
       params(PARAM_SET) \
     } \
-    std::map<std::string, std::string> asMap( \
-      std::map<std::string, std::string> stringMap;
+    std::map<std::string, std::string> asMap() { \
+      std::map<std::string, std::string> stringMap; \
       params(PARAM_MAP) \
       return stringMap; \
     } \
