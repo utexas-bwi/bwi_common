@@ -29,7 +29,7 @@ namespace bwi_tools {
     if (!ofs.is_open()) {
       return false;
     }
-    ofs << boost::algorithm::join(all_keys, ",");
+    ofs << boost::algorithm::join(all_keys, ",") << std::endl;
 
     // Go through each record, check if a key is there, otherwise insert a 0.
     BOOST_FOREACH(const StringMap& record, records) {
@@ -42,7 +42,7 @@ namespace bwi_tools {
           vals.push_back(value_iter->second);
         }
       }
-      ofs << boost::algorithm::join(vals, ",");
+      ofs << boost::algorithm::join(vals, ",") << std::endl;
     }
 
     ofs.close();
