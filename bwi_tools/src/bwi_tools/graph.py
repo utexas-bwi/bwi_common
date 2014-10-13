@@ -9,6 +9,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt; plt.rcdefaults()
 from mpl_toolkits.mplot3d import Axes3D
+import re
 import scipy.stats as stats
 import pandas as pd
 
@@ -58,8 +59,6 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
     second_level_grouping_available = \
             isinstance(samples[0][0], collections.Sequence)
     top_level_methods = len(samples)
-
-    print second_level_grouping_available
 
     if second_level_grouping_available: 
         second_level_methods = len(samples[0])
@@ -116,7 +115,8 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
     return fig, ax, rects, means
 
 def draw_line_graph(samples, top_level_names, second_level_names=None, 
-                  title=None, xlabel=None, ylabel=None, yticklabels=None):
+                    title=None, xlabel=None, ylabel=None, yticklabels=None):
+
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
     # samples (top_level_grouping_only = true)
@@ -271,8 +271,41 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
 
     return fig, ax, rects, means
 
+def is_greek_alphabet(str):
+    return str.lower() in ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa',
+                           'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi',
+                           'chi', 'psi', 'omega']
+
+def format_word(str):
+    if is_greek_alphabet(str):
+        return '$\\' + str + '$'
+    else:
+        return str.title()
+
+#TODO fix the name mapping file stuff
+def get_formatted_name(name, name_mapping_file=None):
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', name) # Convert camelCase to space separated words
+    name = name.replace('_', ' ') # Convert snake_case to space separate words
+    name = ''.join([format_word(x) for x in name.split(' ')]) # join words while converting greek letters.
+    return name
+
+def get_formatted_combination_name(name_dict):
+    formatted_name = ""
+    for key, value in name_dict.iteritems():
+        if key == "name":
+            continue
+        formatted_name += get_formatted_name(key) + "=" + str(value) + ","
+    formatted_name = formatted_name[:-1]
+
+    if "name" in name_dict:
+        if formatted_name == "":
+            formatted_name = str(name_dict["name"])
+        else:
+            formatted_name = str(name_dict["name"]) + "[" + formatted_name + "]"
+    return formatted_name
+
 def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_filter=None, 
-                         automatically_clean_names=True, name_mapping_file=None):
+                         attempt_auto_mapping=True, name_mapping_file=None):
 
     data = pd.read_csv(filename)
 
@@ -293,74 +326,81 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
     if secondary_filter is not None:
         secondary_filters = secondary_filter.split(",")
 
-    # TODO do something when primary filter is None
-    primary_unique_values = []
-    primary_filters_copy = copy.deepcopy(primary_filters)
-    for i, pf in enumerate(primary_filters_copy):
-        if len(data[pf].unique().tolist()) == 1: # This column is not really being used. 
-            primary_filters.remove(pf)
-        else:
-            primary_unique_values.append(data[pf].unique().tolist())
-    
-    all_possible_primary_combinations = list(itertools.product(*primary_unique_values))
-    
-    # TODO fix and format these names
     title = None
-    xlabel = 'Method'
-    ylabel = output
-    zlabel = None
+    xlabel = None
+    ylabel = None
+    zlabel = get_formatted_name(output)
     samples = []
-    top_level_names = []
+    top_level_names = None
     second_level_names = None
     is_first_primary_combination = True
 
-    for primary_combination in all_possible_primary_combinations:
-        combination_data = data
-        combination_name = ""
-        for i, filter_value in enumerate(primary_combination):
-            # TODO cleanup combination name here. Do something special with "name"
-            combination_name += primary_filters[i] + '=' + str(filter_value)
-            if i != (len(primary_combination) - 1):
-                combination_name += ","
-            combination_data = combination_data[combination_data[primary_filters[i]] == filter_value]
-
-        # Now that we have combination data, apply secondary filtering if necessary
-        if secondary_filters is None:
-            combination_samples = combination_data[output].tolist()
+    if primary_filters is None:
+        samples.append(data[output].tolist())
+    else:
+        if len(primary_filters) == 1 and filter != "name":
+            xlabel = get_formatted_name(filter)
         else:
-            secondary_unique_values = []
-            secondary_filters_copy = copy.deepcopy(secondary_filters)
-            for i, pf in enumerate(secondary_filters_copy):
-                secondary_unique_values.append(combination_data[pf].unique().tolist())
-            
-            all_possible_secondary_combinations = list(itertools.product(*secondary_unique_values))
+            xlabel = 'Methods'
+        primary_unique_values = []
+        primary_filters_copy = copy.deepcopy(primary_filters)
+        for i, pf in enumerate(primary_filters_copy):
+            if len(data[pf].unique().tolist()) == 1: # This column is not really being used. 
+                primary_filters.remove(pf)
+            else:
+                primary_unique_values.append(data[pf].unique().tolist())
+        
+        all_possible_primary_combinations = list(itertools.product(*primary_unique_values))
+        
+        top_level_names = []
+        for primary_combination in all_possible_primary_combinations:
+            combination_data = data
+            combination_name = {}
+            for i, filter_value in enumerate(primary_combination):
+                combination_name[primary_filters[i]] = filter_value
+                combination_data = combination_data[combination_data[primary_filters[i]] == filter_value]
+            combination_name = get_formatted_combination_name(combination_name)
 
-            combination_samples = []
-            if is_first_primary_combination:
-                second_level_names = []
-            for secondary_combination in all_possible_secondary_combinations:
-                secondary_combination_data = data
-                secondary_combination_name = ""
-                for i, filter_value in enumerate(secondary_combination):
-                    # TODO cleanup combination name here. Do something special with "name"
-                    secondary_combination_name += secondary_filters[i] + '=' + str(filter_value)
-                    if i != (len(secondary_combination) - 1):
-                        secondary_combination_name += ","
-                    secondary_combination_data = secondary_combination_data[secondary_combination_data[secondary_filters[i]] == filter_value]
-                secondary_combination_samples = combination_data[output].tolist()
+            # Now that we have combination data, apply secondary filtering if necessary
+            if secondary_filters is None:
+                combination_samples = combination_data[output].tolist()
+            else:
+                secondary_unique_values = []
+                secondary_filters_copy = copy.deepcopy(secondary_filters)
+                for i, pf in enumerate(secondary_filters_copy):
+                    secondary_unique_values.append(combination_data[pf].unique().tolist())
+                
+                all_possible_secondary_combinations = list(itertools.product(*secondary_unique_values))
 
+                combination_samples = []
                 if is_first_primary_combination:
-                    second_level_names.append(secondary_combination_name)
-                combination_samples.append(secondary_combination_samples)
+                    second_level_names = []
+                    if len(secondary_filters) == 1 and filter != "name":
+                        ylabel = get_formatted_name(secondary_filter)
+                    else:
+                        ylabel = 'Methods'
+                for secondary_combination in all_possible_secondary_combinations:
+                    secondary_combination_data = data
+                    secondary_combination_name = {}
+                    for i, filter_value in enumerate(secondary_combination):
+                        secondary_combination_name[secondary_filters[i]] = filter_value
+                        secondary_combination_data = secondary_combination_data[secondary_combination_data[secondary_filters[i]] == filter_value]
+                    secondary_combination_name = get_formatted_combination_name(secondary_combination_name)
+                    secondary_combination_samples = combination_data[output].tolist()
 
-        top_level_names.append(combination_name)
-        samples.append(combination_samples)
-        is_first_primary_combination = False
+                    if is_first_primary_combination:
+                        second_level_names.append(secondary_combination_name)
+                    combination_samples.append(secondary_combination_samples)
 
-    print samples
+            top_level_names.append(combination_name)
+            samples.append(combination_samples)
+            is_first_primary_combination = False
+
     if plot_type == 'line':
+        ylabel = zlabel
         return draw_line_graph(samples. top_level_names, second_level_names, title, xlabel, ylabel)
     elif plot_type == '3d':
         return draw_3d_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel, zlabel)
     else:
+        ylabel = zlabel
         return draw_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel)
