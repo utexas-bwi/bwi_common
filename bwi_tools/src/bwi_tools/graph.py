@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
 import collections
+import copy
 import numpy as np
+import itertools
 import math
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt; plt.rcdefaults()
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.stats as stats
+import pandas as pd
 
 # Keep the following at different length to produce more distinct combinations
 METHOD_COLORS = ['yellow', 'red', 'aqua', 'green', 'lightgray', 'blue']
@@ -40,7 +43,7 @@ def color_to_html_string(c):
     return '#%02x%02x%02x' % (c[0],c[1],c[2])
 
 def draw_bar_chart(samples, top_level_names, second_level_names=None, 
-                  title=None, xlabel=None, ylabel=None, color=None,
+                   title=None, xlabel=None, ylabel=None, color=None,
                    bottom=None, yticklabels=None):
 
     # So, samples can either contain a list of lists. The top level list
@@ -56,6 +59,8 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
             isinstance(samples[0][0], collections.Sequence)
     top_level_methods = len(samples)
 
+    print second_level_grouping_available
+
     if second_level_grouping_available: 
         second_level_methods = len(samples[0])
         samples2 = samples
@@ -70,7 +75,7 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
 
     for i in range(top_level_methods):
         for j in range(second_level_methods):
-            m, h = mean_standard_error(samples[i][j])
+            m, h = mean_standard_error(samples2[i][j])
             means[i].append(m)
             confs[i].append(h)
 
@@ -173,8 +178,8 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
     return fig, ax, rects, means
 
 def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None, 
-                  title=None, xlabel=None, ylabel=None, zlabel=None,
-                     xtickrotation=0, flip_y=True, third_level_names=None):
+                      title=None, xlabel=None, ylabel=None, zlabel=None,
+                      xtickrotation=0, flip_y=True, third_level_names=None):
 
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
@@ -266,3 +271,96 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
 
     return fig, ax, rects, means
 
+def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_filter=None, 
+                         automatically_clean_names=True, name_mapping_file=None):
+
+    data = pd.read_csv(filename)
+
+    # Check if the output column exists in the data frame.
+    if output not in data:
+        print "Output column name not in data!"
+        return
+
+    # Get primary and secondary filters.
+    if (filter is None) and "name" in data:
+        filter = "name"
+
+    primary_filters = None
+    if filter is not None:
+        primary_filters = filter.split(",")
+
+    secondary_filters = None
+    if secondary_filter is not None:
+        secondary_filters = secondary_filter.split(",")
+
+    # TODO do something when primary filter is None
+    primary_unique_values = []
+    primary_filters_copy = copy.deepcopy(primary_filters)
+    for i, pf in enumerate(primary_filters_copy):
+        if len(data[pf].unique().tolist()) == 1: # This column is not really being used. 
+            primary_filters.remove(pf)
+        else:
+            primary_unique_values.append(data[pf].unique().tolist())
+    
+    all_possible_primary_combinations = list(itertools.product(*primary_unique_values))
+    
+    # TODO fix and format these names
+    title = None
+    xlabel = 'Method'
+    ylabel = output
+    zlabel = None
+    samples = []
+    top_level_names = []
+    second_level_names = None
+    is_first_primary_combination = True
+
+    for primary_combination in all_possible_primary_combinations:
+        combination_data = data
+        combination_name = ""
+        for i, filter_value in enumerate(primary_combination):
+            # TODO cleanup combination name here. Do something special with "name"
+            combination_name += primary_filters[i] + '=' + str(filter_value)
+            if i != (len(primary_combination) - 1):
+                combination_name += ","
+            combination_data = combination_data[combination_data[primary_filters[i]] == filter_value]
+
+        # Now that we have combination data, apply secondary filtering if necessary
+        if secondary_filters is None:
+            combination_samples = combination_data[output].tolist()
+        else:
+            secondary_unique_values = []
+            secondary_filters_copy = copy.deepcopy(secondary_filters)
+            for i, pf in enumerate(secondary_filters_copy):
+                secondary_unique_values.append(combination_data[pf].unique().tolist())
+            
+            all_possible_secondary_combinations = list(itertools.product(*secondary_unique_values))
+
+            combination_samples = []
+            if is_first_primary_combination:
+                second_level_names = []
+            for secondary_combination in all_possible_secondary_combinations:
+                secondary_combination_data = data
+                secondary_combination_name = ""
+                for i, filter_value in enumerate(secondary_combination):
+                    # TODO cleanup combination name here. Do something special with "name"
+                    secondary_combination_name += secondary_filters[i] + '=' + str(filter_value)
+                    if i != (len(secondary_combination) - 1):
+                        secondary_combination_name += ","
+                    secondary_combination_data = secondary_combination_data[secondary_combination_data[secondary_filters[i]] == filter_value]
+                secondary_combination_samples = combination_data[output].tolist()
+
+                if is_first_primary_combination:
+                    second_level_names.append(secondary_combination_name)
+                combination_samples.append(secondary_combination_samples)
+
+        top_level_names.append(combination_name)
+        samples.append(combination_samples)
+        is_first_primary_combination = False
+
+    print samples
+    if plot_type == 'line':
+        return draw_line_graph(samples. top_level_names, second_level_names, title, xlabel, ylabel)
+    elif plot_type == '3d':
+        return draw_3d_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel, zlabel)
+    else:
+        return draw_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel)
