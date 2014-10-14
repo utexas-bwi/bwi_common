@@ -1,59 +1,73 @@
-#ifndef RNG_6HY8TBAM
-#define RNG_6HY8TBAM
+#ifndef BWI_TOOLS_RNG_H
+#define BWI_TOOLS_RNG_H
 
-/*
-File: RNG.h
-Author: Samuel Barrett
-Description: a random number generator based on tinymt32
-Created:  2011-08-23
-Modified: 2011-08-23
-*/
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
-#include "tinymt32.h"
 #include <cstdlib>
 #include <vector>
 
-class RNG {
-public:
-  RNG (uint32_t seed) {
-    internal.mat1 = 0x8f7011ee;
-    internal.mat2 = 0xfc78ff1f;
-    internal.tmat = 0x3793fdff;
-    tinymt32::tinymt32_init(&internal,seed);
-  }
-  float randomFloat() {
-    return tinymt32::tinymt32_generate_float(&internal);
-  }
+class RNG : public boost::mt19937 {
 
-  uint32_t randomUInt() {
-    return tinymt32::tinymt32_generate_uint32(&internal);
-  }
+  public:
+    RNG (int seed) : boost::mt19937(seed) {}
 
-  int32_t randomInt(int32_t max) {
-    return tinymt32::tinymt32_generate_uint32(&internal) % max;
-  }
-
-  int32_t randomInt(int32_t min,int32_t max) {
-    uint32_t temp = tinymt32::tinymt32_generate_uint32(&internal);
-    int32_t val = temp % (max - min) - min;
-    return val;
-  }
-  
-  void randomOrdering(std::vector<uint32_t> &inds) {
-    uint32_t j;
-    uint32_t temp;
-    for (uint32_t i = 0; i < inds.size(); i++)
-      inds[i] = i;
-    for (int i = (int)inds.size()-1; i >= 0; i--) {
-      j = randomInt(i+1);
-      temp = inds[i];
-      inds[i] = inds[j];
-      inds[j] = temp;
+    inline float randomFloat() {
+      boost::uniform_real<float> dist;
+      boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > gen(*this, dist);
+      return gen();
     }
-  }
 
-private:
-  tinymt32::tinymt32_t internal;
+    inline unsigned int randomUInt() {
+      boost::uniform_int<unsigned int> dist(0, std::numeric_limits<unsigned int>::max());
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > gen(*this, dist);
+      return gen();
+    }
+
+    inline unsigned int randomInt(unsigned int max) {
+      boost::uniform_int<unsigned int> dist(0, max - 1);
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > gen(*this, dist);
+      return gen();
+    }
+
+    inline int randomInt(int min, int max) {
+      boost::uniform_int<int> dist(min, max - 1);
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<int> > gen(*this, dist);
+      return gen();
+    }
+
+    inline int poissonInt(int mean) {
+      boost::poisson_distribution<int> dist(mean);
+      boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int> > gen(*this, dist);
+      return gen();
+    }
+
+    inline void randomOrdering(std::vector<unsigned int> &inds) {
+      unsigned int j;
+      unsigned int temp;
+      for (unsigned int i = 0; i < inds.size(); i++) {
+        inds[i] = i;
+      }
+      for (int i = (int)inds.size() - 1; i >= 0; i--) {
+        j = randomInt(i + 1);
+        temp = inds[i];
+        inds[i] = inds[j];
+        inds[j] = temp;
+      }
+    }
+
+    inline int select(const std::vector<float>& probabilities) {
+      float random_value = randomFloat();
+      float prob_sum = probabilities[0];
+      for (int i = 1; i < probabilities.size(); ++i) {
+        if (random_value < prob_sum) return i - 1;
+        prob_sum += probabilities[i];
+      }
+      return probabilities.size() - 1;
+    }
 };
 
-#endif /* end of include guard: RNG_6HY8TBAM */
+#endif /* end of include guard: BWI_TOOLS_RNG_H */
