@@ -6,7 +6,7 @@
 * @author Thomas Röfer
 */
 
-#include <bwi_rl/common/Enum.h>
+#include <bwi_tools/common/Enum.h>
 #include <cassert>
 
 std::string EnumName::trim(const std::string& s)

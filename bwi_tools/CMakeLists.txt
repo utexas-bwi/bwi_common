@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME}_json
 )
 
 add_library(${PROJECT_NAME}
-  src/common/tinymt32.cpp
+  src/common/Enum.cpp
   src/common/Util.cpp
 )
 

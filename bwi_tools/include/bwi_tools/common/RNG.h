@@ -13,7 +13,7 @@
 class RNG : public boost::mt19937 {
 
   public:
-    RNG (int seed) : boost::mt19937(seed) {}
+    RNG (unsigned int seed) : boost::mt19937(seed) {}
 
     inline float randomFloat() {
       boost::uniform_real<float> dist;
@@ -21,21 +21,19 @@ class RNG : public boost::mt19937 {
       return gen();
     }
 
-    inline unsigned int randomUInt() {
-      boost::uniform_int<unsigned int> dist(0, std::numeric_limits<unsigned int>::max());
-      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > gen(*this, dist);
-      return gen();
-    }
-
-    inline unsigned int randomInt(unsigned int max) {
-      boost::uniform_int<unsigned int> dist(0, max - 1);
-      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > gen(*this, dist);
-      return gen();
-    }
-
     inline int randomInt(int min, int max) {
-      boost::uniform_int<int> dist(min, max - 1);
+      boost::uniform_int<int> dist(min, max);
       boost::variate_generator<boost::mt19937&, boost::uniform_int<int> > gen(*this, dist);
+      return gen();
+    }
+
+    inline int randomInt(int max = std::numeric_limits<int>::max()) {
+      return randomInt(0, max);
+    }
+
+    inline int randomUInt(unsigned int max = std::numeric_limits<unsigned int>::max()) {
+      boost::uniform_int<unsigned int> dist(0, max);
+      boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned int> > gen(*this, dist);
       return gen();
     }
 
