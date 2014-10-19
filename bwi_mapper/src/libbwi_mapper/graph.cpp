@@ -277,7 +277,7 @@ namespace bwi_mapper {
 
   Point2f getLocationFromGraphId(int idx, const Graph& graph) {
     Graph::vertex_descriptor i = boost::vertex(idx, graph);
-    return Point2f(graph[i].location.x, graph[i].location.y);
+    return graph[i].location;
   }
 
   size_t getClosestIdOnGraph(const Point2f &point, 

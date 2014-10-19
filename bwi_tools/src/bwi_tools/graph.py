@@ -307,7 +307,10 @@ def get_formatted_combination_name(name_dict):
 def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_filter=None, 
                          attempt_auto_mapping=True, name_mapping_file=None):
 
-    data = pd.read_csv(filename)
+    data_per_file = []
+    for file in filename:
+        data_per_file.append(pd.read_csv(file))
+    data = pd.tools.merge.concat(data_per_file)
 
     # Check if the output column exists in the data frame.
     if output not in data:

@@ -2,6 +2,7 @@
 
 import argparse
 import bwi_tools.graph as graph
+import bwi_tools.filesystem as fs
 import matplotlib.pyplot as plt; plt.rcdefaults()
 
 parser = argparse.ArgumentParser()
@@ -21,8 +22,9 @@ if not args.plot_type:
     args.plot_type = 'bar'
 
 fig, ax, rects, means= \
-        graph.draw_from_data_frame(args.data, args.output, args.plot_type, args.filter, args.secondary_filter, 
-                                  args.attempt_auto_mapping, args.name_mapping_file)
+        graph.draw_from_data_frame(fs.expand_path_to_filelist(args.data), 
+                                   args.output, args.plot_type, args.filter, args.secondary_filter, 
+                                   args.attempt_auto_mapping, args.name_mapping_file)
 
 fig = plt.gcf()
 fig.set_size_inches(6,4)
