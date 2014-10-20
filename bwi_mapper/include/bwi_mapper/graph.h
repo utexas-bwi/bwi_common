@@ -75,6 +75,9 @@ namespace bwi_mapper {
       std::vector<std::pair<size_t, size_t> > specific_edges = 
       std::vector<std::pair<size_t, size_t> >());
 
+  void drawArrowOnImage(cv::Mat &image, const cv::Point2f &arrow_center, float orientation, 
+                        const cv::Scalar &color, int size, int thickness);
+
   void drawArrowOnGraph(cv::Mat &image, const Graph& graph, 
       std::pair<size_t, float> arrow, uint32_t map_width, uint32_t map_height,
       cv::Scalar color = cv::Scalar(0,0,255),
