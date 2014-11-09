@@ -310,7 +310,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
     data_per_file = []
     for file in filename:
         data_per_file.append(pd.read_csv(file))
-    data = pd.tools.merge.concat(data_per_file)
+    data = pd.tools.merge.concat(data_per_file, ignore_index=True)
 
     # Check if the output column exists in the data frame.
     if output not in data:
@@ -370,8 +370,8 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
             else:
                 secondary_unique_values = []
                 secondary_filters_copy = copy.deepcopy(secondary_filters)
-                for i, pf in enumerate(secondary_filters_copy):
-                    secondary_unique_values.append(combination_data[pf].unique().tolist())
+                for i, sf in enumerate(secondary_filters_copy):
+                    secondary_unique_values.append(combination_data[sf].unique().tolist())
                 
                 all_possible_secondary_combinations = list(itertools.product(*secondary_unique_values))
 
@@ -383,13 +383,13 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                     else:
                         ylabel = 'Methods'
                 for secondary_combination in all_possible_secondary_combinations:
-                    secondary_combination_data = data
+                    secondary_combination_data = combination_data
                     secondary_combination_name = {}
                     for i, filter_value in enumerate(secondary_combination):
                         secondary_combination_name[secondary_filters[i]] = filter_value
                         secondary_combination_data = secondary_combination_data[secondary_combination_data[secondary_filters[i]] == filter_value]
                     secondary_combination_name = get_formatted_combination_name(secondary_combination_name)
-                    secondary_combination_samples = combination_data[output].tolist()
+                    secondary_combination_samples = secondary_combination_data[output].tolist()
 
                     if is_first_primary_combination:
                         second_level_names.append(secondary_combination_name)
