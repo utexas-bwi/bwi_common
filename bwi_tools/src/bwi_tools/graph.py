@@ -105,6 +105,8 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
         ax.set_xticks(ind+0.5-width/2)
         if second_level_names:
             ax.set_xticklabels(second_level_names)
+    else:
+        ax.set_xticklabels([])
 
     if yticklabels:
         ax.set_yticklabels(yticklabels)
@@ -358,11 +360,11 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
         top_level_names = []
         for primary_combination in all_possible_primary_combinations:
             combination_data = data
-            combination_name = {}
+            combination_name_dict = {}
             for i, filter_value in enumerate(primary_combination):
-                combination_name[primary_filters[i]] = filter_value
+                combination_name_dict[primary_filters[i]] = filter_value
                 combination_data = combination_data[combination_data[primary_filters[i]] == filter_value]
-            combination_name = get_formatted_combination_name(combination_name)
+            combination_name = get_formatted_combination_name(combination_name_dict)
 
             # Now that we have combination data, apply secondary filtering if necessary
             if secondary_filters is None:
@@ -395,9 +397,14 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                         second_level_names.append(secondary_combination_name)
                     combination_samples.append(secondary_combination_samples)
 
-            top_level_names.append(combination_name)
+            if len(combination_name_dict) > 1:
+                top_level_names.append(combination_name)
+            else:
+                top_level_names.append(combination_name_dict[primary_filters[0]])
             samples.append(combination_samples)
             is_first_primary_combination = False
+
+    print top_level_names
 
     if plot_type == 'line':
         ylabel = zlabel
@@ -405,5 +412,6 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
     elif plot_type == '3d':
         return draw_3d_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel, zlabel)
     else:
+        xlabel = ylabel
         ylabel = zlabel
         return draw_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel)
