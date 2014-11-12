@@ -19,11 +19,9 @@ METHOD_HATCH = ['/', '\\', 'x', '*', 'o', 'O', '.']
 LINE_COLORS = ['red', 'blue', 'green']
 LINE_HATCH = [(20,0),(20,5),(5,5),(15,5,5,5),(15,5,2,5)]
 
-def mean_standard_error(data):
+def calculate_mean_and_standard_error(data):
     a = 1.0 * np.array(data)
-    n = len(a)
-    m, se = np.mean(a), stats.sem(a)
-    return m, se
+    return np.mean(a), stats.sem(a)
 
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0 * np.array(data)
@@ -42,6 +40,10 @@ def mix_colors(c1, c2, amount):
 def color_to_html_string(c):
     # http://stackoverflow.com/questions/13998901/generating-a-random-hex-color-in-python
     return '#%02x%02x%02x' % (c[0],c[1],c[2])
+
+def get_formatted_float(f):
+    s = "%.2f"%f
+    return s.rstrip('0').rstrip('.') if '.' in s else s
 
 def draw_bar_chart(samples, top_level_names, second_level_names=None, 
                    title=None, xlabel=None, ylabel=None, color=None,
@@ -74,9 +76,25 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
 
     for i in range(top_level_methods):
         for j in range(second_level_methods):
-            m, h = mean_standard_error(samples2[i][j])
+            m, h = calculate_mean_and_standard_error(samples2[i][j])
+            print str(top_level_names[i]) + ",",
+            if second_level_names is not None:
+                print str(second_level_names[j]), 
+            else:
+                print j,
+            print ": " + "%.2f"%m + "+-" + "%.2f"%h
+            is_sig = True
+            for k in range(second_level_methods):
+                if j == k:
+                    continue
+                is_sig = is_significant(samples2[i][j], samples2[i][k])
+                if not is_sig:
+                    break
+            if is_sig:
+                print "  is significantly different from all other methods in the group."
             means[i].append(m)
             confs[i].append(h)
+
 
     ind = np.arange(second_level_methods)
     width = 1.0 / (top_level_methods + 1)
@@ -146,7 +164,7 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
 
     for i in range(top_level_methods):
         for j in range(second_level_methods):
-            m, h = mean_standard_error(samples[i][j])
+            m, h = calculate_mean_and_standard_error(samples[i][j])
             means[i].append(m)
             confs[i].append(h)
 
@@ -210,7 +228,7 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
 
     for i in range(top_level_methods):
         for j in range(second_level_methods):
-            m, h = mean_standard_error(samples[i][j])
+            m, h = calculate_mean_and_standard_error(samples[i][j])
             means[i].append(m)
             confs[i].append(h)
 
@@ -362,8 +380,10 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
             combination_data = data
             combination_name_dict = {}
             for i, filter_value in enumerate(primary_combination):
-                combination_name_dict[primary_filters[i]] = filter_value
                 combination_data = combination_data[combination_data[primary_filters[i]] == filter_value]
+                if isinstance(filter_value, float):
+                    filter_value = get_formatted_float(filter_value)
+                combination_name_dict[primary_filters[i]] = filter_value
             combination_name = get_formatted_combination_name(combination_name_dict)
 
             # Now that we have combination data, apply secondary filtering if necessary
@@ -380,31 +400,34 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                 combination_samples = []
                 if is_first_primary_combination:
                     second_level_names = []
-                    if len(secondary_filters) == 1 and filter != "name":
+                    if len(secondary_filters) == 1:
                         ylabel = get_formatted_name(secondary_filter)
                     else:
                         ylabel = 'Methods'
                 for secondary_combination in all_possible_secondary_combinations:
                     secondary_combination_data = combination_data
-                    secondary_combination_name = {}
+                    secondary_combination_name_dict = {}
                     for i, filter_value in enumerate(secondary_combination):
-                        secondary_combination_name[secondary_filters[i]] = filter_value
                         secondary_combination_data = secondary_combination_data[secondary_combination_data[secondary_filters[i]] == filter_value]
-                    secondary_combination_name = get_formatted_combination_name(secondary_combination_name)
+                        if isinstance(filter_value, float):
+                            filter_value = get_formatted_float(filter_value)
+                        secondary_combination_name_dict[secondary_filters[i]] = filter_value
+                    secondary_combination_name = get_formatted_combination_name(secondary_combination_name_dict)
                     secondary_combination_samples = secondary_combination_data[output].tolist()
 
                     if is_first_primary_combination:
-                        second_level_names.append(secondary_combination_name)
+                        if ylabel == 'Methods':
+                            second_level_names.append(secondary_combination_name)
+                        else:
+                            second_level_names.append(secondary_combination_name_dict[secondary_filters[0]])
                     combination_samples.append(secondary_combination_samples)
 
-            if len(combination_name_dict) > 1:
+            if xlabel == 'Methods' or plot_type != '3d':
                 top_level_names.append(combination_name)
             else:
                 top_level_names.append(combination_name_dict[primary_filters[0]])
             samples.append(combination_samples)
             is_first_primary_combination = False
-
-    print top_level_names
 
     if plot_type == 'line':
         ylabel = zlabel
