@@ -175,7 +175,7 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
         rect, = ax.plot(np.arange(0, second_level_methods), means[i],
                         color=LINE_COLORS[i%len(LINE_COLORS)],
                         dashes=LINE_HATCH[i%len(LINE_HATCH)],
-                        linewidth = 4)
+                        linewidth = 2)
         rects.append(rect)
 
     if xlabel:
@@ -199,7 +199,7 @@ def draw_line_graph(samples, top_level_names, second_level_names=None,
 
 def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None, 
                       title=None, xlabel=None, ylabel=None, zlabel=None,
-                      xtickrotation=0, flip_y=True, third_level_names=None):
+                      flip_y=True, third_level_names=None):
 
     # So, samples can either contain a list of lists. The top level list
     # contains top level groups, and the second level list contains actual
@@ -285,6 +285,12 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
 
     tick_multiplier = int(math.ceil(float(top_level_methods)/float(len(top_level_names))))
     ax.set_xticks(tick_multiplier * np.arange(len(top_level_names)) + 0.5)
+
+    xtickrotation = raw_input("Specify rotation for xticklabels [hit enter to use zero]: ")
+    if xtickrotation is not None and xtickrotation != "":
+        xtickrotation = float(xtickrotation)
+    else:
+        xtickrotation = 0.0
     if top_level_names:
         ax.set_xticklabels(top_level_names, rotation=xtickrotation)
 #    ax.legend(rects, top_level_names, mode='expand', ncol=3)
@@ -303,18 +309,20 @@ def format_word(str):
         return str.title()
 
 #TODO fix the name mapping file stuff
-def get_formatted_name(name, name_mapping_file=None):
+def get_formatted_name(name, name_mappings=None):
+    if name_mappings is not None and name in name_mappings:
+        return name_mappings[name]
     name = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', name) # Convert camelCase to space separated words
     name = name.replace('_', ' ') # Convert snake_case to space separate words
     name = ''.join([format_word(x) for x in name.split(' ')]) # join words while converting greek letters.
     return name
 
-def get_formatted_combination_name(name_dict):
+def get_formatted_combination_name(name_dict, name_mappings=None):
     formatted_name = ""
     for key, value in name_dict.iteritems():
         if key == "name":
             continue
-        formatted_name += get_formatted_name(key) + "=" + str(value) + ","
+        formatted_name += get_formatted_name(key, name_mappings) + "=" + str(value) + ","
     formatted_name = formatted_name[:-1]
 
     if "name" in name_dict:
@@ -325,7 +333,7 @@ def get_formatted_combination_name(name_dict):
     return formatted_name
 
 def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_filter=None, 
-                         attempt_auto_mapping=True, name_mapping_file=None):
+                         attempt_auto_mapping=True, name_mappings=None):
 
     data_per_file = []
     for file in filename:
@@ -352,7 +360,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
     title = None
     xlabel = None
     ylabel = None
-    zlabel = get_formatted_name(output)
+    zlabel = get_formatted_name(output, name_mappings)
     samples = []
     top_level_names = None
     second_level_names = None
@@ -362,7 +370,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
         samples.append(data[output].tolist())
     else:
         if len(primary_filters) == 1 and filter != "name":
-            xlabel = get_formatted_name(filter)
+            xlabel = get_formatted_name(filter, name_mappings)
         else:
             xlabel = 'Methods'
         primary_unique_values = []
@@ -374,6 +382,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                 primary_unique_values.append(data[pf].unique().tolist())
         
         all_possible_primary_combinations = list(itertools.product(*primary_unique_values))
+        all_possible_primary_combinations.sort()
         
         top_level_names = []
         for primary_combination in all_possible_primary_combinations:
@@ -384,7 +393,16 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                 if isinstance(filter_value, float):
                     filter_value = get_formatted_float(filter_value)
                 combination_name_dict[primary_filters[i]] = filter_value
-            combination_name = get_formatted_combination_name(combination_name_dict)
+            if len(combination_data.index) == 0:
+                continue
+
+            combination_name = get_formatted_combination_name(combination_name_dict, name_mappings)
+            entered_name = raw_input("Suggested combincation name (Hit Enter to use default, Enter 'skip' to skip this combination)[" + combination_name + "]: ")
+            if entered_name is not None and entered_name != "":
+                if entered_name == 'skip':
+                    continue
+                else:
+                    combination_name = entered_name
 
             # Now that we have combination data, apply secondary filtering if necessary
             if secondary_filters is None:
@@ -396,12 +414,13 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                     secondary_unique_values.append(combination_data[sf].unique().tolist())
                 
                 all_possible_secondary_combinations = list(itertools.product(*secondary_unique_values))
+                all_possible_secondary_combinations.sort()
 
                 combination_samples = []
                 if is_first_primary_combination:
                     second_level_names = []
                     if len(secondary_filters) == 1:
-                        ylabel = get_formatted_name(secondary_filter)
+                        ylabel = get_formatted_name(secondary_filter, name_mappings)
                     else:
                         ylabel = 'Methods'
                 for secondary_combination in all_possible_secondary_combinations:
@@ -412,7 +431,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                         if isinstance(filter_value, float):
                             filter_value = get_formatted_float(filter_value)
                         secondary_combination_name_dict[secondary_filters[i]] = filter_value
-                    secondary_combination_name = get_formatted_combination_name(secondary_combination_name_dict)
+                    secondary_combination_name = get_formatted_combination_name(secondary_combination_name_dict, name_mappings)
                     secondary_combination_samples = secondary_combination_data[output].tolist()
 
                     if is_first_primary_combination:
@@ -422,7 +441,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                             second_level_names.append(secondary_combination_name_dict[secondary_filters[0]])
                     combination_samples.append(secondary_combination_samples)
 
-            if xlabel == 'Methods' or plot_type != '3d':
+            if xlabel == 'Methods' or plot_type != '3d' or combination_name == ' ':
                 top_level_names.append(combination_name)
             else:
                 top_level_names.append(combination_name_dict[primary_filters[0]])
@@ -430,8 +449,9 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
             is_first_primary_combination = False
 
     if plot_type == 'line':
+        xlabel = ylabel
         ylabel = zlabel
-        return draw_line_graph(samples. top_level_names, second_level_names, title, xlabel, ylabel)
+        return draw_line_graph(samples, top_level_names, second_level_names, title, xlabel, ylabel)
     elif plot_type == '3d':
         return draw_3d_bar_chart(samples, top_level_names, second_level_names, title, xlabel, ylabel, zlabel)
     else:
