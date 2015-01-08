@@ -11,6 +11,8 @@ if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
 add_definitions(-DHAVE_NEW_YAMLCPP)
 endif()
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   PlannerAtom.msg
@@ -88,6 +90,15 @@ install(DIRECTORY
  
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+catkin_install_python(
+  PROGRAMS scripts/logical_marker
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 # unit tests are enabled selectively
 if(CATKIN_ENABLE_TESTING)
