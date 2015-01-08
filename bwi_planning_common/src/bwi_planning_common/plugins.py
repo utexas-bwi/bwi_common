@@ -1,5 +1,5 @@
 from qt_gui.plugin import Plugin
-from python_qt_binding.Qt import KeepAspectRatio
+from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QFrame, QHBoxLayout, QLabel, QLineEdit, \
                                     QPixmap, QPushButton, QTextBrowser, QVBoxLayout, \
                                     QWidget
@@ -47,17 +47,25 @@ class LocationFunction(object):
             del image_objects[:]
 
         # Handle mouse event
-        image_label.mousePressEvent = self.handleMouseEvent
+        image_label.mousePressEvent = self.mousePressEvent
+        image_label.mouseMoveEvent = self.mouseMoveEvent
+        image_label.mouseReleaseEvent = self.mouseReleaseEvent
 
-    def handleMouseEvent(self, event):
+    def mousePressEvent(self, event):
         # TODO depending on the subfunction pressed, do something useful here. 
         # If not adding/removing a location here, allowing editing a selected location here.
-        print "Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
+        print "11Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
+
+    def mouseReleaseEvent(self, event):
+        print "11Mouse released at " + str(event.pos().x()) + "," + str(event.pos().y())
+
+    def mouseMoveEvent(self, event):
+        print "11Mouse move at " + str(event.pos().x()) + "," + str(event.pos().y())
 
     def handleNewSubfunction(self,
                              widget,
                              source,
-                             value_edit_callback):
+                             value_layout):
 
         # Ensure that all buttons apart from the current subfunction are depressed.
         for button in self.subfunction_buttons:
@@ -104,16 +112,18 @@ class DoorFunction(object):
 
         # Handle mouse event
         image_label.mousePressEvent = self.handleMouseEvent
+        # image_label.mouseMoveEvent = self.handleMouseEvent
+        # image_label.mouseReleaseEvent = self.handleMouseEvent
 
     def handleMouseEvent(self, event):
         # TODO depending on the subfunction pressed, do something useful here. 
         # If not adding/removing a location here, allowing editing a selected location here.
-        print "Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
+        print "2Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
 
     def handleNewSubfunction(self,
                              widget,
                              source,
-                             value_edit_callback):
+                             value_layout):
 
         # Ensure that all buttons apart from the current subfunction are depressed.
         for button in self.subfunction_buttons:
@@ -160,16 +170,18 @@ class ObjectFunction(object):
 
         # Handle mouse event
         image_label.mousePressEvent = self.handleMouseEvent
+        # image_label.mouseMoveEvent = self.handleMouseEvent
+        # image_label.mouseReleaseEvent = self.handleMouseEvent
 
     def handleMouseEvent(self, event):
         # TODO depending on the subfunction pressed, do something useful here. 
         # If not adding/removing a location here, allowing editing a selected location here.
-        print "Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
+        print "3Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
 
     def handleNewSubfunction(self,
                              widget,
                              source,
-                             value_edit_callback):
+                             value_layout):
 
         # Ensure that all buttons apart from the current subfunction are depressed.
         for button in self.subfunction_buttons:
@@ -193,11 +205,11 @@ class LogicalMarkerPlugin(Plugin):
         self._master_layout = QVBoxLayout(self._widget)
 
         # Main Functions - Doors, Locations, Objects
-        self._function_layout = QHBoxLayout(self._widget)
+        self._function_layout = QHBoxLayout()
         self._master_layout.addLayout(self._function_layout)
         self.function_buttons = []
         self.current_function = None
-        for button_text in ['Doors', 'Locations', 'Objects']:
+        for button_text in ['Locations', 'Doors', 'Objects']:
             button = QPushButton(button_text, self._widget)
             button.clicked[bool].connect(self.handle_function_button)
             button.setCheckable(True)
@@ -209,24 +221,30 @@ class LogicalMarkerPlugin(Plugin):
         self.functions['Locations'] = LocationFunction()
         self.functions['Objects'] = ObjectFunction()
 
-        self._master_layout.addWidget(self.HLine)
+        self._master_layout.addWidget(self.HLine())
 
-        self._subfunction_layout = QHBoxLayout(self._widget)
+        self._subfunction_layout = QHBoxLayout()
         self._master_layout.addLayout(self._subfunction_layout)
         self.current_subfunction = None
 
-        self._master_layout.addWidget(self.HLine)
+        self._master_layout.addWidget(self.HLine())
 
         # TODO figure out how to update the map image, and how to read in the map file.
-        self.map_image = None
+        self.map_image = "/home/piyushk/rocon/src/bwi_common/utexas_gdc/maps/3ne-real-new.pgm"
         self._image_label = QLabel(self._widget)
-        # myPixmap = QPixmap(self.map_image)
-        # myScaledPixmap = myPixmap.scaled(self._image_label.size(), KeepAspectRatio)
-        # self._image_label.setPixmap(myScaledPixmap)
+        self._image_label.setFixedHeight(480)
+        self._image_label.setObjectName("image")
 
-        self._master_layout.addWidget(self.HLine)
+        myPixmap = QPixmap(self.map_image)
+        myScaledPixmap = myPixmap.scaled(1080, 480, Qt.KeepAspectRatio)
+        self._image_label.setPixmap(myScaledPixmap)
 
-        self._values_layout = QHBoxLayout(self._widget)
+        self.image_objects = []
+        self._master_layout.addWidget(self._image_label)
+
+        self._master_layout.addWidget(self.HLine())
+
+        self._values_layout = QHBoxLayout()
         self._master_layout.addLayout(self._values_layout)
 
         self._widget.setObjectName('LogicalMarkerPluginUI')
@@ -272,7 +290,7 @@ class LogicalMarkerPlugin(Plugin):
                                                                          self._subfunction_layout, 
                                                                          self._values_layout,
                                                                          self.handle_subfunction_button,
-                                                                         self._drawn_objects,
+                                                                         self.image_objects,
                                                                          self._image_label)
 
         self.current_subfunction = None
@@ -290,8 +308,7 @@ class LogicalMarkerPlugin(Plugin):
         # I believe pressing a button should never change what's drawn on the image.
         self.functions[self.current_function].handleNewSubfunction(self._widget,
                                                                    source,
-                                                                   self._values_layout,
-                                                                   self.handle_value_edit)
+                                                                   self._values_layout)
 
         self.current_subfunction = source.text()
         # self.update()
