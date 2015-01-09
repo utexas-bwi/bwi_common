@@ -1,7 +1,8 @@
+import copy
 from qt_gui.plugin import Plugin
-from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtCore import QPoint, QRect, Qt
 from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLineEdit, \
-                                    QPixmap, QPushButton, QColor, QTextBrowser, QVBoxLayout, \
+                                    QPainter, QPixmap, QPushButton, QColor, QTextBrowser, QVBoxLayout, \
                                     QWidget
 # from python_qt_binding.QtCore import SIGNAL
 
@@ -11,24 +12,65 @@ def clear_layout(layout):
         item = layout.takeAt(0)
         item.widget().deleteLater()
 
+class MapImage(QLabel):
+
+    def __init__(self, parent=None):
+        super(MapImage, self).__init__(parent)
+
+        # Image
+        self.setFixedHeight(480)
+        self.setFixedWidth(1080)
+        self.setObjectName("map_image")
+
+        # Set defaults to handle mouse events, as if these are not setup and a user clicks on the image, then all future
+        # mouse events are ignored.
+        self.mousePressEvent = self.defaultMouseHandler
+        self.mouseMoveEvent = self.defaultMouseHandler
+        self.mouseReleaseEvent = self.defaultMouseHandler
+
+        # Create an image for the original map. This will never change.
+        # TODO figure out how to update the map image, and how to read in the map file.
+        map_image_location = "/home/piyushk/rocon/src/bwi_common/utexas_gdc/maps/3ne-real-new.pgm"
+        map_image = QImage(map_image_location)
+        self.map_image = map_image.scaled(1080, 480, Qt.KeepAspectRatio)
+
+        # Create a pixmap for the overlay. This will be modified by functions to change what is being displayed 
+        # on the screen.
+        self.overlay_image = QImage(self.map_image.size(), QImage.Format_ARGB32) 
+        self.overlay_image.fill(QColor(0,0,0,0))
+
+        self.update()
+
+    def defaultMouseHandler(self, event):
+        # Do nothing.
+        pass
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawImage(event.rect(), self.map_image, event.rect())
+        painter.drawImage(event.rect(), self.overlay_image, event.rect())
+        painter.end()
+
 class LocationFunction(object):
 
-    def __init__(self, map_size):
+    def __init__(self):
         self.subfunction_buttons = None
-        self.current_subfunction = "Edit Location"
+        self.default_subfunction = 'Edit Location Properties' 
+        self.current_subfunction = self.default_subfunction
 
-        # TODO read from file.
-        self.location_image = QImage(map_size, QImage.Format_ARGB32)
-        self.location_image.fill(QColor(0,0,0,0))
+        # TODO read current locations from file.
         self.location_names = {}
+        self.location_image = None
+        self.current_selection_image = None
+
+        self.is_modified = False
 
     def handleSubfunctionReset(self, 
                                widget,
                                subfunction_layout,
                                values_layout,
                                subfunction_button_callback,
-                               image_mask,
-                               image_label):
+                               image):
 
         if self.subfunction_buttons is not None:
             del self.subfunction_buttons[:]
@@ -36,32 +78,84 @@ class LocationFunction(object):
         self.subfunction_buttons = []
 
         # Add all the necessary buttons to the subfunction layout.
-        for button_text in ['Add Location', 'Remove Location']:
+        for button_text in ['Add Location', 'Remove Location', 'Edit Location']:
             button = QPushButton(button_text, widget)
             button.clicked[bool].connect(subfunction_button_callback)
             button.setCheckable(True)
             subfunction_layout.addWidget(button)
             self.subfunction_buttons.append(button)
 
-        self.image_mask = image_mask
         # When this function is engaged, 
         clear_layout(values_layout)
 
+        self.image = image
+
         # Handle mouse event
-        image_label.mousePressEvent = self.mousePressEvent
-        image_label.mouseMoveEvent = self.mouseMoveEvent
-        image_label.mouseReleaseEvent = self.mouseReleaseEvent
+        image.mousePressEvent = self.mousePressEvent
+        image.mouseMoveEvent = self.mouseMoveEvent
+        image.mouseReleaseEvent = self.mouseReleaseEvent
+
+        self.start_point = None
+        self.current_point = None
+
+        if self.location_image is None:
+            self.location_image = QImage(image.size(), QImage.Format_ARGB32)
+            self.location_image.fill(QColor(0,0,0,0))
+
+        if self.current_selection_image is None:
+            self.current_selection_image = QImage(image.size(), QImage.Format_ARGB32)
+            self.current_selection_image.fill(QColor(0,0,0,0))
+
+        self.updateOverlay()
 
     def mousePressEvent(self, event):
-        # TODO depending on the subfunction pressed, do something useful here. 
-        # If not adding/removing a location here, allowing editing a selected location here.
-        print "11Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
+        if self.start_point is not None:
+            self.image.overlay_image.fill(QColor(0,0,0,0))
+            self.image.update(self.get_rect(self.start_point, self.current_point))
+        self.start_point = event.pos()
+        self.current_point = event.pos()
 
     def mouseReleaseEvent(self, event):
-        print "11Mouse released at " + str(event.pos().x()) + "," + str(event.pos().y())
+        self.mouseMoveEvent(event)
 
     def mouseMoveEvent(self, event):
-        print "11Mouse move at " + str(event.pos().x()) + "," + str(event.pos().y())
+
+        # First make sure we update the region corresponding to the old mark.
+        old_overlay_update_rect = self.get_rect(self.start_point, self.current_point)
+
+        # Draw new mark.
+        self.current_point = event.pos()
+        painter = QPainter(self.current_selection_image)
+        painter.setPen(QColor(255,0,0,128))
+        painter.setBrush(QColor(255,0,0,128))
+        self.new_selection = self.get_rect(self.start_point, self.current_point)
+        draw_rect.setHeight(draw_rect.height() - 1)
+        draw_rect.setWidth(draw_rect.width() - 1)
+        painter.drawRect(draw_rect)
+
+        painter.end()
+
+        new_overlay_update_rect = self.get_rect(self.start_point, self.current_point)
+        self.updateOverlay(self.get_max_rect(old_overlay_update_rect, new_overlay_update_rect))
+
+    def get_rect(self, pt1, pt2):
+        if pt1.x() < pt2.x():
+            if pt1.y() < pt2.y():
+                return QRect(pt1, pt2)
+            else:
+                return QRect(QPoint(pt1.x(), pt2.y()), QPoint(pt2.x(), pt1.y()))
+        else:
+            if pt1.y() < pt2.y():
+                return QRect(QPoint(pt2.x(), pt1.y()), QPoint(pt1.x(), pt2.y()))
+            else:
+                return QRect(pt2, pt1)
+
+    def get_max_rect(self, r1, r2):
+        top_left_x = r1.topLeft().x() if (r1.topLeft().x() < r2.topLeft().x()) else r2.topLeft().x()
+        top_left_y = r1.topLeft().y() if (r1.topLeft().y() < r2.topLeft().y()) else r2.topLeft().y()
+        bottom_right_x = r1.bottomRight().x() if (r1.bottomRight().x() > r2.bottomRight().x()) else r2.bottomRight().x()
+        bottom_right_y = r1.bottomRight().y() if (r1.bottomRight().y() > r2.bottomRight().y()) else r2.bottomRight().y()
+        return QRect(QPoint(top_left_x, top_left_y), QPoint(bottom_right_x, bottom_right_y))
 
     def handleNewSubfunction(self,
                              widget,
@@ -76,112 +170,20 @@ class LocationFunction(object):
         # Switch to add/remove depending on the subfunction button pressed.
         self.current_subfunction = source.text()
 
+    def updateOverlay(self, rect = None):
+        # Redraw the overlay image from scratch using the location image and current location.
+        self.image.overlay_image.fill(QColor(0,0,0,0))
+        painter = QPainter(self.image.overlay_image)
+        if self.location_image is not None:
+            painter.drawImage(0, 0, self.location_image)
+        if self.current_selection_image is not None:
+            painter.drawImage(0, 0, self.current_selection_image)
+        painter.end()
 
-class DoorFunction(object):
-
-    def __init__(self):
-        self.subfunction_buttons = None
-        self.current_subfunction = "Edit Door"
-
-    def handleSubfunctionReset(self, 
-                               widget,
-                               subfunction_layout,
-                               values_layout,
-                               subfunction_button_callback,
-                               image_objects,
-                               image_label):
-
-        if self.subfunction_buttons is not None:
-            del self.subfunction_buttons[:]
-
-        self.subfunction_buttons = []
-
-        # Add all the necessary buttons to the subfunction layout.
-        for button_text in ['Add Door', 'Remove Door']:
-            button = QPushButton(button_text, widget)
-            button.clicked[bool].connect(subfunction_button_callback)
-            button.setCheckable(True)
-            subfunction_layout.addWidget(button)
-            self.subfunction_buttons.append(button)
-
-        # When this function is engaged, 
-        clear_layout(values_layout)
-
-        # Handle mouse event
-        image_label.mousePressEvent = self.handleMouseEvent
-        # image_label.mouseMoveEvent = self.handleMouseEvent
-        # image_label.mouseReleaseEvent = self.handleMouseEvent
-
-    def handleMouseEvent(self, event):
-        # TODO depending on the subfunction pressed, do something useful here. 
-        # If not adding/removing a location here, allowing editing a selected location here.
-        print "2Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
-
-    def handleNewSubfunction(self,
-                             widget,
-                             source,
-                             value_layout):
-
-        # Ensure that all buttons apart from the current subfunction are depressed.
-        for button in self.subfunction_buttons:
-            if button != source:
-                button.setChecked(False)
-
-        # Switch to add/remove depending on the subfunction button pressed.
-        self.current_subfunction = source.text()
-
-class ObjectFunction(object):
-
-    def __init__(self):
-        self.subfunction_buttons = None
-        self.current_subfunction = "Edit Object"
-
-    def handleSubfunctionReset(self, 
-                               widget,
-                               subfunction_layout,
-                               values_layout,
-                               subfunction_button_callback,
-                               image_objects,
-                               image_label):
-
-        if self.subfunction_buttons is not None:
-            del self.subfunction_buttons[:]
-
-        self.subfunction_buttons = []
-
-        # Add all the necessary buttons to the subfunction layout.
-        for button_text in ['Add Object', 'Remove Object']:
-            button = QPushButton(button_text, widget)
-            button.clicked[bool].connect(subfunction_button_callback)
-            button.setCheckable(True)
-            subfunction_layout.addWidget(button)
-            self.subfunction_buttons.append(button)
-
-        # When this function is engaged, 
-        clear_layout(values_layout)
-
-        # Handle mouse event
-        image_label.mousePressEvent = self.handleMouseEvent
-        # image_label.mouseMoveEvent = self.handleMouseEvent
-        # image_label.mouseReleaseEvent = self.handleMouseEvent
-
-    def handleMouseEvent(self, event):
-        # TODO depending on the subfunction pressed, do something useful here. 
-        # If not adding/removing a location here, allowing editing a selected location here.
-        print "3Mouse pressed at " + str(event.pos().x()) + "," + str(event.pos().y())
-
-    def handleNewSubfunction(self,
-                             widget,
-                             source,
-                             value_layout):
-
-        # Ensure that all buttons apart from the current subfunction are depressed.
-        for button in self.subfunction_buttons:
-            if button != source:
-                button.setChecked(False)
-
-        # Switch to add/remove depending on the subfunction button pressed.
-        self.current_subfunction = source.text()
+        if rect is None:
+            self.image.update()
+        else:
+            self.image.update(rect)
 
 class LogicalMarkerPlugin(Plugin):
 
@@ -193,70 +195,52 @@ class LogicalMarkerPlugin(Plugin):
         self.setObjectName('LogicalMarkerPlugin')
 
         # Create QWidget
-        self._widget = QWidget()
-        self._master_layout = QVBoxLayout(self._widget)
+        self.master_widget = QWidget()
+        self.master_layout = QVBoxLayout(self.master_widget)
 
         # Main Functions - Doors, Locations, Objects
-        self._function_layout = QHBoxLayout()
-        self._master_layout.addLayout(self._function_layout)
+        self.function_layout = QHBoxLayout()
+        self.master_layout.addLayout(self.function_layout)
         self.function_buttons = []
         self.current_function = None
-        for button_text in ['Locations', 'Doors', 'Objects']:
-            button = QPushButton(button_text, self._widget)
+        for button_text in ['Locations']: #, 'Doors', 'Objects']:
+            button = QPushButton(button_text, self.master_widget)
             button.clicked[bool].connect(self.handle_function_button)
             button.setCheckable(True)
-            self._function_layout.addWidget(button)
+            self.function_layout.addWidget(button)
             self.function_buttons.append(button)
 
         self.functions = {}
-        self.functions['Doors'] = DoorFunction()
         self.functions['Locations'] = LocationFunction()
-        self.functions['Objects'] = ObjectFunction()
 
-        self._master_layout.addWidget(self.HLine())
+        self.master_layout.addWidget(self.get_horizontal_line())
 
-        self._subfunction_layout = QHBoxLayout()
-        self._master_layout.addLayout(self._subfunction_layout)
+        # Subfunction toolbar
+        self.subfunction_layout = QHBoxLayout()
+        self.master_layout.addLayout(self.subfunction_layout)
         self.current_subfunction = None
 
-        self._master_layout.addWidget(self.HLine())
+        self.master_layout.addWidget(self.get_horizontal_line())
 
-        # TODO figure out how to update the map image, and how to read in the map file.
-        self.map_image = "/home/piyushk/rocon/src/bwi_common/utexas_gdc/maps/3ne-real-new.pgm"
-        self._image_label = QLabel(self._widget)
-        self._image_label.setFixedHeight(480)
-        self._image_label.setObjectName("image")
+        self.image = MapImage(self.master_widget)
+        self.master_layout.addWidget(self.image)
 
-        myPixmap = QPixmap(self.map_image)
-        myScaledPixmap = myPixmap.scaled(1080, 480, Qt.KeepAspectRatio)
-        self._image_label.setPixmap(myScaledPixmap)
+        self.master_layout.addWidget(self.get_horizontal_line())
 
-        self.image_objects = None
-        self._master_layout.addWidget(self._image_label)
+        # Configuration toolbar
+        self.configuration_layout = QHBoxLayout()
+        self.master_layout.addLayout(self.configuration_layout)
 
-        # Set defaults to handle mouse events, as if these are not setup and a user clicks on the image, then all future
-        # mouse events are ignored.
-        self._image_label.mousePressEvent = self.defaultMouseHandler
-        self._image_label.mouseMoveEvent = self.defaultMouseHandler
-        self._image_label.mouseReleaseEvent = self.defaultMouseHandler
-
-        self._master_layout.addWidget(self.HLine())
-
-        self._values_layout = QHBoxLayout()
-        self._master_layout.addLayout(self._values_layout)
-
-        self._widget.setObjectName('LogicalMarkerPluginUI')
+        self.master_widget.setObjectName('LogicalMarkerPluginUI')
         if context.serial_number() > 1:
-            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
-        context.add_widget(self._widget)
+            self.master_widget.setWindowTitle(self.master_widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self.master_widget)
 
-        #self.connect(self._widget, SIGNAL("update"), self.update)
 
-    def defaultMouseHandler(self, event):
-        # Do nothing.
+    def construct_layout(self):
         pass
 
-    def HLine(self):
+    def get_horizontal_line(self):
         """
         http://stackoverflow.com/questions/5671354/how-to-programmatically-make-a-horizontal-line-in-qt
         """
@@ -279,26 +263,21 @@ class LogicalMarkerPlugin(Plugin):
 
         self.current_function = source.text()
 
-        self.reset_subfunction(False)
-        #self.update()
+        self.reset_subfunction()
 
-    def reset_subfunction(self, trigger_update):
+    def reset_subfunction(self):
 
         # Clear all subfunction buttons.
-        clear_layout(self._subfunction_layout)
+        clear_layout(self.subfunction_layout)
 
         if self.current_function is not None:
-            self.functions[self.current_function].handleSubfunctionReset(self._widget, 
-                                                                         self._subfunction_layout, 
-                                                                         self._values_layout,
+            self.functions[self.current_function].handleSubfunctionReset(self.master_widget, 
+                                                                         self.subfunction_layout, 
+                                                                         self.configuration_layout,
                                                                          self.handle_subfunction_button,
-                                                                         self.image_objects,
-                                                                         self._image_label)
+                                                                         self.image)
 
         self.current_subfunction = None
-
-        # if trigger_update:
-        #     self.update()
 
     def handle_subfunction_button(self):
         source = self.sender()
@@ -307,29 +286,17 @@ class LogicalMarkerPlugin(Plugin):
             source.setChecked(True)
             return
 
-        # I believe pressing a button should never change what's drawn on the image.
-        self.functions[self.current_function].handleNewSubfunction(self._widget,
+        self.functions[self.current_function].handleNewSubfunction(self.master_widget,
                                                                    source,
-                                                                   self._values_layout)
+                                                                   self.configuration_layout)
 
         self.current_subfunction = source.text()
-        # self.update()
-
 
     def shutdown_plugin(self):
         pass
 
     def save_settings(self, plugin_settings, instance_settings):
-        # TODO save intrinsic configuration, usually using:
-        # instance_settings.set_value(k, v)
         pass
 
     def restore_settings(self, plugin_settings, instance_settings):
-        # TODO restore intrinsic configuration, usually using:
-        # v = instance_settings.value(k)
         pass
-
-    #def trigger_configuration(self):
-        # Comment in to signal that the plugin has a way to configure
-        # This will enable a setting button (gear icon) in each dock widget title bar
-        # Usually used to open a modal configuration dialog
