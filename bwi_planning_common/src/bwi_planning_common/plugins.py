@@ -1,7 +1,7 @@
 from qt_gui.plugin import Plugin
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QFrame, QHBoxLayout, QLabel, QLineEdit, \
-                                    QPixmap, QPushButton, QTextBrowser, QVBoxLayout, \
+from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLineEdit, \
+                                    QPixmap, QPushButton, QColor, QTextBrowser, QVBoxLayout, \
                                     QWidget
 # from python_qt_binding.QtCore import SIGNAL
 
@@ -13,16 +13,21 @@ def clear_layout(layout):
 
 class LocationFunction(object):
 
-    def __init__(self):
+    def __init__(self, map_size):
         self.subfunction_buttons = None
         self.current_subfunction = "Edit Location"
+
+        # TODO read from file.
+        self.location_image = QImage(map_size, QImage.Format_ARGB32)
+        self.location_image.fill(QColor(0,0,0,0))
+        self.location_names = {}
 
     def handleSubfunctionReset(self, 
                                widget,
                                subfunction_layout,
                                values_layout,
                                subfunction_button_callback,
-                               image_objects,
+                               image_mask,
                                image_label):
 
         if self.subfunction_buttons is not None:
@@ -38,13 +43,9 @@ class LocationFunction(object):
             subfunction_layout.addWidget(button)
             self.subfunction_buttons.append(button)
 
+        self.image_mask = image_mask
         # When this function is engaged, 
         clear_layout(values_layout)
-
-        # TODO display all the current locations that we know about. Until then, clear everything that is drawn on the
-        # image.
-        if len(image_objects) != 0:
-            del image_objects[:]
 
         # Handle mouse event
         image_label.mousePressEvent = self.mousePressEvent
@@ -75,6 +76,7 @@ class LocationFunction(object):
         # Switch to add/remove depending on the subfunction button pressed.
         self.current_subfunction = source.text()
 
+
 class DoorFunction(object):
 
     def __init__(self):
@@ -104,11 +106,6 @@ class DoorFunction(object):
 
         # When this function is engaged, 
         clear_layout(values_layout)
-
-        # TODO display all the current locations that we know about. Until then, clear everything that is drawn on the
-        # image.
-        if len(image_objects) != 0:
-            del image_objects[:]
 
         # Handle mouse event
         image_label.mousePressEvent = self.handleMouseEvent
@@ -162,11 +159,6 @@ class ObjectFunction(object):
 
         # When this function is engaged, 
         clear_layout(values_layout)
-
-        # TODO display all the current locations that we know about. Until then, clear everything that is drawn on the
-        # image.
-        if len(image_objects) != 0:
-            del image_objects[:]
 
         # Handle mouse event
         image_label.mousePressEvent = self.handleMouseEvent
@@ -239,8 +231,14 @@ class LogicalMarkerPlugin(Plugin):
         myScaledPixmap = myPixmap.scaled(1080, 480, Qt.KeepAspectRatio)
         self._image_label.setPixmap(myScaledPixmap)
 
-        self.image_objects = []
+        self.image_objects = None
         self._master_layout.addWidget(self._image_label)
+
+        # Set defaults to handle mouse events, as if these are not setup and a user clicks on the image, then all future
+        # mouse events are ignored.
+        self._image_label.mousePressEvent = self.defaultMouseHandler
+        self._image_label.mouseMoveEvent = self.defaultMouseHandler
+        self._image_label.mouseReleaseEvent = self.defaultMouseHandler
 
         self._master_layout.addWidget(self.HLine())
 
@@ -253,6 +251,10 @@ class LogicalMarkerPlugin(Plugin):
         context.add_widget(self._widget)
 
         #self.connect(self._widget, SIGNAL("update"), self.update)
+
+    def defaultMouseHandler(self, event):
+        # Do nothing.
+        pass
 
     def HLine(self):
         """
