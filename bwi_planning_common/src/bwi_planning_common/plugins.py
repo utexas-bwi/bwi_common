@@ -106,17 +106,31 @@ class LocationFunction(object):
             self.current_selection_image = QImage(image.size(), QImage.Format_ARGB32)
             self.current_selection_image.fill(QColor(0,0,0,0))
 
+        self.new_selection = None
+        self.erase_new_selection = None
+
         self.updateOverlay()
 
     def mousePressEvent(self, event):
-        if self.start_point is not None:
-            self.image.overlay_image.fill(QColor(0,0,0,0))
-            self.image.update(self.get_rect(self.start_point, self.current_point))
+
+        self.erase_new_selection = event.button() == Qt.RightButton
+
+        self.new_selection = None
         self.start_point = event.pos()
         self.current_point = event.pos()
 
     def mouseReleaseEvent(self, event):
         self.mouseMoveEvent(event)
+        if self.new_selection is not None:
+            painter = QPainter(self.current_selection_image)
+            painter.setCompositionMode(QPainter.CompositionMode_Source)
+            if self.erase_new_selection:
+                painter.fillRect(self.new_selection, QColor(0,0,0,0))
+            else:
+                painter.fillRect(self.new_selection, QColor(255,0,0,128))
+            painter.end()
+        self.new_selection = None
+        self.erase_new_selection = None
 
     def mouseMoveEvent(self, event):
 
@@ -125,15 +139,9 @@ class LocationFunction(object):
 
         # Draw new mark.
         self.current_point = event.pos()
-        painter = QPainter(self.current_selection_image)
-        painter.setPen(QColor(255,0,0,128))
-        painter.setBrush(QColor(255,0,0,128))
         self.new_selection = self.get_rect(self.start_point, self.current_point)
-        draw_rect.setHeight(draw_rect.height() - 1)
-        draw_rect.setWidth(draw_rect.width() - 1)
-        painter.drawRect(draw_rect)
-
-        painter.end()
+        self.new_selection.setHeight(self.new_selection.height() - 1)
+        self.new_selection.setWidth(self.new_selection.width() - 1)
 
         new_overlay_update_rect = self.get_rect(self.start_point, self.current_point)
         self.updateOverlay(self.get_max_rect(old_overlay_update_rect, new_overlay_update_rect))
@@ -174,12 +182,19 @@ class LocationFunction(object):
         # Redraw the overlay image from scratch using the location image and current location.
         self.image.overlay_image.fill(QColor(0,0,0,0))
         painter = QPainter(self.image.overlay_image)
+        painter.setBackgroundMode(Qt.TransparentMode)
         if self.location_image is not None:
             painter.drawImage(0, 0, self.location_image)
         if self.current_selection_image is not None:
             painter.drawImage(0, 0, self.current_selection_image)
+        if self.new_selection is not None:
+            painter.setCompositionMode(QPainter.CompositionMode_Source)
+            if self.erase_new_selection:
+                painter.fillRect(self.new_selection, QColor(0,0,0,0))
+            else:
+                painter.fillRect(self.new_selection, QColor(255,0,0,128))
+            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         painter.end()
-
         if rect is None:
             self.image.update()
         else:
