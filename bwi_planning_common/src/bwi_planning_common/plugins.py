@@ -1,16 +1,20 @@
 from functools import partial
 from qt_gui.plugin import Plugin
 from python_qt_binding.QtCore import QPoint, Qt
-from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLineEdit, \
+from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLayout, QLineEdit, \
                                     QPainter, QPolygon, QPushButton, QColor, QVBoxLayout, \
                                     QWidget
 # from python_qt_binding.QtCore import SIGNAL
 
-def clear_layout(layout):
+def clearLayoutAndFixHeight(layout):
     # Clear all subfunction buttons.
     while layout.count():
         item = layout.takeAt(0)
-        item.widget().deleteLater()
+        if item.widget() is not None:
+            item.widget().deleteLater()
+    height_label = QLabel()
+    height_label.setFixedHeight(30)
+    layout.addWidget(height_label)
 
 class MapImage(QLabel):
 
@@ -24,7 +28,7 @@ class MapImage(QLabel):
 
         # Set defaults to handle mouse events, as if these are not setup and a user clicks on the image, then all future
         # mouse events are ignored.
-        self.deactivateMouseHooks()
+        self.enableDefaultMouseHooks()
 
         # Create an image for the original map. This will never change.
         # TODO read map from ROS param.
@@ -43,7 +47,7 @@ class MapImage(QLabel):
         # Do nothing.
         pass
 
-    def deactivateMouseHooks(self):
+    def enableDefaultMouseHooks(self):
         self.mousePressEvent = self.defaultMouseHandler
         self.mouseMoveEvent = self.defaultMouseHandler
         self.mouseReleaseEvent = self.defaultMouseHandler
@@ -69,7 +73,7 @@ class LocationFunction(object):
         self.default_subfunction = LocationFunction.EDIT_LOCATION_PROPERITIES
         self.current_subfunction = self.default_subfunction
 
-        self.current_selection_color = QColor(0, 128, 0, 255)
+        self.current_selection_color = Qt.black
 
         # Dictionary of polygons
         # TODO read from file
@@ -77,7 +81,7 @@ class LocationFunction(object):
         # Dictionary that maps location names to their colors
         self.location_colors = {}
         self.draw_location = {}
-        self.new_loc_counter = 0
+        self.new_loc_counter = 1
 
         self.currently_selected_location = None
 
@@ -92,11 +96,11 @@ class LocationFunction(object):
 
     def deactivateFunction(self):
 
-        clear_layout(self.subfunction_layout)
+        clearLayoutAndFixHeight(self.subfunction_layout)
         self.subfunction_buttons.clear()
-        self.image.deactivateMouseHooks()
+        self.image.enableDefaultMouseHooks()
 
-        self.clearSelectedLocation()
+        self.clearActiveLocation()
         self.updateCurrentLocation(None)
 
         # Just in case we were editing a location, that location was not being drawn. 
@@ -108,7 +112,7 @@ class LocationFunction(object):
     def activateFunction(self):
 
         # Add all the necessary buttons to the subfunction layout.
-        clear_layout(self.subfunction_layout)
+        clearLayoutAndFixHeight(self.subfunction_layout)
         for button_text in [LocationFunction.ADD_LOCATION, 
                             LocationFunction.EDIT_LOCATION]:
             button = QPushButton(button_text, self.widget)
@@ -116,18 +120,19 @@ class LocationFunction(object):
             button.setCheckable(True)
             self.subfunction_layout.addWidget(button)
             self.subfunction_buttons[button_text] = button
+        self.subfunction_layout.addStretch(1)
 
         # ActivateMouseHooks.
         self.image.mousePressEvent = self.mousePressEvent
         self.image.mouseMoveEvent = self.mouseMoveEvent
         self.image.mouseReleaseEvent = self.mouseReleaseEvent
 
-        self.clearSelectedLocation()
+        self.clearActiveLocation()
         self.updateCurrentLocation(None)
 
         self.updateOverlay()
 
-    def clearSelectedLocation(self):
+    def clearActiveLocation(self):
 
         # Make sure all selections are clear.
         self.new_selection_start_point = None
@@ -156,52 +161,75 @@ class LocationFunction(object):
         self.current_subfunction = source_text
 
         # Reset any selections.
-        self.clearSelectedLocation()
+        self.clearActiveLocation()
 
         if ((self.current_subfunction == LocationFunction.ADD_LOCATION) or
             (self.current_subfunction == LocationFunction.EDIT_LOCATION)):
-            clear_layout(self.configuration_layout)
+            clearLayoutAndFixHeight(self.configuration_layout)
             for button_text in ["Done", "Cancel"]:
                 button = QPushButton(button_text, self.widget)
                 button.clicked[bool].connect(partial(self.finish_location_edit, button_text))
                 self.configuration_layout.addWidget(button)
+            self.configuration_layout.addStretch(1)
 
-        #TODO handle new subfunction based on source
-        # 1. For add/edit location, done and cancel buttons need to be added to the configuration layout. All other
-        # subfunction buttons need to be disabled. Additionally,
-        # for edit, the current location needs to be popped to self.current_selection and self.current_selection_backup.
-        # 2. For remove location, remove the current location and reset subfunction to edit location properties with
-        # nothing selected.
+        if (self.current_subfunction == LocationFunction.EDIT_LOCATION):
+            self.draw_location[self.currently_selected_location] = False 
+            self.current_selection = self.locations[self.currently_selected_location]
+            self.editing_location = self.currently_selected_location
 
         self.updateCurrentLocation(currently_selected_location)
+        print "asdf"
+        self.updateOverlay()
 
     def finish_location_edit(self, button_text):
+        select_location = None
         if button_text == "Done" and self.current_selection is not None:
             for location in self.locations:
                 # Before adding this location, remove from all other locations any portion that is now part of this one.
                 self.locations[location] = self.locations[location].subtracted(self.current_selection) 
 
-            new_location_name = self.generate_new_location_id()
-            self.locations[new_location_name] = self.current_selection
-            self.location_colors[new_location_name] = self.getUniqueColor()
-            self.draw_location[new_location_name] = True
-            self.new_loc_counter += 1
-            self.currently_selected_location = new_location_name
+            if self.current_subfunction == LocationFunction.ADD_LOCATION:
+                new_location_name = self.generate_new_location_id()
+                self.locations[new_location_name] = self.current_selection
+                self.location_colors[new_location_name] = self.getUniqueColor()
+                self.draw_location[new_location_name] = True
+                self.new_loc_counter += 1
+                select_location = new_location_name
+            else:
+                self.locations[self.editing_location] = self.current_selection
+                self.draw_location[self.editing_location] = True
+                select_location = self.editing_location
             
             self.check_all_locations()
 
-        self.clearSelectedLocation()
-        self.changeSubfunctionTo(LocationFunction.EDIT_LOCATION_PROPERITIES)
+        self.clearActiveLocation()
+        self.changeSubfunctionTo(LocationFunction.EDIT_LOCATION_PROPERITIES, select_location)
 
     def check_all_locations(self):
-        # Remove null locations. Merge two locations with the same name and remove the redundant one.
+        # TODO Remove null locations. Merge two locations with the same name and remove the redundant one.
         pass
+
+    def name_textedit_updated(self, text):
+        if text != self.currently_selected_location:
+            self.update_name_button.setEnabled(True)
+        else:
+            self.update_name_button.setEnabled(False)
 
     def update_location_name(self):
-        pass
+        old_loc_name = self.currently_selected_location
+        new_loc_name = self.update_name_textedit.text()
+        self.locations[new_loc_name] = self.locations.pop(old_loc_name)
+        self.location_colors[new_loc_name] = self.location_colors.pop(old_loc_name)
+        self.draw_location[new_loc_name] = self.draw_location.pop(old_loc_name)
+        self.updateCurrentLocation(new_loc_name)
 
     def remove_current_location(self):
-        pass
+        old_loc_name = self.currently_selected_location
+        self.locations.pop(old_loc_name)
+        self.location_colors.pop(old_loc_name)
+        self.draw_location.pop(old_loc_name)
+        self.updateCurrentLocation(None)
+        self.updateOverlay()
 
     def generate_new_location_id(self):
         return "new_loc" + str(self.new_loc_counter)
@@ -215,27 +243,33 @@ class LocationFunction(object):
             if loc is not None:
                 self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(True)
 
-                clear_layout(self.configuration_layout)
+                clearLayoutAndFixHeight(self.configuration_layout)
 
-                self.update_name_label = QLabel("Location Name: ", self.widget)
+                self.update_name_label = QLabel("Location (" + self.currently_selected_location + ")      New Name: ", self.widget)
                 self.configuration_layout.addWidget(self.update_name_label)
 
                 self.update_name_textedit = QLineEdit(self.widget)
+                self.update_name_textedit.setText(loc)
+                self.update_name_textedit.textEdited.connect(self.name_textedit_updated)
                 self.configuration_layout.addWidget(self.update_name_textedit)
 
                 self.update_name_button = QPushButton("Update location Name", self.widget)
                 self.update_name_button.clicked[bool].connect(self.update_location_name)
+                self.update_name_button.setEnabled(False)
                 self.configuration_layout.addWidget(self.update_name_button)
 
                 self.remove_location_button = QPushButton("Remove Location", self.widget)
                 self.remove_location_button.clicked[bool].connect(self.remove_current_location)
                 self.configuration_layout.addWidget(self.remove_location_button)
+
+                self.configuration_layout.addStretch(1)
             else:
                 self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(False)
-                clear_layout(self.configuration_layout)
+                clearLayoutAndFixHeight(self.configuration_layout)
                 self.update_name_label = None
                 self.update_name_textedit = None
                 self.update_name_button = None
+        self.updateOverlay()
 
     def mousePressEvent(self, event):
         if ((self.current_subfunction == LocationFunction.ADD_LOCATION) or
@@ -294,10 +328,13 @@ class LocationFunction(object):
 
         for location in self.locations:
             if self.draw_location[location]:
-                lineColor = QColor(self.location_colors[location])
-                lineColor.setAlpha(128)
-                brushColor = QColor(self.location_colors[location])
-                brushColor.setAlpha(64)
+                color = self.location_colors[location]
+                if self.currently_selected_location == location:
+                    color = self.current_selection_color
+                lineColor = QColor(color)
+                lineColor.setAlpha(255)
+                brushColor = QColor(color)
+                brushColor.setAlpha(128)
                 painter.setPen(lineColor)
                 painter.setBrush(brushColor)
                 painter.drawPolygon(self.locations[location])
@@ -340,8 +377,9 @@ class LocationFunction(object):
         Use golden ratio to generate unique colors.
         http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
         """
-        h = self.new_loc_counter * 0.618033988749895
-        return QColor.fromHsv(h, 0.5, 0.95)
+        h = int(359 * (self.new_loc_counter * 0.618033988749895))
+        h = h % 359 
+        return QColor.fromHsv(h, 255, 255)
 
     def get_rectangular_polygon(self, pt1, pt2):
         return QPolygon([pt1, QPoint(pt1.x(), pt2.y()), pt2, QPoint(pt2.x(), pt1.y())])
@@ -370,11 +408,13 @@ class LogicalMarkerPlugin(Plugin):
             button.setCheckable(True)
             self.function_layout.addWidget(button)
             self.function_buttons.append(button)
+        self.function_layout.addStretch(1)
 
         self.master_layout.addWidget(self.get_horizontal_line())
 
         # Subfunction toolbar
         self.subfunction_layout = QHBoxLayout()
+        clearLayoutAndFixHeight(self.subfunction_layout)
         self.master_layout.addLayout(self.subfunction_layout)
         self.current_subfunction = None
 
@@ -387,12 +427,17 @@ class LogicalMarkerPlugin(Plugin):
 
         # Configuration toolbar
         self.configuration_layout = QHBoxLayout()
+        clearLayoutAndFixHeight(self.configuration_layout)
         self.master_layout.addLayout(self.configuration_layout)
+
+        # Add a stretch at the bottom.
+        self.master_layout.addStretch(1)
 
         self.master_widget.setObjectName('LogicalMarkerPluginUI')
         if context.serial_number() > 1:
             self.master_widget.setWindowTitle(self.master_widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self.master_widget)
+
 
         # Activate the functions
         self.functions = {}
@@ -430,7 +475,7 @@ class LogicalMarkerPlugin(Plugin):
         self.current_function = source.text()
 
         # Clear all subfunction buttons.
-        clear_layout(self.subfunction_layout)
+        clearLayoutAndFixHeight(self.subfunction_layout)
 
         if self.current_function is not None:
             self.functions[self.current_function].activateFunction()
