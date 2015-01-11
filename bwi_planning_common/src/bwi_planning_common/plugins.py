@@ -1,10 +1,13 @@
 from functools import partial
-from qt_gui.plugin import Plugin
+import os.path
 from python_qt_binding.QtCore import QPoint, Qt
-from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLayout, QLineEdit, \
+from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QLineEdit, QMessageBox, \
                                     QPainter, QPolygon, QPushButton, QColor, QVBoxLayout, \
                                     QWidget
-# from python_qt_binding.QtCore import SIGNAL
+from qt_gui.plugin import Plugin
+import rospy
+
+import yaml
 
 def clearLayoutAndFixHeight(layout):
     # Clear all subfunction buttons.
@@ -38,7 +41,7 @@ class MapImage(QLabel):
 
         # Create a pixmap for the overlay. This will be modified by functions to change what is being displayed 
         # on the screen.
-        self.overlay_image = QImage(self.map_image.size(), QImage.Format_ARGB32) 
+        self.overlay_image = QImage(self.map_image.size(), QImage.Format_ARGB32_Premultiplied) 
         self.overlay_image.fill(Qt.transparent)
 
         self.update()
@@ -65,6 +68,7 @@ class LocationFunction(object):
     EDIT_EXISTING_AREA = 'Edit Location'
 
     def __init__(self,
+                 location_file,
                  widget,
                  subfunction_layout,
                  configuration_layout,
@@ -74,7 +78,6 @@ class LocationFunction(object):
         self.edit_area_selection_color = Qt.black
 
         # Dictionary of polygons
-        # TODO read from file
         self.locations = {}
         # Dictionary that maps location names to their colors
         self.location_colors = {}
@@ -97,7 +100,71 @@ class LocationFunction(object):
         self.image = image
         self.configuration_layout = configuration_layout
 
+        self.location_file = location_file
+        self.readLocationsFromFile()
+
         self.edit_area_button = {}
+
+    def readLocationsFromFile(self):
+
+        if os.path.isfile(self.location_file):
+            stream = open(self.location_file, 'r')
+            try:
+                contents = yaml.load(stream)
+                if "polygons" not in contents or "locations" not in contents:
+                    rospy.logerr("YAML file found at " + self.location_file + ", but does not seem to have been written by this tool. I'm starting locations from scratch.")
+                else:
+                    location_keys = contents["locations"]
+                    location_polygons = contents["polygons"]
+                    for index, location in enumerate(location_keys):
+                        self.locations[location] = QPolygon()
+                        self.locations[location].setPoints(location_polygons[index])
+                        (_,self.location_colors[location]) = self.getUniqueNameAndColor()
+                        self.draw_location[location] = True
+            except yaml.YAMLError:
+                rospy.logerr("File found at " + self.location_file + ", but cannot be parsed by YAML parser. I'm starting locations from scratch.")
+
+            stream.close()
+        else:
+            rospy.logwarn("Location file not found at " + self.location_file + ". I'm starting locations from scratch and will attempt to write to this location before exiting.")
+
+    def saveConfiguration(self):
+        self.writeLocationsToFile()
+
+    def writeLocationsToFile(self):
+
+        out_dict = {}
+        out_dict["locations"] = self.locations.keys()
+        out_dict["polygons"] = []
+        for index, location in enumerate(self.locations):
+            out_dict["polygons"].append([])
+            for i in range(self.locations[location].size()):
+                pt = self.locations[location].point(i)
+                out_dict["polygons"][index].append(pt.x())
+                out_dict["polygons"][index].append(pt.y())
+
+        yaml_file_dir = os.path.dirname(os.path.realpath(self.location_file))
+        image_file = yaml_file_dir + '/locations.pgm'
+
+        # Create an image with the location data, so that C++ programs don't need to rely on determining regions using polygons.
+        out_dict["data"] = 'locations.pgm'
+        location_image = QImage(self.image.overlay_image.size(), QImage.Format_RGB32)
+        location_image.fill(Qt.white)
+        painter = QPainter(location_image) 
+        for index, location in enumerate(self.locations):
+            if index > 254:
+                rospy.logerr("You have more than 255 locations, which is unsupported by the bwi_planning_common C++ code!")
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor(index + 1, index + 1, index + 1))
+            painter.drawPolygon(self.locations[location])
+        painter.end()
+        location_image.save(image_file)
+
+        stream = open(self.location_file, 'w')
+        yaml.dump(out_dict, stream)
+        stream.close()
+
+        self.is_modified = False
 
     def deactivateFunction(self):
 
@@ -183,20 +250,25 @@ class LocationFunction(object):
 
         edit_properties_location = None
 
-        if button_text == "Done" and self.current_selection is not None:
-            for location in self.locations:
-                # Before adding this location, remove from all locations any portion that is now part of this one.
-                self.locations[location] = self.locations[location].subtracted(self.current_selection) 
+        if (button_text == "Done") and (self.current_selection is not None) and (not self.current_selection.isEmpty()):
 
-            location_name = self.edit_existing_location 
-            if location_name == None:
+            # If the current location being added completely wipes out an old location, make sure you remove it.
+            for location in self.locations.keys():
+                if location != self.edit_existing_location:
+                    self.locations[location] = self.locations[location].subtracted(self.current_selection) 
+                    if self.locations[location].isEmpty():
+                        self.removeLocation(location)
+
+            if self.edit_existing_location == None:
                 # We're adding a new location. Generate a new location name and color.
-                (location_name, new_location_color) = self.getUniqueNameAndColor()
-                self.location_colors[location_name] = new_location_color
-            self.locations[location_name] = self.current_selection
-            self.draw_location[location_name] = True
-            edit_properties_location = location_name
-            self.check_all_locations()
+                (self.edit_existing_location, new_location_color) = self.getUniqueNameAndColor()
+                self.location_colors[self.edit_existing_location] = new_location_color
+            self.locations[self.edit_existing_location] = self.current_selection
+            self.draw_location[self.edit_existing_location] = True
+            edit_properties_location = self.edit_existing_location
+
+            # Since a location was added or edited, set file modification to true.
+            self.is_modified = True
         else:
             # Cancel was pressed, draw the original location if we were editing as before.
             if self.edit_existing_location is not None:
@@ -212,14 +284,11 @@ class LocationFunction(object):
         self.edit_area_button[LocationFunction.ADD_LOCATION].setEnabled(True)
         self.edit_area_button[LocationFunction.ADD_LOCATION].setChecked(False)
         self.edit_area_button[LocationFunction.EDIT_EXISTING_AREA].setChecked(False)
+        clearLayoutAndFixHeight(self.configuration_layout)
 
         if edit_properties_location is not None:
             self.edit_properties_location = edit_properties_location
             self.startPropertyEdit()
-
-    def check_all_locations(self):
-        # TODO Remove null locations. Merge two locations with the same name and remove the redundant one.
-        pass
 
     def startPropertyEdit(self):
 
@@ -279,23 +348,40 @@ class LocationFunction(object):
     def updateLocationName(self):
         old_loc_name = self.edit_properties_location
         new_loc_name = self.update_name_textedit.text()
-        self.locations[new_loc_name] = self.locations.pop(old_loc_name)
-        self.location_colors[new_loc_name] = self.location_colors.pop(old_loc_name)
-        self.draw_location[new_loc_name] = self.draw_location.pop(old_loc_name)
+
+        if new_loc_name in self.locations:
+            # This means that two locations need to be merged
+            self.locations[new_loc_name] = self.locations[new_loc_name].united(self.locations.pop(old_loc_name))
+        else:
+            # This is a simple rename task.
+            self.locations[new_loc_name] = self.locations.pop(old_loc_name)
+            self.location_colors[new_loc_name] = self.location_colors.pop(old_loc_name)
+            self.draw_location[new_loc_name] = self.draw_location.pop(old_loc_name)
+
+        # Since a location name was modified, set file modification to true.
+        self.is_modified = True
 
         # Restart property edit with the updated name.
+        self.endPropertyEdit()
         self.edit_properties_location = new_loc_name
         self.startPropertyEdit()
 
     def removeCurrentLocation(self):
         old_loc_name = self.edit_properties_location
-        self.locations.pop(old_loc_name)
-        self.location_colors.pop(old_loc_name)
-        self.draw_location.pop(old_loc_name)
-
+        self.removeLocation(old_loc_name)
         self.endPropertyEdit()
-
         self.updateOverlay()
+
+        # Since a location was removed, set file modification to true.
+        self.is_modified = True
+
+    def removeLocation(self, loc_name):
+        if loc_name in self.locations:
+            self.locations.pop(loc_name)
+        if loc_name in self.location_colors:
+            self.location_colors.pop(loc_name)
+        if loc_name in self.draw_location:
+            self.draw_location.pop(loc_name)
 
     def isModified(self):
         return self.is_modified
@@ -473,7 +559,8 @@ class LogicalMarkerPlugin(Plugin):
 
         # Activate the functions
         self.functions = {}
-        self.functions['Locations'] = LocationFunction(self.master_widget, 
+        self.functions['Locations'] = LocationFunction('/home/piyushk/test.yaml',
+                                                       self.master_widget, 
                                                        self.subfunction_layout, 
                                                        self.configuration_layout,
                                                        self.image)
@@ -513,7 +600,19 @@ class LogicalMarkerPlugin(Plugin):
             self.functions[self.current_function].activateFunction()
 
     def shutdown_plugin(self):
-        pass
+        modified = False
+        for function in self.functions:
+            if self.functions[function].isModified():
+                modified = True
+        if modified:
+            ret = QMessageBox.warning(self.master_widget, "Save",
+                        "The map has been modified.\n"
+                        "Do you want to save your changes?",
+                        QMessageBox.Save | QMessageBox.Discard)
+            if ret == QMessageBox.Save:
+                for function in self.functions:
+                    if self.functions[function].isModified():
+                        self.functions[function].saveConfiguration()
 
     def save_settings(self, plugin_settings, instance_settings):
         pass
