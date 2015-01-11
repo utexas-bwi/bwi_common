@@ -116,7 +116,7 @@ class LocationFunction(object):
         for button_text in [LocationFunction.ADD_LOCATION, 
                             LocationFunction.EDIT_LOCATION]:
             button = QPushButton(button_text, self.widget)
-            button.clicked[bool].connect(partial(self.changeSubfunctionTo, button_text))
+            button.clicked[bool].connect(partial(self.handleButtonPress, button_text))
             button.setCheckable(True)
             self.subfunction_layout.addWidget(button)
             self.subfunction_buttons[button_text] = button
@@ -145,6 +145,9 @@ class LocationFunction(object):
 
         self.updateOverlay()
 
+    def handleButtonPress(self, source_text):
+        self.changeSubfunctionTo(source_text)
+
     def changeSubfunctionTo(self, source_text, currently_selected_location = None):
 
         if source_text == self.current_subfunction:
@@ -163,6 +166,11 @@ class LocationFunction(object):
         # Reset any selections.
         self.clearActiveLocation()
 
+        if (self.current_subfunction == LocationFunction.EDIT_LOCATION):
+            self.draw_location[self.currently_selected_location] = False 
+            self.current_selection = QPolygon(self.locations[self.currently_selected_location])
+            self.editing_location = self.currently_selected_location
+
         if ((self.current_subfunction == LocationFunction.ADD_LOCATION) or
             (self.current_subfunction == LocationFunction.EDIT_LOCATION)):
             clearLayoutAndFixHeight(self.configuration_layout)
@@ -172,13 +180,13 @@ class LocationFunction(object):
                 self.configuration_layout.addWidget(button)
             self.configuration_layout.addStretch(1)
 
-        if (self.current_subfunction == LocationFunction.EDIT_LOCATION):
-            self.draw_location[self.currently_selected_location] = False 
-            self.current_selection = self.locations[self.currently_selected_location]
-            self.editing_location = self.currently_selected_location
+            self.subfunction_buttons[LocationFunction.ADD_LOCATION].setEnabled(False)
+            self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(False)
+            self.currently_selected_location = None
 
-        self.updateCurrentLocation(currently_selected_location)
-        print "asdf"
+        if self.current_subfunction == LocationFunction.EDIT_LOCATION_PROPERITIES:
+            self.subfunction_buttons[LocationFunction.ADD_LOCATION].setEnabled(True)
+            self.updateCurrentLocation(currently_selected_location)
         self.updateOverlay()
 
     def finish_location_edit(self, button_text):
@@ -199,6 +207,12 @@ class LocationFunction(object):
                 self.locations[self.editing_location] = self.current_selection
                 self.draw_location[self.editing_location] = True
                 select_location = self.editing_location
+                self.editing_location = None
+        else:
+            if self.current_subfunction == LocationFunction.EDIT_LOCATION:
+                self.draw_location[self.editing_location] = True
+                select_location = self.editing_location
+                self.editing_location = None
             
             self.check_all_locations()
 
@@ -238,37 +252,36 @@ class LocationFunction(object):
         return self.is_modified
 
     def updateCurrentLocation(self, loc):
-        if self.current_subfunction == LocationFunction.EDIT_LOCATION_PROPERITIES:
-            self.currently_selected_location = loc 
-            if loc is not None:
-                self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(True)
+        self.currently_selected_location = loc 
+        if loc is not None:
+            self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(True)
 
-                clearLayoutAndFixHeight(self.configuration_layout)
+            clearLayoutAndFixHeight(self.configuration_layout)
 
-                self.update_name_label = QLabel("Location (" + self.currently_selected_location + ")      New Name: ", self.widget)
-                self.configuration_layout.addWidget(self.update_name_label)
+            self.update_name_label = QLabel("Location (" + self.currently_selected_location + ")      New Name: ", self.widget)
+            self.configuration_layout.addWidget(self.update_name_label)
 
-                self.update_name_textedit = QLineEdit(self.widget)
-                self.update_name_textedit.setText(loc)
-                self.update_name_textedit.textEdited.connect(self.name_textedit_updated)
-                self.configuration_layout.addWidget(self.update_name_textedit)
+            self.update_name_textedit = QLineEdit(self.widget)
+            self.update_name_textedit.setText(loc)
+            self.update_name_textedit.textEdited.connect(self.name_textedit_updated)
+            self.configuration_layout.addWidget(self.update_name_textedit)
 
-                self.update_name_button = QPushButton("Update location Name", self.widget)
-                self.update_name_button.clicked[bool].connect(self.update_location_name)
-                self.update_name_button.setEnabled(False)
-                self.configuration_layout.addWidget(self.update_name_button)
+            self.update_name_button = QPushButton("Update location Name", self.widget)
+            self.update_name_button.clicked[bool].connect(self.update_location_name)
+            self.update_name_button.setEnabled(False)
+            self.configuration_layout.addWidget(self.update_name_button)
 
-                self.remove_location_button = QPushButton("Remove Location", self.widget)
-                self.remove_location_button.clicked[bool].connect(self.remove_current_location)
-                self.configuration_layout.addWidget(self.remove_location_button)
+            self.remove_location_button = QPushButton("Remove Location", self.widget)
+            self.remove_location_button.clicked[bool].connect(self.remove_current_location)
+            self.configuration_layout.addWidget(self.remove_location_button)
 
-                self.configuration_layout.addStretch(1)
-            else:
-                self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(False)
-                clearLayoutAndFixHeight(self.configuration_layout)
-                self.update_name_label = None
-                self.update_name_textedit = None
-                self.update_name_button = None
+            self.configuration_layout.addStretch(1)
+        else:
+            self.subfunction_buttons[LocationFunction.EDIT_LOCATION].setEnabled(False)
+            clearLayoutAndFixHeight(self.configuration_layout)
+            self.update_name_label = None
+            self.update_name_textedit = None
+            self.update_name_button = None
         self.updateOverlay()
 
     def mousePressEvent(self, event):
