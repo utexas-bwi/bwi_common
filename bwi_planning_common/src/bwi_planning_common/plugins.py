@@ -109,7 +109,10 @@ class LocationFunction(object):
         for location in self.draw_location:
             self.draw_location[location] = True
 
-        self.changeSubfunctionTo(self.default_subfunction)
+        if self.editing_area:
+            self.endAreaEdit("Cancel")
+        elif self.editing_properties:
+            self.endPropertyEdit()
 
     def activateFunction(self):
 
