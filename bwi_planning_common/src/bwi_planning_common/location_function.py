@@ -2,12 +2,12 @@
 
 from functools import partial
 import os.path
-from python_qt_binding.QtCore import QPoint, Qt
+from python_qt_binding.QtCore import QPoint, QSize, Qt
 from python_qt_binding.QtGui import QImage, QLabel, QLineEdit, QPainter, QPolygon, QPushButton, QColor
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight
+from .utils import clearLayoutAndFixHeight, scalePoint, scalePolygon
 
 class LocationFunction(object):
 
@@ -17,6 +17,7 @@ class LocationFunction(object):
 
     def __init__(self,
                  location_file,
+                 map,
                  widget,
                  subfunction_layout,
                  configuration_layout,
@@ -46,9 +47,11 @@ class LocationFunction(object):
         self.widget = widget
         self.subfunction_layout = subfunction_layout
         self.image = image
+        self.image_size = image.overlay_image.size()
         self.configuration_layout = configuration_layout
 
         self.location_file = location_file
+        self.map_size = QSize(map.map.info.width, map.map.info.height)
         self.readLocationsFromFile()
 
         self.edit_area_button = {}
@@ -67,6 +70,9 @@ class LocationFunction(object):
                     for index, location in enumerate(location_keys):
                         self.locations[location] = QPolygon()
                         self.locations[location].setPoints(location_polygons[index])
+                        self.locations[location] = scalePolygon(self.locations[location], 
+                                                                self.map_size,
+                                                                self.image_size)
                         (_,self.location_colors[location]) = self.getUniqueNameAndColor()
                         self.draw_location[location] = True
             except yaml.YAMLError:
@@ -88,15 +94,16 @@ class LocationFunction(object):
             out_dict["polygons"].append([])
             for i in range(self.locations[location].size()):
                 pt = self.locations[location].point(i)
-                out_dict["polygons"][index].append(pt.x())
-                out_dict["polygons"][index].append(pt.y())
+                scaled_pt = scalePoint(pt, self.image_size, self.map_size)
+                out_dict["polygons"][index].append(scaled_pt.x())
+                out_dict["polygons"][index].append(scaled_pt.y())
 
         yaml_file_dir = os.path.dirname(os.path.realpath(self.location_file))
         image_file = yaml_file_dir + '/locations.pgm'
 
         # Create an image with the location data, so that C++ programs don't need to rely on determining regions using polygons.
         out_dict["data"] = 'locations.pgm'
-        location_image = QImage(self.image.overlay_image.size(), QImage.Format_RGB32)
+        location_image = QImage(self.map_size, QImage.Format_RGB32)
         location_image.fill(Qt.white)
         painter = QPainter(location_image) 
         for index, location in enumerate(self.locations):
@@ -104,6 +111,7 @@ class LocationFunction(object):
                 rospy.logerr("You have more than 255 locations, which is unsupported by the bwi_planning_common C++ code!")
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(index + 1, index + 1, index + 1))
+            scaled_polygon = scalePolygon(self.locations[location], self.image_size, self.map_size)
             painter.drawPolygon(self.locations[location])
         painter.end()
         location_image.save(image_file)

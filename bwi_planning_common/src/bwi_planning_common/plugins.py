@@ -122,6 +122,7 @@ class LogicalMarkerPlugin(Plugin):
         # Activate the functions
         self.functions = {}
         self.functions['Locations'] = LocationFunction(locations_file,
+                                                       map,
                                                        self.master_widget, 
                                                        self.subfunction_layout, 
                                                        self.configuration_layout,

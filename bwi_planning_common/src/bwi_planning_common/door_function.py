@@ -3,12 +3,12 @@
 from functools import partial
 import math
 import os.path
-from python_qt_binding.QtCore import QPoint, Qt
+from python_qt_binding.QtCore import QPoint, QPointF, Qt
 from python_qt_binding.QtGui import QLabel, QLineEdit, QPainter, QPolygon, QPushButton
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight
+from .utils import clearLayoutAndFixHeight, transformPointToPixelCoordinates, transformPointToRealWorldCoordinates
 
 class Door(object):
 
@@ -67,6 +67,7 @@ class DoorFunction(object):
         self.widget = widget
         self.subfunction_layout = subfunction_layout
         self.image = image
+        self.image_size = image.overlay_image.size()
         self.configuration_layout = configuration_layout
 
         self.door_file = door_file
@@ -84,14 +85,20 @@ class DoorFunction(object):
                 contents = yaml.load(stream)
                 for door in contents:
                     door_key = door["name"]
-                    door_corner_pt_1 = QPoint(*door["door_corner_pt_1"])
-                    door_corner_pt_2 = QPoint(*door["door_corner_pt_2"])
+                    door_corner_pt_1 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_1"]), 
+                                                                        self.map,
+                                                                        self.image_size)
+                    door_corner_pt_2 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_2"]), 
+                                                                        self.map,
+                                                                        self.image_size)
                     approach_pts = door["approach"]
                     if len(approach_pts) != 2:
                         rospy.logerr("Door " + door_key + " read from file " + self.door_file + " has " + str(len(approach_pts)) + " approach points instead of 2. Ignoring this door.")
                         continue
-                    approach_pt_1 = QPoint(approach_pts[0]["point"][0], approach_pts[0]["point"][1])
-                    approach_pt_2 = QPoint(approach_pts[1]["point"][0], approach_pts[1]["point"][1])
+                    approach_pt_1 = QPointF(approach_pts[0]["point"][0], approach_pts[0]["point"][1])
+                    approach_pt_1 = transformPointToPixelCoordinates(approach_pt_1, self.map, self.image_size)
+                    approach_pt_2 = QPointF(approach_pts[1]["point"][0], approach_pts[1]["point"][1])
+                    approach_pt_2 = transformPointToPixelCoordinates(approach_pt_2, self.map, self.image_size)
                     self.doors[door_key] = Door(door_corner_pt_1,
                                                 door_corner_pt_2,
                                                 approach_pt_1,
@@ -112,18 +119,21 @@ class DoorFunction(object):
         out_list = []
         for door_name in self.doors:
             door = self.doors[door_name]
+            door_corner_pt_1 = transformPointToRealWorldCoordinates(door.door_corner_pt_1, self.map, self.image_size)
+            door_corner_pt_2 = transformPointToRealWorldCoordinates(door.door_corner_pt_2, self.map, self.image_size)
             door_dict = {}
             door_dict["name"] = door_name
-            door_dict["door_corner_pt_1"] = [door.door_corner_pt_1.x(), door.door_corner_pt_1.y()]
-            door_dict["door_corner_pt_2"] = [door.door_corner_pt_2.x(), door.door_corner_pt_2.y()]
+            door_dict["door_corner_pt_1"] = [door_corner_pt_1.x(), door_corner_pt_1.y()]
+            door_dict["door_corner_pt_2"] = [door_corner_pt_2.x(), door_corner_pt_2.y()]
             door_dict["approach"] = []
-            mid_point = (door.door_corner_pt_1 + door.door_corner_pt_2) / 2
+            mid_point = (door_corner_pt_1 + door_corner_pt_2) / 2
             for point in [door.approach_pt_1, door.approach_pt_2]:
                 approach_pt_dict = {}
                 approach_pt_dict["from"] = self.location_function.getLocationNameFromPoint(point)
-                diff_pt = point - mid_point
+                transformed_point = transformPointToRealWorldCoordinates(point, self.map, self.image_size)
+                diff_pt = transformed_point - mid_point
                 approach_angle = math.atan2(diff_pt.y(), diff_pt.x())
-                approach_pt_dict["point"] = [point.x(), point.y(), approach_angle]
+                approach_pt_dict["point"] = [transformed_point.x(), transformed_point.y(), approach_angle]
                 door_dict["approach"].append(approach_pt_dict)
             out_list.append(door_dict)
 
