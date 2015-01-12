@@ -5,10 +5,16 @@ from PIL import Image
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 import os
+import sys
 import yaml
 
 def loadMapFromFile(yaml_file):
-    map_info = yaml.load(open(yaml_file, 'r'))
+    try:
+        map_info = yaml.load(open(yaml_file, 'r'))
+    except:
+        sys.stderr.write("Unable to load yaml file for map: %s\n" %yaml_file)
+        return None
+
     resolution = map_info.get('resolution')
     origin = map_info.get('origin')
     negate = map_info.get('negate')
