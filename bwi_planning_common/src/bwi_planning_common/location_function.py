@@ -294,14 +294,14 @@ class LocationFunction(object):
         self.updateOverlay()
 
     def locationNameTextEdited(self, text):
-        if text != self.edit_properties_location:
+        if str(text) != self.edit_properties_location:
             self.update_name_button.setEnabled(True)
         else:
             self.update_name_button.setEnabled(False)
 
     def updateLocationName(self):
         old_loc_name = self.edit_properties_location
-        new_loc_name = self.update_name_textedit.text()
+        new_loc_name = str(self.update_name_textedit.text())
 
         if new_loc_name in self.locations:
             # This means that two locations need to be merged

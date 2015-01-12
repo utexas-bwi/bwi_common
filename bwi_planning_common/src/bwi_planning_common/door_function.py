@@ -37,6 +37,7 @@ class DoorFunction(object):
 
     def __init__(self,
                  door_file,
+                 map,
                  location_function,
                  widget,
                  subfunction_layout,
@@ -69,6 +70,7 @@ class DoorFunction(object):
         self.configuration_layout = configuration_layout
 
         self.door_file = door_file
+        self.map = map
         self.location_function = location_function
         self.readDoorsFromFile()
 
@@ -76,63 +78,58 @@ class DoorFunction(object):
 
     def readDoorsFromFile(self):
 
-        # if os.path.isfile(self.door_file):
-        #     stream = open(self.door_file, 'r')
-        #     try:
-        #         contents = yaml.load(stream)
-        #         if "polygons" not in contents or "doors" not in contents:
-        #             rospy.logerr("YAML file found at " + self.door_file + ", but does not seem to have been written by this tool. I'm starting doors from scratch.")
-        #         else:
-        #             door_keys = contents["doors"]
-        #             door_polygons = contents["polygons"]
-        #             for index, door in enumerate(door_keys):
-        #                 self.doors[door] = QPolygon()
-        #                 self.doors[door].setPoints(door_polygons[index])
-        #                 self.draw_door[door] = True
-        #     except yaml.YAMLError:
-        #         rospy.logerr("File found at " + self.door_file + ", but cannot be parsed by YAML parser. I'm starting doors from scratch.")
+        if os.path.isfile(self.door_file):
+            stream = open(self.door_file, 'r')
+            try:
+                contents = yaml.load(stream)
+                for door in contents:
+                    door_key = door["name"]
+                    door_corner_pt_1 = QPoint(*door["door_corner_pt_1"])
+                    door_corner_pt_2 = QPoint(*door["door_corner_pt_2"])
+                    approach_pts = door["approach"]
+                    if len(approach_pts) != 2:
+                        rospy.logerr("Door " + door_key + " read from file " + self.door_file + " has " + str(len(approach_pts)) + " approach points instead of 2. Ignoring this door.")
+                        continue
+                    approach_pt_1 = QPoint(approach_pts[0]["point"][0], approach_pts[0]["point"][1])
+                    approach_pt_2 = QPoint(approach_pts[1]["point"][0], approach_pts[1]["point"][1])
+                    self.doors[door_key] = Door(door_corner_pt_1,
+                                                door_corner_pt_2,
+                                                approach_pt_1,
+                                                approach_pt_2)
+                    self.draw_door[door_key] = True
+            except yaml.YAMLError, KeyError:
+                rospy.logerr("File found at " + self.door_file + ", but cannot be parsed by YAML parser. I'm starting doors from scratch.")
 
-        #     stream.close()
-        # else:
-        #     rospy.logwarn("Door file not found at " + self.door_file + ". I'm starting doors from scratch and will attempt to write to this door before exiting.")
-
-        pass
+            stream.close()
+        else:
+            rospy.logwarn("Door file not found at " + self.door_file + ". I'm starting doors from scratch and will attempt to write to this door before exiting.")
 
     def saveConfiguration(self):
         self.writeDoorsToFile()
 
     def writeDoorsToFile(self):
 
-        # out_dict = {}
-        # out_dict["doors"] = self.doors.keys()
-        # out_dict["polygons"] = []
-        # for index, door in enumerate(self.doors):
-        #     out_dict["polygons"].append([])
-        #     for i in range(self.doors[door].size()):
-        #         pt = self.doors[door].point(i)
-        #         out_dict["polygons"][index].append(pt.x())
-        #         out_dict["polygons"][index].append(pt.y())
+        out_list = []
+        for door_name in self.doors:
+            door = self.doors[door_name]
+            door_dict = {}
+            door_dict["name"] = door_name
+            door_dict["door_corner_pt_1"] = [door.door_corner_pt_1.x(), door.door_corner_pt_1.y()]
+            door_dict["door_corner_pt_2"] = [door.door_corner_pt_2.x(), door.door_corner_pt_2.y()]
+            door_dict["approach"] = []
+            mid_point = (door.door_corner_pt_1 + door.door_corner_pt_2) / 2
+            for point in [door.approach_pt_1, door.approach_pt_2]:
+                approach_pt_dict = {}
+                approach_pt_dict["from"] = self.location_function.getLocationNameFromPoint(point)
+                diff_pt = point - mid_point
+                approach_angle = math.atan2(diff_pt.y(), diff_pt.x())
+                approach_pt_dict["point"] = [point.x(), point.y(), approach_angle]
+                door_dict["approach"].append(approach_pt_dict)
+            out_list.append(door_dict)
 
-        # yaml_file_dir = os.path.dirname(os.path.realpath(self.door_file))
-        # image_file = yaml_file_dir + '/doors.pgm'
-
-        # # Create an image with the door data, so that C++ programs don't need to rely on determining regions using polygons.
-        # out_dict["data"] = 'doors.pgm'
-        # door_image = QImage(self.image.overlay_image.size(), QImage.Format_RGB32)
-        # door_image.fill(Qt.white)
-        # painter = QPainter(door_image) 
-        # for index, door in enumerate(self.doors):
-        #     if index > 254:
-        #         rospy.logerr("You have more than 255 doors, which is unsupported by the bwi_planning_common C++ code!")
-        #     painter.setPen(Qt.NoPen)
-        #     painter.setBrush(QColor(index + 1, index + 1, index + 1))
-        #     painter.drawPolygon(self.doors[door])
-        # painter.end()
-        # door_image.save(image_file)
-
-        # stream = open(self.door_file, 'w')
-        # yaml.dump(out_dict, stream)
-        # stream.close()
+        stream = open(self.door_file, 'w')
+        yaml.dump(out_list, stream)
+        stream.close()
 
         self.is_modified = False
 
@@ -318,14 +315,14 @@ class DoorFunction(object):
         self.updateOverlay()
 
     def doorNameTextEdited(self, text):
-        if text != self.edit_properties_door and text not in self.doors:
+        if str(text) != self.edit_properties_door and str(text) not in self.doors:
             self.update_name_button.setEnabled(True)
         else:
             self.update_name_button.setEnabled(False)
 
     def updateDoorName(self):
         old_loc_name = self.edit_properties_door
-        new_loc_name = self.update_name_textedit.text()
+        new_loc_name = str(self.update_name_textedit.text())
 
         # This is a simple rename task.
         self.doors[new_loc_name] = self.doors.pop(old_loc_name)

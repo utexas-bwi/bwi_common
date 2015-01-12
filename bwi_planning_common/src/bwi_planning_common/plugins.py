@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from bwi_tools import getImageFileLocationFromMapFile as getImageFileLocation, loadMapFromFile
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QMessageBox, QPainter, QPushButton, \
                                     QVBoxLayout, QWidget
@@ -9,9 +10,11 @@ from .location_function import LocationFunction
 from .door_function import DoorFunction
 from .utils import clearLayoutAndFixHeight
 
+import rospy
+
 class MapImage(QLabel):
 
-    def __init__(self, parent=None):
+    def __init__(self, map_image_location, parent=None):
         super(MapImage, self).__init__(parent)
 
         # Image
@@ -23,9 +26,6 @@ class MapImage(QLabel):
         # mouse events are ignored.
         self.enableDefaultMouseHooks()
 
-        # Create an image for the original map. This will never change.
-        # TODO read map from ROS param.
-        map_image_location = "/home/piyushk/rocon/src/bwi_common/utexas_gdc/maps/3ne-real-new.pgm"
         map_image = QImage(map_image_location)
         self.map_image = map_image.scaled(1080, 480, Qt.KeepAspectRatio)
 
@@ -56,7 +56,20 @@ class LogicalMarkerPlugin(Plugin):
     def __init__(self, context):
         super(LogicalMarkerPlugin, self).__init__(context)
 
-        # TODO read in map file and data directory.
+        # Create an image for the original map. This will never change.
+        try:
+            self.map_yaml_file_str = rospy.get_param("~map_file")
+            self.data_directory = rospy.get_param("~data_directory")
+        except KeyError:
+            rospy.logfatal("~map_file and ~data_directory need to be set to use the logical marker")
+            return
+
+        map_image_location = getImageFileLocation(self.map_yaml_file_str)
+        map = loadMapFromFile(self.map_yaml_file_str)
+        locations_file = self.data_directory + "/locations.yaml"
+        doors_file = self.data_directory + "/doors.yaml"
+        objects_file = self.data_directory + "/objects.yaml"
+
         # Give QObjects reasonable names
         self.setObjectName('LogicalMarkerPlugin')
 
@@ -87,7 +100,7 @@ class LogicalMarkerPlugin(Plugin):
 
         self.master_layout.addWidget(self.get_horizontal_line())
 
-        self.image = MapImage(self.master_widget)
+        self.image = MapImage(map_image_location, self.master_widget)
         self.master_layout.addWidget(self.image)
 
         self.master_layout.addWidget(self.get_horizontal_line())
@@ -108,12 +121,13 @@ class LogicalMarkerPlugin(Plugin):
 
         # Activate the functions
         self.functions = {}
-        self.functions['Locations'] = LocationFunction('/home/piyushk/test.yaml',
+        self.functions['Locations'] = LocationFunction(locations_file,
                                                        self.master_widget, 
                                                        self.subfunction_layout, 
                                                        self.configuration_layout,
                                                        self.image)
-        self.functions['Doors'] = DoorFunction('/home/piyushk/doors.yaml',
+        self.functions['Doors'] = DoorFunction(doors_file,
+                                               map,
                                                self.functions['Locations'],
                                                self.master_widget, 
                                                self.subfunction_layout, 
@@ -166,8 +180,7 @@ class LogicalMarkerPlugin(Plugin):
                         QMessageBox.Save | QMessageBox.Discard)
             if ret == QMessageBox.Save:
                 for function in self.functions:
-                    if self.functions[function].isModified():
-                        self.functions[function].saveConfiguration()
+                    self.functions[function].saveConfiguration()
 
     def save_settings(self, plugin_settings, instance_settings):
         pass

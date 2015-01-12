@@ -29,6 +29,19 @@ def loadMapFromFile(yaml_file):
     return loadMapFromImageFile(image_file, resolution,
           negate, occupied_thresh, free_thresh, origin)
 
+def getImageFileLocationFromMapFile(yaml_file):
+    try:
+        map_info = yaml.load(open(yaml_file, 'r'))
+    except:
+        sys.stderr.write("Unable to load yaml file for map: %s\n" %yaml_file)
+        return None
+
+    image_file = map_info.get('image')
+    if image_file[0] != '/': 
+        yaml_file_dir = os.path.dirname(os.path.realpath(yaml_file))
+        image_file = yaml_file_dir + '/' + image_file
+    return image_file
+
 def loadMapFromImageFile(image_file, resolution, negate, occupied_thresh,
                     free_thresh, origin):
 
