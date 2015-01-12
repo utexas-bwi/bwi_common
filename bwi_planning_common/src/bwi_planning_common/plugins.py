@@ -6,6 +6,7 @@ from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QMessag
 from qt_gui.plugin import Plugin
 
 from .location_function import LocationFunction
+from .door_function import DoorFunction
 from .utils import clearLayoutAndFixHeight
 
 class MapImage(QLabel):
@@ -68,7 +69,7 @@ class LogicalMarkerPlugin(Plugin):
         self.master_layout.addLayout(self.function_layout)
         self.function_buttons = []
         self.current_function = None
-        for button_text in ['Locations']: #, 'Doors', 'Objects']:
+        for button_text in ['Locations', 'Doors']: #, 'Objects']:
             button = QPushButton(button_text, self.master_widget)
             button.clicked[bool].connect(self.handle_function_button)
             button.setCheckable(True)
@@ -112,6 +113,12 @@ class LogicalMarkerPlugin(Plugin):
                                                        self.subfunction_layout, 
                                                        self.configuration_layout,
                                                        self.image)
+        self.functions['Doors'] = DoorFunction('/home/piyushk/doors.yaml',
+                                               self.functions['Locations'],
+                                               self.master_widget, 
+                                               self.subfunction_layout, 
+                                               self.configuration_layout,
+                                               self.image)
 
     def construct_layout(self):
         pass
