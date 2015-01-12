@@ -116,6 +116,11 @@ class LocationFunction(object):
 
     def deactivateFunction(self):
 
+        if self.editing_area:
+            self.endAreaEdit("Cancel")
+        elif self.editing_properties:
+            self.endPropertyEdit()
+
         clearLayoutAndFixHeight(self.subfunction_layout)
         self.edit_area_button.clear()
         self.image.enableDefaultMouseHooks()
@@ -123,11 +128,6 @@ class LocationFunction(object):
         # Just in case we were editing a location, that location was not being drawn. 
         for location in self.draw_location:
             self.draw_location[location] = True
-
-        if self.editing_area:
-            self.endAreaEdit("Cancel")
-        elif self.editing_properties:
-            self.endPropertyEdit()
 
     def activateFunction(self):
 

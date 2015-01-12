@@ -4,7 +4,7 @@ from functools import partial
 import math
 import os.path
 from python_qt_binding.QtCore import QPoint, Qt
-from python_qt_binding.QtGui import QImage, QLabel, QLineEdit, QPainter, QPolygon, QPushButton, QColor
+from python_qt_binding.QtGui import QLabel, QLineEdit, QPainter, QPolygon, QPushButton
 import rospy
 import yaml
 
@@ -24,10 +24,10 @@ class Door(object):
         self.approach_pt_2 = approach_pt_2
 
     def clone(self):
-        return Door(QPoint(self.door_corner_pt_1,
-                           self.door_corner_pt_2,
-                           self.approach_pt_1,
-                           self.approach_pt_2))
+        return Door(QPoint(self.door_corner_pt_1),
+                    QPoint(self.door_corner_pt_2),
+                    QPoint(self.approach_pt_1),
+                    QPoint(self.approach_pt_2))
 
 class DoorFunction(object):
 
@@ -45,7 +45,7 @@ class DoorFunction(object):
 
         self.edit_door_location_button = None
         self.selected_door_color = Qt.blue
-        self.unselected_door_color = Qt.green
+        self.unselected_door_color = Qt.darkGreen
 
         # Dictionary that maps door names to the actual door object (string->Door)
         self.doors = {}
@@ -138,6 +138,11 @@ class DoorFunction(object):
 
     def deactivateFunction(self):
 
+        if self.editing_door_location:
+            self.endDoorLocationEdit("Cancel")
+        elif self.editing_properties:
+            self.endPropertyEdit()
+
         clearLayoutAndFixHeight(self.subfunction_layout)
         self.edit_door_location_button.clear()
         self.image.enableDefaultMouseHooks()
@@ -145,11 +150,6 @@ class DoorFunction(object):
         # Just in case we were editing a door, that door was not being drawn. 
         for door in self.draw_door:
             self.draw_door[door] = True
-
-        if self.editing_door_location:
-            self.endDoorLocationEdit("Cancel")
-        elif self.editing_properties:
-            self.endPropertyEdit()
 
     def activateFunction(self):
 
@@ -405,6 +405,7 @@ class DoorFunction(object):
                                               approach_pt_2)
                 self.new_selection_start_pt = None
                 self.new_selection_end_point = None
+                self.updateOverlay()
 
     def mouseMoveEvent(self, event):
 
@@ -417,21 +418,20 @@ class DoorFunction(object):
                 # Next determine the region that needs to be update because of the new mark.
                 new_overlay_update_rect = self.getRectangularPolygon(self.new_selection_start_point, self.new_selection_end_point)
                 overlay_update_region = (old_overlay_update_rect + new_overlay_update_rect).boundingRect()
-            elif self.move_selection is not None:
-                # Copy the old point.
-                old_loc = QPoint(self.move_selection)
-                # Move the current point.
-                self.move_selection.setX(event.pos().x())
-                self.move_selection.setY(event.pos().y())
-                overlay_update_region = self.getRectangularPolygon(old_loc, self.move_selection).boundingRect()
-
-            if overlay_update_region is not None:
                 overlay_update_region.setTopLeft(QPoint(overlay_update_region.topLeft().x() - 4,
                                                         overlay_update_region.topLeft().y() - 4))
                 overlay_update_region.setBottomRight(QPoint(overlay_update_region.bottomRight().x() + 4,
                                                             overlay_update_region.bottomRight().y() + 4))
 
                 self.updateOverlay(overlay_update_region)
+            elif self.move_selection is not None:
+                # Copy the old point.
+                old_loc = QPoint(self.move_selection)
+                # Move the current point.
+                self.move_selection.setX(event.pos().x())
+                self.move_selection.setY(event.pos().y())
+                # TODO do some math to figure out the overlay update region.
+                self.updateOverlay()
 
     def updateOverlay(self, rect = None):
 
