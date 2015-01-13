@@ -51,7 +51,7 @@ class DoorFunction(object):
         # Dictionary that maps door names to the actual door object (string->Door)
         self.doors = {}
         self.draw_door = {}
-        self.unique_loc_counter = 1
+        self.unique_door_counter = 1
 
         self.editing_door_location = False
         self.edit_existing_door = None
@@ -331,35 +331,35 @@ class DoorFunction(object):
             self.update_name_button.setEnabled(False)
 
     def updateDoorName(self):
-        old_loc_name = self.edit_properties_door
-        new_loc_name = str(self.update_name_textedit.text())
+        old_door_name = self.edit_properties_door
+        new_door_name = str(self.update_name_textedit.text())
 
         # This is a simple rename task.
-        self.doors[new_loc_name] = self.doors.pop(old_loc_name)
-        self.draw_door[new_loc_name] = self.draw_door.pop(old_loc_name)
+        self.doors[new_door_name] = self.doors.pop(old_door_name)
+        self.draw_door[new_door_name] = self.draw_door.pop(old_door_name)
 
         # Since a door name was modified, set file modification to true.
         self.is_modified = True
 
         # Restart property edit with the updated name.
         self.endPropertyEdit()
-        self.edit_properties_door = new_loc_name
+        self.edit_properties_door = new_door_name
         self.startPropertyEdit()
 
     def removeCurrentDoor(self):
-        old_loc_name = self.edit_properties_door
-        self.removeDoor(old_loc_name)
+        old_door_name = self.edit_properties_door
+        self.removeDoor(old_door_name)
         self.endPropertyEdit()
         self.updateOverlay()
 
         # Since a door was removed, set file modification to true.
         self.is_modified = True
 
-    def removeDoor(self, loc_name):
-        if loc_name in self.doors:
-            self.doors.pop(loc_name)
-        if loc_name in self.draw_door:
-            self.draw_door.pop(loc_name)
+    def removeDoor(self, door_name):
+        if door_name in self.doors:
+            self.doors.pop(door_name)
+        if door_name in self.draw_door:
+            self.draw_door.pop(door_name)
 
     def isModified(self):
         return self.is_modified
@@ -386,9 +386,9 @@ class DoorFunction(object):
                         self.move_selection = pt
                         break
         else:
-            loc = self.getDoorNameFromPoint(event.pos()) 
-            if loc is not None:
-                self.edit_properties_door = loc
+            door = self.getDoorNameFromPoint(event.pos()) 
+            if door is not None:
+                self.edit_properties_door = door
                 self.startPropertyEdit()
             else:
                 self.endPropertyEdit()
@@ -433,12 +433,11 @@ class DoorFunction(object):
 
                 self.updateOverlay(overlay_update_region)
             elif self.move_selection is not None:
-                # Copy the old point.
-                old_loc = QPoint(self.move_selection)
                 # Move the current point.
                 self.move_selection.setX(event.pos().x())
                 self.move_selection.setY(event.pos().y())
-                # TODO do some math to figure out the overlay update region.
+                # TODO do some math to figure out the overlay update region. from the old and new point. remember
+                # that the connecting line may also have to be updated.
 
                 self.current_selection_label.setText(self.getConnectingText(self.current_selection))
                 self.updateOverlay()
@@ -484,8 +483,8 @@ class DoorFunction(object):
         return "Connects: " + approach_location_1 + " <-> " + approach_location_2
 
     def getUniqueName(self):
-        name = "new_door" + str(self.unique_loc_counter)
-        self.unique_loc_counter += 1
+        name = "new_door" + str(self.unique_door_counter)
+        self.unique_door_counter += 1
         return name
 
     def getPointDistanceToAnotherPoint(self, pt1, pt2):
