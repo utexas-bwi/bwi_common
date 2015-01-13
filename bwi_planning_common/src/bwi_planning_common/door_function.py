@@ -285,7 +285,7 @@ class DoorFunction(object):
         # Construct the configuration layout.
         clearLayoutAndFixHeight(self.configuration_layout)
 
-        connects_text = self.selfGetConnectingText(self.doors[self.edit_properties_door])
+        connects_text = self.getConnectingText(self.doors[self.edit_properties_door])
         self.update_name_label = QLabel("Door (" + self.edit_properties_door + " - " + connects_text + ")      New Name: ", self.widget)
         self.configuration_layout.addWidget(self.update_name_label)
 
@@ -410,6 +410,7 @@ class DoorFunction(object):
                                               self.new_selection_end_point,
                                               approach_pt_1,
                                               approach_pt_2)
+                self.current_selection_label.setText(self.getConnectingText(self.current_selection))
                 self.new_selection_start_pt = None
                 self.new_selection_end_point = None
                 self.updateOverlay()
@@ -438,6 +439,8 @@ class DoorFunction(object):
                 self.move_selection.setX(event.pos().x())
                 self.move_selection.setY(event.pos().y())
                 # TODO do some math to figure out the overlay update region.
+
+                self.current_selection_label.setText(self.getConnectingText(self.current_selection))
                 self.updateOverlay()
 
     def updateOverlay(self, rect = None):
@@ -469,7 +472,7 @@ class DoorFunction(object):
         else:
             self.image.update(rect)
 
-    def selfGetConnectingText(self, door):
+    def getConnectingText(self, door):
         # Get the two locations this door connects by looking up the locations of the approach points in the 
         # door function.
         approach_location_1 = self.location_function.getLocationNameFromPoint(door.approach_pt_1)
