@@ -54,6 +54,8 @@ add_library(${PROJECT_NAME}
   src/structures.cpp
 )
 target_link_libraries(${PROJECT_NAME}
+  SDL
+  SDL_image
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
