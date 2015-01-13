@@ -3,7 +3,7 @@
 from functools import partial
 import math
 import os.path
-from python_qt_binding.QtCore import QPoint, QPointF, Qt
+from python_qt_binding.QtCore import QPoint, QPointF, QRect, Qt
 from python_qt_binding.QtGui import QLabel, QLineEdit, QPainter, QPolygon, QPushButton
 import rospy
 import yaml
@@ -27,6 +27,8 @@ class ObjectFunction(object):
     EDIT_OBJECT_PROPERITIES = 'Edit Object Properties'
     ADD_NEW_OBJECT = 'Add Object'
     EDIT_EXISTING_OBJECT = 'Edit Object'
+
+    ORIENTATION_LENGTH = 10
 
     def __init__(self,
                  object_file,
@@ -98,22 +100,10 @@ class ObjectFunction(object):
         out_list = []
         for object_name in self.objects:
             object = self.objects[object_name]
-            object_corner_pt_1 = transformPointToRealWorldCoordinates(object.object_corner_pt_1, self.map, self.image_size)
-            object_corner_pt_2 = transformPointToRealWorldCoordinates(object.object_corner_pt_2, self.map, self.image_size)
+            object_location = transformPointToRealWorldCoordinates(object.location, self.map, self.image_size)
             object_dict = {}
             object_dict["name"] = object_name
-            object_dict["object_corner_pt_1"] = [object_corner_pt_1.x(), object_corner_pt_1.y()]
-            object_dict["object_corner_pt_2"] = [object_corner_pt_2.x(), object_corner_pt_2.y()]
-            object_dict["approach"] = []
-            mid_point = (object_corner_pt_1 + object_corner_pt_2) / 2
-            for point in [object.approach_pt_1, object.approach_pt_2]:
-                approach_pt_dict = {}
-                approach_pt_dict["from"] = self.location_function.getLocationNameFromPoint(point)
-                transformed_point = transformPointToRealWorldCoordinates(point, self.map, self.image_size)
-                diff_pt = transformed_point - mid_point
-                approach_angle = math.atan2(diff_pt.y(), diff_pt.x())
-                approach_pt_dict["point"] = [transformed_point.x(), transformed_point.y(), approach_angle]
-                object_dict["approach"].append(approach_pt_dict)
+            object_dict["point"] = [object_location.x(), object_location.y(), object.orientation]
             out_list.append(object_dict)
 
         stream = open(self.object_file, 'w')
@@ -161,7 +151,7 @@ class ObjectFunction(object):
     def getObjectNameFromPoint(self, point):
         for object in self.objects:
             # Check if the user is clicking on the line between the objects or the two approach points.
-            if self.getPointDistanceToAnotherPoint(point, self.objects[object]) <= 3:
+            if self.getPointDistanceToAnotherPoint(point, self.objects[object].location) <= 3:
                 return object
         return None
 
@@ -339,21 +329,22 @@ class ObjectFunction(object):
 
     def mousePressEvent(self, event):
         if self.editing_object_location:
+            old_selection_location = None
             if self.current_selection is not None:
                 # First make sure we copy the region corresponding to the old point.
-                old_selection_location = QPoint(self.current_selection)
-            self.current_selection.location = event.pos()
+                old_selection_location = QPoint(self.current_selection.location)
+            self.current_selection = Object(event.pos(), 0)
             if old_selection_location is None:
-                overlay_update_region = self.getRectangularPolygon(self.current_selection,
-                                                                   self.current_selection).boundingRect()
+                overlay_update_region = self.getRectangularPolygon(self.current_selection.location,
+                                                                   self.current_selection.location).boundingRect()
             else:
                 overlay_update_region = self.getRectangularPolygon(old_selection_location,
-                                                                   self.current_selection).boundingRect()
+                                                                   self.current_selection.location).boundingRect()
 
-            overlay_update_region.setTopLeft(QPoint(overlay_update_region.topLeft().x() - 4,
-                                                    overlay_update_region.topLeft().y() - 4))
-            overlay_update_region.setBottomRight(QPoint(overlay_update_region.bottomRight().x() + 4,
-                                                        overlay_update_region.bottomRight().y() + 4))
+            overlay_update_region.setTopLeft(QPoint(overlay_update_region.topLeft().x() - (ObjectFunction.ORIENTATION_LENGTH + 1),
+                                                    overlay_update_region.topLeft().y() - (ObjectFunction.ORIENTATION_LENGTH + 1)))
+            overlay_update_region.setBottomRight(QPoint(overlay_update_region.bottomRight().x() + (ObjectFunction.ORIENTATION_LENGTH + 1),
+                                                        overlay_update_region.bottomRight().y() + (ObjectFunction.ORIENTATION_LENGTH + 1)))
 
             self.current_selection_label.setText(self.getObjectLocationText(self.current_selection))
             self.updateOverlay(overlay_update_region)
@@ -372,7 +363,13 @@ class ObjectFunction(object):
     def mouseMoveEvent(self, event):
 
         if self.editing_object_location:
-            old_selection_location = None
+            diff = event.pos() - self.current_selection.location
+            self.current_selection.orientation = math.atan2(diff.y(), diff.x())
+            overlay_update_region = QRect(QPoint(self.current_selection.location.x() - (ObjectFunction.ORIENTATION_LENGTH + 1),
+                                                 self.current_selection.location.y() - (ObjectFunction.ORIENTATION_LENGTH + 1)),
+                                          QPoint(self.current_selection.location.x() + (ObjectFunction.ORIENTATION_LENGTH + 1),
+                                                 self.current_selection.location.y() + (ObjectFunction.ORIENTATION_LENGTH + 1)))
+            self.updateOverlay(overlay_update_region)
 
     def updateOverlay(self, rect = None):
 
@@ -388,11 +385,11 @@ class ObjectFunction(object):
                 color = self.unselected_object_color
                 if self.edit_properties_object == object and self.editing_properties:
                     color = self.selected_object_color
-                self.drawPoint(self.objects[object], painter, color)
+                self.drawObject(self.objects[object], painter, color)
 
         if self.current_selection is not None:
             color = self.selected_object_color
-            self.drawPoint(self.current_selection, painter, color)
+            self.drawObject(self.current_selection, painter, color)
         painter.end()
 
         if rect is None:
@@ -403,7 +400,9 @@ class ObjectFunction(object):
     def getObjectLocationText(self, object):
         # Get the two locations this object connects by looking up the locations of the approach points in the 
         # object function.
-        location = self.location_function.getLocationNameFromPoint(object)
+        location = self.location_function.getLocationNameFromPoint(object.location)
+        if location is None:
+            location = "<None>"
         return "Lies in: " + location 
 
     def getUniqueName(self):
@@ -417,6 +416,12 @@ class ObjectFunction(object):
 
     def getRectangularPolygon(self, pt1, pt2):
         return QPolygon([pt1, QPoint(pt1.x(), pt2.y()), pt2, QPoint(pt2.x(), pt1.y())])
+
+    def drawObject(self, obj, painter, color):
+        self.drawPoint(obj.location, painter, color)
+        orientation_pt = obj.location + QPoint(ObjectFunction.ORIENTATION_LENGTH * math.cos(obj.orientation),
+                                               ObjectFunction.ORIENTATION_LENGTH * math.sin(obj.orientation))
+        painter.drawLine(obj.location, orientation_pt)
 
     def drawPoint(self, pt, painter, color):
         painter.setPen(color)
