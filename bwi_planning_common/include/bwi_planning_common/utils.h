@@ -6,23 +6,23 @@
 namespace bwi_planning_common {
 
   inline std::string getDoorsFileLocationFromDataDirectory(const std::string& data_directory) {
-    return data_directory + "/doors.yaml"
+    return data_directory + "/doors.yaml";
   }
 
   inline std::string getDoorsMapLocationFromDataDirectory(const std::string& data_directory) {
-    return data_directory + "/doors_map.yaml"
+    return data_directory + "/doors_map.yaml";
   }
 
   inline std::string getLocationsFileLocationFromDataDirectory(const std::string& data_directory) {
-    return data_directory + "/locations.yaml"
+    return data_directory + "/locations.yaml";
   }
 
   inline std::string getObjectsFileLocationFromDataDirectory(const std::string& data_directory) {
-    return data_directory + "/objects.yaml"
+    return data_directory + "/objects.yaml";
   }
 
   inline std::string getLocationsImageFileLocationFromDataDirectory(const std::string& data_directory) {
-    return data_directory + "/locations.pgm"
+    return data_directory + "/locations.pgm";
   }
 
 } /* bwi_planning_common */
