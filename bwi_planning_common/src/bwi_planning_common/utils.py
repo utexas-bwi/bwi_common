@@ -43,3 +43,18 @@ def transformPointToRealWorldCoordinates(pt, map, image_size):
     map_point = scalePoint(pt, image_size, map_size)
     return QPointF(map.map.info.origin.position.x, map.map.info.origin.position.y) + \
             QPointF(map_point) * map.map.info.resolution 
+
+def getDoorsFileLocationFromDataDirectory(data_directory):
+    return data_directory + "/doors.yaml"
+
+def getDoorsMapLocationFromDataDirectory(data_directory):
+    return data_directory + "/doors_map.yaml"
+
+def getLocationsFileLocationFromDataDirectory(data_directory):
+    return data_directory + "/locations.yaml"
+
+def getObjectsFileLocationFromDataDirectory(data_directory):
+    return data_directory + "/objects.yaml"
+
+def getLocationsImageFileLocationFromDataDirectory(data_directory):
+    return data_directory + "/locations.pgm"

@@ -9,7 +9,10 @@ from qt_gui.plugin import Plugin
 from .location_function import LocationFunction
 from .door_function import DoorFunction
 from .object_function import ObjectFunction
-from .utils import clearLayoutAndFixHeight
+from .utils import clearLayoutAndFixHeight, \
+                   getDoorsFileLocationFromDataDirectory, \
+                   getLocationsFileLocationFromDataDirectory, \
+                   getObjectsFileLocationFromDataDirectory
 
 import rospy
 
@@ -67,9 +70,9 @@ class LogicalMarkerPlugin(Plugin):
 
         map_image_location = getImageFileLocation(self.map_yaml_file_str)
         map = loadMapFromFile(self.map_yaml_file_str)
-        locations_file = self.data_directory + "/locations.yaml"
-        doors_file = self.data_directory + "/doors.yaml"
-        objects_file = self.data_directory + "/objects.yaml"
+        locations_file = getLocationsFileLocationFromDataDirectory(self.data_directory)
+        doors_file = getDoorsFileLocationFromDataDirectory(self.data_directory)
+        objects_file = getObjectsFileLocationFromDataDirectory(self.data_directory)
 
         # Give QObjects reasonable names
         self.setObjectName('LogicalMarkerPlugin')

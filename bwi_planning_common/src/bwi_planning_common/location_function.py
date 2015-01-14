@@ -7,7 +7,7 @@ from python_qt_binding.QtGui import QImage, QLabel, QLineEdit, QPainter, QPolygo
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight, scalePoint, scalePolygon
+from .utils import clearLayoutAndFixHeight, getLocationsImageFileLocationFromDataDirectory, scalePoint, scalePolygon
 
 class LocationFunction(object):
 
@@ -98,8 +98,8 @@ class LocationFunction(object):
                 out_dict["polygons"][index].append(scaled_pt.x())
                 out_dict["polygons"][index].append(scaled_pt.y())
 
-        yaml_file_dir = os.path.dirname(os.path.realpath(self.location_file))
-        image_file = yaml_file_dir + '/locations.pgm'
+        data_directory = os.path.dirname(os.path.realpath(self.location_file))
+        image_file = getLocationsImageFileLocationFromDataDirectory(data_directory)
 
         # Create an image with the location data, so that C++ programs don't need to rely on determining regions using polygons.
         out_dict["data"] = 'locations.pgm'
