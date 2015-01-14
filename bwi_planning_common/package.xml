@@ -39,7 +39,6 @@
   <run_depend>rqt_gui_py</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sdl-image</run_depend>
-  <run_depend>utexas_gdc</run_depend>
 
   <!-- testing dependencies -->
   <build_depend>roslaunch</build_depend>
