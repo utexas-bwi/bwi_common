@@ -85,12 +85,6 @@ class DoorFunction(object):
                 contents = yaml.load(stream)
                 for door in contents:
                     door_key = door["name"]
-                    door_corner_pt_1 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_1"]), 
-                                                                        self.map,
-                                                                        self.image_size)
-                    door_corner_pt_2 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_2"]), 
-                                                                        self.map,
-                                                                        self.image_size)
                     approach_pts = door["approach"]
                     if len(approach_pts) != 2:
                         rospy.logerr("Door " + door_key + " read from file " + self.door_file + " has " + str(len(approach_pts)) + " approach points instead of 2. Ignoring this door.")
@@ -99,6 +93,34 @@ class DoorFunction(object):
                     approach_pt_1 = transformPointToPixelCoordinates(approach_pt_1, self.map, self.image_size)
                     approach_pt_2 = QPointF(approach_pts[1]["point"][0], approach_pts[1]["point"][1])
                     approach_pt_2 = transformPointToPixelCoordinates(approach_pt_2, self.map, self.image_size)
+
+                    # Door corner points were not available in the original format.
+                    if "door_corner_pt_1" in door:
+                        door_corner_pt_1 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_1"]), 
+                                                                            self.map,
+                                                                            self.image_size)
+                        door_corner_pt_2 = transformPointToPixelCoordinates(QPointF(*door["door_corner_pt_2"]), 
+                                                                            self.map,
+                                                                            self.image_size)
+                    else:
+                        width = 1.0
+                        if "width" in door:
+                            width = door["width"]
+                        scaled_origin = transformPointToPixelCoordinates(QPointF(0, 0), self.map, self.image_size)
+                        scaled_width_pt = transformPointToPixelCoordinates(QPointF(0, width), self.map, self.image_size)
+                        scaled_width_diff = scaled_width_pt - scaled_origin
+                        scaled_width = math.sqrt(scaled_width_diff.x() * scaled_width_diff.x() + scaled_width_diff.y() * scaled_width_diff.y())
+                        midpoint = (approach_pt_1 + approach_pt_2) / 2
+                        diff = approach_pt_1 - approach_pt_2
+                        segment_angle = math.atan2(diff.y(), diff.x())
+                        perpendicular_angle = segment_angle + math.pi / 2.0
+                        perpendicular_diff_pt = QPoint(int((scaled_width / 2) * math.cos(perpendicular_angle)), 
+                                                       int((scaled_width / 2) * math.sin(perpendicular_angle))) 
+
+                        door_corner_pt_1 = midpoint + perpendicular_diff_pt
+                        door_corner_pt_2 = midpoint - perpendicular_diff_pt
+
+
                     self.doors[door_key] = Door(door_corner_pt_1,
                                                 door_corner_pt_2,
                                                 approach_pt_1,

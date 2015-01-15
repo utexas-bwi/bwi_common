@@ -36,11 +36,13 @@ def transformPointToPixelCoordinates(pt, map, image_size):
     map_point_f = (pt - QPointF(map.map.info.origin.position.x, map.map.info.origin.position.y)) * (1.0 / map.map.info.resolution)
     map_point = QPoint(int(map_point_f.x()), int(map_point_f.y()))
     map_size = QSize(map.map.info.width, map.map.info.height)
-    return scalePoint(map_point, map_size, image_size) 
+    scaled_point = scalePoint(map_point, map_size, image_size) 
+    return QPoint(scaled_point.x(), image_size.height() - scaled_point.y() - 1)
 
 def transformPointToRealWorldCoordinates(pt, map, image_size):
     map_size = QSize(map.map.info.width, map.map.info.height)
-    map_point = scalePoint(pt, image_size, map_size)
+    vertically_flipped_point = QPoint(pt.x(), image_size.height() - pt.y() - 1)
+    map_point = scalePoint(vertically_flipped_point, image_size, map_size)
     return QPointF(map.map.info.origin.position.x, map.map.info.origin.position.y) + \
             QPointF(map_point) * map.map.info.resolution 
 
