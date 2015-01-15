@@ -15,6 +15,14 @@
   door_corner_pt_2: [7.3000000000000025, 14.45]
   name: d3test_414a1
 - approach:
+  - from: l3test_400
+    point: [-8.15, 15.350000000000001, -1.6041173226731442]
+  - from: l3test_402
+    point: [-8.5, 17.05, 1.9467572806662026]
+  door_corner_pt_1: [-8.55, 16.1]
+  door_corner_pt_2: [-7.7, 16.1]
+  name: d3test_402
+- approach:
   - from: l3test_510
     point: [8.700000000000001, 6.25, -1.2120256565243244]
   - from: l3test_500
@@ -22,6 +30,14 @@
   door_corner_pt_1: [7.9, 7.25]
   door_corner_pt_2: [8.750000000000002, 7.25]
   name: d3test_510
+- approach:
+  - from: l3test_502
+    point: [-4.65, 6.300000000000001, -1.9004207342156398]
+  - from: l3test_500
+    point: [-4.35, 8.05, 1.6020361602251643]
+  door_corner_pt_1: [-4.75, 7.25]
+  door_corner_pt_2: [-3.9000000000000004, 7.25]
+  name: d3test_502
 - approach:
   - from: l3test_400
     point: [8.1, 15.25, -1.8157749899217617]
@@ -39,22 +55,6 @@
   door_corner_pt_2: [7.65, 16.1]
   name: d3test_416
 - approach:
-  - from: l3test_412
-    point: [4.65, 13.55, -1.8525681940682492]
-  - from: l3test_400
-    point: [5.000000000000002, 15.25, 1.4711276743037331]
-  door_corner_pt_1: [4.500000000000002, 14.5]
-  door_corner_pt_2: [5.35, 14.5]
-  name: d3test_412
-- approach:
-  - from: l3test_502
-    point: [-4.65, 6.300000000000001, -1.9004207342156398]
-  - from: l3test_500
-    point: [-4.35, 8.05, 1.6020361602251643]
-  door_corner_pt_1: [-4.75, 7.25]
-  door_corner_pt_2: [-3.9000000000000004, 7.25]
-  name: d3test_502
-- approach:
   - from: l3test_508
     point: [6.85, 6.300000000000001, -1.9237867146218084]
   - from: l3test_500
@@ -64,17 +64,17 @@
   name: d3test_508
 - approach:
   - from: l3test_400
-    point: [-8.15, 15.350000000000001, -1.6041173226731442]
-  - from: l3test_402
-    point: [-8.5, 17.05, 1.9467572806662026]
-  door_corner_pt_1: [-8.55, 16.1]
-  door_corner_pt_2: [-7.7, 16.1]
-  name: d3test_402
-- approach:
-  - from: l3test_400
     point: [-7.0, 15.25, -1.6010900867136721]
   - from: l3test_404
     point: [-6.6, 17.150000000000002, 1.2351577764672872]
   door_corner_pt_1: [-7.4, 16.150000000000002]
   door_corner_pt_2: [-6.55, 16.0]
   name: d3test_404
+- approach:
+  - from: l3test_412
+    point: [4.65, 13.55, -1.8525681940682492]
+  - from: l3test_400
+    point: [5.000000000000002, 15.25, 1.4711276743037331]
+  door_corner_pt_1: [4.500000000000002, 14.5]
+  door_corner_pt_2: [5.35, 14.5]
+  name: d3test_412
