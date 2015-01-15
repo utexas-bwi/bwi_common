@@ -84,6 +84,7 @@ namespace bwi_planning_common {
 
     // Copy pixel data into the map structure
     unsigned char* pixels = (unsigned char*)(img->pixels);
+    location_map.resize(img->h * img->w);
 
     for(int j = 0; j < img->h; j++)
     {
@@ -96,8 +97,11 @@ namespace bwi_planning_common {
           color_sum += *(p + (k));
         int color_avg = color_sum / (double)avg_channels;
 
-        location_map[j * img->w + i] = color_avg;
+        int location_idx = (color_avg != 255) ? color_avg : -1; 
+
+        location_map[(img->h - j - 1) * img->w + i] = color_avg;
       }
+
     }
 
   }
@@ -131,6 +135,7 @@ namespace bwi_planning_common {
         approach_node[j]["point"][0] >> door.approach_points[j].x; 
         approach_node[j]["point"][1] >> door.approach_points[j].y; 
         approach_node[j]["point"][2] >> door.approach_yaw[j]; 
+        door.approach_yaw[j] += M_PI;
       }
       doc[i]["name"] >> door.name;
 
@@ -168,6 +173,7 @@ namespace bwi_planning_common {
       doc[i]["point"][1] >> pose.position.y;
       pose.position.z = 0;
       doc[i]["point"][2] >> yaw;
+      yaw += M_PI;
       tf::quaternionTFToMsg(                                                     
           tf::createQuaternionFromYaw(yaw), pose.orientation);
       object_approach_map[name] = pose;

@@ -110,9 +110,9 @@ class LocationFunction(object):
             if index > 254:
                 rospy.logerr("You have more than 255 locations, which is unsupported by the bwi_planning_common C++ code!")
             painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor(index + 1, index + 1, index + 1))
+            painter.setBrush(QColor(index, index, index))
             scaled_polygon = scalePolygon(self.locations[location], self.image_size, self.map_size)
-            painter.drawPolygon(self.locations[location])
+            painter.drawPolygon(scaled_polygon)
         painter.end()
         location_image.save(image_file)
 
