@@ -13,6 +13,10 @@ namespace bwi_planning_common {
     return data_directory + "/doors_map.yaml";
   }
 
+  inline std::string getDoorsMapImageLocationFromDataDirectory(const std::string& data_directory) {
+    return data_directory + "/doors_map.pgm";
+  }
+
   inline std::string getLocationsFileLocationFromDataDirectory(const std::string& data_directory) {
     return data_directory + "/locations.yaml";
   }

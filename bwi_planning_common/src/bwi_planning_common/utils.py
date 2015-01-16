@@ -52,6 +52,9 @@ def getDoorsFileLocationFromDataDirectory(data_directory):
 def getDoorsMapLocationFromDataDirectory(data_directory):
     return data_directory + "/doors_map.yaml"
 
+def getDoorsMapImageLocationFromDataDirectory(data_directory):
+    return data_directory + "/doors_map.pgm"
+
 def getLocationsFileLocationFromDataDirectory(data_directory):
     return data_directory + "/locations.yaml"
 

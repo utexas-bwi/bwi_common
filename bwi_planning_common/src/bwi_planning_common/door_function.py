@@ -3,12 +3,18 @@
 from functools import partial
 import math
 import os.path
-from python_qt_binding.QtCore import QPoint, QPointF, Qt
-from python_qt_binding.QtGui import QLabel, QLineEdit, QPainter, QPolygon, QPushButton
+from python_qt_binding.QtCore import QPoint, QPointF, QSize, Qt
+from python_qt_binding.QtGui import QImage, QLabel, QLineEdit, QPainter, QPolygon, QPushButton
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight, transformPointToPixelCoordinates, transformPointToRealWorldCoordinates
+from bwi_tools import saveMapToFile
+
+from .utils import clearLayoutAndFixHeight, \
+                   getDoorsMapLocationFromDataDirectory, \
+                   scalePoint, \
+                   transformPointToPixelCoordinates, \
+                   transformPointToRealWorldCoordinates
 
 class Door(object):
 
@@ -72,6 +78,7 @@ class DoorFunction(object):
 
         self.door_file = door_file
         self.map = map
+        self.map_size = QSize(map.map.info.width, map.map.info.height)
         self.location_function = location_function
         self.readDoorsFromFile()
 
@@ -162,6 +169,26 @@ class DoorFunction(object):
         stream = open(self.door_file, 'w')
         yaml.dump(out_list, stream)
         stream.close()
+
+        # Also dump out a version of the map with all the doors closed.
+        data_directory = os.path.dirname(os.path.realpath(self.door_file))
+        map_file = getDoorsMapLocationFromDataDirectory(data_directory)
+        map_image_file = "doors_map.pgm"
+
+        scaled_map_image = self.image.map_image.scaled(self.map_size)
+        map_with_doors_image = QImage(self.map_size, QImage.Format_RGB32)
+        painter = QPainter(map_with_doors_image) 
+        painter.drawImage(0,0,scaled_map_image)
+        painter.setPen(Qt.black)
+        for door_name in self.doors:
+            door = self.doors[door_name]
+            # Draw the doors onto the map.
+            door_corner_pt_1 = scalePoint(door.door_corner_pt_1, self.image_size, self.map_size)
+            door_corner_pt_2 = scalePoint(door.door_corner_pt_2, self.image_size, self.map_size)
+            painter.drawLine(door_corner_pt_1, door_corner_pt_2)
+        painter.end()
+
+        saveMapToFile(self.map.map, map_file, map_image_file, False, 0.2, 0.8, map_with_doors_image)
 
         self.is_modified = False
 

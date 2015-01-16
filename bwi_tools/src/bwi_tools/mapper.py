@@ -99,7 +99,7 @@ def loadMapFromImageFile(image_file, resolution, negate, occupied_thresh,
     return resp
 
 def saveMapToFile(map, yaml_file, image_file, negate, free_thresh,
-                  occupied_thresh):
+                  occupied_thresh, image=None):
 
     map_info = {}
 
@@ -125,32 +125,35 @@ def saveMapToFile(map, yaml_file, image_file, negate, free_thresh,
     if image_file[0] != '/': 
         yaml_file_dir = os.path.dirname(os.path.realpath(yaml_file))
         image_file = yaml_file_dir + '/' + image_file
-    saveMapToImageFile(map, image_file, negate, free_thresh, occupied_thresh)
+
+    saveMapToImageFile(map, image_file, negate, free_thresh, occupied_thresh, image)
 
     with open(yaml_file, "w") as outfile:
         outfile.write(yaml.dump(map_info))
         outfile.close()
 
-def saveMapToImageFile(map, image_file, negate, free_thresh, occupied_thresh):
+def saveMapToImageFile(map, image_file, negate, free_thresh, occupied_thresh, image=None):
     
-    image = Image.new("L", (map.info.width, map.info.height))
-    pixels = image.load()
+    if image is None:
+        # Construct image from the map
+        image = Image.new("L", (map.info.width, map.info.height))
+        pixels = image.load()
 
-    for j in range(map.info.height):
-        for i in range(map.info.width):
+        for j in range(map.info.height):
+            for i in range(map.info.width):
 
-            # The occupancy grid is vertically flipped
-            map_idx = map.info.width * (map.info.height - j - 1) + i 
+                # The occupancy grid is vertically flipped
+                map_idx = map.info.width * (map.info.height - j - 1) + i 
 
-            # Setup negated image first
-            if map.data[map_idx] == 100:
-                pixels[i,j] = 255
-            elif map.data[map_idx] == 0:
-                pixels[i,j] = 0
-            else:
-                pixels[i,j] = 255 * ((free_thresh + occupied_thresh) / 2.0) 
+                # Setup negated image first
+                if map.data[map_idx] == 100:
+                    pixels[i,j] = 255
+                elif map.data[map_idx] == 0:
+                    pixels[i,j] = 0
+                else:
+                    pixels[i,j] = 255 * ((free_thresh + occupied_thresh) / 2.0) 
 
-            if not negate:
-                pixels[i,j] = 255 - pixels[i,j]
+                if not negate:
+                    pixels[i,j] = 255 - pixels[i,j]
 
     image.save(image_file)

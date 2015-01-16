@@ -1,0 +1,6 @@
+free_thresh: 0.2
+image: doors_map.pgm
+negate: 0
+occupied_thresh: 0.8
+origin: [-13.15, -2.0, 0.0]
+resolution: 0.05
