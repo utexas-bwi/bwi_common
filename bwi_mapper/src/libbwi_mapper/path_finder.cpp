@@ -45,7 +45,7 @@ namespace bwi_mapper {
     for (int row = 0; row < map.info.height; ++row) {
       for (int col = 0; col < map.info.width; ++col) {
         int map_idx = MAP_IDX(width_, col, row);
-        if (map.data[map_idx] == 0) {
+        if (map.data[map_idx] == 100) {
           search_space_[map_idx] = OBSTACLE;
         }
       }
@@ -109,7 +109,6 @@ namespace bwi_mapper {
       }
 
     }
-
   }
       
   bool PathFinder::pathExists(const Point2d& pt) {
