@@ -34,6 +34,7 @@
 
 #include <bwi_mapper/map_utils.h>
 #include <bwi_mapper/path_finder.h>
+#include <fstream>
 
 namespace bwi_mapper {
 
@@ -60,55 +61,43 @@ namespace bwi_mapper {
       return;
     }
 
-    bool change = true;
-    // Doing in-place changes shouldn't modify the result and may be even faster. The alternative would be to create
-    // a copy and update every loop.
-    while (change) {
-      change = false;
-      for (int row = 0; row < map.info.height; ++row) {
-        for (int col = 0; col < map.info.width; ++col) {
-        int current_idx = MAP_IDX(width_, col, row);
+    std::set<int> current_points;
+    current_points.insert(start_idx);
 
-          if (row > 1) {
-            int neighbor_idx = MAP_IDX(width_, col, row - 1);
-            if ((search_space_[neighbor_idx] != OBSTACLE && search_space_[neighbor_idx] != NOT_CONNECTED) && 
-                (search_space_[current_idx] == NOT_CONNECTED || search_space_[current_idx] > search_space_[neighbor_idx] + 1)) {
-              search_space_[current_idx] = search_space_[neighbor_idx] + 1; 
-              change = true;
-            }
+    while(!current_points.empty()) {
+      int current_idx = *(current_points.begin());
+      current_points.erase(current_points.begin());
+      int row = current_idx / width_;
+      int col = current_idx % width_;
+
+      int step_x[] = {0, 1, 0, -1};
+      int step_y[] = {1, 0, -1, 0};
+
+      for (int pt = 0; pt < 4; ++pt) {
+        int neighbor_x = col + step_x[pt]; 
+        int neighbor_y = row + step_y[pt]; 
+        if (neighbor_x >= 0 && neighbor_x < map.info.width && neighbor_y >= 0 && neighbor_y < map.info.height) {
+          int neighbor_idx = MAP_IDX(width_, neighbor_x, neighbor_y);
+          if ((search_space_[neighbor_idx] != OBSTACLE) && 
+              (search_space_[neighbor_idx] == NOT_CONNECTED || (search_space_[neighbor_idx] > search_space_[current_idx] + 1))) {
+            search_space_[neighbor_idx] = search_space_[current_idx] + 1; 
+            current_points.insert(current_points.end(), neighbor_idx);
           }
-
-          if (col > 1) {
-            int neighbor_idx = MAP_IDX(width_, col - 1, row);
-            if ((search_space_[neighbor_idx] != OBSTACLE && search_space_[neighbor_idx] != NOT_CONNECTED) && 
-                (search_space_[current_idx] == NOT_CONNECTED || search_space_[current_idx] > search_space_[neighbor_idx] + 1)) {
-              search_space_[current_idx] = search_space_[neighbor_idx] + 1; 
-              change = true;
-            }
-          }
-
-          if (row < map.info.height - 1) {
-            int neighbor_idx = MAP_IDX(width_, col, row + 1);
-            if ((search_space_[neighbor_idx] != OBSTACLE && search_space_[neighbor_idx] != NOT_CONNECTED) && 
-                (search_space_[current_idx] == NOT_CONNECTED || search_space_[current_idx] > search_space_[neighbor_idx] + 1)) {
-              search_space_[current_idx] = search_space_[neighbor_idx] + 1; 
-              change = true;
-            }
-          }
-
-          if (col < map.info.width - 1) {
-            int neighbor_idx = MAP_IDX(width_, col + 1, row);
-            if ((search_space_[neighbor_idx] != OBSTACLE && search_space_[neighbor_idx] != NOT_CONNECTED) && 
-                (search_space_[current_idx] == NOT_CONNECTED || search_space_[current_idx] > search_space_[neighbor_idx] + 1)) {
-              search_space_[current_idx] = search_space_[neighbor_idx] + 1; 
-              change = true;
-            }
-          }
-
         }
       }
-
     }
+
+    // std::ofstream fout("/home/piyushk/test.txt");
+    // for (int row = 0; row < map.info.height; ++row) {
+    //   for (int col = 0; col < map.info.width; ++col) {
+    //     int map_idx = MAP_IDX(width_, col, row);
+    //     fout << std::setfill(' ') << std::setw(5) << search_space_[map_idx];
+    //   }
+    //   fout << std::endl;
+    // }
+    // fout.close();
+    // throw std::runtime_error("blah!");
+
   }
       
   bool PathFinder::pathExists(const Point2d& pt) {
