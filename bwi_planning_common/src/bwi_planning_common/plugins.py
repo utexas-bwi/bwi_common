@@ -22,8 +22,8 @@ class MapImage(QLabel):
         super(MapImage, self).__init__(parent)
 
         # Image
-        self.setFixedHeight(480)
-        self.setFixedWidth(1080)
+        self.setFixedHeight(700)
+        self.setFixedWidth(1300)
         self.setObjectName("map_image")
 
         # Set defaults to handle mouse events, as if these are not setup and a user clicks on the image, then all future
@@ -31,7 +31,7 @@ class MapImage(QLabel):
         self.enableDefaultMouseHooks()
 
         map_image = QImage(map_image_location)
-        self.map_image = map_image.scaled(1080, 480, Qt.KeepAspectRatio)
+        self.map_image = map_image.scaled(1300, 700, Qt.KeepAspectRatio)
 
         # Create a pixmap for the overlay. This will be modified by functions to change what is being displayed 
         # on the screen.
