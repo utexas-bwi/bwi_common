@@ -18,6 +18,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>roslib</build_depend>
+
   <build_depend>boost</build_depend>
   <build_depend>opencv2</build_depend>
 
@@ -29,6 +31,7 @@
   <run_depend>opencv2</run_depend>
   <run_depend>python-imaging</run_depend>
   <run_depend>python-yaml</run_depend>
+  <run_depend>roslib</run_depend>
   <run_depend>tf</run_depend>
 
 </package>
