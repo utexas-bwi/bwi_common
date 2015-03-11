@@ -1,8 +1,0 @@
-<launch>
-  <arg name="ballid" default="ball" />
-  <include file="$(find bwi_gazebo_entities)/launch/ball.launch">
-    <arg name="x" value="600" />
-    <arg name="y" value="600" />
-    <arg name="ballid" default="$(arg ballid)" />
-  </include>
-</launch>

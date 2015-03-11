@@ -1,0 +1,15 @@
+<library path="src">
+  <class name="LogicalMarkerPlugin"
+    type="bwi_planning_common.plugins.LogicalMarkerPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A widget that allows marking logical locations, doors and objects in a map. These files can then be used by
+      automated planning systems to interact with the environment.
+    </description>
+    <qtgui>
+      <label>Logical Marker Plugin</label>
+      <!-- <icon type="theme">dialog-question</icon> -->
+      <statustip>Mark logical objects in a map so that it can be used by automated planning systems.</statustip>
+    </qtgui>
+  </class>
+</library>

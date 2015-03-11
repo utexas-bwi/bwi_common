@@ -51,6 +51,7 @@ add_library(bwi_mapper
   src/libbwi_mapper/map_loader.cpp
   src/libbwi_mapper/map_utils.cpp
   src/libbwi_mapper/directed_dfs.cpp
+  src/libbwi_mapper/path_finder.cpp
   src/libbwi_mapper/connected_components.cpp
   src/libbwi_mapper/voronoi_approximator.cpp
   src/libbwi_mapper/topological_mapper.cpp

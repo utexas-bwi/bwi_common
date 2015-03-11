@@ -20,6 +20,7 @@
   <run_depend>bwi_gazebo_entities</run_depend>
   <run_depend>gazebo_ros</run_depend>
   <run_depend>map_server</run_depend>
+  <run_depend>bwi_planning_common</run_depend>
 
   <!-- testing dependencies -->
   <build_depend>roslaunch</build_depend>

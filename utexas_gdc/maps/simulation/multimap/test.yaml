@@ -1,0 +1,9 @@
+maps:
+  level1:
+    yaml: package://utexas_gdc/maps/simulation/3ne/3ne.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/simulation/3ne
+  level2:
+    yaml: package://utexas_gdc/maps/simulation/multimap/3netest/3netest.yaml
+    origin: [0, 0, 5, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/simulation/multimap/3netest

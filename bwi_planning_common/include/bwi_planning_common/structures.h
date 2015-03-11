@@ -18,7 +18,10 @@ namespace bwi_planning_common {
       std::string name;
       std::string approach_names[2];
       bwi::Point2f approach_points[2];
+      bwi::Point2f door_corners[2];
       float approach_yaw[2];
+
+      bwi::Point2f door_center;
       float width;
   };
 

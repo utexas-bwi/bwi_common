@@ -1,0 +1,11 @@
+at(l3_500,0) 
+-21.9076 approach(d3_414b1,0)
+-1 approach(d3_414b2,0)
+-----
+-open(d3_414b1,0) at(l3_500,0) beside(d3_414b1,0) facing(d3_414b1,0) 
+-1 approach(d3_414b2,0)
+-0.2733 opendoor(d3_414b1,0)
+-----
+at(l3_500,0) beside(d3_414b1,0) facing(d3_414b1,0) open(d3_414b1,0) 
+-39.3465 gothrough(d3_414b1,2)
+-----

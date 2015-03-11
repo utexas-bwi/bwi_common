@@ -36,6 +36,8 @@
  * $ Id: 02/27/2013 04:28:26 PM piyushk $
  *
  **/
+#ifndef BWI_MAPPER_DIRECTED_DFS_H_
+#define BWI_MAPPER_DIRECTED_DFS_H_
 
 #include <nav_msgs/OccupancyGrid.h>
 #include <bwi_mapper/structures/point.h>
@@ -99,3 +101,5 @@ namespace bwi_mapper {
   };
 
 } /* bwi_mapper */
+
+#endif /* end of include guard: BWI_MAPPER_DIRECTED_DFS_H_ */

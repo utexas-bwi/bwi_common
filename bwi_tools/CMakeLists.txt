@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 2.8.3)
 
 project(bwi_tools)
 
-find_package(catkin REQUIRED COMPONENTS cmake_modules)
+find_package(catkin REQUIRED COMPONENTS cmake_modules roslib)
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 find_package(TBB REQUIRED)
 
 catkin_package(
+  CATKIN_DEPENDS
+    roslib
   DEPENDS 
     OpenCV
     BOOST

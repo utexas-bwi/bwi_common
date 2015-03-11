@@ -1,0 +1,3 @@
+#volatile n.
+at(l3_500,0).
+:- not at(l3_404,n-1).
