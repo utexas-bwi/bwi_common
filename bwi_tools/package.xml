@@ -21,14 +21,14 @@
   <build_depend>roslib</build_depend>
 
   <build_depend>boost</build_depend>
-  <build_depend>opencv2</build_depend>
+  <build_depend>cv_bridge</build_depend>
 
   <build_depend>libblas-dev</build_depend>
   <build_depend>tbb</build_depend>
 
   <run_depend>libblas-dev</run_depend>
   <run_depend>nav_msgs</run_depend>
-  <run_depend>opencv2</run_depend>
+  <run_depend>cv_bridge</run_depend>
   <run_depend>python-imaging</run_depend>
   <run_depend>python-yaml</run_depend>
   <run_depend>roslib</run_depend>
