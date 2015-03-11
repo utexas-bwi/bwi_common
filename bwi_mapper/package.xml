@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>bwi_mapper</name>
   <version>0.2.4</version>
   <description>
@@ -18,14 +18,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>nav_msgs</build_depend>
-  <build_depend>map_server</build_depend>
-  <build_depend>yaml-cpp</build_depend>
-  <build_depend>cv_bridge</build_depend>
-
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>map_server</run_depend>
-  <run_depend>yaml-cpp</run_depend>
-  <run_depend>cv_bridge</run_depend>
+  <depend>cv_bridge</depend>
+  <depend>map_server</depend>
+  <depend>nav_msgs</depend>
+  <depend>yaml-cpp</depend>
 
 </package>

@@ -4,16 +4,17 @@ project(bwi_mapper)
 
 ## Find catkin and external packages
 find_package(catkin REQUIRED 
-  COMPONENTS 
+  COMPONENTS
+    cv_bridge
     map_server
-    nav_msgs 
+    nav_msgs
 )
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
-add_definitions(-DHAVE_NEW_YAMLCPP)
+  add_definitions(-DHAVE_NEW_YAMLCPP)
 endif()
 
 ###################################

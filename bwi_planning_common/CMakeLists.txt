@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_planning_common)
 
-find_package(catkin REQUIRED COMPONENTS bwi_mapper bwi_tools message_generation std_msgs)
+find_package(catkin REQUIRED COMPONENTS
+  bwi_mapper
+  bwi_tools
+  cv_bridge
+  message_generation
+  std_msgs)
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
-add_definitions(-DHAVE_NEW_YAMLCPP)
+  add_definitions(-DHAVE_NEW_YAMLCPP)
 endif()
 
 catkin_python_setup()

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>bwi_tools</name>
   <version>0.2.4</version>
   <description>
@@ -18,20 +18,18 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>roslib</build_depend>
+  <depend>cv_bridge</depend>
+  <depend>libblas-dev</depend>
+  <depend>nav_msgs</depend>
+  <depend>roslib</depend>
 
   <build_depend>boost</build_depend>
-  <build_depend>cv_bridge</build_depend>
-
-  <build_depend>libblas-dev</build_depend>
+  <build_depend>cmake_modules</build_depend>
   <build_depend>tbb</build_depend>
+  <build_export_depend>tbb</build_export_depend>
 
-  <run_depend>libblas-dev</run_depend>
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>cv_bridge</run_depend>
-  <run_depend>python-imaging</run_depend>
-  <run_depend>python-yaml</run_depend>
-  <run_depend>roslib</run_depend>
-  <run_depend>tf</run_depend>
+  <exec_depend>python-imaging</exec_depend>
+  <exec_depend>python-yaml</exec_depend>
+  <exec_depend>tf</exec_depend>
 
 </package>

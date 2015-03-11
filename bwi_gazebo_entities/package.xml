@@ -1,8 +1,8 @@
-<package>
+<package format="2">
   <name>bwi_gazebo_entities</name>
   <version>0.2.4</version>
   <description>
-    Simulation objects and avatars used in experimentsbwi_gazebo_entities
+    Simulation objects and avatars used in experiments.
   </description>
 
   <license>BSD</license>
@@ -17,10 +17,9 @@
  
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>gazebo_ros</run_depend>
-  <run_depend>xacro</run_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>xacro</exec_depend>
 
-  <!-- testing dependencies -->
-  <build_depend>roslaunch</build_depend>
+  <test_depend>roslaunch</test_depend>
 
 </package>

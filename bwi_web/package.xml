@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>bwi_web</name>
   <version>0.2.4</version>
   <description>bwi_web</description>
@@ -11,11 +11,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>mjpeg_server</run_depend>
-  <run_depend>rosapi</run_depend>
-  <run_depend>rosbridge_server</run_depend>
+  <exec_depend>mjpeg_server</exec_depend>
+  <exec_depend>rosapi</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
 
-  <!-- testing dependencies -->
-  <build_depend>roslaunch</build_depend>
+  <test_depend>roslaunch</test_depend>
 
 </package>
