@@ -10,7 +10,6 @@
 #include "bwi_kr_execution/ComputePlan.h"
 #include "bwi_kr_execution/ComputeAllPlans.h"
 #include "bwi_kr_execution/IsPlanValid.h"
-#include <bwi_kr/AnswerSetMsg.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
