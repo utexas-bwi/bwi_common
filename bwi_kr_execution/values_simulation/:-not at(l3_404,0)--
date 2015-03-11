@@ -1,0 +1,48 @@
+at(l3_500,0) 
+-13.4209 approach(d3_404,0)
+-----
+at(l3_414b,0) beside(d3_414b1,0) open(d3_414b1,0) 
+-4.6183 approach(d3_414b1,0)
+-1 approach(d3_414b2,0)
+-----
+at(l3_500,0) beside(d3_414b1,0) open(d3_414b1,0) 
+-2.0326 approach(d3_400,3)
+-32.4799 approach(d3_402,3)
+-1 approach(d3_404,2)
+-1 approach(d3_414a1,3)
+-1 approach(d3_414a2,3)
+-1 approach(d3_414b1,3)
+-1 approach(d3_414b2,3)
+-1 approach(d3_416,3)
+-1 approach(d3_418,3)
+-1 approach(d3_420,3)
+-1 approach(d3_422,3)
+-1 approach(d3_430,3)
+-1 approach(d3_432,3)
+-1 approach(d3_436,3)
+-1 approach(d3_500,3)
+-1 approach(d3_502,3)
+-1 approach(d3_508,3)
+-1 approach(d3_510,3)
+-1 approach(d3_512,3)
+-1 approach(d3_516,3)
+-----
+-open(d3_404,0) at(l3_400,0) beside(d3_404,0) facing(d3_404,0) 
+-0.3015 opendoor(d3_404,0)
+-----
+at(l3_400,0) beside(d3_404,0) facing(d3_404,0) open(d3_404,0) 
+-4.1898 gothrough(d3_404,2)
+-----
+at(l3_414b,0) beside(d3_414b1,0) facing(d3_414b1,0) open(d3_414b1,0) 
+-1 approach(d3_414b2,1)
+-2.8674 gothrough(d3_414b1,1)
+-----
+-open(d3_402,0) at(l3_400,0) beside(d3_402,0) facing(d3_402,0) open(d3_414b1,0) 
+-6.3751 approach(d3_404,0)
+-----
+-open(d3_402,0) -open(d3_404,0) at(l3_400,0) beside(d3_404,0) facing(d3_404,0) open(d3_414b1,0) 
+-0.1995 opendoor(d3_404,0)
+-----
+-open(d3_402,0) at(l3_400,0) beside(d3_404,0) facing(d3_404,0) open(d3_404,0) open(d3_414b1,0) 
+-4.0665 gothrough(d3_404,2)
+-----

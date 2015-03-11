@@ -1,0 +1,2 @@
+AspFluent[] fluents
+bool satisfied

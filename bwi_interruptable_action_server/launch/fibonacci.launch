@@ -1,0 +1,4 @@
+<launch>
+  <node name="fibonacci_server" pkg="actionlib_tutorials" type="fibonacci_server" />
+  <node name="interruptable_fibonacci_server" pkg="bwi_interruptable_action_server" type="fibonacci_server" />
+</launch>
