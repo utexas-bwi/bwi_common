@@ -1,0 +1,6 @@
+bwi_planning_common/PlannerAtom command
+---
+bool success
+string status
+bwi_planning_common/PlannerAtom[] observations
+---

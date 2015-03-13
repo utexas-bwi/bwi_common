@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_msgs</name>
+  <version>0.0.0</version>
+  <description>
+    Contails messages used in the utexas-bwi codebase.
+  </description>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/bwi_msgs</url>
+  <url type="repository">https://github.com/utexas-bwi/segbot_apps</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/segbot_apps/issues</url>
+
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>bwi_planning_common</build_depend>
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>actionlib_msgs</run_depend>
+  <run_depend>bwi_planning_common</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+</package>
