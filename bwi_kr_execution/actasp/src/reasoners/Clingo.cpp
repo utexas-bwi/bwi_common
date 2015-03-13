@@ -19,7 +19,8 @@
 #include <iostream>
 #include <ctime>
 
-#define CURRENT_STATE_FILE "current.asp"
+#define CURRENT_FILE_HOME std::string("/tmp/")
+#define CURRENT_STATE_FILE std::string("current.asp")
 
 using namespace std;
 
@@ -629,7 +630,7 @@ bool Clingo::updateFluents(const std::vector<actasp::AspFluent> &observations) t
   transform(newStateFluents.begin(),newStateFluents.end(),back_inserter(newStateRules),fluent2Rule);
 
   //copy the current state in a file
-  ofstream currentFile((domainDir + CURRENT_STATE_FILE).c_str());
+  ofstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
 
   currentFile << aspString(newStateRules,0);
   currentFile.close();
@@ -709,7 +710,7 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
 }
 
 void Clingo::reset() throw() {
-  ofstream current((domainDir + CURRENT_STATE_FILE).c_str());
+  ofstream current((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
   current << "";
   current.close();
 }
