@@ -22,6 +22,7 @@
   <depend>bwi_msgs</depend> 
   <depend>roscpp</depend>
   <depend>roslib</depend>
+  <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
 

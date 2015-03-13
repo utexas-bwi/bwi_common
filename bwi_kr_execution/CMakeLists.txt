@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   roslib
+  sound_play
   std_msgs
   std_srvs
 )
@@ -45,6 +46,7 @@ catkin_package(
     bwi_msgs
     message_runtime
     roscpp
+    sound_play
     std_msgs
     std_srvs
 )
