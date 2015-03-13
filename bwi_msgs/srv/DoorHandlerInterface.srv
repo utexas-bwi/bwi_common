@@ -1,0 +1,6 @@
+string door
+bool open
+bool all_doors
+---
+bool success
+string status

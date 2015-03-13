@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
 
 add_service_files(
   DIRECTORY srv
-  FILES QuestionDialog.srv
+  FILES QuestionDialog.srv DoorHandlerInterface.srv
 )
 
 add_action_files(

@@ -1,7 +1,7 @@
 #include "OpenSimulatedDoor.h"
 
-#include "segbot_simulation_apps/DoorHandlerInterface.h"
 #include "bwi_kr_execution/CurrentStateQuery.h"
+#include "bwi_msgs/DoorHandlerInterface.h"
 
 #include "ActionFactory.h"
 #include "LogicalNavigation.h"
@@ -22,10 +22,10 @@ void OpenSimulatedDoor::run() {
   NodeHandle n;
 
   if (!requestSent) {
-    ServiceClient doorClient = n.serviceClient<segbot_simulation_apps::DoorHandlerInterface> ("/update_doors");
+    ServiceClient doorClient = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
     doorClient.waitForExistence();
 
-    segbot_simulation_apps::DoorHandlerInterface dhi;
+    bwi_msgs::DoorHandlerInterface dhi;
 
     dhi.request.all_doors = false;
     dhi.request.door = door;
