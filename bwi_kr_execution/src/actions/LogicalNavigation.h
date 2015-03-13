@@ -4,7 +4,7 @@
 #include "actasp/Action.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <segbot_logical_translator/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalNavigationAction.h>
 
 namespace bwi_krexec {
 
@@ -37,8 +37,8 @@ protected:
 	std::vector<std::string> parameters;
 	bool done;
 
-  actionlib::SimpleActionClient<segbot_logical_translator::LogicalNavigationAction>* lnac;
-  segbot_logical_translator::LogicalNavigationGoal goal;
+  actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>* lnac;
+  bwi_msgs::LogicalNavigationGoal goal;
   bool request_in_progress;
 
 };	

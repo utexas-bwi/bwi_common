@@ -4,6 +4,7 @@ project(bwi_kr_execution)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs 
+  bwi_msgs
   message_generation
   roscpp
   roslib
@@ -36,12 +37,12 @@ generate_messages(
     actionlib_msgs
     std_msgs)
  
- 
 catkin_package(
   INCLUDE_DIRS actasp/include
   LIBRARIES actasp
   CATKIN_DEPENDS
     actionlib_msgs
+    bwi_msgs
     message_runtime
     roscpp
     std_msgs

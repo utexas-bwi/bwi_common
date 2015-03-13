@@ -10,7 +10,7 @@
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <segbot_logical_translator/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalNavigationAction.h>
 
 namespace bwi_krexec {
 
@@ -82,11 +82,11 @@ void ChangeFloor::run() {
         } else {
           // Attempt to change the robot's location to this floor and location.
           //
-          boost::shared_ptr<actionlib::SimpleActionClient<segbot_logical_translator::LogicalNavigationAction> > lnac;
-          lnac.reset(new actionlib::SimpleActionClient<segbot_logical_translator::LogicalNavigationAction>("execute_logical_goal",
+          boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
+          lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
                                                                                                            true));
           lnac->waitForServer();
-          segbot_logical_translator::LogicalNavigationGoal goal;
+          bwi_msgs::LogicalNavigationGoal goal;
           goal.command.name = "changefloor";
           goal.command.value.push_back(dest_room);
           goal.command.value.push_back(facing_door);
