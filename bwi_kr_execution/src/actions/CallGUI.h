@@ -2,8 +2,8 @@
 #ifndef bwi_krexec_CallGUI_h__guard
 #define bwi_krexec_CallGUI_h__guard
 
-#include <segbot_gui/QuestionDialogRequest.h>
-#include "segbot_gui/QuestionDialog.h"
+#include <bwi_msgs/QuestionDialogRequest.h>
+#include "bwi_msgs/QuestionDialog.h"
 
 #include "actasp/Action.h"
 
@@ -15,9 +15,9 @@ class CallGUI : public actasp::Action {
 public:
 
   enum TYPE {
-    DISPLAY = segbot_gui::QuestionDialogRequest::DISPLAY,
-    CHOICE_QUESTION = segbot_gui::QuestionDialogRequest::CHOICE_QUESTION,
-    TEXT_QUESTION = segbot_gui::QuestionDialogRequest::TEXT_QUESTION
+    DISPLAY = bwi_msgs::QuestionDialogRequest::DISPLAY,
+    CHOICE_QUESTION = bwi_msgs::QuestionDialogRequest::CHOICE_QUESTION,
+    TEXT_QUESTION = bwi_msgs::QuestionDialogRequest::TEXT_QUESTION
   };
 
   CallGUI(const std::string &name, const TYPE type,  const std::string& message,
@@ -53,7 +53,7 @@ private:
   std::vector<std::string> options;
   bool done;
 
-  segbot_gui::QuestionDialog req;
+  bwi_msgs::QuestionDialog req;
 
 };
 

@@ -8,6 +8,11 @@ find_package(catkin REQUIRED
     message_generation
 )
 
+add_service_files(
+  DIRECTORY srv
+  FILES QuestionDialog.srv
+)
+
 add_action_files(
   DIRECTORY action
   FILES LogicalNavigation.action

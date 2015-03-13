@@ -1,0 +1,22 @@
+# Constants defining question type
+int32 DISPLAY = 0
+int32 CHOICE_QUESTION = 1
+int32 TEXT_QUESTION = 2
+
+# Constants regarding timeout
+float32 NO_TIMEOUT=0.0
+
+# Constants for response index
+int32 NO_RESPONSE=-1
+int32 TIMED_OUT=-2
+int32 TEXT_RESPONSE=-3
+int32 PREEMPTED=-4
+
+int32 type
+string message
+string[] options # used in choice questions
+float32 timeout
+
+---
+int32 index
+string text

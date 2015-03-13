@@ -24,7 +24,7 @@ void CallGUI::run() {
 
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<segbot_gui::QuestionDialog> ( "question_dialog" );
+  ros::ServiceClient client = n.serviceClient<bwi_msgs::QuestionDialog> ( "question_dialog" );
   /* std::cout << "running call gui" << std::endl; */
   client.waitForExistence();
 
@@ -47,7 +47,7 @@ void CallGUI::run() {
 }
 
 string CallGUI::getResponse() {
-  if ((done) && (req.response.index == segbot_gui::QuestionDialogRequest::TEXT_RESPONSE)) {
+  if ((done) && (req.response.index == bwi_msgs::QuestionDialogRequest::TEXT_RESPONSE)) {
     return req.response.text;
   }
   else {
@@ -60,7 +60,7 @@ int CallGUI::getResponseIndex() {
     return req.response.index;
   }
   else {
-    return segbot_gui::QuestionDialogRequest::NO_RESPONSE;
+    return bwi_msgs::QuestionDialogRequest::NO_RESPONSE;
   }
 }
 
