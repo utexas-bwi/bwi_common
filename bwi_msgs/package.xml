@@ -26,7 +26,7 @@
   <run_depend>message_runtime</run_depend>
 
   <export>
-    <architecture_independent/>
+    <architecture-independent/>
   </export>
 
 </package>
