@@ -2,6 +2,13 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix many catkin lint errors
+  For remaining error, see `#13 <https://github.com/utexas-bwi/bwi_common/issues/13>`_
+* started using the multimap infrastructure. This package now contains a lot of maps made using the updated tools. 
+* Contributors: Jack O'Quin, Matteo Leonetti, Piyush Khandelwal, Shiqi Zhang
+
 0.2.4 (2014-04-29)
 ------------------
 * cleaned up most catkin_lint warnings. closes `#6

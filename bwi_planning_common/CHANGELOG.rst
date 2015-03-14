@@ -2,6 +2,19 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bwi_planning_common: remove run_depend on opencv2
+  Also, converted the package.xml to format two.  Fixes `#15 <https://github.com/utexas-bwi/bwi_common/issues/15>`_.
+* fix many catkin lint errors
+  For remaining error, see `#13 <https://github.com/utexas-bwi/bwi_common/issues/13>`_
+* indigo: fix opencv2 dependencies (`#10 <https://github.com/utexas-bwi/bwi_common/issues/10>`_)
+* created a new tool for marking logical locations, and overhauled how logical information was being stored.
+  added map for the atrium
+* Fixed a hack where each door needed the entire list of locations from which the door was directly accessible, instead
+  of just the adjacent location.
+* Contributors: Jack O'Quin, Matteo Leonetti, Piyush Khandelwal
+
 0.2.4 (2014-04-29)
 ------------------
 * cleaned up most catkin_lint warnings. closes `#6

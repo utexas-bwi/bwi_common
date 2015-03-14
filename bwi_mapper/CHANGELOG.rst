@@ -2,6 +2,17 @@
 Changelog for package bwi_mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix many catkin lint errors
+* indigo: fix opencv2 dependencies (`#10 <https://github.com/utexas-bwi/bwi_common/issues/10>`_)
+* much improved implementation. probably still need to do better.
+* added a path finder class for finding an obstacle free path in a map. It is now used by the logical navigation code
+  to determine which approach point to use when approaching a door.
+* updated the code to separate drawing an arrow in the image vs drawing an arrow using the graph
+* enabled some globbing and made one of the cpp functions slightly faster.
+* Contributors: Jack O'Quin, Piyush Khandelwal
+
 0.2.4 (2014-04-29)
 ------------------
 * cleaned up most catkin_lint warnings. closes `#6

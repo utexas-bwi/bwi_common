@@ -2,6 +2,12 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added architecture-independent flag to manifest.
+* fixed metapackage manifest to pull in all packages in repository. closes `#14 <https://github.com/utexas-bwi/bwi_common/issues/14>`_
+* Contributors: Piyush Khandelwal
+
 0.2.4 (2014-04-29)
 ------------------
 

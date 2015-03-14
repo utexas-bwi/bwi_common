@@ -2,6 +2,11 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed catkin lint errors.
+* Contributors: Jack O'Quin
+
 0.2.4 (2014-04-29)
 ------------------
 * cleaned up most catkin_lint warnings. closes `#6
