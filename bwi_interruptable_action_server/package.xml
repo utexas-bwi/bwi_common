@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_interruptable_action_server</name>
-  <version>0.0.0</version>
+  <version>0.2.4</version>
   <description>
     This wraps the move_base node from the standard ROS navigation
     stack. The purpose of the interruptable navigator is to allow
