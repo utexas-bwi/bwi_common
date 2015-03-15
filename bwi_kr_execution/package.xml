@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_kr_execution</name>
-  <version>0.2.4</version>
+  <version>0.3.0</version>
   <description>The bwi_kr_execution package</description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>

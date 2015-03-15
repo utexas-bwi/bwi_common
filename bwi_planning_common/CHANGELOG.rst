@@ -2,8 +2,8 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2015-03-15)
+------------------
 * bwi_planning_common: remove run_depend on opencv2
   Also, converted the package.xml to format two.  Fixes `#15 <https://github.com/utexas-bwi/bwi_common/issues/15>`_.
 * fix many catkin lint errors

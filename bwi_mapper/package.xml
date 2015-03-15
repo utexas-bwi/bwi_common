@@ -1,6 +1,6 @@
 <package format="2">
   <name>bwi_mapper</name>
-  <version>0.2.4</version>
+  <version>0.3.0</version>
   <description>
     Mapping package that provides utilties for handling ROS 
     style maps. Also provides functions for generating topological graphs from 
