@@ -2,6 +2,9 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2015-03-15)
 ------------------
 * bwi_planning_common: remove run_depend on opencv2

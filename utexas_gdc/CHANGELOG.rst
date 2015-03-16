@@ -2,6 +2,9 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2015-03-15)
 ------------------
 * fix many catkin lint errors

@@ -2,6 +2,9 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2015-03-15)
 ------------------
 * Fixed catkin lint errors.

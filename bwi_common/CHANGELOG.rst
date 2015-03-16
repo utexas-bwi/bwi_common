@@ -2,6 +2,9 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2015-03-15)
 ------------------
 * added architecture-independent flag to manifest.
