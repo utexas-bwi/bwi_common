@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2015-03-16)
+------------------
 * fixed broken link to costs.asp. costs are not being currently used.
 * Contributors: Piyush Khandelwal
 
