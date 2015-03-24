@@ -99,6 +99,11 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h")
 
+foreach(dir domain domain_dialog domain_simulation launch)
+  install(DIRECTORY ${dir}/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
+endforeach()
+
 install(TARGETS actasp kractions
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
