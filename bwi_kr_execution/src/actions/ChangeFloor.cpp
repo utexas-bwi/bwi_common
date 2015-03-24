@@ -27,11 +27,9 @@ void ChangeFloor::run() {
     std::string dest_floor;
     std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-      std::cout << fact.toString() << std::endl;
       if (fact.getName() == "floor") {
         std::vector<std::string> params = fact.getParameters();
         if (params[0] == dest_room) {
-          /* std::cout << "  " << params[1] << std::endl; */
           dest_floor = params[1];
           break;
         }
@@ -64,11 +62,9 @@ void ChangeFloor::run() {
         std::string facing_door;
         std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
         BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-          std::cout << fact.toString() << std::endl;
           if (fact.getName() == "hasdoor") {
             std::vector<std::string> params = fact.getParameters();
             if (params[0] == dest_room) {
-              /* std::cout << "  " << params[1] << std::endl; */
               // NOTE: This makes the assumption that an elevator room only has a single door, which is true for GDC.
               facing_door = params[1];
               break;

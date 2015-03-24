@@ -25,11 +25,9 @@ void CallElevator::run() {
     doors.clear();
     std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-      std::cout << fact.toString() << std::endl;
       if (fact.getName() == "elevhasdoor") {
         std::vector<std::string> params = fact.getParameters();
         if (params[0] == elevator) {
-          /* std::cout << "  " << params[1] << std::endl; */
           doors.push_back(params[1]);
         }
       }
