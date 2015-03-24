@@ -141,18 +141,18 @@ static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) 
 static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) {
 
   ifstream file(filePath.c_str());
-  
+
   list<AnswerSet> allSets;
   bool answerFound = false;
-  
+
   string line;
   while(file) {
-    
+
     getline(file,line);
-    
+
     if(answerFound && line == "UNSATISFIABLE")
       return list<AnswerSet>();
-    
+
     if(line.find("Answer") != string::npos) {
       getline(file,line);
         try {
@@ -163,7 +163,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
         }
     }
   }
- 
+
  return allSets;
 }
 
@@ -196,8 +196,7 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
   stringstream iterations;
   iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
 
-
-  commandLine << "iclingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << " > " << outputFilePath << " " << answerSetsNumber;
+  commandLine << "iclingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
 
 
   if (!system(commandLine.str().c_str())) {
@@ -396,11 +395,11 @@ struct PlanLongerThan {
 
 struct AnswerSetRef {
   AnswerSetRef(const AnswerSet& aset) : aset(&aset) {}
-  
+
   operator const AnswerSet&() const {
     return *aset;
   }
-  
+
   const AnswerSet *aset;
 };
 
@@ -442,7 +441,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
   transform(firstAnswerSets.begin(),firstAnswerSets.end(),inserter(goodPlans,goodPlans.begin()), CleanPlan(allActions));
 
   query = generatePlanQuery(goal,false);
-  
+
   clock_t kr2_begin = clock();
   list<AnswerSet> answerSets = krQuery(query,maxLength,maxLength,"planQuery.asp",0);
   clock_t kr2_end = clock();
@@ -466,9 +465,9 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
     remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
 
     for_each(goodPointers.begin(),goodPointers.end(),PolicyMerger(policy));
-    
+
     transform(goodPointers.begin(),goodPointers.end(),inserter(goodPlans, goodPlans.begin()), CleanPlan(allActions));
-    
+
     currentFirst = currentLast;
 
   }
@@ -479,7 +478,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
     copy(printIt->begin(),printIt->end(),ostream_iterator<string>(cout, " "));
     cout << endl;
   }
-  
+
   cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
 
@@ -548,11 +547,11 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
     //process the plans in groups of increasing length
 
     list<AnswerSet>::iterator currentLast = find_if(currentFirst,moreAnswerSets.end(),PlanLongerThan(currentFirst->maxTimeStep()));
-    
+
     size_t size_pre_copy = goodPointers.size();
-    
-    remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);    
-    
+
+    remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
+
     list<AnswerSetRef>::iterator from = goodPointers.begin();
     advance(from,size_pre_copy);
     transform(from, goodPointers.end(),inserter(goodPlans,goodPlans.begin()),AnswerSetToList());
@@ -561,7 +560,7 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
   }
 
   vector<AnswerSet> finalVector(goodPointers.begin(),goodPointers.end());
-  
+
   cout << "  ---  good plans ---" << endl;
   vector< AnswerSet>::const_iterator printIt = finalVector.begin();
   for (; printIt != finalVector.end(); ++printIt) {
@@ -642,7 +641,7 @@ bool Clingo::updateFluents(const std::vector<actasp::AspFluent> &observations) t
 //this is almost brutally copied from krquery
 std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, unsigned int initialTimeStep,
                                    unsigned int finalTimeStep) const throw() {
-   
+
   //this depends on our way of representing stuff.
   //iclingo starts from 1, while we needed the initial state and first action to be at time step 0
   initialTimeStep++;
@@ -666,7 +665,7 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
   iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
 
 
-  commandLine << "iclingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << queryPath <<  " > " << outputFilePath << " 0";
+  commandLine << "iclingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";
 
 
   if (!system(commandLine.str().c_str())) {
@@ -674,18 +673,18 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
   }
 
   ifstream file(outputFilePath.c_str());
-  
+
   list<list <AspAtom> > allSets;
   bool answerFound = false;
-  
+
   string line;
   while(file) {
-    
+
     getline(file,line);
-    
+
     if(answerFound && line == "UNSATISFIABLE")
       return list<list <AspAtom> >();
-    
+
     if(line.find("Answer") != string::npos) {
       getline(file,line);
         try {
@@ -704,9 +703,9 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
         }
     }
   }
- 
+
  return allSets;
-   
+
 }
 
 void Clingo::reset() throw() {
