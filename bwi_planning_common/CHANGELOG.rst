@@ -2,6 +2,11 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* removed accidental global script installation. closes `#18 <https://github.com/utexas-bwi/bwi_common/issues/18>`_.
+* Contributors: Piyush Khandelwal
+
 0.3.1 (2015-03-16)
 ------------------
 
