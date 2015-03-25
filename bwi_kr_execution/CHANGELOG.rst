@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.2 (2015-03-24)
+------------------
 * updated Clingo to use the current state correctly.
 * removed output that was placed in for debugging. closes `#17 <https://github.com/utexas-bwi/bwi_common/issues/17>`_.
 * added missing directory installation. closes `#16 <https://github.com/utexas-bwi/bwi_common/issues/16>`_
