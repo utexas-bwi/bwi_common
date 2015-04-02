@@ -577,6 +577,7 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
 
 bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw() {
 
+  clock_t kr1_begin = clock();
 
   string planQuery = generatePlanQuery(goal);
 
@@ -588,7 +589,11 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
   for (int i=0; actionIt != allActions.end(); ++actionIt, ++i)
     monitorQuery << actionIt->toString(i) << "." << endl;
 
-  return !(krQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery.asp").empty());
+  bool valid = krQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery.asp").empty();
+  clock_t kr1_end = clock();
+  cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
+
+  return !valid; 
 }
 
 AnswerSet Clingo::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {

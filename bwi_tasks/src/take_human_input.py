@@ -8,7 +8,7 @@ import roslib; roslib.load_manifest('bwi_tasks')
 import actionlib
 import actionlib_msgs.msg
 from bwi_kr_execution.msg import *
-import segbot_gui.srv
+import bwi_msgs.srv
 import bwi_rlg.srv
 import os.path
 import string
@@ -43,7 +43,7 @@ door_list = ['d3_502', 'd3_504', 'd3_508', 'd3_510', 'd3_512', 'd3_516',
              'd3_422', 'd3_430', 'd3_432', 'd3_414a1', 'd3_414a2', 'd3_414b1',
              'd3_414b2']
 
-resting_time = 120
+resting_time = 5
 cnt = 0
 last_loc = ''
 
@@ -197,7 +197,7 @@ def gui_thread(human_waiting, curr_goal):
     rospy.wait_for_service('question_dialog')
     
     handle = rospy.ServiceProxy('question_dialog', \
-                                segbot_gui.srv.QuestionDialog)
+                                bwi_msgs.srv.QuestionDialog)
 
     while not rospy.is_shutdown():
 
@@ -244,7 +244,7 @@ def platform_thread(human_waiting, curr_goal):
     client.wait_for_server()
 
     dialog_handle = rospy.ServiceProxy('question_dialog', \
-                                       segbot_gui.srv.QuestionDialog)
+                                       bwi_msgs.srv.QuestionDialog)
 
     parser_handle = rospy.ServiceProxy('semantic_parser', \
                                        bwi_rlg.srv.SemanticParser)
@@ -317,7 +317,7 @@ def platform_thread(human_waiting, curr_goal):
 
                 # anything else for the same user? 
                 res = dialog_handle(1, "Do you need anything else?", \
-                                    ["Yes", "No"], 30)
+                                    ["Yes", "No"], 15)
 
                 if res.index < 0 or res.index == 1:
 
