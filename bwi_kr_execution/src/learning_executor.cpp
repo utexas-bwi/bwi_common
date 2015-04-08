@@ -3,7 +3,7 @@
 #include "RemoteReasoner.h"
 #include "StaticFacts.h"
 
-#include "learning/QLearningActionSelector.h"
+#include "learning/SarsaActionSelector.h"
 #include "learning/TimeReward.h"
 #include "learning/DefaultTimes.h"
 
@@ -40,7 +40,7 @@ typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Serve
 
 
 ActionExecutor *executor;
-QLearningActionSelector *selector;
+SarsaActionSelector *selector;
 
 struct PrintFluent {
 
@@ -169,9 +169,9 @@ int main(int argc, char**argv) {
   ros::init(argc, argv, "action_executor");
   ros::NodeHandle n;
 
-  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
-    ros::console::notifyLoggerLevelsChanged();
-  }
+//   if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
+//     ros::console::notifyLoggerLevelsChanged();
+//   }
 
   ros::NodeHandle privateNode("~");
   string domainDirectory;
@@ -189,7 +189,8 @@ int main(int argc, char**argv) {
   bool simulating;
   privateNode.param<bool>("simulation",simulating,false);
   
-  valueDirectory = ros::package::getPath("bwi_kr_execution") +((simulating)? "/values_simulation/" : "/values/" ) ;
+//  valueDirectory = ros::package::getPath("bwi_kr_execution") +((simulating)? "/values_simulation/" : "/values/" ) ;
+  valueDirectory = string("/var/tmp/bwi_action_execution/") + ((simulating)? "values_simulation/" : "/values/" ); 
   boost::filesystem::create_directories(valueDirectory);
   
   ActionFactory::setSimulation(simulating);
@@ -199,10 +200,16 @@ int main(int argc, char**argv) {
   AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),5);
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
 
-  TimeReward<QLearningActionSelector::State> *reward = new TimeReward<QLearningActionSelector::State>();
+  TimeReward<SarsaActionSelector::State> *reward = new TimeReward<SarsaActionSelector::State>();
   DefaultActionValue *timeValue = new DefaultTimes();
 
-  selector = new QLearningActionSelector(0.3, reward , reasoner,timeValue);
+  SarsaParams params;
+  params.alpha = 0.3;
+  params.gamma = 0.9999;
+  params.lambda = 0.9;
+  params.epsilon = 0.1;
+  
+  selector = new SarsaActionSelector(reasoner,timeValue,reward,params);
 
   //need a pointer to the specific type for the observer
   executor = new MultiPolicyExecutor(reasoner, reasoner,selector , ActionFactory::actions(),1.5);

@@ -15,8 +15,10 @@
 #include <algorithm>
 #include <fstream>
 #include <cmath> //for floor
+#include <boost/graph/graph_concepts.hpp>
 
-#include <iostream>
+//#include <iostream>
+#include <ros/console.h>
 #include <ctime>
 
 #define CURRENT_FILE_HOME std::string("/tmp/")
@@ -56,6 +58,12 @@ Clingo::Clingo(unsigned int max_n,
     this->domainDir += "/";
 
   //TODO test the existance of the directories
+  
+  //create current file
+  ifstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
+  if(!currentFile.good()) //doesn't exist, create it or clingo will go mad
+    reset();
+  currentFile.close();
 
   stringstream filterStream;
   filterStream << "#hide." << endl;
@@ -418,7 +426,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
   clock_t kr1_begin = clock();
   list<AnswerSet> firstAnswerSets = krQuery(query,1,max_n,"planQuery.asp",0);
   clock_t kr1_end = clock();
-  cout << "The first kr call took " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
+//   cout << "The first kr call took " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
   MultiPolicy policy(allActions);
 
@@ -445,7 +453,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
   clock_t kr2_begin = clock();
   list<AnswerSet> answerSets = krQuery(query,maxLength,maxLength,"planQuery.asp",0);
   clock_t kr2_end = clock();
-  cout << "The second kr call took " << (double(kr2_end - kr2_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
+//   cout << "The second kr call took " << (double(kr2_end - kr2_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
   //skip the minimial plans
   list<AnswerSet>::iterator currentFirst = find_if(answerSets.begin(),answerSets.end(),PlanLongerThan(answerSets.begin()->maxTimeStep()));
@@ -473,13 +481,17 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
   }
   clock_t filter_end = clock();
 
+
+  stringstream planStream;
+  planStream << "Accepted plans: " << endl;
   set< list <AspFluentRef>, LexComparator >::const_iterator printIt = goodPlans.begin();
   for (; printIt != goodPlans.end(); ++printIt) {
-    copy(printIt->begin(),printIt->end(),ostream_iterator<string>(cout, " "));
-    cout << endl;
+    copy(printIt->begin(),printIt->end(),ostream_iterator<string>(planStream, " "));
+    planStream << endl;
   }
-
-  cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
+  ROS_INFO_STREAM(planStream.str());
+//   
+//   cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
 
   return policy;
@@ -560,14 +572,14 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
   }
 
   vector<AnswerSet> finalVector(goodPointers.begin(),goodPointers.end());
-
-  cout << "  ---  good plans ---" << endl;
-  vector< AnswerSet>::const_iterator printIt = finalVector.begin();
-  for (; printIt != finalVector.end(); ++printIt) {
-    copy(printIt->getFluents().begin(),printIt->getFluents().end(),ostream_iterator<string>(cout, " "));
-    cout << endl;
-  }
-  cout << " ---- " << endl;
+  
+//   cout << "  ---  good plans ---" << endl;
+//   vector< AnswerSet>::const_iterator printIt = finalVector.begin();
+//   for (; printIt != finalVector.end(); ++printIt) {
+//     copy(printIt->getFluents().begin(),printIt->getFluents().end(),ostream_iterator<string>(cout, " "));
+//     cout << endl;
+//   }
+//   cout << " ---- " << endl;
 
   return finalVector;
 
@@ -577,7 +589,7 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
 
 bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw() {
 
-  clock_t kr1_begin = clock();
+//   clock_t kr1_begin = clock();
 
   string planQuery = generatePlanQuery(goal);
 
@@ -590,8 +602,8 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
     monitorQuery << actionIt->toString(i) << "." << endl;
 
   bool valid = krQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery.asp").empty();
-  clock_t kr1_end = clock();
-  cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
+//   clock_t kr1_end = clock();
+//   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
   return !valid; 
 }

@@ -2,7 +2,7 @@
 
   <arg name="simulation" default="false" />
   <arg name="domain" default="$(find bwi_kr_execution)/domain/" />
-  <arg name="executor" default="single_plan_executor_node" />
+  <arg name="executor" default="learning_executor_node" />
  
   <!-- available executors: single_plan_executor_node   any_plan_executor_node   learning_executor_node -->
  

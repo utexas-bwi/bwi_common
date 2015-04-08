@@ -6,8 +6,10 @@
 
 #include <algorithm>
 
-#include <iostream>
+//#include <iostream>
 #include <iterator>
+
+#include <ros/console.h>
 
 using namespace std;
 
@@ -44,31 +46,49 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
 
   const list<AspFluentRef> planCleaned = cleanPlan(plan); //remove fluents that are not actions
 
-//   cout << "piano pulito: ";
-//   copy(planCleaned.begin(), planCleaned.end(), ostream_iterator<string>(cout, " "));
-//   cout << endl;
+  stringstream cleanPlanStream;
+  cleanPlanStream << "piano pulito: ";
+  copy(planCleaned.begin(), planCleaned.end(), ostream_iterator<string>(cleanPlanStream, " "));
+  cleanPlanStream << endl;
+  ROS_DEBUG_STREAM(cleanPlanStream.str());
   
   //find the first action that does not belong to any minimal plan
   list<AspFluentRef>::const_iterator firstSuspect = findFirstSuspiciousAction(planCleaned); 
 
   
   if(firstSuspect == planCleaned.end()) {
-//     cout << "good" << endl;
+    ROS_DEBUG_STREAM( "good");
     return false;
   }
   
+  ROS_DEBUG_STREAM("first suspect: " << std::string(*firstSuspect));
 //   cout << "first suspect: " << firstSuspect->toString() << endl;
   
   for(int l = 1, size = planCleaned.size(); l <= size - shortestLength; ++l) {
 
     if(checkSectionWithLength(planCleaned,firstSuspect,l)) {
       bad->insert(planCleaned);
+      ROS_DEBUG_STREAM( "bad!");
       return true;
     }
 
   }
-//   cout << "good" << endl;
-  return false;
+  
+  //last check, if the action before the suspect is useless
+  
+  list<AspFluentRef>::const_iterator beforeSuspect = firstSuspect;
+  advance(beforeSuspect, -1);
+  list<AspFluentRef> withoutBeforeSuspect(planCleaned.begin(),beforeSuspect);
+  withoutBeforeSuspect.insert(withoutBeforeSuspect.end(),firstSuspect,planCleaned.end());
+  bool lastCheck = checkPlanValidity(withoutBeforeSuspect);
+  if(lastCheck) {
+    bad->insert(planCleaned);
+    ROS_DEBUG_STREAM( "bad!");
+  }
+  else
+    ROS_DEBUG_STREAM( "good after check");
+  
+  return lastCheck;
   
   
 //   bool valid1 = validFrom(planCleaned,firstSuspect);
