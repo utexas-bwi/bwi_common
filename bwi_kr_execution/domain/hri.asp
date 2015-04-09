@@ -2,8 +2,14 @@
 
 %action searchroom(P,R,I)  ask if person P is in room R
 inroom(P,R,I+1) :- searchroom(P,R,I), person(P), room(R), I=0..n-2.
-:- searchroom(P,R,I), not facing(D,I) : hasdoor(R,D), not at(R,I), person(P), room(R), I=0..n-1.
-:- searchroom(P,R,I), facing(D,I), open(D,I), hasdoor(R,D), person(P), room(R), door(D), I=0..n-1.
+
+%:- searchroom(P,R,I), not facing(D,I) : hasdoor(R,D), not at(R,I), person(P), room(R), I=0..n-1.
+%:- searchroom(P,R,I), facing(D,I), open(D,I), hasdoor(R,D), person(P), room(R), door(D), I=0..n-1.
+%the rules above allow the robot execute the action outside of the room, in front of the door.
+%I am making the robot enter the room, but switch back to the rules above to return to the previous behavior
+
+:- searchroom(P,R,I), not at(R,I), I=0..n-1.
+
 :- searchroom(P,R,I), inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), -inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), not canbeinroom(P,R), person(P), room(R), I=0..n-1.
