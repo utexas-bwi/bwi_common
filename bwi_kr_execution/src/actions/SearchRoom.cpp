@@ -23,7 +23,9 @@ SearchRoom::SearchRoom() :
             person(),
             room(),
             done(false),
-            failed(false){
+            failed(false),
+            waiting_speach(false),
+            wait_over(false){
             }
 
 ros::Publisher SearchRoom::ask_pub;
@@ -58,7 +60,17 @@ void SearchRoom::run() {
 
   if (at) {
 
-    if (ask_pub.getNumSubscribers() == 0) return; //if the subscriber is not connected, sleep
+    if (!wait_over && !waiting_speach && ask_pub.getNumSubscribers() == 0 ) {
+      waiting_speach = true;
+      starting_wating = ros::Time::now();
+      return;
+    }
+    else if (!wait_over&& waiting_speach && 
+      (ask_pub.getNumSubscribers() != 0 || (ros::Time::now() - starting_wating).toSec() > 1.)) {
+      waiting_speach = false;
+      wait_over = true;
+    }
+      
 
     //speak
     sound_play::SoundRequest sound_req;

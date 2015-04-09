@@ -37,7 +37,8 @@ private:
  std::string room;
  static ros::Publisher ask_pub;
  static bool pub_set;
- bool done,failed;
+ bool done,failed,waiting_speach,wait_over;
+ ros::Time starting_wating;
  
 };
 
