@@ -22,7 +22,8 @@ namespace bwi_krexec {
 SearchRoom::SearchRoom() : 
             person(),
             room(),
-            done(false){
+            done(false),
+            failed(false){
             }
 
 ros::Publisher SearchRoom::ask_pub;
@@ -89,7 +90,8 @@ void SearchRoom::run() {
       sound_req.arg = "Thank you !";
       ask_pub.publish(sound_req);
     }*/
-  }
+  }else
+    failed = true;
 
   ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();

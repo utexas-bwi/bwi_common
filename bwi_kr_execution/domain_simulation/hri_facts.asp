@@ -1,4 +1,3 @@
-#base.
 
 person(peter). 
 person(ray). 
@@ -9,6 +8,8 @@ person(shiqi).
 person(jivko). 
 person(stacy).
 person(yuqian).
+person(max).
+person(pato).
 
 group(bwi).
 
@@ -17,8 +18,9 @@ ingroup(matteo,bwi).
 ingroup(shiqi,bwi).
 ingroup(jivko,bwi).
 ingroup(yuqian,bwi).
+ingroup(pato,bwi).
+ingroup(max,bwi).
 
-meeting(bwi_meeting,bwi,l3_414b).
 
 hasoffice(peter,l3_508). 
 hasoffice(ray,l3_512).
@@ -31,13 +33,17 @@ hasoffice(stacy,l3_502).
 
 canbeinroom(P,R) :- hasoffice(P,R), person(P), room(R).
 canbeinroom(P,l3_414b) :- ingroup(P,bwi).
-%canknow(P1,P2) :- ingroup(P1,G), ingroup(P2,G), group(G).
 
-canknow(P1,P2) :- canknow(P1,P2).
+canknow(P1,P2) :- ingroup(P1,G), ingroup(P2,G), P1 != P2, group(G).
+
+canknow(P2,P1) :- canknow(P1,P2).
+
+meeting(M,G,R) :- meeting(M,G,R). %not using meetings at the moment
 
 #hide person/1.
 #hide hasoffice/2.
 #hide canbeinroom/2.
+#hide canknow/2.
 #hide group/1.
 #hide ingroup/2.
 #hide meeting/3.

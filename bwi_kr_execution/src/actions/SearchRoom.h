@@ -24,6 +24,8 @@ public:
   
   bool hasFinished() const {return done;}
   
+  bool hasFailed() const {return failed;}
+  
   actasp::Action *cloneAndInit(const actasp::AspFluent & fluent) const;
   
   virtual actasp::Action *clone() const {return new SearchRoom(*this);}
@@ -35,7 +37,7 @@ private:
  std::string room;
  static ros::Publisher ask_pub;
  static bool pub_set;
- bool done;
+ bool done,failed;
  
 };
 
