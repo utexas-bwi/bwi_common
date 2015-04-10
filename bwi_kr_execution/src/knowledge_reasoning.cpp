@@ -1,5 +1,6 @@
 
 #include "actions/ActionFactory.h"
+#include "actions/LogicalNavigation.h"
 
 #include "actasp/reasoners/Clingo.h"
 #include "actasp/action_utils.h"
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
   ros::ServiceServer compute_plan = n.advertiseService("compute_plan", computePlan);
   ros::ServiceServer compute_all_plans = n.advertiseService("compute_all_plans", computeAllPlans);
   ros::ServiceServer is_plan_valid = n.advertiseService("is_plan_valid", isPlanvalid);
-  ros::ServiceServer reset_state = n.advertiseService("reset_state", isPlanvalid);
+  ros::ServiceServer reset_state = n.advertiseService("reset_state", resetState);
 
 
   //TODO make sure clingo can be executed concurrently, or create multiple instances
@@ -158,4 +159,6 @@ bool isPlanvalid(bwi_kr_execution::IsPlanValid::Request& req, bwi_kr_execution::
 
 bool resetState(std_srvs::Empty::Request &, std_srvs::Empty::Response &) {
   reasoner->reset();
+  LogicalNavigation setInitialState("noop");
+  setInitialState.run();
 }
