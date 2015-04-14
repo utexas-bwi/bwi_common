@@ -1,6 +1,5 @@
 
 #include "actions/ActionFactory.h"
-#include "actions/LogicalNavigation.h"
 
 #include "actasp/reasoners/Clingo.h"
 #include "actasp/action_utils.h"
@@ -15,6 +14,7 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <std_srvs/Empty.h>
+
 
 #include <boost/filesystem.hpp>
 
@@ -159,6 +159,4 @@ bool isPlanvalid(bwi_kr_execution::IsPlanValid::Request& req, bwi_kr_execution::
 
 bool resetState(std_srvs::Empty::Request &, std_srvs::Empty::Response &) {
   reasoner->reset();
-  LogicalNavigation setInitialState("noop");
-  setInitialState.run();
 }
