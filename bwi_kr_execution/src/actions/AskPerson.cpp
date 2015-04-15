@@ -53,8 +53,9 @@ void AskPerson::run() {
   ask_pub.publish(sound_req);
 
   vector<string> options;
-  options.push_back("Yes! " + person_to_know + " is in GDC and I know exactly where.");
-  options.push_back("No, I have no idea.");
+  options.push_back("Yes! In GDC");
+  options.push_back("Yes! NOT in GDC");
+  options.push_back("No, I have no idea");
 
   CallGUI askPerson("askPerson", CallGUI::CHOICE_QUESTION,  "Hi " + person_to_ask + "! Do you know where " + person_to_know + " is?", 60.0, options);
   askPerson.run();
@@ -75,7 +76,7 @@ void AskPerson::run() {
     krClient.call(uf);
   }
 
-  if (response == 1) {
+  if (response == 2) {
     sound_req.arg = "OK, thank you anyway!";
     ask_pub.publish(sound_req);
     CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you anyway!");
@@ -94,13 +95,41 @@ void AskPerson::run() {
     krClient.call(uf);
   }
 
+    if (response == 1) {
+    sound_req.arg = "OK, thank you!";
+    ask_pub.publish(sound_req);
+    CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you!");
+    thank.run();
+
+    bwi_kr_execution::UpdateFluents uf;
+    bwi_kr_execution::AspFluent fluent;
+    
+    fluent.name = "-ingdc";
+    
+    fluent.variables.push_back(person_to_know);
+
+    uf.request.fluents.push_back(fluent);
+    krClient.call(uf);
+  }
+  
+  
   if (response == 0) {
 
       bool know = false;
       int count = 0;
 
       sound_req.arg = "Great! Please tell me the room number.";
-      CallGUI *askPerson = new CallGUI("askPerson", CallGUI::TEXT_QUESTION,  "Great! Please tell me the room number.", 60.0);
+      
+      stringstream question_text;
+      question_text << "Great! Please tell me the room number." << endl;
+      question_text << "Examples of rooms are:" << endl; 
+      question_text << "Peter's office: l3_508" << endl;
+      question_text << "Matteo's office: l3_418" << endl;
+      question_text << "Shiqi's office: l3_420" << endl;
+      question_text << "Jivko's office: l3_432" << endl;
+      question_text << "Lab: l3_414b1" << endl;
+      
+      CallGUI *askPerson = new CallGUI("askPerson", CallGUI::TEXT_QUESTION,  question_text.str(), 60.0);
       
       while ((! know) && (count < 3)) {
 

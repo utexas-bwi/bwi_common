@@ -6,6 +6,7 @@
 #include "learning/SarsaActionSelector.h"
 #include "learning/TimeReward.h"
 #include "learning/DefaultTimes.h"
+#include "learning/ActionLogger.h"
 
 #include "bwi_kr_execution/ExecutePlanAction.h"
 
@@ -29,6 +30,7 @@
 
 const int MAX_N = 20;
 const std::string queryDirectory("/tmp/bwi_action_execution/");
+const std::string value_directory_base("/var/tmp/bwi_action_execution/");
 std::string valueDirectory;
 
 
@@ -41,6 +43,7 @@ typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Serve
 
 ActionExecutor *executor;
 SarsaActionSelector *selector;
+ActionLogger *action_logger;
 
 struct PrintFluent {
 
@@ -114,12 +117,16 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   ifstream valueFileIn(valueFileName.c_str());
   selector->readFrom(valueFileIn);
   valueFileIn.close();
+  
+  action_logger->setFile((valueFileName+"_actions"));
 
   executor->setGoal(goalRules);
+  
+  ros::Time begin = ros::Time::now();
 
   ros::Rate loop(10);
 
-  while (!executor->goalReached() && !executor->failed() && ros::ok()) {
+  while (!executor->goalReached() && !executor->failed() && as->isActive() && ros::ok()) {
 
     if (!as->isPreemptRequested()) {
       executor->executeActionStep();
@@ -138,8 +145,11 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
         ifstream newValueFileIn(valueFileName.c_str());
         selector->readFrom(newValueFileIn);
         newValueFileIn.close();
+        
+        action_logger->setFile((valueFileName+"_actions"));
 
         executor->setGoal(goalRules);
+        begin = ros::Time::now();
         selector->episodeEnded();
       }
     }
@@ -147,6 +157,18 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   }
 
   selector->episodeEnded();
+  
+  ros::Time end = ros::Time::now();
+  
+  ofstream time_file((valueFileName+"_time").c_str(), ofstream::app);
+  if(executor->goalReached()) 
+    time_file << 1 << " " ;
+  else {
+    time_file << 0 << " " ;
+  }
+  time_file << (end - begin).toSec() << endl;
+  time_file.close();
+  action_logger->taskCompleted();
 
   ofstream valueFileOut(valueFileName.c_str());
   selector->writeTo(valueFileOut);
@@ -190,7 +212,7 @@ int main(int argc, char**argv) {
   privateNode.param<bool>("simulation",simulating,false);
   
 //  valueDirectory = ros::package::getPath("bwi_kr_execution") +((simulating)? "/values_simulation/" : "/values/" ) ;
-  valueDirectory = string("/var/tmp/bwi_action_execution/") + ((simulating)? "values_simulation/" : "/values/" ); 
+  valueDirectory = value_directory_base + ((simulating)? "values_simulation/" : "/values/" ); 
   boost::filesystem::create_directories(valueDirectory);
   
   ActionFactory::setSimulation(simulating);
@@ -219,6 +241,9 @@ int main(int argc, char**argv) {
 
   Observer observer;
   executor->addExecutionObserver(&observer);
+  
+  action_logger = new ActionLogger();
+  executor->addExecutionObserver(action_logger);
 
   Server server(privateNode, "execute_plan", boost::bind(&executePlan, _1, &server), false);
   server.start();
@@ -228,6 +253,7 @@ int main(int argc, char**argv) {
   server.shutdown();
 
   delete executor;
+  delete action_logger;
   delete selector;
   delete timeValue;
   delete reward;
