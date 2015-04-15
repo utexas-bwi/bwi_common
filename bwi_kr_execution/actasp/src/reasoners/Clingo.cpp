@@ -437,7 +437,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
 
   for_each(firstAnswerSets.begin(),firstAnswerSets.end(),PolicyMerger(policy));
 
-  int maxLength = floor(suboptimality * shortestLength);
+  int maxLength = ceil(suboptimality * shortestLength);
 
   if (maxLength == shortestLength)
     return policy;
@@ -534,7 +534,7 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
   //zero, so we need +1
   unsigned int shortestLength = firstAnswerSets.begin()->maxTimeStep()+1;
 
-  int maxLength = floor(suboptimality * shortestLength);
+  int maxLength = ceil(suboptimality * shortestLength);
 
   if (maxLength == shortestLength)
     return vector<AnswerSet>(firstAnswerSets.begin(), firstAnswerSets.end());
