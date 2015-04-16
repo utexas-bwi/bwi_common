@@ -173,9 +173,11 @@ bool IsNotLocallyOptimal::checkSectionWithLength(const std::list<AspFluentRef>& 
       
       testPlan.insert(testPlan.end(),final,planCleaned.end());
       
-//         cout << "test plan: ";
-//         copy(testPlan.begin(), testPlan.end(), ostream_iterator<string>(cout, " "));
-//         cout << endl;
+      stringstream tps;
+      
+      tps << "test plan: ";
+      copy(testPlan.begin(), testPlan.end(), ostream_iterator<string>(tps, " "));
+      ROS_DEBUG_STREAM( tps.str());
     
       if(checkPlanValidity(testPlan)) {
 //         cout << "bad" << endl;
