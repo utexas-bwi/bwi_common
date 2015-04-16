@@ -18,6 +18,9 @@ inroom(P,R,I+1) :- searchroom(P,R,I), person(P), room(R), I=0..n-2.
 inroom(P,R,I+1) :- inroom(P,R,I), not -inroom(P,R,I+1), I=0..n-2.
 -inroom(P,R,I+1) :- -inroom(P,R,I), not inroom(P,R,I+1), I=0..n-2.
 
+%everyone can only be in one room at any given time
+:- inroom(P,R1,I), inroom(P,R2,I), R1 != R2, I=0..n-1.
+
 %fluent inoffice(P,I)
 inoffice(P,I) :- inroom(P,R,I), hasoffice(P,R), person(P), room(R), I=0..n-1.
 -inoffice(P,I) :- -inroom(P,R,I), hasoffice(P,R), person(P), room(R), I=0..n-1.
@@ -27,7 +30,7 @@ ingdc(P,I) :- inroom(P,R,I), person(P), room(R), I=0..n-1.
 -ingdc(P,I) :- { not -inroom(P,R,I) : canbeinroom(P,R) }0, { not -know(P1,P,I) : canknow(P1,P) }0, person(P), I=0..n-1.
 
 %action askperson(P1,P2,I)  ask P1 where P2 is
-inroom(P2,R,I+1) :- askperson(P1,P2,I), person(P1), person(P2), room(R), I=0..n-2.
+inroom(P2,R,I+1) :- askperson(P1,P2,I), at(R,I), person(P1), person(P2), room(R), not -inroom(P2,R,I+1), I=0..n-2.
 :- askperson(P1,P2,I), not inroom(P1,R,I) : room(R), at(R,I), person(P1), person(P2), I=0..n-1.
 :- askperson(P1,P2,I), inroom(P2,R,I), person(P1), person(P2), room(R), I=0..n-1.
 :- askperson(P1,P2,I), not canknow(P1,P2), person(P1), person(P2), I=0..n-1.
