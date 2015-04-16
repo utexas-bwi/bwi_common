@@ -127,7 +127,7 @@ void AskPerson::run() {
       question_text << "Matteo's office: l3_418" << endl;
       question_text << "Shiqi's office: l3_420" << endl;
       question_text << "Jivko's office: l3_432" << endl;
-      question_text << "Lab: l3_414b1" << endl;
+      question_text << "Lab: l3_414b" << endl;
       
       CallGUI *askPerson = new CallGUI("askPerson", CallGUI::TEXT_QUESTION,  question_text.str(), 60.0);
       
