@@ -59,7 +59,7 @@ bool goToInitialState(Client &client) {
   
   bwi_kr_execution::AspRule initial_rule2;
   bwi_kr_execution::AspFluent outside_of_lab;
-  outside_of_lab.name = "not at";
+  outside_of_lab.name = "at";
   outside_of_lab.variables.push_back("l3_414b");
   initial_rule2.body.push_back(outside_of_lab);
 
@@ -74,6 +74,8 @@ bool goToInitialState(Client &client) {
     ROS_INFO_STREAM("I can't reach the initial position, giving up... ");
     return false;
   }
+  
+  ROS_INFO("Inital state achieved");
 
   return true;
 }
@@ -162,6 +164,8 @@ int main(int argc, char**argv) {
     } else
       ROS_INFO("Terminated");
   }
+  
+  client.cancelAllGoals();
 
   return 0;
 }

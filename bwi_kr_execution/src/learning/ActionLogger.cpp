@@ -1,16 +1,27 @@
 #include "ActionLogger.h"
 
 #include "actasp/AspFluent.h"
-#include <iostream>
+
+
+#include <ctime>
+
 using namespace std;
 using namespace actasp;
 
-ActionLogger::ActionLogger() : dest_file(NULL) {}
+ActionLogger::ActionLogger() : dest_file(NULL){}
 
 
 void ActionLogger::setFile(const std::string& path) {
   taskCompleted();
   dest_file = new ofstream(path.c_str() , std::ofstream::app);
+  time_t rawtime;
+  struct tm * timeinfo;
+  char time_string[10];
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+  strftime (time_string,10,"%R",timeinfo);
+  (*dest_file) << time_string << " "; 
+  
 }
 
 

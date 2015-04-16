@@ -27,6 +27,7 @@
 
 #include <string>
 #include <fstream>
+#include <ctime>
 
 const int MAX_N = 20;
 const std::string queryDirectory("/tmp/bwi_action_execution/");
@@ -123,6 +124,14 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   executor->setGoal(goalRules);
   
   ros::Time begin = ros::Time::now();
+  
+  //very practical C way of getting the current hour of day
+  time_t rawtime;
+  struct tm * timeinfo;
+  char time_string[10];
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+  strftime (time_string,10,"%R",timeinfo);
 
   ros::Rate loop(10);
 
@@ -166,7 +175,7 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   else {
     time_file << 0 << " " ;
   }
-  time_file << (end - begin).toSec() << endl;
+  time_file << (end - begin).toSec() << " " << time_string << endl;
   time_file.close();
   action_logger->taskCompleted();
 
