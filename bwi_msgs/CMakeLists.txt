@@ -8,6 +8,11 @@ find_package(catkin REQUIRED
     message_generation
 )
 
+add_message_files(
+  DIRECTORY msg
+  FILES AvailableRobot.msg AvailableRobotArray.msg
+)
+
 add_service_files(
   DIRECTORY srv
   FILES QuestionDialog.srv DoorHandlerInterface.srv
