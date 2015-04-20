@@ -5,7 +5,7 @@
   <xacro:include filename="$(find bwi_gazebo_entities)/urdf/person.gazebo.xacro" />
 
   <xacro:macro name="person">
-    
+
     <!-- root link, on the ground just below the person origin (torso) -->
     <link name="base_footprint">
      <visual>
@@ -28,7 +28,7 @@
         <mass value="50" />
         <origin xyz="0 0 -1.25" />
         <inertia ixx="50.0" ixy="0.0" ixz="0.0"
-          iyy="50.0" iyz="0.0" 
+          iyy="50.0" iyz="0.0"
           izz="50.0" />
       </inertial>
       <visual>
@@ -44,7 +44,7 @@
       </collision>
     </link>
     <gazebo reference="base_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <!-- depth perception lidar -->
@@ -58,7 +58,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.01" ixy="0.0" ixz="0.0"
-          iyy="0.01" iyz="0.0" 
+          iyy="0.01" iyz="0.0"
           izz="0.01" />
       </inertial>
     </link>
@@ -74,7 +74,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="1.0" ixy="0.0" ixz="0.0"
-          iyy="1.0" iyz="0.0" 
+          iyy="1.0" iyz="0.0"
           izz="1.0" />
       </inertial>
       <visual>
@@ -82,11 +82,11 @@
         <geometry>
           <cylinder length="0.9" radius="0.09" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="left_leg_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <xacro:default_surface name="left_leg" />
@@ -102,7 +102,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="1.0" ixy="0.0" ixz="0.0"
-          iyy="1.0" iyz="0.0" 
+          iyy="1.0" iyz="0.0"
           izz="1.0" />
       </inertial>
       <visual>
@@ -110,11 +110,11 @@
         <geometry>
           <cylinder length="0.9" radius="0.09" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="right_leg_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <xacro:default_surface name="right_leg" />
@@ -130,37 +130,37 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
       <visual>
         <geometry>
           <sphere radius="0.15" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="head_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <!-- camera -->
-    <joint name="camera_joint" type="fixed">
-      <origin xyz="0.151 0 0" rpy="0 ${M_PI/12} 0" />
-      <parent link="head_link"/>
-      <child link="camera_link" />
-    </joint>
     <!-- <joint name="camera_joint" type="fixed"> -->
-    <!--   <origin xyz="-1.0 0 0.25" rpy="0 ${M_PI/12} 0" /> -->
+    <!--   <origin xyz="0.151 0 0" rpy="0 ${M_PI/12} 0" /> -->
     <!--   <parent link="head_link"/> -->
     <!--   <child link="camera_link" /> -->
     <!-- </joint> -->
+    <joint name="camera_joint" type="fixed">
+      <origin xyz="-2 0 0.75" rpy="0 ${M_PI/8} 0" />
+      <parent link="head_link"/>
+      <child link="camera_link" />
+    </joint>
     <link name="camera_link">
       <inertial>
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
     </link>
@@ -176,7 +176,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
     </link>
@@ -192,7 +192,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
       <visual>
@@ -200,11 +200,11 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="left_arm_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <!-- left fore arm -->
@@ -218,7 +218,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
       <visual>
@@ -226,11 +226,11 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="left_forearm_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <!-- right arm -->
@@ -244,7 +244,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
       <visual>
@@ -252,11 +252,11 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="right_arm_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <!-- right fore arm -->
@@ -270,7 +270,7 @@
         <mass value="0.001" />
         <origin xyz="0 0 0" />
         <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-          iyy="0.001" iyz="0.0" 
+          iyy="0.001" iyz="0.0"
           izz="0.001" />
       </inertial>
       <visual>
@@ -278,11 +278,11 @@
         <geometry>
           <cylinder length="0.35" radius="0.07" />
         </geometry>
-        <material name="black" />
+        <material name="light_grey" />
       </visual>
     </link>
     <gazebo reference="right_forearm_link">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/White</material>
     </gazebo>
 
     <gazebo>

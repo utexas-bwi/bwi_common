@@ -10,14 +10,14 @@
       <sensor name="${name}_sensor" type="camera">
         <update_rate>20.0</update_rate>
         <camera>
-          <horizontal_fov>1.0</horizontal_fov>
+          <horizontal_fov>0.5</horizontal_fov>
           <image>
-            <width>640</width>
+            <width>320</width>
             <height>480</height>
             <format>R8G8B8</format>
           </image>
           <clip>
-            <near>0.01</near>
+            <near>1.75</near>
             <far>30.0</far>
           </clip>
           <noise>
