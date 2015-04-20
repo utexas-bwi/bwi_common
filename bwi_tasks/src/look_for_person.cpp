@@ -151,7 +151,7 @@ int main(int argc, char**argv) {
 
     ROS_INFO("sending goal");
     client.sendGoal(goal);
-    client.waitForResult(ros::Duration(900.0)); //15 minutes to complete the task
+    bool made_it_in_time = client.waitForResult(ros::Duration(900.0)); //15 minutes to complete the task
 
     if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
       ROS_INFO("Aborted");
@@ -163,9 +163,10 @@ int main(int argc, char**argv) {
       ROS_INFO("Succeeded!");
     } else
       ROS_INFO("Terminated");
+    
+    client.cancelAllGoals();
   }
-  
-  client.cancelAllGoals();
 
+  client.cancelAllGoals();
   return 0;
 }

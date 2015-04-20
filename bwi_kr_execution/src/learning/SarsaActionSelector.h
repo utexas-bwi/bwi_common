@@ -42,6 +42,8 @@ public:
   void writeTo(std::ostream & toStream) throw();
   
   void episodeEnded() throw();
+  
+  void saveValueInitialState(const std::string& fileName);
 
 
   typedef std::map< actasp::AspFluent, double, actasp::ActionComparator> ActionValueMap;

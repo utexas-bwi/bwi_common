@@ -118,6 +118,7 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   ifstream valueFileIn(valueFileName.c_str());
   selector->readFrom(valueFileIn);
   valueFileIn.close();
+  selector->saveValueInitialState(valueFileName + "_initial"); 
   
   action_logger->setFile((valueFileName+"_actions"));
 
@@ -235,7 +236,7 @@ int main(int argc, char**argv) {
   DefaultActionValue *timeValue = new DefaultTimes();
 
   SarsaParams params;
-  params.alpha = 0.3;
+  params.alpha = 0.15;
   params.gamma = 0.9999;
   params.lambda = 0.9;
   params.epsilon = 0.1;

@@ -210,7 +210,7 @@ void SarsaActionSelector::actionTerminated(const AspFluent& action) throw() {
 void SarsaActionSelector::episodeEnded() throw() {
 
 
-  if (!initial.empty()) {
+  if (!(initial.empty() || final.empty()) ) {
     //update the last state-action pair
     updateValue(0.);
   }
@@ -220,6 +220,25 @@ void SarsaActionSelector::episodeEnded() throw() {
   final.clear();
   previousAction = AspFluent("nopreviousaction(0)");
   v_s = 0;
+}
+
+void SarsaActionSelector::saveValueInitialState(const std::string& fileName) {
+  ofstream initialValue(fileName.c_str(), ofstream::app);
+  
+  AnswerSet initialAnswerSet= reasoner->currentStateQuery(vector<AspRule>());
+  State initialState(initialAnswerSet.getFluents().begin(), initialAnswerSet.getFluents().end());
+  
+  ActionValueMap &initial_value_map = value[initialState];
+  ActionValueMap::iterator action_value = initial_value_map.begin();
+  
+  stringstream actionNames;
+  
+  for(; action_value != initial_value_map.end(); ++action_value) {
+    initialValue << action_value->second << " ";
+    actionNames << action_value->first.toString() << " ";
+  }
+  initialValue << actionNames.str() << endl;
+  initialValue.close();
 }
 
 
