@@ -34,6 +34,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <ctime>
 
 using namespace std;
 using namespace actasp;
@@ -231,7 +232,16 @@ void SarsaActionSelector::saveValueInitialState(const std::string& fileName) {
   ActionValueMap &initial_value_map = value[initialState];
   ActionValueMap::iterator action_value = initial_value_map.begin();
   
+  time_t rawtime;
+  struct tm * timeinfo;
+  char time_string[10];
+  time(&rawtime);
+  timeinfo = localtime(&rawtime);
+  strftime (time_string,10,"%R",timeinfo);
+  
   stringstream actionNames;
+  
+  actionNames << time_string << " ";
   
   for(; action_value != initial_value_map.end(); ++action_value) {
     initialValue << action_value->second << " ";
