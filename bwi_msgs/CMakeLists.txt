@@ -6,6 +6,7 @@ find_package(catkin REQUIRED
     actionlib_msgs
     bwi_planning_common 
     message_generation
+    std_msgs
 )
 
 add_message_files(
@@ -24,7 +25,7 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs bwi_planning_common 
+  DEPENDENCIES actionlib_msgs bwi_planning_common std_msgs
 )
 
 catkin_package(
