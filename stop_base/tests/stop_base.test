@@ -1,0 +1,17 @@
+<!-- rostest launch file for setting topic_name parameter
+
+     This unit test uses rostest, because it requires a ROS environment.  
+-->
+
+<launch>
+
+  <!-- start stop base controller -->
+  <node pkg="stop_base" type="stop_base_controller"
+        name="stop_base_controller" />
+
+  <!-- start unit test -->
+  <test test-name="stop_base_controller" time-limit="4.0"
+        pkg="stop_base" type="test_stop_base_controller.py"
+        name="test_stop_base" />
+
+</launch>
