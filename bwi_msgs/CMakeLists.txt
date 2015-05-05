@@ -16,7 +16,7 @@ add_message_files(
 
 add_service_files(
   DIRECTORY srv
-  FILES QuestionDialog.srv DoorHandlerInterface.srv StopBaseRequest.srv
+  FILES QuestionDialog.srv DoorHandlerInterface.srv StopBase.srv
 )
 
 add_action_files(
