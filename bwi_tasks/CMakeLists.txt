@@ -30,6 +30,10 @@ add_executable(look_for_person_node src/look_for_person.cpp)
 add_dependencies(look_for_person_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(look_for_person_node ${catkin_LIBRARIES})
 
+add_executable(learning_tasks_node src/learning_tasks.cpp)
+add_dependencies(learning_tasks_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(learning_tasks_node ${catkin_LIBRARIES})
+
 add_executable(meeting_experiment src/meeting_experiment.cpp)
 add_dependencies(meeting_experiment ${catkin_EXPORTED_TARGETS})
 target_link_libraries(meeting_experiment ${catkin_LIBRARIES})

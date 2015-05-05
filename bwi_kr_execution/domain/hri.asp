@@ -8,11 +8,20 @@ inroom(P,R,I+1) :- searchroom(P,R,I), person(P), room(R), I=0..n-2.
 %the rules above allow the robot execute the action outside of the room, in front of the door.
 %I am making the robot enter the room, but switch back to the rules above to return to the previous behavior
 
+%-searchroom(P,R,I) :- person(P), room(R), not searchroom(P,R,I), I=0..n-1.
+%-askperson(P1,P2,I) :- person(P1), person(P2), not askperson(P1,P2,I), I=0..n-1.
+
 :- searchroom(P,R,I), not at(R,I), I=0..n-1.
 
 :- searchroom(P,R,I), inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), -inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), not canbeinroom(P,R), person(P), room(R), I=0..n-1.
+
+%workaround to the problem of having the robot serach rooms and asking people when not necessary
+%add findPersonTask(n-1) to the goal formula to allow these actions
+:- searchroom(P,R,I), not findPersonTask(n-1), person(P), room(R), I=0..n-1.
+:- askperson(P1,P2,I), not findPersonTask(n-1), person(P1), person(P2), I=0..n-1.
+findPersonTask(I) :- findPersonTask(I).
 
 %inroom is inertial
 inroom(P,R,I+1) :- inroom(P,R,I), not -inroom(P,R,I+1), I=0..n-2.
