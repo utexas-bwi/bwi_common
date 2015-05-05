@@ -10,6 +10,7 @@ import unittest
 
 # ROS dependencies
 from bwi_msgs.msg import StopBaseStatus
+from bwi_msgs.srv import StopBaseRequest, StopBaseResponse
 
 # module being tested:
 from stop_base.transitions import *
@@ -20,38 +21,6 @@ class TestTransitions(unittest.TestCase):
 
     These tests do not require a running ROS core.
     """
-
-    ####################
-    # utility methods
-    ####################
-    def assert_invalid(self, new_status, old_status, exception):
-        """
-        Assert that *new_status* with *old_status* fails, raising
-        *exception*.
-        """
-        st = request_type(Request(id=unique_id.toMsg(TEST_UUID),
-                                  resources=[TEST_WILDCARD],
-                                  status=old_status))
-        self.assertRaises(exception, st._transition(new_status))
-
-    def assert_valid(self, request_type, old_status,
-                     operation, new_status, *args):
-        """
-        Assert that *request_type* with *old_status* accepts named
-        *operation*, yielding *new_status*.
-
-        :returns: request contents after the *operation*.
-        """
-        rq = request_type(Request(id=unique_id.toMsg(TEST_UUID),
-                                  resources=[TEST_WILDCARD],
-                                  status=old_status))
-        getattr(rq, operation)(*args)
-        self.assertEqual(rq.msg.status, new_status)
-        return rq
-
-    ####################
-    # request tests
-    ####################
     def test_constructor(self):
         st = StopBaseState()
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
@@ -65,10 +34,44 @@ class TestTransitions(unittest.TestCase):
         self.assertEqual(STATE_NAME[StopBaseStatus.STOPPED], 'STOPPED')
 
     def test_valid(self):
+        # first, start in RUNNING state
         st = StopBaseState()
         self.assertTrue(st._valid(StopBaseStatus.RUNNING))
         self.assertTrue(st._valid(StopBaseStatus.PAUSED))
         self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+
+        # now, try PAUSED state
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.PAUSED,
+                requester='test_valid'))
+        self.assertTrue(st._valid(StopBaseStatus.RUNNING))
+        self.assertTrue(st._valid(StopBaseStatus.PAUSED))
+        self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+
+        # last, try STOPPED state
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.STOPPED,
+                requester='test_valid'))
+        self.assertFalse(st._valid(StopBaseStatus.RUNNING))
+        self.assertFalse(st._valid(StopBaseStatus.PAUSED))
+        self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+
+    def test_pause_and_resume(self):
+        # first, start in RUNNING state
+        st = StopBaseState()
+        self.assertEqual(st.status, StopBaseStatus.RUNNING)
+
+        # now, request PAUSED state
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.PAUSED,
+                requester='pause_requester_1'))
+        self.assertEqual(st.status, StopBaseStatus.PAUSED)
+
+        # then, tell it to run again
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester='pause_requester_1'))
+        self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
 
 if __name__ == '__main__':

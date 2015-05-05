@@ -65,7 +65,9 @@ TRANS_TABLE = frozenset([
 
     (StopBaseStatus.PAUSED, StopBaseStatus.PAUSED),
     (StopBaseStatus.PAUSED, StopBaseStatus.RUNNING),
-    (StopBaseStatus.PAUSED, StopBaseStatus.STOPPED)])
+    (StopBaseStatus.PAUSED, StopBaseStatus.STOPPED),
+
+    (StopBaseStatus.STOPPED, StopBaseStatus.STOPPED)])
 
 
 class StopBaseState(object):
@@ -92,11 +94,11 @@ class StopBaseState(object):
         """
         Update status based on this request message.
 
-        :param msg: requested status message.
-        :type msg: bwi_msgs/StopBaseStatus
+        :param msg: service request message message.
+        :type msg: bwi_msgs/StopBaseRequest
         :raises: :exc:`.TransitionError` if not a valid transition.
         """
-        if not _valid(msg.status):
+        if not self._valid(msg.status):
             raise TransitionError('invalid ' + STATE_NAME[msg.status]
                                   + ' request in state '
                                   + STATE_NAME[self.status])
