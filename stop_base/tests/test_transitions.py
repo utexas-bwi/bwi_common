@@ -105,6 +105,18 @@ class TestTransitions(unittest.TestCase):
                 requester='pause_requester_2'))
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
+    def test_invalid_transition(self):
+        st = StopBaseState()
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.STOPPED,
+                requester='test_invalid'))
+        self.assertEqual(st.status, StopBaseStatus.STOPPED)
+
+        with self.assertRaises(TransitionError):
+            st._transition(StopBaseRequest(
+                    status=StopBaseStatus.PAUSED,
+                    requester='test_invalid'))
+
 
 if __name__ == '__main__':
     import rosunit

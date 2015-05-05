@@ -94,7 +94,7 @@ class StopBaseState(object):
         """
         Update status based on this request message.
 
-        :param msg: service request message message.
+        :param msg: stop base service request message.
         :type msg: bwi_msgs/StopBaseRequest
         :raises: :exc:`.TransitionError` if not a valid transition.
         """
