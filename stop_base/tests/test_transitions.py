@@ -73,6 +73,38 @@ class TestTransitions(unittest.TestCase):
                 requester='pause_requester_1'))
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
+    def test_multi_pauses(self):
+        # first, start in RUNNING state
+        st = StopBaseState()
+        self.assertEqual(st.status, StopBaseStatus.RUNNING)
+
+        # now, request PAUSED state twice
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.PAUSED,
+                requester='pause_requester_1'))
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.PAUSED,
+                requester='pause_requester_2'))
+        self.assertEqual(st.status, StopBaseStatus.PAUSED)
+
+        # tell it to run again once
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester='pause_requester_1'))
+        self.assertEqual(st.status, StopBaseStatus.PAUSED)
+
+        # the first requester cannot cancel the second requester's pause
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester='pause_requester_1'))
+        self.assertEqual(st.status, StopBaseStatus.PAUSED)
+
+        # finally, let the second requester resume
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester='pause_requester_2'))
+        self.assertEqual(st.status, StopBaseStatus.RUNNING)
+
 
 if __name__ == '__main__':
     import rosunit
