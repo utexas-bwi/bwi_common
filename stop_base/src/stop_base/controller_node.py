@@ -46,9 +46,10 @@ import rospy
 import threading
 
 from bwi_msgs.msg import StopBaseStatus
-from bwi_msgs.srv import StopBase
+from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 from geometry_msgs.msg import Twist
 
+from . import TransitionError
 from .transitions import StopBaseState
 
 
@@ -70,6 +71,13 @@ class ControllerNode(object):
                                           queue_size=1, latch=True)
         rospy.Subscriber('cmd_vel', Twist, self.cmd_vel_callback)
 
+        # define and initialize service
+        self.srv = rospy.Service('stop_base', StopBase, self.stop_base_service)
+        self.stop_base_service(
+            StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester=rospy.get_name()))
+
         # Handle service requests until canceled.
         rospy.spin()
 
@@ -79,12 +87,35 @@ class ControllerNode(object):
         :param msg: newest ``cmd_vel`` message.
         :type msg: `geometry_msgs/Twist`_
         """
-        rospy.logdebug('cmd_vel callback:')
-        self.last_command = msg
-        if self.state.status == StopBaseStatus.RUNNING:
-            self.pub_vel.publish(msg)
-        else:
-            self.stop_robot()
+        with self.lock:
+            #rospy.logdebug('cmd_vel callback: ' + str(msg))
+            self.last_command = msg
+            if self.state.status == StopBaseStatus.RUNNING:
+                self.pub_vel.publish(msg)
+            else:
+                self.stop_robot()
+
+    def stop_base_service(self, req):
+        """ Service call to pause and resume robot base motion.
+
+        :param req: service request message.
+        :type req: bwi_msgs/StopBaseRequest
+        :returns: bwi_msgs/StopBaseResponse
+        """
+        with self.lock:
+            rospy.loginfo('service request: ' + str(req))
+            try:
+                self.state._transition(req)
+            except TransitionError as e:
+                rospy.logwarn('stop_base transition error: ' + str(e))
+            else:
+                self.pub_status.publish(self.state.status)
+
+            # stop robot immediately, if no longer RUNNING
+            if self.state.status != StopBaseStatus.RUNNING:
+                self.stop_robot()
+
+            return StopBaseResponse(status=self.state.status)
 
     def stop_robot(self):
         """ Send stop commands to a robot not in the RUNNING state.
