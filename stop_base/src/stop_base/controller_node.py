@@ -65,9 +65,9 @@ class ControllerNode(object):
         self.last_command = None
         """ Last velocity command received. """
         self.zero_vel = Twist()
-        self.pub_vel = rospy.Publisher('cmd_vel_safe', Twist, 1)
-        self.pub_status = rospy.Publisher('stop_base_status',
-                                          StopBaseStatus, 1, latch=True)
+        self.pub_vel = rospy.Publisher('cmd_vel_safe', Twist, queue_size=1)
+        self.pub_status = rospy.Publisher('stop_base_status', StopBaseStatus,
+                                          queue_size=1, latch=True)
         rospy.Subscriber('cmd_vel', Twist, self.cmd_vel_callback)
 
         # Handle service requests until canceled.

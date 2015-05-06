@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 import rospy
-from bwi_msgs.msg import StopBaseRequest
+from bwi_msgs.srv import StopBase
 
 
 class TestStopBase(unittest.TestCase):
