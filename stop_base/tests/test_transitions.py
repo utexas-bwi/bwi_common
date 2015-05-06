@@ -117,8 +117,18 @@ class TestTransitions(unittest.TestCase):
                     status=StopBaseStatus.PAUSED,
                     requester='test_invalid'))
 
+    def test_emtpy_requester(self):
+        st = StopBaseState()
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.PAUSED,
+                requester=''))
+        self.assertEqual(st.status, StopBaseStatus.PAUSED)
+        st._transition(StopBaseRequest(
+                status=StopBaseStatus.RUNNING,
+                requester=''))
+        self.assertEqual(st.status, StopBaseStatus.RUNNING)
+
 
 if __name__ == '__main__':
     import rosunit
     rosunit.unitrun('stop_base', 'test_transitions', TestTransitions)
-
