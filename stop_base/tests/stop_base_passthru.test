@@ -1,0 +1,23 @@
+<!-- rostest launch file for setting topic_name parameter
+
+     This unit test uses rostest, because it requires a ROS environment.
+-->
+
+<launch>
+
+  <!-- start stop base controller -->
+  <node pkg="stop_base" type="stop_base_controller"
+        name="stop_base_controller" />
+
+  <!-- start cmd_vel requester -->
+  <node pkg="stop_base" type="cmd_vel_requester.py" name="cmd_vel_requester" />
+
+  <!-- verify that /cmd_vel publication rate is passed through at one Hz -->
+  <test test-name="cmd_vel_hztest_test" pkg="rostest" type="hztest" name="hztest1">
+    <param name="topic" value="cmd_vel_safe" />
+    <param name="hz" value="1.0" />
+    <param name="hzerror" value="0.5" />
+    <param name="test_duration" value="5.0" />
+  </test>
+
+</launch>

@@ -6,34 +6,33 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 import rospy
-from bwi_msgs.srv import StopBase
+import threading
+from bwi_msgs.msg import StopBaseStatus
+from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
+from geometry_msgs.msg import Twist
 
+SRV_NAME = 'stop_base'
 
 class TestStopBase(unittest.TestCase):
 
     def test_stop_base_(self):
-        """ Initialize ROCON scheduler node for example requester. """
+        """ Initialize requester for stop base service. """
         rospy.init_node("test_stop_base")
-        self.rqr = Requester(self.feedback, frequency=1.0)
+        self.lock = threading.RLock()
+        self.node_name = rospy.get_name()
+        self.expected_status = StopBaseStatus.RUNNING
+        rospy.wait_for_service(SRV_NAME)
+        self.stop_base = rospy.ServiceProxy(SRV_NAME, StopBase)
+        self.sub_vel = rospy.Subscriber('cmd_vel_safe', Twist,
+                                        self.cmd_vel_callback)
         self.next_step = self.step1     # first step of test sequence
         self.timer = rospy.Timer(rospy.Duration(2.0), self.periodic_update)
         rospy.spin()
 
-    def feedback(self, rset):
-        """ Scheduler feedback function. """
-        rospy.loginfo('feedback callback:')
-        for rq in rset.values():
-            rospy.logdebug('  ' + str(rq))
-            if rq.msg.status == Request.WAITING:
-                rospy.loginfo('  request queued: ' + str(rq.uuid))
-            elif rq.msg.status == Request.GRANTED:
-                rospy.loginfo('  request granted: ' + str(rq.uuid))
-            elif rq.msg.status == Request.CLOSED:
-                rospy.loginfo('  request closed: ' + str(rq.uuid))
-            elif rq.msg.status == Request.PREEMPTING:
-                rospy.loginfo('  request preempted (reason='
-                              + str(rq.msg.reason) + '): ' + str(rq.uuid))
-                rq.cancel()     # release preempted resources immediately
+    def cmd_vel_callback(self, msg):
+        """ Callback for cmd_vel_safe messages. """
+        with self.lock:
+            self.assertEqual(msg.status, self.expected_status)
 
     def periodic_update(self, event):
         """ Timer event handler for periodic request updates.
@@ -45,20 +44,29 @@ class TestStopBase(unittest.TestCase):
         else:                           # no more steps
             rospy.signal_shutdown('test completed.')
 
-    def request_turtlebot(self):
-        """ Request any tutlebot able to run *example_rapp*.
+    def step1(self):
+        rospy.loginfo('Step 1')
+        self.next_step = self.step2
 
-        :returns: UUID of new request sent.
-        """
-        bot = Resource(rapp='tests/example_rapp', uri='rocon:/turtlebot')
-        rq_id = self.rqr.new_request([bot])
-        rospy.loginfo('  new request: ' + str(rq_id))
-        return rq_id
+    def step2(self):
+        rospy.loginfo('Step 2')
+        with self.lock:
+            self.expected_status = StopBaseStatus.PAUSED
+            self.stop_base(status=self.expected_status,
+                           requester=self.node_name)
+        self.next_step = self.step3
 
-    def verify(self, rq_list):
-        self.assertEqual(len(self.rqr.rset), len(rq_list))
-        for rq in rq_list:
-            self.assertTrue(rq in self.rqr.rset)
+    def step3(self):
+        rospy.loginfo('Step 3')
+        with self.lock:
+            self.expected_status = StopBaseStatus.RUNNING
+            self.stop_base(status=self.expected_status,
+                           requester=self.node_name)
+        self.next_step = self.step4
+
+    def step4(self):
+        rospy.loginfo('Step 4')
+        self.next_step = None
 
 
 if __name__ == '__main__':
