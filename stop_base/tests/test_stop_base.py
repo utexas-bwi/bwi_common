@@ -11,6 +11,8 @@ from bwi_msgs.msg import StopBaseStatus
 from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 from geometry_msgs.msg import Twist
 
+from stop_base.service import make_request
+
 SRV_NAME = 'stop_base'
 
 class TestStopBase(unittest.TestCase):
@@ -32,7 +34,10 @@ class TestStopBase(unittest.TestCase):
     def cmd_vel_callback(self, msg):
         """ Callback for cmd_vel_safe messages. """
         with self.lock:
-            self.assertEqual(msg.status, self.expected_status)
+            if self.expected_status == StopBaseStatus.RUNNING:
+                self.assertGreaterEqual(msg.linear.x, 0.5)
+            else:
+                self.assertEqual(msg.linear.x, 0.0)
 
     def periodic_update(self, event):
         """ Timer event handler for periodic request updates.
@@ -52,16 +57,18 @@ class TestStopBase(unittest.TestCase):
         rospy.loginfo('Step 2')
         with self.lock:
             self.expected_status = StopBaseStatus.PAUSED
-            self.stop_base(status=self.expected_status,
-                           requester=self.node_name)
+            self.stop_base(
+                make_request(status=self.expected_status,
+                             requester=self.node_name))
         self.next_step = self.step3
 
     def step3(self):
         rospy.loginfo('Step 3')
         with self.lock:
             self.expected_status = StopBaseStatus.RUNNING
-            self.stop_base(status=self.expected_status,
-                           requester=self.node_name)
+            self.stop_base(
+                make_request(status=self.expected_status,
+                             requester=self.node_name))
         self.next_step = self.step4
 
     def step4(self):

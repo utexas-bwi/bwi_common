@@ -50,6 +50,7 @@ from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 from geometry_msgs.msg import Twist
 
 from . import TransitionError
+from .service import make_request, make_response
 from .transitions import StopBaseState
 
 
@@ -74,7 +75,7 @@ class ControllerNode(object):
         # define and initialize service
         self.srv = rospy.Service('stop_base', StopBase, self.stop_base_service)
         self.stop_base_service(
-            StopBaseRequest(
+            make_request(
                 status=StopBaseStatus.RUNNING,
                 requester=rospy.get_name()))
 
@@ -109,13 +110,13 @@ class ControllerNode(object):
             except TransitionError as e:
                 rospy.logwarn('stop_base transition error: ' + str(e))
             else:
-                self.pub_status.publish(self.state.status)
+                self.pub_status.publish(self.state.to_msg())
 
             # stop robot immediately, if no longer RUNNING
             if self.state.status != StopBaseStatus.RUNNING:
                 self.stop_robot()
 
-            return StopBaseResponse(status=self.state.status)
+            return make_response(status=self.state.status)
 
     def stop_robot(self):
         """ Send stop commands to a robot not in the RUNNING state.

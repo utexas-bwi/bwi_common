@@ -90,6 +90,10 @@ class StopBaseState(object):
         """ Generate string representation. """
         return str(STATE_NAME(self.status))
 
+    def to_msg(self):
+        """ :returns: corresponding bwi_msgs/StopBaseStatus message. """
+        return StopBaseStatus(status=self.status)
+
     def _transition(self, msg):
         """
         Update status based on this request message.
@@ -98,23 +102,23 @@ class StopBaseState(object):
         :type msg: bwi_msgs/StopBaseRequest
         :raises: :exc:`.TransitionError` if not a valid transition.
         """
-        if not self._valid(msg.status):
-            raise TransitionError('invalid ' + STATE_NAME[msg.status]
+        if not self._valid(msg.status.status):
+            raise TransitionError('invalid ' + STATE_NAME[msg.status.status]
                                   + ' request in state '
                                   + STATE_NAME[self.status])
 
-        if msg.status == StopBaseStatus.PAUSED:
+        if msg.status.status == StopBaseStatus.PAUSED:
             if self.status != StopBaseStatus.STOPPED:
                 self.pauses.add(msg.requester)
-                self.status = msg.status
-        elif msg.status == StopBaseStatus.RUNNING:
+                self.status = msg.status.status
+        elif msg.status.status == StopBaseStatus.RUNNING:
             if self.status != StopBaseStatus.STOPPED:
                 self.pauses.discard(msg.requester)
                 if self.status == StopBaseStatus.PAUSED:
                     if len(self.pauses) == 0:
-                        self.status = msg.status
-        elif msg.status == StopBaseStatus.STOPPED:
-            self.status = msg.status
+                        self.status = msg.status.status
+        elif msg.status.status == StopBaseStatus.STOPPED:
+            self.status = msg.status.status
 
     def _valid(self, new_status):
         """
