@@ -33,7 +33,8 @@
 """
 .. module:: transitions
 
-This module tracks stop base request state transitions.
+This module tracks stop base request state transitions.  The initial
+state is RUNNING, and the terminal state is STOPPED.
 
 .. graphviz:: state_transitions.dot
 
@@ -84,7 +85,7 @@ class StopBaseState(object):
         self.status = StopBaseStatus.RUNNING
         """ Current status. """
         self.pauses = set()
-        """ Set of pause requesters. """
+        """ Set of pause requester names. """
 
     def __str__(self):
         """ Generate string representation. """

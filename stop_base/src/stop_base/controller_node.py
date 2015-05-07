@@ -61,9 +61,9 @@ class ControllerNode(object):
         """ Constructor. """
         rospy.init_node('stop_base_controller')
         self.lock = threading.RLock()
-        """ Big Controller Lock. """
+        """ Big controller lock. """
         self.state = StopBaseState()
-        """ Controller state. """
+        """ Current controller state. """
         self.last_command = None
         """ Last velocity command received. """
         self.zero_vel = Twist()

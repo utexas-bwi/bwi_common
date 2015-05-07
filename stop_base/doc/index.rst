@@ -1,5 +1,5 @@
-ROCON scheduler request manager
-===============================
+Stop base controller
+====================
 
 The `stop_base`_ ROS_ package provides a controller node for
 interrupting commands to move the robot base.

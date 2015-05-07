@@ -18,7 +18,7 @@ Subscribed topics
 '''''''''''''''''
 
 ``cmd_vel`` (`geometry_msgs/Twist`_) 
-    Robot movements requests.
+    Robot movement requests.
 
 Published topics
 ''''''''''''''''
@@ -62,4 +62,5 @@ Usage
    http://docs.ros.org/api/bwi_msgs/html/msg/StopBaseStatus.html
 .. _`geometry_msgs/Twist`:
    http://docs.ros.org/api/geometry_msgs/html/msg/Twist.html
+.. _ROS: http:/ros.org
 .. _`stop_base`: http://wiki.ros.org/stop_base

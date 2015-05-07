@@ -50,7 +50,7 @@ def make_request(status, requester):
     :param requester: Requester name.
     :type requester: str
 
-    :returns bwi_msgs/StopBaseRequest message.
+    :returns: bwi_msgs/StopBaseRequest message.
     """
     return StopBaseRequest(
         status=StopBaseStatus(status=status),
@@ -62,7 +62,7 @@ def make_response(status):
     :param status: Requested status.
     :type status: int
 
-    :returns bwi_msgs/StopBaseResponse message.
+    :returns: bwi_msgs/StopBaseResponse message.
     """
     return StopBaseResponse(
         status=StopBaseStatus(status=status))
@@ -83,6 +83,6 @@ class StopBaseClient(object):
         :param requester: Requester name.
         :type requester: str
 
-        :returns bwi_msgs/StopBaseResponse message.
+        :returns: bwi_msgs/StopBaseResponse message.
         """
         return self.proxy(make_request(status, requester))
