@@ -38,25 +38,25 @@ class TestTransitions(unittest.TestCase):
     def test_valid(self):
         # first, start in RUNNING state
         st = StopBaseState()
-        self.assertTrue(st._valid(StopBaseStatus.RUNNING))
-        self.assertTrue(st._valid(StopBaseStatus.PAUSED))
-        self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+        self.assertTrue(st.valid(StopBaseStatus.RUNNING))
+        self.assertTrue(st.valid(StopBaseStatus.PAUSED))
+        self.assertTrue(st.valid(StopBaseStatus.STOPPED))
 
         # now, try PAUSED state
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.PAUSED,
                 requester='test_valid'))
-        self.assertTrue(st._valid(StopBaseStatus.RUNNING))
-        self.assertTrue(st._valid(StopBaseStatus.PAUSED))
-        self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+        self.assertTrue(st.valid(StopBaseStatus.RUNNING))
+        self.assertTrue(st.valid(StopBaseStatus.PAUSED))
+        self.assertTrue(st.valid(StopBaseStatus.STOPPED))
 
         # last, try STOPPED state
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.STOPPED,
                 requester='test_valid'))
-        self.assertFalse(st._valid(StopBaseStatus.RUNNING))
-        self.assertFalse(st._valid(StopBaseStatus.PAUSED))
-        self.assertTrue(st._valid(StopBaseStatus.STOPPED))
+        self.assertFalse(st.valid(StopBaseStatus.RUNNING))
+        self.assertFalse(st.valid(StopBaseStatus.PAUSED))
+        self.assertTrue(st.valid(StopBaseStatus.STOPPED))
 
     def test_pause_and_resume(self):
         # first, start in RUNNING state
@@ -64,13 +64,13 @@ class TestTransitions(unittest.TestCase):
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
         # now, request PAUSED state
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.PAUSED,
                 requester='pause_requester_1'))
         self.assertEqual(st.status, StopBaseStatus.PAUSED)
 
         # then, tell it to run again
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.RUNNING,
                 requester='pause_requester_1'))
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
@@ -81,51 +81,51 @@ class TestTransitions(unittest.TestCase):
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
         # now, request PAUSED state twice
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.PAUSED,
                 requester='pause_requester_1'))
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.PAUSED,
                 requester='pause_requester_2'))
         self.assertEqual(st.status, StopBaseStatus.PAUSED)
 
         # tell it to run again once
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.RUNNING,
                 requester='pause_requester_1'))
         self.assertEqual(st.status, StopBaseStatus.PAUSED)
 
         # the first requester cannot cancel the second requester's pause
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.RUNNING,
                 requester='pause_requester_1'))
         self.assertEqual(st.status, StopBaseStatus.PAUSED)
 
         # finally, let the second requester resume
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.RUNNING,
                 requester='pause_requester_2'))
         self.assertEqual(st.status, StopBaseStatus.RUNNING)
 
     def test_invalid_transition(self):
         st = StopBaseState()
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.STOPPED,
                 requester='test_invalid'))
         self.assertEqual(st.status, StopBaseStatus.STOPPED)
 
         with self.assertRaises(TransitionError):
-            st._transition(make_request(
+            st.transition(make_request(
                     status=StopBaseStatus.PAUSED,
                     requester='test_invalid'))
 
     def test_emtpy_requester(self):
         st = StopBaseState()
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.PAUSED,
                 requester=''))
         self.assertEqual(st.status, StopBaseStatus.PAUSED)
-        st._transition(make_request(
+        st.transition(make_request(
                 status=StopBaseStatus.RUNNING,
                 requester=''))
         self.assertEqual(st.status, StopBaseStatus.RUNNING)

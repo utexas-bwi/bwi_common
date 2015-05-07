@@ -95,7 +95,7 @@ class StopBaseState(object):
         """ :returns: corresponding bwi_msgs/StopBaseStatus message. """
         return StopBaseStatus(status=self.status)
 
-    def _transition(self, msg):
+    def transition(self, msg):
         """
         Update status based on this request message.
 
@@ -103,7 +103,7 @@ class StopBaseState(object):
         :type msg: bwi_msgs/StopBaseRequest
         :raises: :exc:`.TransitionError` if not a valid transition.
         """
-        if not self._valid(msg.status.status):
+        if not self.valid(msg.status.status):
             raise TransitionError('invalid ' + STATE_NAME[msg.status.status]
                                   + ' request in state '
                                   + STATE_NAME[self.status])
@@ -121,7 +121,7 @@ class StopBaseState(object):
         elif msg.status.status == StopBaseStatus.STOPPED:
             self.status = msg.status.status
 
-    def _valid(self, new_status):
+    def valid(self, new_status):
         """
         Valid state update predicate.
 

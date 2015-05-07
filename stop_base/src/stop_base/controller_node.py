@@ -106,7 +106,7 @@ class ControllerNode(object):
         with self.lock:
             rospy.loginfo('service request: ' + str(req))
             try:
-                self.state._transition(req)
+                self.state.transition(req)
             except TransitionError as e:
                 rospy.logwarn('stop_base transition error: ' + str(e))
             else:
