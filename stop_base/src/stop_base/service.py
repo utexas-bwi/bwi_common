@@ -33,14 +33,14 @@
 """
 .. module:: service
 
-This Python module provides convenient functions for constructing
-StopBase service request and response messages.
+This Python module provides interfaces for StopBase service calls.
 
 .. include:: weblinks.rst
 
 """
+import rospy
 from bwi_msgs.msg import StopBaseStatus
-from bwi_msgs.srv import StopBaseRequest, StopBaseResponse
+from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 
 def make_request(status, requester):
     """ Make a stop base service request.
@@ -66,3 +66,23 @@ def make_response(status):
     """
     return StopBaseResponse(
         status=StopBaseStatus(status=status))
+
+
+class StopBaseClient(object):
+    """ Proxy class for making stop_base calls. """
+
+    def __init__(self, srv_name='stop_base'):
+        rospy.wait_for_service(srv_name)
+        self.proxy = rospy.ServiceProxy(srv_name, StopBase)
+
+    def stop_base(self, status, requester):
+        """ Stop base service proxy.
+
+        :param status: Requested status.
+        :type status: int
+        :param requester: Requester name.
+        :type requester: str
+
+        :returns bwi_msgs/StopBaseResponse message.
+        """
+        return self.proxy(make_request(status, requester))

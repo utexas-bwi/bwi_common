@@ -11,9 +11,7 @@ from bwi_msgs.msg import StopBaseStatus
 from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 from geometry_msgs.msg import Twist
 
-from stop_base.service import make_request
-
-SRV_NAME = 'stop_base'
+from stop_base.service import StopBaseClient
 
 class TestStopBase(unittest.TestCase):
 
@@ -23,8 +21,7 @@ class TestStopBase(unittest.TestCase):
         self.lock = threading.RLock()
         self.node_name = rospy.get_name()
         self.expected_status = StopBaseStatus.RUNNING
-        rospy.wait_for_service(SRV_NAME)
-        self.stop_base = rospy.ServiceProxy(SRV_NAME, StopBase)
+        self.client = StopBaseClient()
         self.sub_vel = rospy.Subscriber('cmd_vel_safe', Twist,
                                         self.cmd_vel_callback)
         self.next_step = self.step1     # first step of test sequence
@@ -57,18 +54,18 @@ class TestStopBase(unittest.TestCase):
         rospy.loginfo('Step 2')
         with self.lock:
             self.expected_status = StopBaseStatus.PAUSED
-            self.stop_base(
-                make_request(status=self.expected_status,
-                             requester=self.node_name))
+            self.client.stop_base(
+                status=self.expected_status,
+                requester=self.node_name)
         self.next_step = self.step3
 
     def step3(self):
         rospy.loginfo('Step 3')
         with self.lock:
             self.expected_status = StopBaseStatus.RUNNING
-            self.stop_base(
-                make_request(status=self.expected_status,
-                             requester=self.node_name))
+            self.client.stop_base(
+                status=self.expected_status,
+                requester=self.node_name)
         self.next_step = self.step4
 
     def step4(self):

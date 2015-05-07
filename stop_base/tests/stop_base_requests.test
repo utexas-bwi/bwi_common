@@ -22,7 +22,7 @@
   -->
 
   <!-- start unit test -->
-  <test test-name="stop_base_requests" time-limit="10.0"
+  <test test-name="stop_base_requests" time-limit="15.0"
         pkg="stop_base" type="test_stop_base.py" name="test_stop_base" />
 
 </launch>
