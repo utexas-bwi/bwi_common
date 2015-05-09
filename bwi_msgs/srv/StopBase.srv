@@ -1,0 +1,19 @@
+### Stop base controller service call
+#
+#   Since there can be multiple requesters, the current status
+#   returned in the response message may not immediately match the
+#   original request.
+#
+#   If more than one requester sets a PAUSED status, the robot base
+#   will remain motionless until they all request RUNNING again.  If
+#   any requester sets STOPPED, no further requests will be met, the
+#   status remaining permantently STOPPED.
+#
+#   The requester name should be sufficiently unique to avoid multiple
+#   requesters picking the same string.  A reasonable choice is the
+#   ROS node name.
+
+StopBaseStatus status   # new status requested
+string requester        # self-assigned requester name
+---
+StopBaseStatus status   # current status after request handled

@@ -6,16 +6,17 @@ find_package(catkin REQUIRED
     actionlib_msgs
     bwi_planning_common 
     message_generation
+    std_msgs
 )
 
 add_message_files(
   DIRECTORY msg
-  FILES AvailableRobot.msg AvailableRobotArray.msg
+  FILES AvailableRobot.msg AvailableRobotArray.msg StopBaseStatus.msg
 )
 
 add_service_files(
   DIRECTORY srv
-  FILES QuestionDialog.srv DoorHandlerInterface.srv
+  FILES QuestionDialog.srv DoorHandlerInterface.srv StopBase.srv
 )
 
 add_action_files(
@@ -24,7 +25,7 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs bwi_planning_common 
+  DEPENDENCIES actionlib_msgs bwi_planning_common std_msgs
 )
 
 catkin_package(

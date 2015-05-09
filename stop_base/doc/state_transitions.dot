@@ -1,0 +1,9 @@
+digraph state_transitions {
+   RUNNING [peripheries=2]
+   PAUSED [style="filled", color="grey"]
+   STOPPED [peripheries=2, style="filled", color="grey"]
+   RUNNING -> PAUSED
+   RUNNING -> STOPPED
+   PAUSED -> RUNNING
+   PAUSED -> STOPPED
+}
