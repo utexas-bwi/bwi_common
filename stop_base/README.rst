@@ -34,9 +34,9 @@ Published topics
 Services
 ''''''''
 
-``StopBaseRequest`` (`bwi_msgs/StopBaseRequest`_) ROS service
-    interface for temporarily or permanently stopping robot base
-    motion.  
+``StopBaseRequest`` (`bwi_msgs/StopBaseRequest`_)
+    ROS service interface for temporarily or permanently stopping
+    robot base motion.
 
 There can be multiple requesters, so the current status returned in
 the response message may not match the original request, but that
@@ -54,7 +54,7 @@ node name.
 Usage
 '''''
 
-    $ rosrun bwi_common stop_base_controller
+    $ rosrun stop_base stop_base_controller
 
 .. _`bwi_msgs/StopBaseRequest`:
    http://docs.ros.org/api/bwi_msgs/html/srv/StopBaseRequest.html
