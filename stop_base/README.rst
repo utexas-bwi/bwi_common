@@ -34,7 +34,7 @@ Published topics
 Services
 ''''''''
 
-``StopBaseRequest`` (`bwi_msgs/StopBaseRequest`_)
+``stop_base`` (`bwi_msgs/StopBaseRequest`_)
     ROS service interface for temporarily or permanently stopping
     robot base motion.
 
