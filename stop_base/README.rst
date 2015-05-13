@@ -51,10 +51,32 @@ Requester names should be sufficiently unique to avoid multiple
 requesters picking the same string.  A reasonable choice is the ROS
 node name.
 
+
+Usage
+'''''
+::
+
+    $ rosrun stop_base stop_base_controller
+
+
+request node
+------------
+
+This node provides a command line interface for requesting
+``stop_base_controller`` state transitions.
+
 Usage
 '''''
 
-    $ rosrun stop_base stop_base_controller
+::
+
+    rosrun stop_base request <status>
+
+Where ``<staus>`` can be:
+
+ * ``RUNNING``, ``running`` or ``r``
+ * ``PAUSED``, ``paused`` or ``p``
+ * ``STOPPED``, ``stopped`` or ``s``
 
 .. _`bwi_msgs/StopBaseRequest`:
    http://docs.ros.org/api/bwi_msgs/html/srv/StopBaseRequest.html

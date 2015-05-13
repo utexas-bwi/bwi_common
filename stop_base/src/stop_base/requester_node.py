@@ -83,10 +83,10 @@ def main():
         print(""" Usage:
 rosrun stop_base request <status>
 
-where: <status> is:
-        'RUNNING', 'running' or 'r',
-        'PAUSED', 'paused' or 'p',
-        'STOPPED', 'stopped' or 's',
+where: <status> can be:
+        'RUNNING', 'running' or 'r'
+        'PAUSED', 'paused' or 'p'
+        'STOPPED', 'stopped' or 's'
 """)
         sys.exit(9)
 
