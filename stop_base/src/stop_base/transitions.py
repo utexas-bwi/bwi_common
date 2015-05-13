@@ -75,9 +75,9 @@ class StopBaseState(object):
     """
     Class for tracking the status of a stop base request.
 
-    .. describe:: str(rq)
+    .. describe:: str(status)
 
-       :returns: String representation of this resource request.
+       :returns: String representation of this status.
 
     """
     def __init__(self):
