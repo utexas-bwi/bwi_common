@@ -3,17 +3,19 @@
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/DoorHandlerInterface.h>
 #include <bwi_kr_execution/CurrentStateQuery.h>
 #include <bwi_kr_execution/UpdateFluents.h>
 
 #include <std_srvs/Empty.h>
 #include <ros/ros.h>
-
-#include <ctime> //to seed rand
+#include <boost/graph/graph_concepts.hpp>
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
 using namespace std;
+
+const size_t ep_per_phase = 200;
 
 
 struct Task {
@@ -66,7 +68,7 @@ bwi_kr_execution::ExecutePlanGoal initialStateFormula() {
   
   bwi_kr_execution::AspRule initial_rule2;
   bwi_kr_execution::AspFluent outside_of_lab;
-  outside_of_lab.name = "at";
+  outside_of_lab.name = "not at";
   outside_of_lab.variables.push_back("l3_414b");
   initial_rule2.body.push_back(outside_of_lab);
 
@@ -74,36 +76,6 @@ bwi_kr_execution::ExecutePlanGoal initialStateFormula() {
   go_to_initial_state.aspGoal.push_back(initial_rule2);
   
   return go_to_initial_state;
-}
-  
-  
-bwi_kr_execution::ExecutePlanGoal findPerson(const std::string& personName) {
-  
-  bwi_kr_execution::ExecutePlanGoal goal;
-
-    bwi_kr_execution::AspRule main_rule;
-    bwi_kr_execution::AspFluent fluent;
-    fluent.name = "not ingdc";
-    fluent.variables.push_back(personName);
-
-    main_rule.body.push_back(fluent);
-
-
-    bwi_kr_execution::AspFluent fluent_not;
-    fluent_not.name = "not -ingdc";
-    fluent_not.variables.push_back(personName);
-
-    main_rule.body.push_back(fluent_not);
-    
-    bwi_kr_execution::AspRule flag_rule;
-    bwi_kr_execution::AspFluent find_person_flag;
-    find_person_flag.name = "findPersonTask";
-    flag_rule.head.push_back(find_person_flag);
-
-    goal.aspGoal.push_back(main_rule);
-    goal.aspGoal.push_back(flag_rule);
-    
-    return goal;
 }
 
 bwi_kr_execution::ExecutePlanGoal goToPlace(const std::string& place) {
@@ -120,6 +92,53 @@ bwi_kr_execution::ExecutePlanGoal goToPlace(const std::string& place) {
     goal.aspGoal.push_back(rule);
     
     return goal;
+}
+
+void phaseTransition(int episode) {
+  
+  ROS_INFO_STREAM("episode: " << episode);
+  
+ if(episode % ep_per_phase == 0) {
+  
+   ros::NodeHandle n;
+   ros::ServiceClient update_doors = n.serviceClient<bwi_msgs::DoorHandlerInterface>("update_doors");
+   
+   bwi_msgs::DoorHandlerInterface open_all_doors;
+   open_all_doors.request.all_doors = true;
+   open_all_doors.request.open = true;
+   
+   update_doors.call(open_all_doors);
+   
+   bwi_msgs::DoorHandlerInterface close_414b3;
+  close_414b3.request.door = "d3_414b3";
+  
+   bwi_msgs::DoorHandlerInterface close_414a3;
+   close_414a3.request.door = "d3_414a3";
+   
+   bwi_msgs::DoorHandlerInterface close_414a2;
+   close_414a2.request.door = "d3_414a2";
+   
+   bwi_msgs::DoorHandlerInterface close_414a1;
+   close_414a1.request.door = "d3_414a1";
+   
+   switch(episode) {
+     case 0:       
+              update_doors.call(close_414b3);
+              update_doors.call(close_414a3);
+              update_doors.call(close_414a2);
+          break;
+     case ep_per_phase:
+              update_doors.call(close_414b3);
+              update_doors.call(close_414a3);
+              update_doors.call(close_414a1); 
+          break;
+     case ep_per_phase * 2:
+              update_doors.call(close_414a1);
+       break;
+   }
+   
+ }
+  
 }
 
 
@@ -156,29 +175,21 @@ int main(int argc, char**argv) {
 
   bwi_kr_execution::ExecutePlanGoal in_front_of_lab = initialStateFormula();
   
-  vector<Task> tasks;
-//   tasks.push_back(Task(in_front_of_lab, goToPlace("l2_302")));
-  tasks.push_back(Task(in_front_of_lab, findPerson("matteo")));
-  tasks.push_back(Task(in_front_of_lab, findPerson("peter")));
-  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_516")));
-  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_414a")));
+  Task chosen(in_front_of_lab, goToPlace("l3_414a"));
   
 
   Client client("action_executor/execute_plan", true);
   client.waitForServer();
   
-  srand(time(0));
-  
   size_t task_counter = 0;
 
-  while (ros::ok()) {
+  while (ros::ok() && task_counter < ep_per_phase * 3) {
     
-    Task &chosen = tasks[task_counter];
-    task_counter = (task_counter + 1) % tasks.size();
+    phaseTransition(task_counter);
     
     if (!goToInitialState(client, chosen.initial_state))
       continue;
-
+    
     resetMemory();
 
 
@@ -198,6 +209,8 @@ int main(int argc, char**argv) {
       ROS_INFO("Terminated");
     
     client.cancelAllGoals();
+    
+    ++task_counter;
   }
 
   client.cancelAllGoals();
