@@ -236,7 +236,7 @@ int main(int argc, char**argv) {
 
   boost::filesystem::create_directories(queryDirectory);
   
-  AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),5);
+  AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),10);
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
 
   TimeReward<SarsaActionSelector::State> *reward = new TimeReward<SarsaActionSelector::State>();

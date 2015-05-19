@@ -9,7 +9,8 @@
 
 #include <std_srvs/Empty.h>
 #include <ros/ros.h>
-#include <boost/graph/graph_concepts.hpp>
+
+#include <sstream>
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
@@ -99,6 +100,16 @@ void phaseTransition(int episode) {
   ROS_INFO_STREAM("episode: " << episode);
   
  if(episode % ep_per_phase == 0) {
+   
+   stringstream mkdir_cmd;
+   mkdir_cmd << "mkdir values" << (episode/ep_per_phase);
+   
+   system(mkdir_cmd.str().c_str());
+   
+   stringstream cp_cmd;
+   cp_cmd << "cp /var/tmp/bwi_action_execution/values/* values" << (episode/ep_per_phase);
+   
+   system(cp_cmd.str().c_str());
   
    ros::NodeHandle n;
    ros::ServiceClient update_doors = n.serviceClient<bwi_msgs::DoorHandlerInterface>("update_doors");
