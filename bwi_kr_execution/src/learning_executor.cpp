@@ -12,6 +12,9 @@
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/MultiPolicyExecutor.h"
+#include "actasp/planners/AnyPlan.h"
+#include "actasp/executors/ReplanningActionExecutor.h"
+#include "learning/RLActionExecutor.h"
 
 #include "actions/ActionFactory.h"
 #include "actions/LogicalNavigation.h"
@@ -194,7 +197,11 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 }
 
 
-
+enum Modality {
+  iclingo=0,
+  sarsa,
+  iclingoAndSarsa
+};
 
 
 int main(int argc, char**argv) {
@@ -236,12 +243,30 @@ int main(int argc, char**argv) {
   DefaultActionValue *timeValue = new DefaultTimes();
 
   SarsaParams params;
-  params.alpha = 0.15;
+  params.alpha = 0.2;
   params.gamma = 0.9999;
   params.lambda = 0.9;
-  params.epsilon = 0.1;
+  params.epsilon = 0.2;
   
   selector = new SarsaActionSelector(reasoner,timeValue,reward,params);
+  
+//   Modality mode = iclingoAndSarsa;
+//   
+//     switch(mode) {
+//     case iclingoAndSarsa: 
+//       executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
+//       executor->addExecutionObserver(selector);
+//       executor->addExecutionObserver(reward);
+//       break;
+//     case sarsa: 
+//       executor = new RLActionExecutor(reasoner,selector,ActionFactory::actions());
+//       executor->addExecutionObserver(selector);
+//       executor->addExecutionObserver(reward);
+//       break;
+//     case iclingo:
+//       executor= new ReplanningActionExecutor(reasoner, new AnyPlan(reasoner,1.),ActionFactory::actions());
+//   }
+  
 
   //need a pointer to the specific type for the observer
   executor = new MultiPolicyExecutor(reasoner, reasoner,selector , ActionFactory::actions(),1.5);

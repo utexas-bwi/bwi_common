@@ -23,6 +23,7 @@ SET( lexec_SRC ${lexec_SRC}
   ${CMAKE_CURRENT_SOURCE_DIR}/learning/DefaultTimes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/learning/SarsaActionSelector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/learning/ActionLogger.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/learning/RLActionExecutor.cpp
   PARENT_SCOPE)
 	
 SET( krreasoner_SRC ${krreasoner_SRC}

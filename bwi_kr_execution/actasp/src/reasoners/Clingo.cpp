@@ -21,7 +21,7 @@
 #include <ros/console.h>
 #include <ctime>
 
-#define CURRENT_FILE_HOME std::string("/tmp/")
+#define CURRENT_FILE_HOME queryDir // was  std::string("/tmp/")
 #define CURRENT_STATE_FILE std::string("current.asp")
 
 using namespace std;
@@ -151,15 +151,18 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
   ifstream file(filePath.c_str());
 
   list<AnswerSet> allSets;
-  bool answerFound = false;
-
+  bool interrupted = false;
+  
   string line;
   while(file) {
 
     getline(file,line);
 
-    if(answerFound && line == "UNSATISFIABLE")
+    if(line == "UNSATISFIABLE")
       return list<AnswerSet>();
+    
+    if(line.find("INTERRUPTED : 1") != string::npos)
+      interrupted = true;
 
     if(line.find("Answer") != string::npos) {
       getline(file,line);
@@ -171,7 +174,10 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
         }
     }
   }
-
+  
+  if(interrupted) //the last answer set might be invalid
+    allSets.pop_back();
+  
  return allSets;
 }
 
