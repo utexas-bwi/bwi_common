@@ -184,7 +184,21 @@ int main(int argc, char**argv) {
 
     ROS_INFO("sending goal");
     client.sendGoal(chosen.goal);
-    bool made_it_in_time = client.waitForResult(ros::Duration(900.0)); //15 minutes to complete the task
+    
+    ros::Rate rate(10);
+    
+    ros::Time start_time = ros::Time::now();
+    bool too_late = false;
+    
+    while(ros::ok() && !client.getState().isDone()) {
+      rate.sleep();
+      ros::spinOnce(); //not sure this is necessary.
+      
+      if(!too_late && ((ros::Time::now() - start_time) > ros::Duration(900.0))) { //15 minutes to complete the task
+        too_late = true;
+        client.cancelGoal();
+      }
+    }
 
     if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
       ROS_INFO("Aborted");
@@ -196,8 +210,7 @@ int main(int argc, char**argv) {
       ROS_INFO("Succeeded!");
     } else
       ROS_INFO("Terminated");
-    
-    client.cancelAllGoals();
+
   }
 
   client.cancelAllGoals();

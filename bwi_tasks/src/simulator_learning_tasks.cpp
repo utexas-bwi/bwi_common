@@ -17,6 +17,7 @@ typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Clien
 using namespace std;
 
 const size_t ep_per_phase = 200;
+const double max_time_per_episode = 300.0; //set to negative to remove the limit
 
 
 struct Task {
@@ -102,7 +103,7 @@ void phaseTransition(int episode) {
  if(episode % ep_per_phase == 0) {
    
    stringstream mkdir_cmd;
-   mkdir_cmd << "mkdir values" << (episode/ep_per_phase);
+   mkdir_cmd << "mkdir -p values" << (episode/ep_per_phase);
    
    system(mkdir_cmd.str().c_str());
    
@@ -206,7 +207,25 @@ int main(int argc, char**argv) {
 
     ROS_INFO("sending goal");
     client.sendGoal(chosen.goal);
-    bool made_it_in_time = client.waitForResult(ros::Duration(900.0)); //15 minutes to complete the task
+    
+    ros::Rate rate(10);
+    
+    ros::Time start_time = ros::Time::now();
+    bool too_late = false;
+    
+    while(ros::ok() && !client.getState().isDone()) {
+      rate.sleep();
+      ros::spinOnce(); //not sure this is necessary.
+      
+      if(max_time_per_episode >= 0) {
+      
+        if(!too_late && ((ros::Time::now() - start_time) > ros::Duration(max_time_per_episode))) {
+          too_late = true;
+          client.cancelGoal();
+        }
+      
+      }
+    }
 
     if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
       ROS_INFO("Aborted");
@@ -218,8 +237,6 @@ int main(int argc, char**argv) {
       ROS_INFO("Succeeded!");
     } else
       ROS_INFO("Terminated");
-    
-    client.cancelAllGoals();
     
     ++task_counter;
   }

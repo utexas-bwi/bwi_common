@@ -45,7 +45,9 @@ using namespace actasp;
 typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Server;
 
 
+ActionExecutor *dumb_executor;
 ActionExecutor *executor;
+ActionExecutor *smart_executor;
 SarsaActionSelector *selector;
 ActionLogger *action_logger;
 
@@ -111,67 +113,12 @@ std::string rulesToFileName(const vector<AspRule> &rules) {
   return valueDirectory + ruleString.str();
 }
 
-void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
 
-  vector<AspRule> goalRules;
-
-  transform(plan->aspGoal.begin(),plan->aspGoal.end(),back_inserter(goalRules),TranslateRule());
-
-  string valueFileName = rulesToFileName(goalRules);
-  ifstream valueFileIn(valueFileName.c_str());
-  selector->readFrom(valueFileIn);
-  valueFileIn.close();
-  selector->saveValueInitialState(valueFileName + "_initial"); 
-  
-  action_logger->setFile((valueFileName+"_actions"));
-
-  executor->setGoal(goalRules);
-  
-  ros::Time begin = ros::Time::now();
-  
-  //very practical C way of getting the current hour of day
-  time_t rawtime;
-  struct tm * timeinfo;
-  char time_string[10];
-  time (&rawtime);
-  timeinfo = localtime (&rawtime);
-  strftime (time_string,10,"%R",timeinfo);
-
-  ros::Rate loop(10);
-
-  while (!executor->goalReached() && !executor->failed() && as->isActive() && ros::ok()) {
-
-    if (!as->isPreemptRequested()) {
-      executor->executeActionStep();
-    } else {
-      if (as->isNewGoalAvailable()) {
-
-        ofstream newValueFileOut(valueFileName.c_str());
-        selector->writeTo(newValueFileOut);
-        newValueFileOut.close();
-
-        goalRules.clear();
-        const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
-        transform(newGoal->aspGoal.begin(),newGoal->aspGoal.end(),back_inserter(goalRules),TranslateRule());
-
-        valueFileName = rulesToFileName(goalRules);
-        ifstream newValueFileIn(valueFileName.c_str());
-        selector->readFrom(newValueFileIn);
-        newValueFileIn.close();
-        
-        action_logger->setFile((valueFileName+"_actions"));
-
-        executor->setGoal(goalRules);
-        begin = ros::Time::now();
-        selector->episodeEnded();
-      }
-    }
-    loop.sleep();
-  }
-
-  selector->episodeEnded();
-  
+void completeTask(const string& valueFileName, const ros::Time& begin, const string& time_string) {
+    
   ros::Time end = ros::Time::now();
+  
+  selector->episodeEnded();
   
   ofstream time_file((valueFileName+"_time").c_str(), ofstream::app);
   if(executor->goalReached()) 
@@ -181,19 +128,100 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   }
   time_file << (end - begin).toSec() << " " << time_string << endl;
   time_file.close();
+  
+  
   action_logger->taskCompleted();
 
   ofstream valueFileOut(valueFileName.c_str());
   selector->writeTo(valueFileOut);
   valueFileOut.close();
+  
+}
 
+void initiateTask(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, string &valueFileName, ros::Time& begin, char* time_string) {
+  
+  begin = ros::Time::now();
+  
+  vector<AspRule> goalRules;
+
+  transform(plan->aspGoal.begin(),plan->aspGoal.end(),back_inserter(goalRules),TranslateRule());
+
+  valueFileName = rulesToFileName(goalRules);
+  ifstream valueFileIn(valueFileName.c_str());
+  selector->readFrom(valueFileIn);
+  valueFileIn.close();
+  selector->saveValueInitialState(valueFileName + "_initial"); 
+  
+  action_logger->setFile((valueFileName+"_actions"));
+
+  if(plan->aspGoal.at(0).body[0].name == "not facing")
+    executor = smart_executor;
+  else
+    executor = dumb_executor;
+    
+  executor->setGoal(goalRules);
+  
+  //very practical C way of getting the current hour of day
+  time_t rawtime;
+  struct tm * timeinfo;
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+  strftime (time_string,10,"%R",timeinfo);
+  
+}
+
+void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
+  
+  string valueFileName;
+  char time_string[10];
+  ros::Time begin;
+  
+  initiateTask(plan,valueFileName,begin,time_string); //does side effect on variables
+
+  ros::Rate loop(10);
+
+  while (!executor->goalReached() && !executor->failed() && as->isActive() && ros::ok()) {
+    
+    if (!as->isPreemptRequested()) {
+      executor->executeActionStep();
+    } else {
+      
+      as->setPreempted();
+      
+      if (executor->goalReached()) 
+        ROS_INFO("Preempted, but execution succeded");
+      else 
+        ROS_INFO("Preempted, execution aborted");
+      
+      //if there is no new goal completeTask will be called for this task at the end of this function
+      
+      if (as->isNewGoalAvailable()) {
+  
+        completeTask(valueFileName,begin,time_string);
+        
+        const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
+
+        initiateTask(newGoal,valueFileName,begin,time_string);
+                
+      }
+
+    }
+    
+    loop.sleep();
+  }
+  
   if (executor->goalReached()) {
     ROS_INFO("Execution succeded");
-    as->setSucceeded();
+    if(as->isActive())
+      as->setSucceeded();
   } else {
     ROS_INFO("Execution failed");
+   if(as->isActive())
     as->setAborted();
   }
+  
+  completeTask(valueFileName,begin,time_string);
+
 }
 
 
@@ -250,29 +278,34 @@ int main(int argc, char**argv) {
   
   selector = new SarsaActionSelector(reasoner,timeValue,reward,params);
   
-//   Modality mode = iclingoAndSarsa;
-//   
-//     switch(mode) {
-//     case iclingoAndSarsa: 
-//       executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
-//       executor->addExecutionObserver(selector);
-//       executor->addExecutionObserver(reward);
-//       break;
-//     case sarsa: 
-//       executor = new RLActionExecutor(reasoner,selector,ActionFactory::actions());
-//       executor->addExecutionObserver(selector);
-//       executor->addExecutionObserver(reward);
-//       break;
-//     case iclingo:
-//       executor= new ReplanningActionExecutor(reasoner, new AnyPlan(reasoner,1.),ActionFactory::actions());
-//   }
+  Modality mode = sarsa;
   
+    switch(mode) {
+    case iclingoAndSarsa: 
+      dumb_executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
+      dumb_executor->addExecutionObserver(selector);
+      dumb_executor->addExecutionObserver(reward);
+      break;
+    case sarsa: 
+      dumb_executor = new RLActionExecutor(reasoner,selector,ActionFactory::actions());
+      dumb_executor->addExecutionObserver(selector);
+      dumb_executor->addExecutionObserver(reward);
+      break;
+    case iclingo:
+      dumb_executor= new ReplanningActionExecutor(reasoner, new AnyPlan(reasoner,1.),ActionFactory::actions());
+  }
+  
+  smart_executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
+  smart_executor->addExecutionObserver(selector);
+  smart_executor->addExecutionObserver(reward);
+  
+  executor = dumb_executor;
 
   //need a pointer to the specific type for the observer
-  executor = new MultiPolicyExecutor(reasoner, reasoner,selector , ActionFactory::actions(),1.5);
-
-  executor->addExecutionObserver(selector);
-  executor->addExecutionObserver(reward);
+//   executor = new MultiPolicyExecutor(reasoner, reasoner,selector , ActionFactory::actions(),1.5);
+// 
+//   executor->addExecutionObserver(selector);
+//   executor->addExecutionObserver(reward);
 
   Observer observer;
   executor->addExecutionObserver(&observer);
@@ -287,7 +320,8 @@ int main(int argc, char**argv) {
 
   server.shutdown();
 
-  delete executor;
+  delete dumb_executor;
+  delete smart_executor;
   delete action_logger;
   delete selector;
   delete timeValue;

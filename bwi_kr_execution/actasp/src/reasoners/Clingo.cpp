@@ -21,7 +21,7 @@
 #include <ros/console.h>
 #include <ctime>
 
-#define CURRENT_FILE_HOME queryDir // was  std::string("/tmp/")
+#define CURRENT_FILE_HOME std::string("/tmp/") // was  queryDir, but this doesn't work with the RemoteReasoner at the moment
 #define CURRENT_STATE_FILE std::string("current.asp")
 
 using namespace std;
