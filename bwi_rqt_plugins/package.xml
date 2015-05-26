@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_rqt_plugins</name>
+  <version>0.3.1</version>
+  <description>
+    Displays a simple GUI to the user. The GUI is capable of displaying a simple
+    message or image to the user, and ask a question. The message and question
+    plugins are also written in this package.
+  </description>
+
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/bwi_rqt_plugins</url>
+  <url type="repository">https://github.com/utexas-bwi/segbot.git</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/segbot/issues</url>
+
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>bwi_msgs</run_depend>
+  <run_depend>python_qt_binding</run_depend>
+  <run_depend>qt_gui</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+
+</package>
