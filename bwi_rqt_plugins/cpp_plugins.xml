@@ -1,0 +1,17 @@
+<library path="lib/libbwi_rqt_plugins">
+  <class name="bwi_rqt_plugins/ImageView" type="bwi_rqt_plugins::ImageView" base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A GUI plugin for viewing a static sensor_msgs/Image topic.
+    </description>
+    <qtgui>
+      <group>
+        <label>BWI</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to BWI project.</statustip>
+      </group>
+      <label>Image View</label>
+      <icon type="theme">image-x-generic</icon>
+      <statustip>A GUI plugin for viewing a static sensor_msgs/Image topic.</statustip>
+    </qtgui>
+  </class>
+</library>

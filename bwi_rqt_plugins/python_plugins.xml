@@ -7,6 +7,11 @@
       text to the user and asking a question with choices.
     </description>
     <qtgui>
+      <group>
+        <label>BWI</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to BWI project.</statustip>
+      </group>
       <label>Question Dialog Plugin</label>
       <icon type="theme">dialog-question</icon>
       <statustip>Display text or ask a question from the user.</statustip>
