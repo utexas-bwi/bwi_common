@@ -1,3 +1,40 @@
+# SimpleRobotSteeringPlugin plugin based on rqt_robot_steering. Original
+# copyright notice below.
+#
+# Copyright (c) 2011, Dirk Thomas, TU Darmstadt
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above
+#     copyright notice, this list of conditions and the following
+#     disclaimer in the documentation and/or other materials provided
+#     with the distribution.
+#   * Neither the name of the TU Darmstadt nor the names of its
+#     contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+from __future__ import division
+
+import datetime
+import math
 import rospy
 import time
 
@@ -5,10 +42,15 @@ from bwi_msgs.srv import QuestionDialog, QuestionDialogResponse, \
                          QuestionDialogRequest
 from functools import partial
 from qt_gui.plugin import Plugin
-from python_qt_binding.QtGui import QFont, QHBoxLayout, QLabel, QLineEdit, \
-                                    QPushButton, QTextBrowser, QVBoxLayout, \
-                                    QWidget
-from python_qt_binding.QtCore import SIGNAL
+from python_qt_binding.QtGui import QFont, QHBoxLayout, QKeySequence, QLabel, QLineEdit, \
+                                    QPushButton, QShortcut, QTextBrowser, QVBoxLayout, QWidget
+
+import os
+import rospkg
+
+from geometry_msgs.msg import Twist
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt, QTimer, SIGNAL, Slot
 
 class QuestionDialogPlugin(Plugin):
 
@@ -130,3 +172,170 @@ class QuestionDialogPlugin(Plugin):
         # Comment in to signal that the plugin has a way to configure
         # This will enable a setting button (gear icon) in each dock widget title bar
         # Usually used to open a modal configuration dialog
+
+class SimpleRobotSteeringPlugin(Plugin):
+
+    DEFAULT_LINEAR_VELOCITY = 1.0
+    DEFAULT_ANGULAR_VELOCITY = math.pi / 2
+
+    def __init__(self, context):
+        super(SimpleRobotSteeringPlugin, self).__init__(context)
+        self.setObjectName('SimpleRobotSteeringPlugin')
+
+        self._publisher = None
+
+        self._widget = QWidget()
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('bwi_rqt_plugins'), 'resource', 'SimpleRobotSteering.ui')
+        loadUi(ui_file, self._widget)
+        self._widget.setObjectName('SimpleRobotSteeringUi')
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)
+
+        self._widget.topic_line_edit.textChanged.connect(self._on_topic_changed)
+
+        self.forward_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
+        self.backward_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
+        self.left_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
+        self.right_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
+
+        self.linear_vel = 0
+        self.angular_vel = 0
+
+        self.shortcut_w = QShortcut(QKeySequence(Qt.Key_W), self._widget)
+        self.shortcut_w.setContext(Qt.ApplicationShortcut)
+        self.shortcut_w.activated.connect(self._move_forward)
+        self.shortcut_s = QShortcut(QKeySequence(Qt.Key_S), self._widget)
+        self.shortcut_s.setContext(Qt.ApplicationShortcut)
+        self.shortcut_s.activated.connect(self._move_backward)
+        self.shortcut_a = QShortcut(QKeySequence(Qt.Key_A), self._widget)
+        self.shortcut_a.setContext(Qt.ApplicationShortcut)
+        self.shortcut_a.activated.connect(self._turn_left)
+        self.shortcut_d = QShortcut(QKeySequence(Qt.Key_D), self._widget)
+        self.shortcut_d.setContext(Qt.ApplicationShortcut)
+        self.shortcut_d.activated.connect(self._turn_right)
+
+        self.shortcut_shift_w = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_W), self._widget)
+        self.shortcut_shift_w.setContext(Qt.ApplicationShortcut)
+        self.shortcut_shift_w.activated.connect(self._move_forward_strong)
+        self.shortcut_shift_s = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_S), self._widget)
+        self.shortcut_shift_s.setContext(Qt.ApplicationShortcut)
+        self.shortcut_shift_s.activated.connect(self._move_backward_strong)
+        self.shortcut_shift_a = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_A), self._widget)
+        self.shortcut_shift_a.setContext(Qt.ApplicationShortcut)
+        self.shortcut_shift_a.activated.connect(self._turn_left_strong)
+        self.shortcut_shift_d = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_D), self._widget)
+        self.shortcut_shift_d.setContext(Qt.ApplicationShortcut)
+        self.shortcut_shift_d.activated.connect(self._turn_right_strong)
+
+        # timer to consecutively send twist messages
+        self._update_parameter_timer = QTimer(self)
+        self._update_parameter_timer.timeout.connect(self._on_parameter_changed)
+        self._update_parameter_timer.start(100)
+
+    @Slot(str)
+    def _on_topic_changed(self, topic):
+        topic = str(topic)
+        self._unregister_publisher()
+        try:
+            self._publisher = rospy.Publisher(topic, Twist, queue_size=10)
+        except TypeError:
+            self._publisher = rospy.Publisher(topic, Twist)
+
+    def _move_forward(self):
+        self.linear_vel = SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+        self._widget.w_button.setDown(True)
+        self._widget.s_button.setDown(False)
+        self.forward_key_press_time = datetime.datetime.now()
+
+    def _move_backward(self):
+        self.linear_vel = -SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+        self._widget.s_button.setDown(True)
+        self._widget.w_button.setDown(False)
+        self.backward_key_press_time = datetime.datetime.now()
+
+    def _turn_left(self):
+        self.angular_vel = SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+        self._widget.a_button.setDown(True)
+        self._widget.d_button.setDown(False)
+        self.left_key_press_time = datetime.datetime.now()
+
+    def _turn_right(self):
+        self.angular_vel = -SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+        self._widget.d_button.setDown(True)
+        self._widget.a_button.setDown(False)
+        self.right_key_press_time = datetime.datetime.now()
+
+    def _move_forward_strong(self):
+        self.linear_vel = 2*SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+        self._widget.w_button.setDown(True)
+        self.forward_key_press_time = datetime.datetime.now()
+
+    def _move_backward_strong(self):
+        self.linear_vel = -2 *SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+        self._widget.s_button.setDown(True)
+        self._widget.w_button.setDown(False)
+        self.backward_key_press_time = datetime.datetime.now()
+
+    def _turn_left_strong(self):
+        self.angular_vel = 2 * SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+        self._widget.a_button.setDown(True)
+        self._widget.d_button.setDown(False)
+        self.left_key_press_time = datetime.datetime.now()
+
+    def _turn_right_strong(self):
+        self.angular_vel = -2 * SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+        self._widget.d_button.setDown(True)
+        self._widget.a_button.setDown(False)
+        self.right_key_press_time = datetime.datetime.now()
+
+    def _on_parameter_changed(self):
+        # Decide if some of the commands are too old.
+        current_time = datetime.datetime.now()
+        if self.linear_vel > 0 and (current_time - self.forward_key_press_time).total_seconds() > 0.5:
+            self.linear_vel = 0
+            self._widget.w_button.setDown(False)
+        if self.linear_vel < 0 and (current_time - self.backward_key_press_time).total_seconds() > 0.5:
+            self.linear_vel = 0
+            self._widget.s_button.setDown(False)
+        if self.angular_vel > 0 and (current_time - self.left_key_press_time).total_seconds() > 0.5:
+            self.angular_vel = 0
+            self._widget.a_button.setDown(False)
+        if self.angular_vel < 0 and (current_time - self.right_key_press_time).total_seconds() > 0.5:
+            self.angular_vel = 0
+            self._widget.d_button.setDown(False)
+        self._widget.linear_speed.setText("%.2f"%self.linear_vel)
+        self._widget.angular_speed.setText("%.2f"%self.angular_vel)
+        self._send_twist(self.linear_vel, self.angular_vel)
+
+    def _send_twist(self, x_linear, z_angular):
+        if self._publisher is None:
+            return
+        twist = Twist()
+        twist.linear.x = x_linear
+        twist.linear.y = 0
+        twist.linear.z = 0
+        twist.angular.x = 0
+        twist.angular.y = 0
+        twist.angular.z = z_angular
+
+        self._publisher.publish(twist)
+
+    def _unregister_publisher(self):
+        if self._publisher is not None:
+            self._publisher.unregister()
+            self._publisher = None
+
+    def shutdown_plugin(self):
+        self._update_parameter_timer.stop()
+        self._unregister_publisher()
+
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('topic' , self._widget.topic_line_edit.text())
+
+    def restore_settings(self, plugin_settings, instance_settings):
+
+        value = instance_settings.value('topic', "/cmd_vel")
+        value = rospy.get_param("~default_topic", value)
+        self._widget.topic_line_edit.setText(value)

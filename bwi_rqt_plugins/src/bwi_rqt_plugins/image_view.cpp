@@ -63,18 +63,9 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   context.addWidget(widget_);
 
   ros::NodeHandle nh;
-  image_transport::ImageTransport it(nh);
-  image_transport::TransportHints hints("raw");
-
   topic = nh.resolveName("image");
+  connect(ui_.image_topic, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
   ui_.image_topic->setText(QString::fromStdString(topic));
-
-  try {
-    subscriber_ = it.subscribe(topic, 1, &ImageView::callbackImage, this, hints);
-    //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
-  } catch (image_transport::TransportLoadException& e) {
-    QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
-  }
 
 }
 
@@ -85,10 +76,28 @@ void ImageView::shutdownPlugin()
 
 void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
 {
+  instance_settings.setValue("topic", QString::fromStdString(topic));
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
 {
+  std::string topic = instance_settings.value("topic", "").toString().toStdString();
+  ui_.image_topic->setText(QString::fromStdString(topic));
+}
+
+void ImageView::onTextChanged(const QString& string) {
+  subscriber_.shutdown();
+  try {
+    topic = string.toStdString();
+    ros::NodeHandle nh;
+    image_transport::ImageTransport it(nh);
+    image_transport::TransportHints hints("raw");
+
+    subscriber_ = it.subscribe(topic, 1, &ImageView::callbackImage, this, hints);
+    //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
+  } catch (image_transport::TransportLoadException& e) {
+    QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
+  }
 }
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)

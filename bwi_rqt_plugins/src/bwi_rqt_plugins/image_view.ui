@@ -18,9 +18,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
    <item>
-    <widget class="QLabel" name="image_topic">
+    <widget class="QLineEdit" name="image_topic">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>

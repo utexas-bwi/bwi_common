@@ -83,6 +83,10 @@ protected:
 
   cv::Mat conversion_mat_;
 
+protected slots:
+
+  virtual void onTextChanged(const QString& string);
+
 };
 
 }
