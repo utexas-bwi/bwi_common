@@ -1,16 +1,34 @@
 #cumulative n.
 
 %action searchroom(P,R,I)  ask if person P is in room R
-1{ inroom(P,R,I+1), -inroom(P,R,I+1) }1 :- searchroom(P,R,I), person(P), room(R), I=0..n-2.
-:- searchroom(P,R,I), not facing(D,I) : hasdoor(R,D), not at(R,I), person(P), room(R), I=0..n-1.
-:- searchroom(P,R,I), facing(D,I), open(D,I), hasdoor(R,D), person(P), room(R), door(D), I=0..n-1.
+inroom(P,R,I+1) :- searchroom(P,R,I), person(P), room(R), I=0..n-2.
+
+%:- searchroom(P,R,I), not facing(D,I) : hasdoor(R,D), not at(R,I), person(P), room(R), I=0..n-1.
+%:- searchroom(P,R,I), facing(D,I), open(D,I), hasdoor(R,D), person(P), room(R), door(D), I=0..n-1.
+%the rules above allow the robot execute the action outside of the room, in front of the door.
+%I am making the robot enter the room, but switch back to the rules above to return to the previous behavior
+
+%-searchroom(P,R,I) :- person(P), room(R), not searchroom(P,R,I), I=0..n-1.
+%-askperson(P1,P2,I) :- person(P1), person(P2), not askperson(P1,P2,I), I=0..n-1.
+
+:- searchroom(P,R,I), not at(R,I), I=0..n-1.
+
 :- searchroom(P,R,I), inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), -inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- searchroom(P,R,I), not canbeinroom(P,R), person(P), room(R), I=0..n-1.
 
+%workaround to the problem of having the robot serach rooms and asking people when not necessary
+%add findPersonTask(n-1) to the goal formula to allow these actions
+:- searchroom(P,R,I), not findPersonTask(n-1), person(P), room(R), I=0..n-1.
+:- askperson(P1,P2,I), not findPersonTask(n-1), person(P1), person(P2), I=0..n-1.
+findPersonTask(I) :- findPersonTask(I).
+
 %inroom is inertial
 inroom(P,R,I+1) :- inroom(P,R,I), not -inroom(P,R,I+1), I=0..n-2.
 -inroom(P,R,I+1) :- -inroom(P,R,I), not inroom(P,R,I+1), I=0..n-2.
+
+%everyone can only be in one room at any given time
+:- inroom(P,R1,I), inroom(P,R2,I), R1 != R2, I=0..n-1.
 
 %fluent inoffice(P,I)
 inoffice(P,I) :- inroom(P,R,I), hasoffice(P,R), person(P), room(R), I=0..n-1.
@@ -21,7 +39,7 @@ ingdc(P,I) :- inroom(P,R,I), person(P), room(R), I=0..n-1.
 -ingdc(P,I) :- { not -inroom(P,R,I) : canbeinroom(P,R) }0, { not -know(P1,P,I) : canknow(P1,P) }0, person(P), I=0..n-1.
 
 %action askperson(P1,P2,I)  ask P1 where P2 is
-1{ inroom(P2,R,I+1) : room(R) }1 :- askperson(P1,P2,I), person(P1), person(P2), I=0..n-2.
+inroom(P2,R,I+1) :- askperson(P1,P2,I), at(R,I), person(P1), person(P2), room(R), not -inroom(P2,R,I+1), I=0..n-2.
 :- askperson(P1,P2,I), not inroom(P1,R,I) : room(R), at(R,I), person(P1), person(P2), I=0..n-1.
 :- askperson(P1,P2,I), inroom(P2,R,I), person(P1), person(P2), room(R), I=0..n-1.
 :- askperson(P1,P2,I), not canknow(P1,P2), person(P1), person(P2), I=0..n-1.
@@ -29,7 +47,7 @@ ingdc(P,I) :- inroom(P,R,I), person(P), room(R), I=0..n-1.
 :- inroom(P,R,I), not room(R), I=0..n-1.
 
 %fluent know(P1,P2)  P1 knows where P2 is
-1{ know(P1,P2,I+1), -know(P1,P2,I+1) }1 :- askperson(P1,P2,I), person(P1), person(P2), I=0..n-2.
+know(P1,P2,I+1) :- askperson(P1,P2,I), person(P1), person(P2), I=0..n-2.
 -know(P1,P2,I) :- -ingdc(P1,I), canknow(P1,P2), person(P1), person(P2), I=0..n-1.
 
 %know is inertial

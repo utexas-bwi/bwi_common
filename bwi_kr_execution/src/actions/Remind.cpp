@@ -39,7 +39,7 @@ void Remind::run() {
   ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();
 
-  if (remind_pub.getNumSubscribers() == 0) return; //if the subscriber is not connected, sleep
+//  if (remind_pub.getNumSubscribers() == 0) return; //if the subscriber is not connected, sleep
 
   //speak
   sound_play::SoundRequest sound_req;
