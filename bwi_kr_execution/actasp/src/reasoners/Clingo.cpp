@@ -158,7 +158,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
 
     getline(file,line);
 
-    if(line == "UNSATISFIABLE")
+    if(line == "UNSATISFIABLE" || line == "UNKNOWN")
       return list<AnswerSet>();
     
     if(line.find("INTERRUPTED : 1") != string::npos)

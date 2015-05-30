@@ -21,6 +21,7 @@ ingroup(yuqian,bwi).
 ingroup(pato,bwi).
 ingroup(max,bwi).
 
+meeting(bwi_m,bwi,l3_516).
 
 hasoffice(peter,l3_508). 
 hasoffice(ray,l3_512).
