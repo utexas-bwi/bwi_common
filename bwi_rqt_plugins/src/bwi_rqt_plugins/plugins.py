@@ -173,6 +173,9 @@ class QuestionDialogPlugin(Plugin):
         # This will enable a setting button (gear icon) in each dock widget title bar
         # Usually used to open a modal configuration dialog
 
+def keyPressEvent(event):
+    print "hello"
+
 class SimpleRobotSteeringPlugin(Plugin):
 
     DEFAULT_LINEAR_VELOCITY = 1.0
@@ -191,6 +194,8 @@ class SimpleRobotSteeringPlugin(Plugin):
         self._widget.setObjectName('SimpleRobotSteeringUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+
+        self._widget.keyPressEvent = keyPressEvent
         context.add_widget(self._widget)
 
         self._widget.topic_line_edit.textChanged.connect(self._on_topic_changed)
