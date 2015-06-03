@@ -141,7 +141,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Shift - temporarily double speed</string>
+        <string>(Click a button if speed not changing)</string>
        </property>
       </widget>
      </item>

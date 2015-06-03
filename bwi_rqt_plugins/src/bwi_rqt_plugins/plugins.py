@@ -33,7 +33,6 @@
 
 from __future__ import division
 
-import datetime
 import math
 import rospy
 import time
@@ -42,8 +41,8 @@ from bwi_msgs.srv import QuestionDialog, QuestionDialogResponse, \
                          QuestionDialogRequest
 from functools import partial
 from qt_gui.plugin import Plugin
-from python_qt_binding.QtGui import QFont, QHBoxLayout, QKeySequence, QLabel, QLineEdit, \
-                                    QPushButton, QShortcut, QTextBrowser, QVBoxLayout, QWidget
+from python_qt_binding.QtGui import QFont, QHBoxLayout, QLabel, QLineEdit, \
+                                    QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
 import os
 import rospkg
@@ -191,43 +190,18 @@ class SimpleRobotSteeringPlugin(Plugin):
         self._widget.setObjectName('SimpleRobotSteeringUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+
+        self._widget.keyPressEvent = self.keyPressEvent
+        self._widget.keyReleaseEvent = self.keyReleaseEvent
         context.add_widget(self._widget)
 
         self._widget.topic_line_edit.textChanged.connect(self._on_topic_changed)
 
-        self.forward_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
-        self.backward_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
-        self.left_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
-        self.right_key_press_time = datetime.datetime.now() - datetime.timedelta(seconds=1)
-
         self.linear_vel = 0
         self.angular_vel = 0
 
-        self.shortcut_w = QShortcut(QKeySequence(Qt.Key_W), self._widget)
-        self.shortcut_w.setContext(Qt.ApplicationShortcut)
-        self.shortcut_w.activated.connect(self._move_forward)
-        self.shortcut_s = QShortcut(QKeySequence(Qt.Key_S), self._widget)
-        self.shortcut_s.setContext(Qt.ApplicationShortcut)
-        self.shortcut_s.activated.connect(self._move_backward)
-        self.shortcut_a = QShortcut(QKeySequence(Qt.Key_A), self._widget)
-        self.shortcut_a.setContext(Qt.ApplicationShortcut)
-        self.shortcut_a.activated.connect(self._turn_left)
-        self.shortcut_d = QShortcut(QKeySequence(Qt.Key_D), self._widget)
-        self.shortcut_d.setContext(Qt.ApplicationShortcut)
-        self.shortcut_d.activated.connect(self._turn_right)
-
-        self.shortcut_shift_w = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_W), self._widget)
-        self.shortcut_shift_w.setContext(Qt.ApplicationShortcut)
-        self.shortcut_shift_w.activated.connect(self._move_forward_strong)
-        self.shortcut_shift_s = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_S), self._widget)
-        self.shortcut_shift_s.setContext(Qt.ApplicationShortcut)
-        self.shortcut_shift_s.activated.connect(self._move_backward_strong)
-        self.shortcut_shift_a = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_A), self._widget)
-        self.shortcut_shift_a.setContext(Qt.ApplicationShortcut)
-        self.shortcut_shift_a.activated.connect(self._turn_left_strong)
-        self.shortcut_shift_d = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_D), self._widget)
-        self.shortcut_shift_d.setContext(Qt.ApplicationShortcut)
-        self.shortcut_shift_d.activated.connect(self._turn_right_strong)
+        # After doing so, key press events seem to work ok.
+        self._widget.w_button.setFocus()
 
         # timer to consecutively send twist messages
         self._update_parameter_timer = QTimer(self)
@@ -243,68 +217,42 @@ class SimpleRobotSteeringPlugin(Plugin):
         except TypeError:
             self._publisher = rospy.Publisher(topic, Twist)
 
-    def _move_forward(self):
-        self.linear_vel = SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
-        self._widget.w_button.setDown(True)
-        self._widget.s_button.setDown(False)
-        self.forward_key_press_time = datetime.datetime.now()
+    def keyPressEvent(self, event):
+        if not event.isAutoRepeat():
+            if event.key() == Qt.Key_W:
+                self.linear_vel = SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+                self._widget.w_button.setDown(True)
+                self._widget.s_button.setDown(False)
+            elif event.key() == Qt.Key_S:
+                self.linear_vel = -SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
+                self._widget.s_button.setDown(True)
+                self._widget.w_button.setDown(False)
+            elif event.key() == Qt.Key_A:
+                self.angular_vel = SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+                self._widget.a_button.setDown(True)
+                self._widget.d_button.setDown(False)
+            elif event.key() == Qt.Key_D:
+                self.angular_vel = -SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
+                self._widget.d_button.setDown(True)
+                self._widget.a_button.setDown(False)
 
-    def _move_backward(self):
-        self.linear_vel = -SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
-        self._widget.s_button.setDown(True)
-        self._widget.w_button.setDown(False)
-        self.backward_key_press_time = datetime.datetime.now()
+    def keyReleaseEvent(self, event):
+        if not event.isAutoRepeat():
+            if self.linear_vel > 0 and event.key() == Qt.Key_W:
+                self.linear_vel = 0
+                self._widget.w_button.setDown(False)
+            elif self.linear_vel < 0 and event.key() == Qt.Key_S:
+                self.linear_vel = 0
+                self._widget.s_button.setDown(False)
+            elif self.angular_vel > 0 and event.key() == Qt.Key_A:
+                self.angular_vel = 0
+                self._widget.a_button.setDown(False)
+            elif self.angular_vel < 0 and event.key() == Qt.Key_D:
+                self.angular_vel = 0
+                self._widget.d_button.setDown(False)
 
-    def _turn_left(self):
-        self.angular_vel = SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
-        self._widget.a_button.setDown(True)
-        self._widget.d_button.setDown(False)
-        self.left_key_press_time = datetime.datetime.now()
-
-    def _turn_right(self):
-        self.angular_vel = -SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
-        self._widget.d_button.setDown(True)
-        self._widget.a_button.setDown(False)
-        self.right_key_press_time = datetime.datetime.now()
-
-    def _move_forward_strong(self):
-        self.linear_vel = 2*SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
-        self._widget.w_button.setDown(True)
-        self.forward_key_press_time = datetime.datetime.now()
-
-    def _move_backward_strong(self):
-        self.linear_vel = -2 *SimpleRobotSteeringPlugin.DEFAULT_LINEAR_VELOCITY
-        self._widget.s_button.setDown(True)
-        self._widget.w_button.setDown(False)
-        self.backward_key_press_time = datetime.datetime.now()
-
-    def _turn_left_strong(self):
-        self.angular_vel = 2 * SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
-        self._widget.a_button.setDown(True)
-        self._widget.d_button.setDown(False)
-        self.left_key_press_time = datetime.datetime.now()
-
-    def _turn_right_strong(self):
-        self.angular_vel = -2 * SimpleRobotSteeringPlugin.DEFAULT_ANGULAR_VELOCITY
-        self._widget.d_button.setDown(True)
-        self._widget.a_button.setDown(False)
-        self.right_key_press_time = datetime.datetime.now()
 
     def _on_parameter_changed(self):
-        # Decide if some of the commands are too old.
-        current_time = datetime.datetime.now()
-        if self.linear_vel > 0 and (current_time - self.forward_key_press_time).total_seconds() > 0.5:
-            self.linear_vel = 0
-            self._widget.w_button.setDown(False)
-        if self.linear_vel < 0 and (current_time - self.backward_key_press_time).total_seconds() > 0.5:
-            self.linear_vel = 0
-            self._widget.s_button.setDown(False)
-        if self.angular_vel > 0 and (current_time - self.left_key_press_time).total_seconds() > 0.5:
-            self.angular_vel = 0
-            self._widget.a_button.setDown(False)
-        if self.angular_vel < 0 and (current_time - self.right_key_press_time).total_seconds() > 0.5:
-            self.angular_vel = 0
-            self._widget.d_button.setDown(False)
         self._widget.linear_speed.setText("%.2f"%self.linear_vel)
         self._widget.angular_speed.setText("%.2f"%self.angular_vel)
         self._send_twist(self.linear_vel, self.angular_vel)
