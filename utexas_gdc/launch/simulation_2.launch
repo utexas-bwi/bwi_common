@@ -1,0 +1,24 @@
+<launch>
+
+  <arg name="use_sim_time" default="true" />
+  <arg name="gui" default="true" />
+  <arg name="world" default="gazebo" />
+  <arg name="debug" default="false" />
+
+  <arg unless="$(arg debug)" name="gazebo_binary" value="gzserver" />
+  <arg if="$(arg debug)" name="gazebo_binary" value="debug" />
+
+  <!-- set use_sim_time flag -->
+  <group if="$(arg use_sim_time)">
+    <param name="/use_sim_time" value="true" />
+  </group>
+
+  <!-- start world -->
+  <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/2.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+
+  <!-- start gui -->
+  <group if="$(arg gui)">
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+  </group>
+
+</launch>
