@@ -41,7 +41,7 @@ from bwi_msgs.srv import QuestionDialog, QuestionDialogResponse, \
                          QuestionDialogRequest
 from functools import partial
 from qt_gui.plugin import Plugin
-from python_qt_binding.QtGui import QFont, QHBoxLayout, QLabel, QLineEdit, \
+from python_qt_binding.QtGui import QFont, QGridLayout, QLabel, QLineEdit, \
                                     QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
 import os
@@ -66,7 +66,7 @@ class QuestionDialogPlugin(Plugin):
         self._layout = QVBoxLayout(self._widget)
         self._text_browser = QTextBrowser(self._widget)
         self._layout.addWidget(self._text_browser)
-        self._button_layout = QHBoxLayout()
+        self._button_layout = QGridLayout()
         self._layout.addLayout(self._button_layout)
 
         # layout = QVBoxLayout(self._widget)
@@ -124,14 +124,16 @@ class QuestionDialogPlugin(Plugin):
             for index, options in enumerate(req.options):
                 button = QPushButton(options, self._widget)
                 button.clicked.connect(partial(self.handle_button, index))
-                self._button_layout.addWidget(button)
+                row = index / 3
+                col = index % 3
+                self._button_layout.addWidget(button, row, col)
                 self.buttons.append(button)
         elif req.type == QuestionDialogRequest.TEXT_QUESTION:
             self.text_label = QLabel("Enter here: ", self._widget)
-            self._button_layout.addWidget(self.text_label)
+            self._button_layout.addWidget(self.text_label, 0, 0)
             self.text_input = QLineEdit(self._widget)
             self.text_input.editingFinished.connect(self.handle_text)
-            self._button_layout.addWidget(self.text_input)
+            self._button_layout.addWidget(self.text_input, 0, 1)
 
     def timeout(self):
         self._text_browser.setText("Oh no! The request timed out.")
