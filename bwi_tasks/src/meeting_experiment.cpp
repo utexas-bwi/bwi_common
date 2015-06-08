@@ -27,11 +27,18 @@ int main(int argc, char**argv) {
   bwi_kr_execution::AspRule rule;
   bwi_kr_execution::AspFluent fluent;
   fluent.name = "not allinmeeting";
-  
   fluent.variables.push_back(meeting);
- 
   rule.body.push_back(fluent);
+  
+  bwi_kr_execution::AspRule flag_rule;
+  bwi_kr_execution::AspFluent find_person_flag;
+  find_person_flag.name = "findPersonTask";
+  flag_rule.head.push_back(find_person_flag);
+  
+  
   goal.aspGoal.push_back(rule);
+  goal.aspGoal.push_back(flag_rule);
+  
   
   ROS_INFO("sending goal");
   client.sendGoalAndWait(goal);
