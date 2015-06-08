@@ -25,7 +25,8 @@
 
 #include <string>
 
-const int MAX_N = 20;
+const int MAX_N = 30;
+const int PLANNER_TIMEOUT = 20; //seconds
 const std::string queryDirectory("/tmp/bwi_action_execution/");
 
 
@@ -84,12 +85,20 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 
   ros::Rate loop(10);
 
-  while (!executor->goalReached() && !executor->failed() && ros::ok()) {
+  while (!executor->goalReached() && !executor->failed() && ros::ok() && as->isActive()) {
 
     if (!as->isPreemptRequested()) {
       executor->executeActionStep();
     }
     else {
+      
+      as->setPreempted();
+      
+      if (executor->goalReached()) 
+        ROS_INFO("Preempted, but execution succeded");
+      else 
+        ROS_INFO("Preempted, execution aborted");
+      
       if(as->isNewGoalAvailable()) {
         goalRules.clear();
         const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
@@ -103,10 +112,11 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 
   if (executor->goalReached()) {
     ROS_INFO("Execution succeded");
-    as->setSucceeded();
-  }
-  else {
+    if(as->isActive())
+      as->setSucceeded();
+  } else {
     ROS_INFO("Execution failed");
+   if(as->isActive())
     as->setAborted();
   }
 }
@@ -137,7 +147,7 @@ int main(int argc, char**argv) {
   
   boost::filesystem::create_directories(queryDirectory);
 
-  AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),PLANNER_TIMEOUT);
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
   
   //need a pointer to the specific type for the observer

@@ -12,9 +12,6 @@
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/MultiPolicyExecutor.h"
-#include "actasp/planners/AnyPlan.h"
-#include "actasp/executors/ReplanningActionExecutor.h"
-#include "learning/RLActionExecutor.h"
 
 #include "actions/ActionFactory.h"
 #include "actions/LogicalNavigation.h"
@@ -44,10 +41,7 @@ using namespace actasp;
 
 typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Server;
 
-
-ActionExecutor *dumb_executor;
 ActionExecutor *executor;
-ActionExecutor *smart_executor;
 SarsaActionSelector *selector;
 ActionLogger *action_logger;
 
@@ -153,11 +147,6 @@ void initiateTask(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, string 
   selector->saveValueInitialState(valueFileName + "_initial"); 
   
   action_logger->setFile((valueFileName+"_actions"));
-
-  if(plan->aspGoal.at(0).body[0].name == "not facing")
-    executor = smart_executor;
-  else
-    executor = dumb_executor;
     
   executor->setGoal(goalRules);
   
@@ -224,14 +213,6 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 
 }
 
-
-enum Modality {
-  iclingo=0,
-  sarsa,
-  iclingoAndSarsa
-};
-
-
 int main(int argc, char**argv) {
   ros::init(argc, argv, "action_executor");
   ros::NodeHandle n;
@@ -278,28 +259,9 @@ int main(int argc, char**argv) {
   
   selector = new SarsaActionSelector(reasoner,timeValue,reward,params);
   
-  Modality mode = sarsa;
-  
-    switch(mode) {
-    case iclingoAndSarsa: 
-      dumb_executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
-      dumb_executor->addExecutionObserver(selector);
-      dumb_executor->addExecutionObserver(reward);
-      break;
-    case sarsa: 
-      dumb_executor = new RLActionExecutor(reasoner,selector,ActionFactory::actions());
-      dumb_executor->addExecutionObserver(selector);
-      dumb_executor->addExecutionObserver(reward);
-      break;
-    case iclingo:
-      dumb_executor= new ReplanningActionExecutor(reasoner, new AnyPlan(reasoner,1.),ActionFactory::actions());
-  }
-  
-  smart_executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
-  smart_executor->addExecutionObserver(selector);
-  smart_executor->addExecutionObserver(reward);
-  
-  executor = dumb_executor;
+  executor = new MultiPolicyExecutor(reasoner, reasoner,selector,ActionFactory::actions(),1.5);
+  executor->addExecutionObserver(selector);
+  executor->addExecutionObserver(reward);
 
   //need a pointer to the specific type for the observer
 //   executor = new MultiPolicyExecutor(reasoner, reasoner,selector , ActionFactory::actions(),1.5);
@@ -320,8 +282,7 @@ int main(int argc, char**argv) {
 
   server.shutdown();
 
-  delete dumb_executor;
-  delete smart_executor;
+  delete executor;
   delete action_logger;
   delete selector;
   delete timeValue;

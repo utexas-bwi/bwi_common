@@ -34,8 +34,21 @@ int main(int argc, char**argv) {
   goal.aspGoal.push_back(rule);
   
   ROS_INFO("sending goal");
-  client.sendGoalAndWait(goal);
+  client.sendGoal(goal);
   
+  ros::Rate wait_rate(10);
+  while(ros::ok() && !client.getState().isDone())
+    wait_rate.sleep();
+  
+  cerr << "che cazzo " << endl;
+    
+  if (!client.getState().isDone()) {
+    ROS_INFO("Canceling goal");
+    client.cancelGoal();
+    //and wait for canceling confirmation
+    for(int i = 0; !client.getState().isDone() && i<50; ++i)
+      wait_rate.sleep();
+  }
   if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
     ROS_INFO("Aborted");
   }
