@@ -66,7 +66,7 @@ Clingo::Clingo(unsigned int max_n,
   currentFile.close();
 
   stringstream filterStream;
-  filterStream << "#hide." << endl;
+  //filterStream << "#hide." << endl;
 
   std::set<AspFluent>::const_iterator actIt = allActions.begin();
   for (; actIt != allActions.end(); ++actIt) {
@@ -161,7 +161,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
     if(line == "UNSATISFIABLE" || line == "UNKNOWN")
       return list<AnswerSet>();
     
-    if(line.find("INTERRUPTED : 1") != string::npos)
+    if(line.find("KILLED") != string::npos)
       interrupted = true;
 
     if(line.find("Answer") != string::npos) {
@@ -196,6 +196,7 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
   string queryPath = queryDir + fileName;
 
   ofstream queryFile(queryPath.c_str());
+  queryFile << "#program base." << endl;
   queryFile << query << endl;
   queryFile.close();
 
@@ -204,13 +205,13 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
   const string outputFilePath = queryDir + "query_output.txt";
 
   if (max_time > 0) {
-    commandLine << "timeout " << max_time << " ";
+    commandLine << "timeout -k 1 " << max_time << " ";
   }
 
   stringstream iterations;
-  iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
+  iterations << "-c imin=" << initialTimeStep << " -c imax=" << finalTimeStep;
 
-  commandLine << "iclingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
+  commandLine << "~/clingo/clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
 
 
   if (!system(commandLine.str().c_str())) {
@@ -221,12 +222,19 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
 
 }
 
-string Clingo::generatePlanQuery(const std::vector<actasp::AspRule>& goalRules,
+string Clingo::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
                                  bool filterActions = true) const throw() {
   stringstream goal;
-  goal << "#volatile " << incrementalVar << "." << endl;
-  //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
-  goal << aspString(goalRules,incrementalVar+"-1") << endl;
+  goal << "#program check(" << incrementalVar << ")." << endl;
+  goal << "#external query(" << incrementalVar << ")." << endl;
+
+  std::vector<actasp::AspRule>::iterator ruleIt = goalRules.begin();
+  AspFluent query("query(n)");
+  for (; ruleIt != goalRules.end(); ++ruleIt) {
+    (*ruleIt).body.push_back(query);
+  }
+
+  goal << aspString(goalRules,incrementalVar) << endl;
 
   if (filterActions)
     goal << actionFilter;
@@ -601,10 +609,12 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
+  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
+
   const AnswerSet::FluentSet &allActions = plan.getFluents();
   AnswerSet::FluentSet::const_iterator actionIt = allActions.begin();
 
-  for (int i=0; actionIt != allActions.end(); ++actionIt, ++i)
+  for (int i=1; actionIt != allActions.end(); ++actionIt, ++i)
     monitorQuery << actionIt->toString(i) << "." << endl;
 
   bool valid = krQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery.asp").empty();
@@ -638,7 +648,7 @@ bool Clingo::updateFluents(const std::vector<actasp::AspFluent> &observations) t
   stringstream queryStream(aspString(obsRules,1), ios_base::app | ios_base::out);
 
   queryStream << "noop(0)." << endl;
-  queryStream << "#hide noop/1." << endl;
+  //queryStream << "#hide noop/1." << endl;
 
   list<AnswerSet> currentState = krQuery(queryStream.str(),1,1,"observationQuery.asp");
 
@@ -681,14 +691,14 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
   const string outputFilePath = queryDir + "query_output.txt";
 
   if (max_time > 0) {
-    commandLine << "timeout " << max_time << " ";
+    commandLine << "timeout -k 1 " << max_time << " ";
   }
 
   stringstream iterations;
-  iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
+  iterations << "-c imin=" << initialTimeStep << " -c imax=" << finalTimeStep;
 
 
-  commandLine << "iclingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";
+  commandLine << "~/clingo/clingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";
 
 
   if (!system(commandLine.str().c_str())) {
