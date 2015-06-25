@@ -609,7 +609,7 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
+  monitorQuery << "#program plan(" << incrementalVar << ")." << endl;
 
   const AnswerSet::FluentSet &allActions = plan.getFluents();
   AnswerSet::FluentSet::const_iterator actionIt = allActions.begin();
@@ -625,6 +625,7 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
 }
 
 AnswerSet Clingo::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+  //ROS_INFO("current state query.\n");
 
   list<AnswerSet> sets = krQuery(aspString(query,0),0,0,"stateQuery.asp");
 
@@ -647,7 +648,7 @@ bool Clingo::updateFluents(const std::vector<actasp::AspFluent> &observations) t
 
   stringstream queryStream(aspString(obsRules,1), ios_base::app | ios_base::out);
 
-  queryStream << "noop(0)." << endl;
+  queryStream << "noop(1)." << endl;
   //queryStream << "#hide noop/1." << endl;
 
   list<AnswerSet> currentState = krQuery(queryStream.str(),1,1,"observationQuery.asp");
