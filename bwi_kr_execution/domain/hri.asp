@@ -23,7 +23,7 @@ inroom(P,R,n) :- searchroom(P,R,n), person(P), room(R).
 :- askperson(P1,P2,n), not findPersonTask(n), person(P1), person(P2).
 findPersonTask(I) :- findPersonTask(I).
 
-#program step(n).
+#program cumulative(n).
 
 %inroom is inertial
 inroom(P,R,n) :- inroom(P,R,n-1), not -inroom(P,R,n).

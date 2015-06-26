@@ -209,10 +209,9 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
   }
 
   stringstream iterations;
-  iterations << "-c imin=" << initialTimeStep << " -c imax=" << finalTimeStep;
+  iterations << "-c imin=" << initialTimeStep-1 << " -c iquery=" << initialTimeStep-1 << " -c imax=" << finalTimeStep;
 
-  commandLine << "~/clingo/clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
-
+  commandLine << "clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
 
   if (!system(commandLine.str().c_str())) {
     //maybe do something here, or just kill the warning about the return value not being used.
@@ -700,7 +699,7 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
   iterations << "-c imin=" << initialTimeStep << " -c imax=" << finalTimeStep;
 
 
-  commandLine << "~/clingo/clingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";
+  commandLine << "clingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";
 
 
   if (!system(commandLine.str().c_str())) {
