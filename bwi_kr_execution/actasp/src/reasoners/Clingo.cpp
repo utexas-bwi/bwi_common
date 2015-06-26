@@ -546,7 +546,8 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
   //when actions are filtered and there are not state fluents,
   //the last time step is of the last action, and actions start at
   //zero, so we need +1
-  unsigned int shortestLength = firstAnswerSets.begin()->maxTimeStep()+1;
+  //^not true for clingo 4
+  unsigned int shortestLength = firstAnswerSets.begin()->maxTimeStep();
 
   int maxLength = ceil(suboptimality * shortestLength);
 
