@@ -1,5 +1,5 @@
-#include <incmode>.
-#program step(n).
+#include <iclingo>.
+#program cumulative(n).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

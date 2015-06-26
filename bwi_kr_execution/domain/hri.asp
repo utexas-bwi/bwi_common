@@ -1,4 +1,4 @@
-#program step(n).
+#program cumulative(n).
 
 %action searchroom(P,R,I)  ask if person P is in room R
 inroom(P,R,n) :- searchroom(P,R,n), person(P), room(R).

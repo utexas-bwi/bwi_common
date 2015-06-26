@@ -161,7 +161,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
     if(line == "UNSATISFIABLE" || line == "UNKNOWN")
       return list<AnswerSet>();
     
-    if(line.find("KILLED") != string::npos)
+    if((line.find("INTERRUPTED") != string::npos) || (line.find("KILLED") != string::npos) )
       interrupted = true;
 
     if(line.find("Answer") != string::npos) {
@@ -225,7 +225,7 @@ std::list<actasp::AnswerSet> Clingo::krQuery(const std::string& query,
 string Clingo::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
                                  bool filterActions = true) const throw() {
   stringstream goal;
-  goal << "#program check(" << incrementalVar << ")." << endl;
+  goal << "#program volatile(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
 
   std::vector<actasp::AspRule>::iterator ruleIt = goalRules.begin();

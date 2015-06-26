@@ -1,4 +1,4 @@
-#program step(n).
+#program cumulative(n).
 
 1{
 approach(D1,n) : door(D1);
