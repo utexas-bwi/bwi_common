@@ -629,7 +629,15 @@ AnswerSet Clingo::currentStateQuery(const std::vector<actasp::AspRule>& query) c
 
   list<AnswerSet> sets = krQuery(aspString(query,0),0,0,"stateQuery.asp");
 
-  return (sets.empty())? AnswerSet() : *(sets.begin());
+  if (sets.empty()) {
+    return AnswerSet();
+  } else {
+    std::set<actasp::AspFluent> currentFluents = (sets.begin())->getFluentsAtTime(0);
+    return AnswerSet(currentFluents.begin(), currentFluents.end());
+  }
+
+
+  //return (sets.empty())? AnswerSet() : *(sets.begin());
 }
 
 static AspRule fluent2Rule(const AspFluent& fluent) {
@@ -696,7 +704,7 @@ std::list< std::list<AspAtom> > Clingo::query(const std::string &queryString, un
   }
 
   stringstream iterations;
-  iterations << "-c imin=" << initialTimeStep << " -c imax=" << finalTimeStep;
+  iterations << "-c imin=" << initialTimeStep-1 << " -c iquery=" << initialTimeStep-1 << " -c imax=" << finalTimeStep;
 
 
   commandLine << "clingo " << iterations.str() << " " << domainDir <<  "*.asp " << " " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " " << queryPath <<  " > " << outputFilePath << " 0";

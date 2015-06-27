@@ -104,7 +104,7 @@ void MultiPolicyExecutor::executeActionStep() {
 
     //choose the next action
     AnswerSet currentState = kr->currentStateQuery(vector<AspRule>());
-    set<AspFluent> state = currentState.getFluentsAtTime(0);//(currentState.getFluents().begin(), currentState.getFluents().end());
+    set<AspFluent> state(currentState.getFluents().begin(), currentState.getFluents().end());
     ActionSet options = policy.actions(state);
 
     if (options.empty() || (active != NULL &&  active->hasFailed())) {
