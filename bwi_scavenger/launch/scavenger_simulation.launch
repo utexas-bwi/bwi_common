@@ -1,0 +1,10 @@
+<launch>
+
+    <arg name="sim_positions" default="$(find bwi_scavenger)/support/simulation.yaml" />
+    <arg name="real_positions" default="$(find bwi_scavenger)/support/real.yaml" />
+
+    <param name="path_to_search_points" value="$(arg sim_positions)" />
+
+    <node name="bwi_scavenger" pkg="bwi_scavenger" type="scavenger" output="screen"/>
+
+</launch>
