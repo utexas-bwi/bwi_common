@@ -1,0 +1,5 @@
+maps:
+  2ndFloor:
+    yaml: package://utexas_gdc/maps/real/2/2.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/real/2

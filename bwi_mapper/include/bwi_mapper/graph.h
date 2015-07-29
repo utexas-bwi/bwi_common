@@ -66,56 +66,57 @@ namespace bwi_mapper {
   > Graph;
 
   /**
-   * \brief   draws the given graph onto an image starting at 
+   * \brief   draws the given graph onto an image starting at
    *          (orig_x, orig_y)
    */
   void drawGraph(cv::Mat &image, const Graph& graph,
-      uint32_t orig_x = 0, uint32_t orig_y = 0, 
-      bool put_text = true, bool put_all_edges = true, 
-      std::vector<std::pair<size_t, size_t> > specific_edges = 
+      uint32_t orig_x = 0, uint32_t orig_y = 0,
+      bool put_text = true, bool put_all_edges = true,
+      std::vector<std::pair<size_t, size_t> > specific_edges =
       std::vector<std::pair<size_t, size_t> >());
 
-  void drawArrowOnImage(cv::Mat &image, const cv::Point2f &arrow_center, float orientation, 
+  void drawArrowOnImage(cv::Mat &image, const cv::Point2f &arrow_center, float orientation,
                         const cv::Scalar &color, int size, int thickness);
 
-  void drawArrowOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawArrowOnGraph(cv::Mat &image, const Graph& graph,
       std::pair<size_t, float> arrow, uint32_t map_width, uint32_t map_height,
       cv::Scalar color = cv::Scalar(0,0,255),
       uint32_t orig_x = 0, uint32_t orig_y = 0);
 
-  void drawCircleOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawCircleOnGraph(cv::Mat &image, const Graph& graph,
       size_t node, cv::Scalar color = cv::Scalar(0,0,255),
       uint32_t orig_x = 0, uint32_t orig_y = 0);
 
-  void drawSquareOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawSquareOnGraph(cv::Mat &image, const Graph& graph,
       size_t node, cv::Scalar color = cv::Scalar(0,0,255),
-      uint32_t orig_x = 0, uint32_t orig_y = 0, int size = 30, 
+      uint32_t orig_x = 0, uint32_t orig_y = 0, int size = 30,
       int thickness = 2);
 
-  void writeGraphToFile(const std::string &filename, 
-      const Graph& graph, const nav_msgs::MapMetaData& info); 
+  void writeGraphToFile(const std::string &filename,
+      const Graph& graph, const nav_msgs::MapMetaData& info);
 
-  void readGraphFromFile(const std::string &filename, 
-      const nav_msgs::MapMetaData& info, Graph& graph); 
+  void readGraphFromFile(const std::string &filename,
+      const nav_msgs::MapMetaData& info, Graph& graph);
 
   Point2f getLocationFromGraphId(int idx, const Graph& graph);
 
-  size_t getClosestIdOnGraph(const Point2f &point, 
+  size_t getClosestIdOnGraph(const Point2f &point,
       const Graph &graph, double threshold = 0.0);
 
-  size_t getClosestIdOnGraphFromEdge(const Point2f &point, 
+  size_t getClosestIdOnGraphFromEdge(const Point2f &point,
       const Graph &graph, size_t prev_graph_id);
 
+  size_t getClosestEdgeOnGraphGivenId(const Point2f& point, const Graph &graph, size_t one_graph_id);
   /* Functions defined in paper */
 
-  bool isVisible(size_t u, size_t v, const Graph &graph, 
+  bool isVisible(size_t u, size_t v, const Graph &graph,
       const nav_msgs::OccupancyGrid& map);
-  
+
   float getNodeAngle(size_t u, size_t v, const Graph &graph);
 
   float getEuclideanDistance(size_t u, size_t v, const Graph &graph);
 
-  float getShortestPathWithDistance(size_t start_idx, size_t goal_idx, 
+  float getShortestPathWithDistance(size_t start_idx, size_t goal_idx,
       std::vector<size_t> &path_from_goal, const Graph &graph);
 
   float getShortestPathDistance(size_t start_idx, size_t goal_idx,
@@ -124,7 +125,7 @@ namespace bwi_mapper {
   void getAdjacentNodes(size_t v, const Graph& graph,
       std::vector<size_t>& adjacent_vertices);
 
-  void getVisibleNodes(size_t v, const Graph& graph, 
+  void getVisibleNodes(size_t v, const Graph& graph,
       const nav_msgs::OccupancyGrid& grid,
       std::vector<size_t>& visible_vertices, float visibility_range = 0.0f);
 
