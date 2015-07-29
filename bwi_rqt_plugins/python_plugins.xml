@@ -1,0 +1,37 @@
+<library path="src">
+  <class name="QuestionDialogPlugin"
+    type="bwi_rqt_plugins.plugins.QuestionDialogPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A text widget that allows simple human interaction - displaying
+      text to the user and asking a question with choices.
+    </description>
+    <qtgui>
+      <group>
+        <label>BWI</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to BWI project.</statustip>
+      </group>
+      <label>Question Dialog Plugin</label>
+      <icon type="theme">dialog-question</icon>
+      <statustip>Display text or ask a question from the user.</statustip>
+    </qtgui>
+  </class>
+  <class name="SimpleRobotSteeringPlugin"
+    type="bwi_rqt_plugins.plugins.SimpleRobotSteeringPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Simple GUI for sending a geometry_msgs/Twist message.
+    </description>
+    <qtgui>
+      <group>
+        <label>BWI</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to BWI project.</statustip>
+      </group>
+      <label>Simple Robot Steering Plugin</label>
+      <icon type="theme">input-gaming</icon>
+      <statustip> Simple GUI for sending a geometry_msgs/Twist message.</statustip>
+    </qtgui>
+  </class>
+</library>

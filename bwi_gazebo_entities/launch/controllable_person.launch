@@ -4,10 +4,11 @@
   <arg name="world" default="gazebo" />
   <arg name="x" default="0" />
   <arg name="y" default="0" />
-  <arg name="urdf_file" 
+  <arg name="yaw" default="0" />
+  <arg name="urdf_file"
     default="$(find bwi_gazebo_entities)/persons/controllable_person.urdf.xacro" />
 
-  <param name="$(arg personid)_description" 
+  <param name="$(arg personid)_description"
     command="$(find xacro)/xacro.py '$(arg urdf_file)'" />
 
   <node name="spawn_person" pkg="gazebo_ros" type="spawn_model"
@@ -15,6 +16,7 @@
     -urdf
     -x $(arg x)
     -y $(arg y)
+    -Y $(arg yaw)
     -z 0
     -model $(arg personid)
     -gazebo_namespace /$(arg world)"

@@ -59,7 +59,7 @@ namespace YAML {
 namespace bwi_mapper {
 
   /**
-   * \brief   draws the given graph onto an image starting at 
+   * \brief   draws the given graph onto an image starting at
    *          (orig_x, orig_y)
    */
   void drawGraph(cv::Mat &image, const Graph& graph,
@@ -68,7 +68,7 @@ namespace bwi_mapper {
 
     Graph::vertex_iterator vi, vend;
     size_t count = 0;
-    for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend; 
+    for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend;
         ++vi, ++count) {
       Point2f location = graph[*vi].location;
       // Draw the edges from this vertex
@@ -77,22 +77,22 @@ namespace bwi_mapper {
       BOOST_FOREACH(size_t adj_vtx, adj_vertices) {
         if (adj_vtx > count) {
           bool allow_edge = put_all_edges;
-          allow_edge = allow_edge || 
-            std::find(specific_edges.begin(), specific_edges.end(), 
+          allow_edge = allow_edge ||
+            std::find(specific_edges.begin(), specific_edges.end(),
                 std::make_pair(count, adj_vtx)) != specific_edges.end();
-          allow_edge = allow_edge || 
-            std::find(specific_edges.begin(), specific_edges.end(), 
+          allow_edge = allow_edge ||
+            std::find(specific_edges.begin(), specific_edges.end(),
                 std::make_pair(adj_vtx, count)) != specific_edges.end();
           if (allow_edge) {
             Point2f location2 = getLocationFromGraphId(adj_vtx, graph);
-            cv::Point start_pt = 
+            cv::Point start_pt =
               cv::Point(orig_x + location.x, orig_y + location.y);
-            cv::Point end_pt = 
+            cv::Point end_pt =
               cv::Point(orig_x + location2.x, orig_y + location2.y);
             float shift_ratio = 15.0f / cv::norm(start_pt - end_pt);
-            cv::Point start_shift = start_pt + shift_ratio * (end_pt - start_pt); 
-            cv::Point end_shift = end_pt + shift_ratio * (start_pt - end_pt); 
-            cv::line(image, start_shift, end_shift, 
+            cv::Point start_shift = start_pt + shift_ratio * (end_pt - start_pt);
+            cv::Point end_shift = end_pt + shift_ratio * (start_pt - end_pt);
+            cv::line(image, start_shift, end_shift,
                 cv::Scalar(160, 160, 255),
                 4, CV_AA); // draw an anti aliased line
           }
@@ -104,7 +104,7 @@ namespace bwi_mapper {
     for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend; ++vi) {
       Point2f location = graph[*vi].location;
       // Draw this vertex
-      cv::Point vertex_loc(orig_x + (uint32_t)location.x, 
+      cv::Point vertex_loc(orig_x + (uint32_t)location.x,
           orig_y + (uint32_t)location.y);
       if (put_text) {
         cv::Point text_loc = vertex_loc + cv::Point(-7,7);
@@ -121,14 +121,14 @@ namespace bwi_mapper {
     }
   }
 
-  void drawArrowOnImage(cv::Mat &image, const cv::Point2f &arrow_center, float orientation, 
+  void drawArrowOnImage(cv::Mat &image, const cv::Point2f &arrow_center, float orientation,
                         const cv::Scalar &color, int size, int thickness) {
 
     cv::Point arrow_start = arrow_center +
-      cv::Point2f(size * cosf(orientation + M_PI/2), 
+      cv::Point2f(size * cosf(orientation + M_PI/2),
                   size * sinf(orientation + M_PI/2));
     cv::Point arrow_end = arrow_center -
-      cv::Point2f(size * cosf(orientation + M_PI/2), 
+      cv::Point2f(size * cosf(orientation + M_PI/2),
                   size * sinf(orientation + M_PI/2));
 
     cv::line(image, arrow_start, arrow_end, color, thickness, CV_AA);
@@ -149,18 +149,18 @@ namespace bwi_mapper {
 
   }
 
-  void drawArrowOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawArrowOnGraph(cv::Mat &image, const Graph& graph,
       std::pair<size_t, float> arrow, uint32_t map_width, uint32_t map_height,
       cv::Scalar color, uint32_t orig_x, uint32_t orig_y) {
 
     float orientation = arrow.second;
     Point2f loc = getLocationFromGraphId(arrow.first, graph);
-    cv::Point node_loc(loc.x + orig_x, loc.y + orig_y); 
+    cv::Point node_loc(loc.x + orig_x, loc.y + orig_y);
     cv::Point map_center(orig_x + map_width / 2, orig_y + map_height / 2);
-    
-    cv::Point arrow_center_1 = node_loc + 
+
+    cv::Point arrow_center_1 = node_loc +
       cv::Point(25 * cosf(orientation), 25 * sinf(orientation));
-    cv::Point arrow_center_2 = node_loc - 
+    cv::Point arrow_center_2 = node_loc -
       cv::Point(25 * cosf(orientation), 25 * sinf(orientation));
     cv::Point arrow_center = (cv::norm(arrow_center_2 - map_center) <
         cv::norm(arrow_center_1 - map_center)) ? arrow_center_2 :
@@ -170,24 +170,24 @@ namespace bwi_mapper {
 
   }
 
-  void drawCircleOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawCircleOnGraph(cv::Mat &image, const Graph& graph,
       size_t node, cv::Scalar color,
       uint32_t orig_x, uint32_t orig_y) {
     Point2f loc = getLocationFromGraphId(node, graph);
-    cv::Point circle_loc(loc.x + orig_x, loc.y + orig_y); 
-    cv::circle(image, circle_loc, 15, color, 2, CV_AA); 
+    cv::Point circle_loc(loc.x + orig_x, loc.y + orig_y);
+    cv::circle(image, circle_loc, 15, color, 2, CV_AA);
   }
 
-  void drawSquareOnGraph(cv::Mat &image, const Graph& graph, 
+  void drawSquareOnGraph(cv::Mat &image, const Graph& graph,
       size_t node, cv::Scalar color,
       uint32_t orig_x, uint32_t orig_y, int size, int thickness) {
     Point2f loc = getLocationFromGraphId(node, graph);
-    cv::Point square_loc(loc.x + orig_x, loc.y + orig_y); 
+    cv::Point square_loc(loc.x + orig_x, loc.y + orig_y);
     cv::Rect rect(square_loc.x - size/2, square_loc.y - size/2, size, size);
-    cv::rectangle(image, rect, color, thickness, CV_AA); 
+    cv::rectangle(image, rect, color, thickness, CV_AA);
   }
 
-  void writeGraphToFile(const std::string &filename, 
+  void writeGraphToFile(const std::string &filename,
       const Graph& graph, const nav_msgs::MapMetaData& info) {
 
     std::map<Graph::vertex_descriptor, size_t> vertex_map;
@@ -211,7 +211,7 @@ namespace bwi_mapper {
       out << YAML::Key << "edges" << YAML::Value << YAML::BeginSeq;
       Graph::adjacency_iterator ai, aend;
       for (boost::tie(ai, aend) = boost::adjacent_vertices(
-            (Graph::vertex_descriptor)*vi, graph); 
+            (Graph::vertex_descriptor)*vi, graph);
           ai != aend; ++ai) {
         out << vertex_map[*ai];
       }
@@ -226,7 +226,7 @@ namespace bwi_mapper {
     fout.close();
   }
 
-  void readGraphFromFile(const std::string &filename, 
+  void readGraphFromFile(const std::string &filename,
       const nav_msgs::MapMetaData& info, Graph& graph) {
 
     std::vector<std::pair<float, float> > vertices;
@@ -275,7 +275,7 @@ namespace bwi_mapper {
         vj = boost::vertex(edges[i][j], graph);
         Graph::edge_descriptor e; bool b;
         boost::tie(e,b) = boost::add_edge(vi, vj, graph);
-        graph[e].weight = 
+        graph[e].weight =
           bwi_mapper::getMagnitude(graph[vi].location - graph[vj].location);
       }
     }
@@ -288,11 +288,11 @@ namespace bwi_mapper {
     return graph[i].location;
   }
 
-  size_t getClosestIdOnGraph(const Point2f &point, 
+  size_t getClosestIdOnGraph(const Point2f &point,
       const Graph &graph, double threshold) {
     Graph::vertex_iterator vi, vend;
     size_t count = 0, min_idx = -1;
-    float min_distance = std::numeric_limits<float>::max(); 
+    float min_distance = std::numeric_limits<float>::max();
     for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend; ++vi) {
       Point2f location = graph[*vi].location;
       if (bwi_mapper::getMagnitude(point - location) <= min_distance) {
@@ -309,41 +309,49 @@ namespace bwi_mapper {
     }
   }
 
-  size_t getClosestIdOnGraphFromEdge(const Point2f& point, 
+  size_t getClosestIdOnGraphFromEdge(const Point2f& point,
       const Graph &graph, size_t prev_graph_id) {
 
-    boost::property_map<Graph, boost::vertex_index_t>::type 
-        indexmap = boost::get(boost::vertex_index, graph);
+    Point2f location = getLocationFromGraphId(prev_graph_id, graph);
 
-    Graph::vertex_descriptor prev_vertex = boost::vertex(prev_graph_id, graph);
-    Point2f location = graph[prev_vertex].location;
-
-    size_t min_idx = -1;
-    float min_distance = std::numeric_limits<float>::max();
-    Point2f other_location;
-
-    Graph::adjacency_iterator ai, aend;
-    for (boost::tie(ai, aend) = boost::adjacent_vertices(prev_vertex, graph); 
-        ai != aend; ++ai) {
-      Point2f location2 = graph[*ai].location;
-
-      float distance = bwi_mapper::minimumDistanceToLineSegment(
-           location, location2, point);
-      if (distance < min_distance) {
-        other_location = location2;
-        min_distance = distance;
-        min_idx = indexmap[*ai]; 
-      }
-    }
+    size_t other_graph_id = getClosestEdgeOnGraphGivenId(point, graph, prev_graph_id);
+    Point2f other_location = getLocationFromGraphId(other_graph_id, graph);
 
     if (getMagnitude(point - location) < getMagnitude(point - other_location)) {
       return prev_graph_id;
     } else {
-      return min_idx;
+      return other_graph_id;
     }
+
   }
 
-  bool isVisible(size_t u, size_t v, const Graph &graph, 
+  size_t getClosestEdgeOnGraphGivenId(const Point2f& point, const Graph &graph, size_t one_graph_id) {
+
+    boost::property_map<Graph, boost::vertex_index_t>::type
+        indexmap = boost::get(boost::vertex_index, graph);
+
+    Graph::vertex_descriptor prev_vertex = boost::vertex(one_graph_id, graph);
+    Point2f location = graph[prev_vertex].location;
+
+    size_t min_idx = -1;
+    float min_distance = std::numeric_limits<float>::max();
+
+    Graph::adjacency_iterator ai, aend;
+    for (boost::tie(ai, aend) = boost::adjacent_vertices(prev_vertex, graph);
+        ai != aend; ++ai) {
+      Point2f location2 = graph[*ai].location;
+
+      float distance = bwi_mapper::minimumDistanceToLineSegment(location, location2, point);
+      if (distance < min_distance) {
+        min_distance = distance;
+        min_idx = indexmap[*ai];
+      }
+    }
+
+    return min_idx;
+  }
+
+  bool isVisible(size_t u, size_t v, const Graph &graph,
       const nav_msgs::OccupancyGrid& map) {
     Point2f loc_u = getLocationFromGraphId(u, graph);
     Point2f loc_v = getLocationFromGraphId(v, graph);
@@ -368,16 +376,16 @@ namespace bwi_mapper {
 
     bwi_mapper::Graph graph_copy(graph);
     // Perform Dijakstra from start_idx
-    std::vector<Graph::vertex_descriptor> 
+    std::vector<Graph::vertex_descriptor>
       p(boost::num_vertices(graph_copy));
     std::vector<double> d(boost::num_vertices(graph_copy));
-    Graph::vertex_descriptor s = 
+    Graph::vertex_descriptor s =
       boost::vertex(start_idx, graph_copy);
 
-    boost::property_map<Graph, boost::vertex_index_t>::type 
+    boost::property_map<Graph, boost::vertex_index_t>::type
         indexmap = boost::get(boost::vertex_index, graph_copy);
     boost::property_map<
-      Graph, 
+      Graph,
       double Edge::*
     >::type weightmap = boost::get(&Edge::weight, graph_copy);
     boost::dijkstra_shortest_paths(graph_copy, s, &p[0], &d[0], weightmap,
@@ -414,19 +422,19 @@ namespace bwi_mapper {
 
     adjacent_vertices.clear();
 
-    boost::property_map<Graph, boost::vertex_index_t>::type 
+    boost::property_map<Graph, boost::vertex_index_t>::type
         indexmap = boost::get(boost::vertex_index, graph);
 
     Graph::vertex_descriptor vertex = boost::vertex(graph_id, graph);
     Graph::adjacency_iterator ai, aend;
-    for (boost::tie(ai, aend) = boost::adjacent_vertices(vertex, graph); 
+    for (boost::tie(ai, aend) = boost::adjacent_vertices(vertex, graph);
         ai != aend; ++ai) {
       adjacent_vertices.push_back(indexmap[*ai]);
     }
 
   }
 
-  void getVisibleNodes(size_t v, const Graph& graph, 
+  void getVisibleNodes(size_t v, const Graph& graph,
       const nav_msgs::OccupancyGrid& grid,
       std::vector<size_t>& visible_vertices, float visibility_range) {
 
@@ -435,11 +443,11 @@ namespace bwi_mapper {
     Point2f loc_v = getLocationFromGraphId(v, graph);
     size_t count = 0;
     Graph::vertex_iterator vi, vend;
-    for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend; 
+    for (boost::tie(vi, vend) = boost::vertices(graph); vi != vend;
         ++vi, ++count) {
       bool is_visible = isVisible(v, count, graph, grid);
       if (is_visible && visibility_range != 0.0f) {
-        is_visible = is_visible && 
+        is_visible = is_visible &&
           (getEuclideanDistance(v, count, graph) < visibility_range);
       }
       if (is_visible) {
@@ -447,5 +455,5 @@ namespace bwi_mapper {
       }
     }
   }
-  
+
 } /* bwi_mapper */
