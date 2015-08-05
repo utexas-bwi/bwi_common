@@ -2,6 +2,14 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* improved atrium mesh model.
+* allow setting yaw for controllable person. also run atrium simulation in real time.
+* added a simulation model for the 2nd floor.
+* updated 3ne map.
+* Contributors: Piyush Khandelwal
+
 0.3.2 (2015-03-24)
 ------------------
 

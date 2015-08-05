@@ -2,6 +2,12 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* allow setting yaw for controllable person. also run atrium simulation in real time.
+* changed position of camera, camera fov, and color of person in gazebo
+* Contributors: Piyush Khandelwal
+
 0.3.2 (2015-03-24)
 ------------------
 
