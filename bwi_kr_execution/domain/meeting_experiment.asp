@@ -1,3 +1,4 @@
+#program base.
 group(smallgroup).
 
 ingroup(matteo,smallgroup).

@@ -1,5 +1,4 @@
-
-
+#program base.
 room(l3_414b). 
 room(l3_414a). 
 room(l3_402). 
@@ -159,14 +158,3 @@ acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 object(coffee_counter).                                                         
 inside(coffee_counter, l2_302).
 
-
-
-%hide non fluents
-
-#hide room/1.
-#hide door/1.
-#hide hasdoor/2.
-#hide dooracc/3.
-#hide acc/2.
-#hide object/1. 
-#hide inside/2.

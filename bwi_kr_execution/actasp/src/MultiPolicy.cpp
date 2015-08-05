@@ -26,26 +26,30 @@ void MultiPolicy::merge(const AnswerSet& plan) throw(logic_error) {
 
 
   //ignore the last time step becuase it's the final state and has no actions
-  unsigned int planLength = plan.maxTimeStep()-1;
+  unsigned int planLength = plan.maxTimeStep();
 
-	for (int timeStep = 0; timeStep <= planLength; ++timeStep) {
+  set<AspFluent> fluents = plan.getFluentsAtTime(0);
+
+	for (int timeStep = 1; timeStep <= planLength; ++timeStep) {
 		
-		set<AspFluent> fluents = plan.getFluentsAtTime(timeStep);
+		set<AspFluent> fluentsWithAction = plan.getFluentsAtTime(timeStep);
     
     //find the action
-    set<AspFluent>::iterator actionIt = find_if(fluents.begin(),fluents.end(),IsAnAction(allActions));
+    set<AspFluent>::iterator actionIt = find_if(fluentsWithAction.begin(),fluentsWithAction.end(),IsAnAction(allActions));
     
-    if(actionIt == fluents.end())
+    if(actionIt == fluentsWithAction.end())
       throw logic_error("MultiPolicy: no action for some state");
     
     AspFluent action = *actionIt;
 		
 		//remove the action from there
-		fluents.erase(actionIt);
+		fluentsWithAction.erase(actionIt);
 		
 		ActionSet &stateActions = policy[fluents]; //creates an empty vector if not present
 
 		stateActions.insert(action);
+
+    fluents = fluentsWithAction;
     
 	}
 

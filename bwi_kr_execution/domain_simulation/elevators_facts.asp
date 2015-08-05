@@ -1,4 +1,4 @@
-
+#program base.
 elevroom(l3test_404; l3_404).
 
 room(R) :- elevroom(R). 
@@ -35,13 +35,13 @@ hasdoor(l3test_404, d3test_404).
 hasdoor(l3test_400, d3test_404).
 
 %hide non fluents
-#hide elevdoor/2.
-#hide elevhasdoor/2.
-#hide elevator/1.
-#hide door/1.
-#hide thing/1.
-#hide sameroom/2.
-#hide orientation/1.
-#hide floor/2.
-#hide elevroom/1.
-#hide elevdoor/1.
+%#hide elevdoor/2.
+%#hide elevhasdoor/2.
+%#hide elevator/1.
+%#hide door/1.
+%#hide thing/1.
+%#hide sameroom/2.
+%#hide orientation/1.
+%#hide floor/2.
+%#hide elevroom/1.
+%#hide elevdoor/1.

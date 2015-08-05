@@ -1,3 +1,4 @@
+#program base.
 
 elevroom(l4_elev_east; l4_elev_west; l3_elev_east; l3_elev_west).
 elevroom(l2_elev_east; l2_elev_west; l1_elev_east; l1_elev_west).
@@ -58,14 +59,3 @@ hasdoor(l3_elev_west, d3_elev_west).
 hasdoor(l3_200, d3_elev_east).
 hasdoor(l3_200, d3_elev_west).
 
-%hide non fluents
-#hide elevdoor/2.
-#hide elevhasdoor/2.
-#hide elevator/1.
-#hide door/1.
-#hide thing/1.
-#hide sameroom/2.
-#hide orientation/1.
-#hide floor/2.
-#hide elevroom/1.
-#hide elevdoor/1.
