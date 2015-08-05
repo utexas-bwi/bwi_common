@@ -12,16 +12,18 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  actionlib
-  actionlib_msgs
-  bwi_kr_execution
-  pcl_ros
-  cv_bridge
-  image_transport
-  message_generation
+find_package(catkin REQUIRED 
+    COMPONENTS
+        roscpp
+        std_msgs
+        actionlib
+        actionlib_msgs
+        bwi_kr_execution
+        pcl_ros
+        cv_bridge
+        image_transport
+        message_generation
+        move_base_msgs
 )
 
 
@@ -29,7 +31,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs actionlib_msgs message_runtime
+    CATKIN_DEPENDS 
+        roscpp 
+        std_msgs 
+        actionlib_msgs 
+        message_runtime 
+        move_base_msgs
 )
 
 ###########
