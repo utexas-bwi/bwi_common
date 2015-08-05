@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * Indigo: change clingo dependency to gringo
 * add a new node in bwi_kr_execution to keep updating states
 * made current state query only return fluents at 0, perhaps safer for the learning executor

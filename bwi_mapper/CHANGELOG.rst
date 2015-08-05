@@ -2,8 +2,8 @@
 Changelog for package bwi_mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * added a script to translate graphs.
 * some new graph functionality.
 * Contributors: Piyush Khandelwal

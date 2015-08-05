@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_scavenger</name>
-  <version>0.3.2</version>
+  <version>0.3.3</version>
   <description>The BWI scavenger hunt</description>
   <maintainer email="shiqi.zhang6@gmail.com">Shiqi Zhang</maintainer>
   <license>BSD</license>

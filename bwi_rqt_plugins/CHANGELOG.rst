@@ -2,8 +2,8 @@
 Changelog for package bwi_rqt_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * fix catkin warning about bwi_rqt_plugins headers
 * wrap buttons around if too many.
 * switched controls from qshortcut to key press/release events for faster response time.

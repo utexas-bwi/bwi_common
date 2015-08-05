@@ -2,8 +2,8 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * stop_base: another unit test (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
 * bwi_msgs: rename stop base service (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
 * stop_base: initial stop base implementation (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)

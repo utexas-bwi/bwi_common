@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_logging</name>
-  <version>0.3.2</version>
+  <version>0.3.3</version>
   <description>Logging package that creates ROS bag files</description>
   <license>BSD</license>
 

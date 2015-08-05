@@ -2,8 +2,8 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * update metapackage contents, adding bwi_loggin, bwi_rqt_plugins and
   bwi_scavenger
 * remove bwi_web package. closes `#21 <https://github.com/utexas-bwi/bwi_common/issues/21>`_

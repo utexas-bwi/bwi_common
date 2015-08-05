@@ -2,8 +2,8 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2015-08-05)
+------------------
 * fixed the ASP for the meeting experiment
 * PRL experiment
 * adding a task for experiments in simulation
