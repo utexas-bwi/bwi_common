@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_scavenger</name>
-  <version>0.0.0</version>
-  <description>The bwi_scavenger package</description>
-
+  <version>0.3.2</version>
+  <description>The BWI scavenger hunt</description>
   <maintainer email="shiqi.zhang6@gmail.com">Shiqi Zhang</maintainer>
-
-  <license>TODO</license>
+  <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -40,12 +38,4 @@
   <build_depend>move_base_msgs</build_depend>
   <run_depend>move_base_msgs</run_depend>
 
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- You can specify that this package is a metapackage here: -->
-    <!-- <metapackage/> -->
-
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
 </package>
