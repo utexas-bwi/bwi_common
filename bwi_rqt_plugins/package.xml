@@ -14,8 +14,8 @@
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/bwi_rqt_plugins</url>
-  <url type="repository">https://github.com/utexas-bwi/segbot.git</url>
-  <url type="bugtracker">https://github.com/utexas-bwi/segbot/issues</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_comman.git</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
 
   <author email="piyushk@gmail.com">Piyush Khandelwal</author>
 
