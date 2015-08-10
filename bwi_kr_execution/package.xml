@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_kr_execution</name>
-  <version>0.3.2</version>
+  <version>0.3.3</version>
   <description>The bwi_kr_execution package</description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
@@ -25,6 +25,7 @@
   <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>gringo</depend>
 
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>

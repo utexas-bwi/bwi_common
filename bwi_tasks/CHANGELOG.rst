@@ -2,6 +2,19 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.3 (2015-08-05)
+------------------
+* fixed the ASP for the meeting experiment
+* PRL experiment
+* adding a task for experiments in simulation
+* adding a task for learning experiment, and a flag to the action
+  theory to prevent the use of questions in tasks that don't need them
+* adding time to the logging of actions and reward.
+* fixing issue `#20 <https://github.com/utexas-bwi/bwi_common/issues/20>`_
+* removed take_human_input.py and switched to bwi_msgs service. closes `#20 <https://github.com/utexas-bwi/bwi_common/issues/20>`_
+* Contributors: Matteo Leonetti, Shiqi Zhang
+
+
 0.3.2 (2015-03-24)
 ------------------
 

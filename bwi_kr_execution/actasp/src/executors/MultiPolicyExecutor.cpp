@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <ros/ros.h>
+
 using namespace std;
 
 namespace actasp {

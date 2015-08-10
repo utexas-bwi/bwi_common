@@ -2,6 +2,9 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.3 (2015-08-05)
+------------------
+
 0.3.2 (2015-03-24)
 ------------------
 * removed accidental global script installation. closes `#18 <https://github.com/utexas-bwi/bwi_common/issues/18>`_.

@@ -1,4 +1,4 @@
-
+#program base.
 person(peter). 
 person(ray). 
 person(dana). 
@@ -46,10 +46,3 @@ canknow(P2,P1) :- canknow(P1,P2).
 
 meeting(M,G,R) :- meeting(M,G,R). %here for when not using meetings
 
-#hide person/1.
-#hide hasoffice/2.
-#hide canbeinroom/2.
-#hide canknow/2.
-#hide group/1.
-#hide ingroup/2.
-#hide meeting/3.

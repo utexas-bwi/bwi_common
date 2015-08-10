@@ -2,6 +2,15 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.3 (2015-08-05)
+------------------
+* stop_base: another unit test (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
+* bwi_msgs: rename stop base service (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
+* stop_base: initial stop base implementation (`#23 <https://github.com/utexas-bwi/bwi_common/issues/23>`_, `utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
+* bwi_msgs: add stop base controller interface (`utexas-bwi/segbot#41 <https://github.com/utexas-bwi/segbot/issues/41>`_)
+* added a multi robot msg in preparation for multirobot experiments.
+* Contributors: Jack O'Quin, Piyush Khandelwal
+
 0.3.2 (2015-03-24)
 ------------------
 

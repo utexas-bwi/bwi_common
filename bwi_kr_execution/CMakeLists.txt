@@ -95,6 +95,9 @@ target_link_libraries(knowledge_reasoning_node
 add_executable(asp_formatter src/asp_formatter.cpp)
 target_link_libraries(asp_formatter actasp)
 
+add_executable(state_tracker src/state_tracker.cpp src/msgs_utils.cpp)
+target_link_libraries(state_tracker kractions)
+
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h")

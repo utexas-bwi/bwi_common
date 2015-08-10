@@ -50,7 +50,7 @@ std::list<Action *> AnswerSet::instantiateActions(const std::map<std::string, ac
 		//if a fluent is not a known action, just ignore it.
 	}
 	
-	if (maxTimeStep > 0 && maxTimeStep >= plan.size()) {
+	if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
 				clearPlan(plan);
 				throw logic_error("AnswerSet: the plan is missing an action for some time step. Check the list of actions shown in the plan query.");
 	}

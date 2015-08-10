@@ -136,8 +136,8 @@ int main() {
 	actionMap.insert(std::make_pair(std::string("searchroom"), new SimpleAction()));
 	actionMap.insert(std::make_pair(std::string("askperson"), new SimpleAction()));	
 	actionMap.insert(std::make_pair(std::string("changefloor"), new SimpleAction()));
-  actionMap.insert(std::make_pair(std::string("callelevator"), new SimpleAction()));
-   actionMap.insert(std::make_pair(std::string("remind"), new SimpleAction()));
+    actionMap.insert(std::make_pair(std::string("callelevator"), new SimpleAction()));
+    actionMap.insert(std::make_pair(std::string("remind"), new SimpleAction()));
 	
 	vector<AnswerSet> sets = readAnswerSets(cin);
 	
@@ -152,7 +152,7 @@ int main() {
 		list<Action*> plan = sets[i].instantiateActions(actionMap);
 		list<Action*>::iterator pIt = plan.begin();
 		
-		for(int t=0; pIt != plan.end(); ++pIt, ++t)
+		for(int t=1; pIt != plan.end(); ++pIt, ++t)
 			if ((*pIt) != NULL)
 				cout << (*pIt)->toASP(t) << " ";
 		

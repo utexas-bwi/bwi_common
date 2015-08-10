@@ -1,17 +1,14 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_logging</name>
-  <version>0.0.0</version>
+  <version>0.3.3</version>
   <description>Logging package that creates ROS bag files</description>
+  <license>BSD</license>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>
   <maintainer email="shiqi.zhang6@gmail.com">Shiqi Zhang</maintainer>
 
-  <license>BSD</license>
-
-
   <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
-
 
   <buildtool_depend>catkin</buildtool_depend>
 

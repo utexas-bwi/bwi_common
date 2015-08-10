@@ -60,7 +60,7 @@ private:
   ActionSet allActions;
   std::string actionFilter;
 
-	std::string generatePlanQuery(	const std::vector<actasp::AspRule>& goalRules,
+	std::string generatePlanQuery(std::vector<actasp::AspRule> goalRules,
 									bool filterActions) const throw();
 
 	std::list<actasp::AnswerSet> krQuery(	const std::string& query, 
