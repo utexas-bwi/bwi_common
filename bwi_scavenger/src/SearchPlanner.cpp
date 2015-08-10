@@ -14,6 +14,8 @@
 
 #include "SearchPlanner.h"
 
+#include <fstream>
+
 #define SCENE_ANALYZATION_COST (60)
 
 geometry_msgs::PoseWithCovarianceStamped curr_position; 
@@ -31,7 +33,17 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
 
     nh = node_handle; 
 
-    YAML::Node yaml_positions = YAML::LoadFile(path_to_yaml); 
+    YAML::Node yaml_positions; 
+    std::ifstream fin(path_to_yaml.c_str()); 
+
+#ifdef HAVE_NEW_YAMLCPP
+    yaml_positions = YAML::Load(fin);
+#else
+    YAML::Parser parser(fin);
+    parser.GetNextDocument(yaml_positions); 
+#endif
+
+    // YAML::Node yaml_positions = YAML::LoadFile(path_to_yaml); 
 
     belief = std::vector<float> (yaml_positions.size(), 1.0/yaml_positions.size()); 
 
