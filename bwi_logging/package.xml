@@ -1,35 +1,36 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_logging</name>
-  <version>0.3.3</version>
+  <version>0.0.0</version>
   <description>Logging package that creates ROS bag files</description>
-  <license>BSD</license>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>
-  <maintainer email="shiqi.zhang6@gmail.com">Shiqi Zhang</maintainer>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+
+  <license>BSD</license>
 
   <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
+
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>boost</build_depend>
-  <build_depend>roscpp</build_depend>
   <build_depend>cv_bridge</build_depend>
-  <build_depend>message_filters</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>nav_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>message_filters</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
 
+  <run_depend>boost</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>message_filters</run_depend>
+  <run_depend>nav_msgs</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rosbag</run_depend>
-  <run_depend>cv_bridge</run_depend>
   <run_depend>sensor_msgs</run_depend>
-  <run_depend>message_filters</run_depend>
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-
-  <build_depend>image_transport</build_depend>
-  <run_depend>image_transport</run_depend>
 
 </package>
