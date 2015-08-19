@@ -2,6 +2,9 @@
 Changelog for package bwi_mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2015-08-19)
+------------------
+
 0.3.3 (2015-08-05)
 ------------------
 * added a script to translate graphs.

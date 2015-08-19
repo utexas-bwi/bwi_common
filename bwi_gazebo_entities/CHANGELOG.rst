@@ -2,6 +2,9 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2015-08-19)
+------------------
+
 0.3.3 (2015-08-05)
 ------------------
 * allow setting yaw for controllable person. also run atrium simulation in real time.

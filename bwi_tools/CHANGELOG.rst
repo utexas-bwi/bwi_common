@@ -2,6 +2,9 @@
 Changelog for package bwi_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2015-08-19)
+------------------
+
 0.3.3 (2015-08-05)
 ------------------
 * update roslaunch launcher to allow directly running a launch file using an absolute path.

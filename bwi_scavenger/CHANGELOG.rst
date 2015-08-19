@@ -2,6 +2,13 @@
 Changelog for package bwi_scavenger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2015-08-19)
+------------------
+* restore missing package versions
+* added maintainers, and minor changes in package.xml files
+* fixed yaml-cpp version problem
+* Contributors: Jack O'Quin, Shiqi Zhang
+
 0.3.3 (2015-08-05)
 ------------------
 * added dependencies of move_base_msgs

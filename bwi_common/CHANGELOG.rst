@@ -2,6 +2,9 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2015-08-19)
+------------------
+
 0.3.3 (2015-08-05)
 ------------------
 * update metapackage contents, adding bwi_loggin, bwi_rqt_plugins and
