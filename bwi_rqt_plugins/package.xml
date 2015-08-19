@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_rqt_plugins</name>
-  <version>0.3.3</version>
+  <version>0.3.4</version>
   <description>
     Displays a simple GUI to the user. The GUI is capable of displaying a simple
     message or image to the user, and ask a question. The message and question

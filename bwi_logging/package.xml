@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_logging</name>
-  <version>0.3.3</version>
+  <version>0.3.4</version>
   <description>Logging package that creates ROS bag files</description>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>
