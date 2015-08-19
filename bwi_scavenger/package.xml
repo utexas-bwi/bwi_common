@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bwi_scavenger</name>
-  <version>0.0.0</version>
+  <version>0.3.3</version>
   <description>The bwi_scavenger package</description>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>
