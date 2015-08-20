@@ -33,4 +33,5 @@ catkin_package(
     actionlib_msgs
     bwi_planning_common
     message_runtime
+    std_msgs
 )

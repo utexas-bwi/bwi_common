@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>bwi_msgs</name>
   <version>0.3.4</version>
   <description>
@@ -17,14 +17,13 @@
   <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>actionlib_msgs</build_depend>
-  <build_depend>bwi_planning_common</build_depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>std_msgs</build_depend>
 
-  <run_depend>actionlib_msgs</run_depend>
-  <run_depend>bwi_planning_common</run_depend>
-  <run_depend>message_runtime</run_depend>
+  <depend>actionlib_msgs</depend>
+  <depend>bwi_planning_common</depend>
+  <depend>std_msgs</depend>
+
+  <exec_depend>message_runtime</exec_depend>
 
   <export>
     <architecture_independent/>
