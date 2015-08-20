@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
+
   <name>bwi_logging</name>
   <version>0.3.4</version>
   <description>Logging package that creates ROS bag files</description>
@@ -11,26 +12,22 @@
   <license>BSD</license>
 
   <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
-
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>boost</build_depend>
-  <build_depend>cv_bridge</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>message_filters</build_depend>
-  <build_depend>nav_msgs</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
+  <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
+  <depend>image_transport</depend>
+  <depend>message_filters</depend>
+  <depend>nav_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
 
-  <run_depend>boost</run_depend>
-  <run_depend>cv_bridge</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>message_filters</run_depend>
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>rosbag</run_depend>
-  <run_depend>sensor_msgs</run_depend>
+  <exec_depend>rosbag</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+  <test_depend>roslaunch</test_depend>
+  <test_depend>rostest</test_depend>
 
 </package>
