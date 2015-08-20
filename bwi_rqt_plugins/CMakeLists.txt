@@ -2,12 +2,15 @@ cmake_minimum_required(VERSION 2.8.3)
 project(bwi_rqt_plugins)
 
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge)
+find_package(catkin REQUIRED COMPONENTS
+  bwi_msgs
+  class_loader
+  cv_bridge
+  image_transport
+  rqt_gui
+  rqt_gui_cpp
+  sensor_msgs)
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-
-catkin_package()
-
-include(${QT_USE_FILE})
 
 set(bwi_rqt_image_view_SRCS
   src/bwi_rqt_plugins/image_view.cpp
@@ -29,11 +32,19 @@ set(bwi_rqt_plugins_INCLUDE_DIRECTORIES
 )
 
 catkin_package(
+  CATKIN_DEPENDS
+    bwi_msgs
+    class_loader
+    cv_bridge
+    image_transport
+    rqt_gui
+    rqt_gui_cpp
+    sensor_msgs
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge
-)
+  LIBRARIES ${PROJECT_NAME})
 catkin_python_setup()
+
+include(${QT_USE_FILE})
 
 qt4_wrap_cpp(bwi_rqt_image_view_MOCS ${bwi_rqt_image_view_HDRS})
 qt4_wrap_ui(bwi_rqt_image_view_UIS_H ${bwi_rqt_image_view_UIS})
@@ -41,11 +52,9 @@ qt4_wrap_ui(bwi_rqt_image_view_UIS_H ${bwi_rqt_image_view_UIS})
 include_directories(${bwi_rqt_plugins_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${bwi_rqt_image_view_SRCS} ${bwi_rqt_image_view_MOCS} ${bwi_rqt_image_view_UIS_H})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
-
-find_package(class_loader)
 class_loader_hide_library_symbols(${PROJECT_NAME})
 
-install(FILES plugin.xml
+install(FILES cpp_plugins.xml python_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
