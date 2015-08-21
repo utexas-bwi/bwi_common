@@ -19,14 +19,14 @@ catkin_package(
   DEPENDS 
     OpenCV
     BOOST
-  INCLUDE_DIRS include ${TBB_INCLUDE_DIRS}
-  LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_json ${TBB_LIBRARIES}
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_json
 )
 
 catkin_python_setup()
 
 ## Build
-ADD_DEFINITIONS(-std=c++0x)
+add_definitions(-std=c++0x)
 
 include_directories(
   include
