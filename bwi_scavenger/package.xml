@@ -2,7 +2,10 @@
 <package>
   <name>bwi_scavenger</name>
   <version>0.3.4</version>
-  <description>The bwi_scavenger package</description>
+  <description>
+    Robot scavenger hunt interfaces for the Building-Wide Intelligence
+    project of the University of Texas at Austin.
+  </description>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
