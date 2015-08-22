@@ -2,6 +2,11 @@
 Changelog for package bwi_rqt_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bwi_rqt_plugins: fix catkin lint problems (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)
+* Contributors: Jack O'Quin
+
 0.3.4 (2015-08-19)
 ------------------
 * change segbot references to bwi_common (fixes `#29 <https://github.com/utexas-bwi/bwi_common/issues/29>`_)
