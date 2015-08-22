@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.5 (2015-08-22)
+------------------
 * bwi_kr_execution: fix catkin lint warning (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)
 * Contributors: Jack O'Quin
 
