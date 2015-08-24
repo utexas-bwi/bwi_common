@@ -11,8 +11,8 @@
   <!-- Add the person -->
   <xacro:person />
 
-  <!-- Add the generic laser to do obstacle avoidance -->
-  <xacro:generic_laser name="lidar" ros_topic="scan" update_rate="10" min_angle="${-M_PI/2}" max_angle="${M_PI/2}" />
+  <!-- Add the generic laser if you want to do any obstacle avoidance -->
+  <!-- <xacro:generic_laser name="lidar" ros_topic="scan" update_rate="10" min_angle="${-M_PI/2}" max_angle="${M_PI/2}" /> -->
 
 </robot>
 
