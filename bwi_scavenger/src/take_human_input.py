@@ -8,8 +8,7 @@ import roslib; roslib.load_manifest('bwi_tasks')
 import actionlib
 import actionlib_msgs.msg
 from bwi_kr_execution.msg import *
-import segbot_gui.srv
-import bwi_rlg.srv
+from bwi_msgs.srv import QuestionDialog, SemanticParser
 import os.path
 import string
 
@@ -194,21 +193,18 @@ def process_request(query, client, dialog_handle):
         else:
 
             rospy.logwarn("This does not seem to be a person name: " + person)
-    
+
     return True
-# option 
+
+# option
 # 1: click me if you need help
 # 2: please let me know your goal place
 def gui_thread(human_waiting, curr_goal):
-  
+
     rospy.init_node('human_input_gui_thread')
-
     rospy.loginfo("gui_thread started")
-
     rospy.wait_for_service('question_dialog')
-    
-    handle = rospy.ServiceProxy('question_dialog', \
-                                segbot_gui.srv.QuestionDialog)
+    handle = rospy.ServiceProxy('question_dialog', QuestionDialog)
 
     while not rospy.is_shutdown():
 
@@ -242,23 +238,20 @@ def platform_thread(human_waiting, curr_goal):
     global last_loc
 
     rospy.init_node('human_input_platform_thread')
-
     rospy.loginfo("platform_thread started")
 
     rospy.wait_for_service('question_dialog')
+    dialog_handle = rospy.ServiceProxy('question_dialog', QuestionDialog)
 
-    rooms = ["414a", "414b", "414b", "418", "420"]
-    doors = ["d3_414a2", "d3_414b1", "d3_414b2", "d3_418", "d3_420"]
-    
-    client = actionlib.SimpleActionClient('/action_executor/execute_plan',\
+    rospy.wait_for_service('semantic_parser')
+    parser_handle = rospy.ServiceProxy('semantic_parser', SemanticParser)
+
+    client = actionlib.SimpleActionClient('/action_executor/execute_plan',
                                           ExecutePlanAction)
     client.wait_for_server()
 
-    dialog_handle = rospy.ServiceProxy('question_dialog', \
-                                       segbot_gui.srv.QuestionDialog)
-
-    parser_handle = rospy.ServiceProxy('semantic_parser', \
-                                       bwi_rlg.srv.SemanticParser)
+    rooms = ["414a", "414b", "414b", "418", "420"]
+    doors = ["d3_414a2", "d3_414b1", "d3_414b2", "d3_418", "d3_420"]
 
     path_rlg = rospy.get_param("/semantic_parser_server/path_to_bwi_rlg")
     filepath = path_rlg + "/agent/dialog/list_of_bad_data.txt"
