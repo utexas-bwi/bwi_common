@@ -34,6 +34,7 @@
 
 #include <bwi_mapper/map_utils.h>
 #include <bwi_mapper/path_finder.h>
+#include <cassert>
 #include <fstream>
 #include <stdexcept>
 
@@ -103,15 +104,24 @@ namespace bwi_mapper {
   }
 
   bool PathFinder::pathExists(const Point2d& pt) {
-    return search_space_[MAP_IDX(width_, pt.x, pt.y)] >= 0;
+    int pt_idx = MAP_IDX(width_, pt.x, pt.y);
+    assert(pt_idx >= 0);
+    assert(pt_idx < search_space_.size());
+    return search_space_[pt_idx] >= 0;
   }
 
   int PathFinder::getManhattanDistance(const Point2d& pt) {
-    return search_space_[MAP_IDX(width_, pt.x, pt.y)];
+    int pt_idx = MAP_IDX(width_, pt.x, pt.y);
+    assert(pt_idx >= 0);
+    assert(pt_idx < search_space_.size());
+    return search_space_[pt_idx];
   }
 
   bool PathFinder::getNextCloserPointToSearchOrigin(const Point2d& pt, Point2d& next) {
-    int pt_val = search_space_[MAP_IDX(width_, pt.x, pt.y)];
+    int pt_idx = MAP_IDX(width_, pt.x, pt.y);
+    assert(pt_idx >= 0);
+    assert(pt_idx < search_space_.size());
+    int pt_val = search_space_[pt_idx];
     if (pt_val == NOT_CONNECTED || pt_val == OBSTACLE || pt_val == 0) {
       return false;
     }
@@ -119,11 +129,13 @@ namespace bwi_mapper {
     int step_x[] = {0, 1, 0, -1};
     int step_y[] = {1, 0, -1, 0};
 
-    for (int pt_idx = 0; pt_idx < 4; ++pt_idx) {
-      int neighbor_x = pt.x + step_x[pt_idx];
-      int neighbor_y = pt.y + step_y[pt_idx];
+    for (int neighbor_counter = 0; neighbor_counter < 4; ++neighbor_counter) {
+      int neighbor_x = pt.x + step_x[neighbor_counter];
+      int neighbor_y = pt.y + step_y[neighbor_counter];
       if (neighbor_x >= 0 && neighbor_x < width_ && neighbor_y >= 0 && neighbor_y < height_) {
         int neighbor_idx = MAP_IDX(width_, neighbor_x, neighbor_y);
+        assert(neighbor_idx >= 0);
+        assert(neighbor_idx < search_space_.size());
         if (search_space_[neighbor_idx] != OBSTACLE &&
             search_space_[neighbor_idx] < pt_val) {
           next.x = neighbor_x;

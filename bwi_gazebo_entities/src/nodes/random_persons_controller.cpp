@@ -16,8 +16,8 @@ ros::ServiceClient spawn_model_client;
 int total_random_persons;
 int launched_random_persons;
 std::string map_file;
-float person_diameter = 0.6;
-float linear_velocity_multiplier = 2.0;
+float person_diameter = 0.5;
+float linear_velocity_multiplier = 1.0;
 float angular_velocity_multiplier = 1.0;
 std::string person_urdf;
 
@@ -32,17 +32,53 @@ std::vector<bwi_mapper::Point2d> goals;
 std::vector<ros::Subscriber> location_subscribers;
 std::vector<ros::Publisher> command_publisher;
 std::vector<boost::shared_ptr<bwi_mapper::PathFinder> > path_finders;
+std::vector<bool> robot_paused;
+std::vector<ros::Time> pause_start_times;
 
 ros::Publisher status_publisher;
 
-bool sendVelocityCommand(int person_idx) {
+bwi_mapper::Point2d getPersonLocation(int person_idx, int try_alternates = 0) {
   bwi_mapper::Point2f person_loc_map(locations[person_idx].position.x, locations[person_idx].position.y);
   bwi_mapper::Point2f current_pt_f = bwi_mapper::toGrid(person_loc_map, map_.info);
   bwi_mapper::Point2d current_pt(current_pt_f.x, current_pt_f.y);
+  for (int x = -try_alternates; x <= try_alternates; ++x) {
+    for (int y = -try_alternates; y <= try_alternates; ++y) {
+      bwi_mapper::Point2d test_diff = bwi_mapper::Point2d(x, y);
+      bwi_mapper::Point2d test_pt = current_pt + test_diff;
+      int idx = test_pt.y * map_.info.width + test_pt.x;
+      if (inflated_map_.data[idx] != 100) {
+        return test_pt;
+      }
+    }
+  }
+  return current_pt;
+}
+
+bool sendVelocityCommand(int person_idx) {
+  bwi_mapper::Point2d current_pt;
+  int alt = 0;
+  while(alt < 4) {
+    if (alt == 4) {
+      std::cout << "person stuck in obstacle. not sure what to do." << std::endl;
+    }
+    current_pt = getPersonLocation(person_idx, alt);
+    int idx = current_pt.y * map_.info.width + current_pt.x;
+    if (inflated_map_.data[idx] != 100) {
+      break;
+    }
+    ++alt;
+  }
   for (int i = 0; i < 5; ++i) {
     bwi_mapper::Point2d next_pt;
     if (!path_finders[person_idx]->getNextCloserPointToSearchOrigin(current_pt, next_pt)) {
       // Close enough to the goal.
+      /* std::cout << "reached goal" << std::endl; */
+      robot_paused[person_idx] = true;
+      pause_start_times[person_idx] = ros::Time::now();
+
+      // Publish zero velocity.
+      geometry_msgs::Twist twist_msg;
+      command_publisher[person_idx].publish(twist_msg);
       return false;
     }
     current_pt = next_pt;
@@ -53,12 +89,25 @@ bool sendVelocityCommand(int person_idx) {
 
   float xdiff = interm_loc.x - locations[person_idx].position.x;
   float ydiff = interm_loc.y - locations[person_idx].position.y;
-  float adiff = 0;
-  /* float adiff = atan2f(ydiff, xdiff) - tf::getYaw(locations[person_idx].orientation); */
+  float orientation = tf::getYaw(locations[person_idx].orientation);
+  /* float adiff = 0; */
+  float adiff = atan2f(ydiff, xdiff) - orientation;
   while (adiff <= -M_PI) adiff += 2*M_PI;
   while (adiff > M_PI) adiff -= 2*M_PI;
 
-  std::cout << xdiff << " " << ydiff << " " << adiff << std::endl;
+  /* std::cout << xdiff << " " << ydiff << " " << atan2f(ydiff, xdiff) << " " << tf::getYaw(locations[person_idx].orientation) << " " << adiff << std::endl; */
+
+  // if (fabs(adiff > 0.2)) {
+  //   xdiff = 0;
+  //   ydiff = 0;
+  // } else {
+    float xdiffnew = xdiff * cosf(orientation) + ydiff * sinf(orientation);
+    float ydiffnew = ydiff * cosf(orientation) - xdiff * sinf(orientation);
+    xdiff = xdiffnew;
+    ydiff = ydiffnew;
+  /* } */
+
+  /* std::cout << xdiff << " " << ydiff << " " << adiff << std::endl; */
   geometry_msgs::Twist twist_msg;
 
   twist_msg.linear.x = linear_velocity_multiplier * xdiff;
@@ -70,8 +119,8 @@ bool sendVelocityCommand(int person_idx) {
   twist_msg.linear.y = std::min(twist_msg.linear.y, 0.5);
 
   twist_msg.angular.z = angular_velocity_multiplier * adiff;
-  twist_msg.angular.z = std::max(twist_msg.angular.z, -1.0);
-  twist_msg.angular.z = std::min(twist_msg.angular.z, 1.0);
+  twist_msg.angular.z = std::max(twist_msg.angular.z, -0.5);
+  twist_msg.angular.z = std::min(twist_msg.angular.z, 0.5);
 
   command_publisher[person_idx].publish(twist_msg);
 
@@ -80,16 +129,16 @@ bool sendVelocityCommand(int person_idx) {
 
 void generateNewGoal(int person_idx) {
   // Generate a reachable goal from the person's current location.
-  bwi_mapper::Point2f person_loc_map(locations[person_idx].position.x, locations[person_idx].position.y);
-  bwi_mapper::Point2f person_loc_grid_f = bwi_mapper::toGrid(person_loc_map, map_.info);
-  bwi_mapper::Point2d person_loc_grid(person_loc_grid_f.x, person_loc_grid_f.y);
+
+  bwi_mapper::Point2d person_loc_grid = getPersonLocation(person_idx, 3);
 
   path_finders[person_idx].reset(new bwi_mapper::PathFinder(inflated_map_, person_loc_grid));
   RNG rng(time(NULL));
   while (true) {
     bwi_mapper::Point2d goal_candidate;
-    goal_candidate.x = rng.randomInt(map_.info.width);
-    goal_candidate.y = rng.randomInt(map_.info.height);
+    goal_candidate.x = rng.randomInt(map_.info.width - 1);
+    goal_candidate.y = rng.randomInt(map_.info.height - 1);
+    /* std::cout << "trying goal candidate: " << goal_candidate << std::endl; */
     // New point needs to be at least 5 meters away.
     if (path_finders[person_idx]->pathExists(goal_candidate) &&
         path_finders[person_idx]->getManhattanDistance(goal_candidate) > 100) {
@@ -99,20 +148,23 @@ void generateNewGoal(int person_idx) {
     }
   }
 
-  std::cout << "  person " << person_idx << " goal generated at " << goals[person_idx] <<
-    " given current loc " << person_loc_grid << std::endl;
+  // std::cout << "  person " << person_idx << " goal generated at " << goals[person_idx] <<
+  //   " given current loc " << person_loc_grid << std::endl;
 
   goal_initialized[person_idx] = true;
 }
 
 void runner() {
 
+  ros::Rate r(100);
   while (ros::ok()) {
 
     /* std::cout << "main loop" << std::endl; */
     ros::spinOnce();
 
     bwi_msgs::AvailableRobotWithLocationArray status_msg;
+
+    ros::Time current_time = ros::Time::now();
 
     // Send updated commands to all the automated persons.
     // Publish the names and locations of all persons in a single message.
@@ -121,8 +173,19 @@ void runner() {
         continue;
       }
 
-      if (!goal_initialized[i] || !sendVelocityCommand(i)) {
+      if (!goal_initialized[i]) {
         generateNewGoal(i);
+      }
+
+      if (robot_paused[i]) {
+        ros::Duration d = current_time - pause_start_times[i];
+        if (d.toSec() > 10) {
+          robot_paused[i] = false;
+          generateNewGoal(i);
+        }
+      }
+
+      if (!robot_paused[i]) {
         sendVelocityCommand(i);
       }
 
@@ -135,6 +198,7 @@ void runner() {
     }
 
     status_publisher.publish(status_msg);
+    r.sleep();
   }
 
 }
@@ -191,7 +255,7 @@ void launchRandomPersons() {
     spawn.request.robot_namespace = spawn.request.model_name;
 
     // TODO handle spawn location.
-    spawn.request.initial_pose.position.y = 8 + 2*i;
+    spawn.request.initial_pose.position.y = 4 + 0.8*i;
     spawn.request.initial_pose.orientation.w = 1.0;
 
     spawn.response.success = false;
@@ -208,6 +272,8 @@ void launchRandomPersons() {
                                                                         boost::bind(&odometryHandler, _1, i)));
         command_publisher.push_back(nh.advertise<geometry_msgs::Twist>("/" + spawn.request.model_name + "/cmd_vel", 1));
         path_finders.push_back(boost::shared_ptr<bwi_mapper::PathFinder>());
+        robot_paused.push_back(false);
+        pause_start_times.push_back(ros::Time());
       } else {
         ROS_WARN_STREAM("Received error message while spawning object: " << spawn.response.status_message);
       }
@@ -224,4 +290,3 @@ int main(int argc, char *argv[]) {
   runner();
   return 0;
 }
-
