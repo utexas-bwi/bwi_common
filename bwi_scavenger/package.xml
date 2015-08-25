@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_scavenger</name>
-  <version>0.3.5</version>
+  <version>0.3.6</version>
   <description>
     Robot scavenger hunt interfaces for the Building-Wide Intelligence
     project of the University of Texas at Austin.
