@@ -35,6 +35,7 @@
 #include <bwi_mapper/map_utils.h>
 #include <bwi_mapper/path_finder.h>
 #include <fstream>
+#include <stdexcept>
 
 namespace bwi_mapper {
 
@@ -111,7 +112,7 @@ namespace bwi_mapper {
 
   bool PathFinder::getNextCloserPointToSearchOrigin(const Point2d& pt, Point2d& next) {
     int pt_val = search_space_[MAP_IDX(width_, pt.x, pt.y)];
-    if (pt_val == NOT_CONNECTED || pt_val == OBSTACLE || pt_val != 0) {
+    if (pt_val == NOT_CONNECTED || pt_val == OBSTACLE || pt_val == 0) {
       return false;
     }
 
@@ -121,7 +122,7 @@ namespace bwi_mapper {
     for (int pt_idx = 0; pt_idx < 4; ++pt_idx) {
       int neighbor_x = pt.x + step_x[pt_idx];
       int neighbor_y = pt.y + step_y[pt_idx];
-      if (neighbor_x >= 0 && neighbor_x < width_ >= 0 && neighbor_y < height_) {
+      if (neighbor_x >= 0 && neighbor_x < width_ && neighbor_y >= 0 && neighbor_y < height_) {
         int neighbor_idx = MAP_IDX(width_, neighbor_x, neighbor_y);
         if (search_space_[neighbor_idx] != OBSTACLE &&
             search_space_[neighbor_idx] < pt_val) {
@@ -133,7 +134,7 @@ namespace bwi_mapper {
     }
 
     // Shouldn't reach here.
-    return false;
+    throw std::runtime_error("There's a bug in PathFinder::getNextCloserPointToSearchOrigin()");
   }
 
 } /* bwi_mapper */

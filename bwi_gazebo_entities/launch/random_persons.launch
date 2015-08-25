@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="map_file" />
+  <arg name="num_persons" default="1" />
+  <arg name="urdf_file" default="$(find bwi_gazebo_entities)/persons/automated_person.urdf.xacro" />
+
+  <node name="random_persons_controller" pkg="bwi_gazebo_entities" type="random_persons_controller"
+    >
+    <!-- launch-prefix="xterm -e gdb -args" -->
+    <param name="map_file" value="$(arg map_file)" />
+    <param name="num_persons" value="$(arg num_persons)" />
+    <param name="person_urdf" command="$(find xacro)/xacro.py '$(arg urdf_file)'" />
+  </node>
+
+</launch>

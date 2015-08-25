@@ -19,6 +19,7 @@ std::string map_file;
 float person_diameter = 0.6;
 float linear_velocity_multiplier = 2.0;
 float angular_velocity_multiplier = 1.0;
+std::string person_urdf;
 
 nav_msgs::OccupancyGrid map_;
 nav_msgs::OccupancyGrid inflated_map_;
@@ -52,14 +53,29 @@ bool sendVelocityCommand(int person_idx) {
 
   float xdiff = interm_loc.x - locations[person_idx].position.x;
   float ydiff = interm_loc.y - locations[person_idx].position.y;
-  float adiff = atan2f(ydiff, xdiff) - tf::getYaw(locations[person_idx].orientation);
+  float adiff = 0;
+  /* float adiff = atan2f(ydiff, xdiff) - tf::getYaw(locations[person_idx].orientation); */
+  while (adiff <= -M_PI) adiff += 2*M_PI;
+  while (adiff > M_PI) adiff -= 2*M_PI;
 
+  std::cout << xdiff << " " << ydiff << " " << adiff << std::endl;
   geometry_msgs::Twist twist_msg;
+
   twist_msg.linear.x = linear_velocity_multiplier * xdiff;
+  twist_msg.linear.x = std::max(twist_msg.linear.x, -0.5);
+  twist_msg.linear.x = std::min(twist_msg.linear.x, 0.5);
+
   twist_msg.linear.y = linear_velocity_multiplier * ydiff;
+  twist_msg.linear.y = std::max(twist_msg.linear.y, -0.5);
+  twist_msg.linear.y = std::min(twist_msg.linear.y, 0.5);
+
   twist_msg.angular.z = angular_velocity_multiplier * adiff;
+  twist_msg.angular.z = std::max(twist_msg.angular.z, -1.0);
+  twist_msg.angular.z = std::min(twist_msg.angular.z, 1.0);
+
   command_publisher[person_idx].publish(twist_msg);
 
+  return true;
 }
 
 void generateNewGoal(int person_idx) {
@@ -83,6 +99,9 @@ void generateNewGoal(int person_idx) {
     }
   }
 
+  std::cout << "  person " << person_idx << " goal generated at " << goals[person_idx] <<
+    " given current loc " << person_loc_grid << std::endl;
+
   goal_initialized[person_idx] = true;
 }
 
@@ -90,6 +109,7 @@ void runner() {
 
   while (ros::ok()) {
 
+    /* std::cout << "main loop" << std::endl; */
     ros::spinOnce();
 
     bwi_msgs::AvailableRobotWithLocationArray status_msg;
@@ -102,6 +122,7 @@ void runner() {
       }
 
       if (!goal_initialized[i] || !sendVelocityCommand(i)) {
+        generateNewGoal(i);
         sendVelocityCommand(i);
       }
 
@@ -126,17 +147,20 @@ void odometryHandler(const nav_msgs::Odometry::ConstPtr& odom, int person_idx) {
 // TODO Will require re-initialization in case of the multimap setup.
 int initializeRosCommunication() {
 
-  ros::NodeHandle nh;
+  ros::NodeHandle nh, private_nh("~");
 
-  spawn_model_client = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_urdf_model");
+  spawn_model_client = nh.serviceClient<gazebo_msgs::SpawnModel>("gazebo/spawn_urdf_model");
   spawn_model_client.waitForExistence();
 
   std::vector<std::string> required_parameters;
-  if (!nh.getParam("~num_persons", total_random_persons)) {
+  if (!private_nh.getParam("num_persons", total_random_persons)) {
     required_parameters.push_back("~num_persons");
   }
-  if (!nh.getParam("~map_file", map_file)) {
+  if (!private_nh.getParam("map_file", map_file)) {
     required_parameters.push_back("~map_file");
+  }
+  if (!private_nh.getParam("person_urdf", person_urdf)) {
+    required_parameters.push_back("~person_urdf");
   }
 
   if (required_parameters.size() != 0) {
@@ -151,6 +175,7 @@ int initializeRosCommunication() {
 
   bwi_mapper::inflateMap(person_diameter / 2, map_, inflated_map_);
 
+  status_publisher = private_nh.advertise<bwi_msgs::AvailableRobotWithLocationArray>("status", 1);
   return 0;
 }
 
@@ -162,6 +187,12 @@ void launchRandomPersons() {
     std::string prefix = "auto_person_";
 
     spawn.request.model_name = prefix + boost::lexical_cast<std::string>(i);
+    spawn.request.model_xml = person_urdf;
+    spawn.request.robot_namespace = spawn.request.model_name;
+
+    // TODO handle spawn location.
+    spawn.request.initial_pose.position.y = 8 + 2*i;
+    spawn.request.initial_pose.orientation.w = 1.0;
 
     spawn.response.success = false;
     if (spawn_model_client.call(spawn)) {
