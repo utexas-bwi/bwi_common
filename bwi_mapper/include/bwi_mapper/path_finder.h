@@ -51,15 +51,19 @@ namespace bwi_mapper {
 
       static const int OBSTACLE = -2;
       static const int NOT_CONNECTED = -1;
-      
-      PathFinder(const nav_msgs::OccupancyGrid& map, const Point2d& start_pt);
-      
+
+      PathFinder(const nav_msgs::OccupancyGrid& map,
+                 const Point2d& start_pt);
+
       bool pathExists(const Point2d& pt);
 
       int getManhattanDistance(const Point2d& pt);
 
+      bool getNextCloserPointToSearchOrigin(const Point2d& pt, Point2d& next);
+
       /** /brief the underlying map over which DFS is performed */
       int width_;
+      int height_;
       std::vector<int> search_space_;
 
   };

@@ -1,0 +1,1 @@
+AvailableRobotWithLocation[] robots

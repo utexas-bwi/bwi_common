@@ -38,7 +38,8 @@
 
 namespace bwi_mapper {
 
-  PathFinder::PathFinder(const nav_msgs::OccupancyGrid& map, const Point2d& start_pt) : width_(map.info.width) {
+  PathFinder::PathFinder(const nav_msgs::OccupancyGrid& map, const Point2d& start_pt) :
+    width_(map.info.width), height_(map.info.height) {
 
     search_space_.resize(map.info.height * map.info.width, NOT_CONNECTED);
 
@@ -74,13 +75,13 @@ namespace bwi_mapper {
       int step_y[] = {1, 0, -1, 0};
 
       for (int pt = 0; pt < 4; ++pt) {
-        int neighbor_x = col + step_x[pt]; 
-        int neighbor_y = row + step_y[pt]; 
+        int neighbor_x = col + step_x[pt];
+        int neighbor_y = row + step_y[pt];
         if (neighbor_x >= 0 && neighbor_x < map.info.width && neighbor_y >= 0 && neighbor_y < map.info.height) {
           int neighbor_idx = MAP_IDX(width_, neighbor_x, neighbor_y);
-          if ((search_space_[neighbor_idx] != OBSTACLE) && 
+          if ((search_space_[neighbor_idx] != OBSTACLE) &&
               (search_space_[neighbor_idx] == NOT_CONNECTED || (search_space_[neighbor_idx] > search_space_[current_idx] + 1))) {
-            search_space_[neighbor_idx] = search_space_[current_idx] + 1; 
+            search_space_[neighbor_idx] = search_space_[current_idx] + 1;
             current_points.insert(current_points.end(), neighbor_idx);
           }
         }
@@ -99,13 +100,40 @@ namespace bwi_mapper {
     // throw std::runtime_error("blah!");
 
   }
-      
+
   bool PathFinder::pathExists(const Point2d& pt) {
     return search_space_[MAP_IDX(width_, pt.x, pt.y)] >= 0;
   }
 
   int PathFinder::getManhattanDistance(const Point2d& pt) {
     return search_space_[MAP_IDX(width_, pt.x, pt.y)];
+  }
+
+  bool PathFinder::getNextCloserPointToSearchOrigin(const Point2d& pt, Point2d& next) {
+    int pt_val = search_space_[MAP_IDX(width_, pt.x, pt.y)];
+    if (pt_val == NOT_CONNECTED || pt_val == OBSTACLE || pt_val != 0) {
+      return false;
+    }
+
+    int step_x[] = {0, 1, 0, -1};
+    int step_y[] = {1, 0, -1, 0};
+
+    for (int pt_idx = 0; pt_idx < 4; ++pt_idx) {
+      int neighbor_x = pt.x + step_x[pt_idx];
+      int neighbor_y = pt.y + step_y[pt_idx];
+      if (neighbor_x >= 0 && neighbor_x < width_ >= 0 && neighbor_y < height_) {
+        int neighbor_idx = MAP_IDX(width_, neighbor_x, neighbor_y);
+        if (search_space_[neighbor_idx] != OBSTACLE &&
+            search_space_[neighbor_idx] < pt_val) {
+          next.x = neighbor_x;
+          next.y = neighbor_y;
+          return true;
+        }
+      }
+    }
+
+    // Shouldn't reach here.
+    return false;
   }
 
 } /* bwi_mapper */
