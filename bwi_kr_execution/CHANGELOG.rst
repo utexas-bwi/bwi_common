@@ -2,6 +2,11 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.6 (2015-08-25)
+------------------
+* bwi_kr_execution: remove segbot_gui references (`#30 <https://github.com/utexas-bwi/bwi_common/issues/30>`_)
+* Contributors: Jack O'Quin
+
 0.3.5 (2015-08-22)
 ------------------
 * bwi_kr_execution: fix catkin lint warning (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)

@@ -2,6 +2,11 @@
 Changelog for package bwi_rqt_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.6 (2015-08-25)
+------------------
+* bwi_rqt_plugins: remove broken CMake install (`#34 <https://github.com/utexas-bwi/bwi_common/issues/34>`_)
+* Contributors: Jack O'Quin
+
 0.3.5 (2015-08-22)
 ------------------
 * bwi_rqt_plugins: fix catkin lint problems (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)

@@ -2,6 +2,9 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.6 (2015-08-25)
+------------------
+
 0.3.5 (2015-08-22)
 ------------------
 * bwi_tasks: fix catkin lint problems (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)
