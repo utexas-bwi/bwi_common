@@ -37,6 +37,8 @@ std::vector<ros::Time> pause_start_times;
 
 ros::Publisher status_publisher;
 
+RNG rng(time(NULL));
+
 bwi_mapper::Point2d getPersonLocation(int person_idx, int try_alternates = 0) {
   bwi_mapper::Point2f person_loc_map(locations[person_idx].position.x, locations[person_idx].position.y);
   bwi_mapper::Point2f current_pt_f = bwi_mapper::toGrid(person_loc_map, map_.info);
@@ -133,7 +135,6 @@ void generateNewGoal(int person_idx) {
   bwi_mapper::Point2d person_loc_grid = getPersonLocation(person_idx, 3);
 
   path_finders[person_idx].reset(new bwi_mapper::PathFinder(inflated_map_, person_loc_grid));
-  RNG rng(time(NULL));
   while (true) {
     bwi_mapper::Point2d goal_candidate;
     goal_candidate.x = rng.randomInt(map_.info.width - 1);
