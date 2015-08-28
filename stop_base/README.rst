@@ -34,7 +34,7 @@ Published topics
 Services
 ''''''''
 
-``stop_base`` (`bwi_msgs/StopBaseRequest`_)
+``stop_base`` (`bwi_msgs/StopBase`_)
     ROS service interface for temporarily or permanently stopping
     robot base motion.
 
@@ -78,10 +78,10 @@ Where ``<staus>`` can be:
  * ``PAUSED``, ``paused`` or ``p``
  * ``STOPPED``, ``stopped`` or ``s``
 
-.. _`bwi_msgs/StopBaseRequest`:
-   http://docs.ros.org/api/bwi_msgs/html/srv/StopBaseRequest.html
+.. _`bwi_msgs/StopBase`:
+   http://docs.ros.org/indigo/api/bwi_msgs/html/srv/StopBase.html
 .. _`bwi_msgs/StopBaseStatus`:
-   http://docs.ros.org/api/bwi_msgs/html/msg/StopBaseStatus.html
+   http://docs.ros.org/indigo/api/bwi_msgs/html/msg/StopBaseStatus.html
 .. _`geometry_msgs/Twist`:
    http://docs.ros.org/api/geometry_msgs/html/msg/Twist.html
 .. _ROS: http:/ros.org
