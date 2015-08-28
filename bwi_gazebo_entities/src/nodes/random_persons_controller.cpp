@@ -247,10 +247,13 @@ void launchRandomPersons() {
   ros::NodeHandle nh;
 
   for (int i = 0; i < total_random_persons; ++i) {
-    gazebo_msgs::SpawnModel spawn;
     std::string prefix = "auto_person_";
 
+    gazebo_msgs::SpawnModel spawn;
     spawn.request.model_name = prefix + boost::lexical_cast<std::string>(i);
+
+    ros::param::set("/" + spawn.request.model_name + "/tf_prefix", spawn.request.model_name);
+
     spawn.request.model_xml = person_urdf;
     spawn.request.robot_namespace = spawn.request.model_name;
 
