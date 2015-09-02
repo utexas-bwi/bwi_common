@@ -14,6 +14,9 @@ file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS
 roslint_python(${${PROJECT_NAME}_PY_SCRIPTS}
                ${${PROJECT_NAME}_PY_SRCS})
 
+catkin_install_python(PROGRAMS nodes/request nodes/stop_base_controller
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 ## Unit tests
 if (CATKIN_ENABLE_TESTING)
   add_subdirectory(tests)
