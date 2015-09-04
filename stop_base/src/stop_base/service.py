@@ -42,6 +42,7 @@ import rospy
 from bwi_msgs.msg import StopBaseStatus
 from bwi_msgs.srv import StopBase, StopBaseRequest, StopBaseResponse
 
+
 def make_request(status, requester):
     """ Make a stop base service request.
 
@@ -55,6 +56,7 @@ def make_request(status, requester):
     return StopBaseRequest(
         status=StopBaseStatus(status=status),
         requester=requester)
+
 
 def make_response(status):
     """ Make a stop base service response.
