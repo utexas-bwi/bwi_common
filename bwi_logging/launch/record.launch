@@ -1,8 +1,9 @@
 <launch>
 
-  <arg name="dir_path" default="$(find bwi_logging)/log_files/" />
+  <arg name="dir_path" default="" />
   <arg name="topics" default="odom amcl_pose" />
 
-  <node name="record" pkg="rosbag" type="record" args="$(arg topics) -o $(arg dir_path)" />
+  <node name="rosbag_record" pkg="bwi_logging" type="rosbag_record"
+        args="$(arg topics) -o $(arg dir_path)" />
 
 </launch>

@@ -16,6 +16,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>roslint</build_depend>
+
   <depend>cv_bridge</depend>
   <depend>geometry_msgs</depend>
   <depend>image_transport</depend>
@@ -29,5 +31,6 @@
 
   <test_depend>roslaunch</test_depend>
   <test_depend>rostest</test_depend>
+  <test_depend>rosunit</test_depend>
 
 </package>
