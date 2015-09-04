@@ -39,14 +39,12 @@ saving the results in an appropriate directory for use with the BWI
 robots.
 """
 # enable some python3 compatibility options:
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import, print_function
 
-import os
 import sys
-
 import rospy
 from subprocess import call
-
+#from .log_directory import change_dir
 
 class UsageError(Exception):
     """ Usage exception for invalid arguments. """
@@ -64,10 +62,22 @@ class LoggerNode(object):
             raise UsageError('error: no topics to record')
 
         rospy.init_node('rosbag_record')
+        account, directory = self.parameters()
 
         # this is the command we will issue
         print(str(['rosrun', 'rosbag', 'record'] + argv[1:]))
         rospy.sleep(2)
+
+    def parameters(self):
+        """ Get ROS parameter values.
+
+        :returns: account, directory
+        """
+        account = rospy.get_param('~logging_account', None)
+        rospy.loginfo('~logging_account: ' + str(account))
+        directory = rospy.get_param('~logging_directory', None)
+        rospy.loginfo('~logging_directory: ' + str(directory))
+        return account, directory
 
 
 def main(argv=None):
