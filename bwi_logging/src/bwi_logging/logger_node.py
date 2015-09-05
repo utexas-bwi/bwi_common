@@ -41,63 +41,51 @@ robots.
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
-import sys
 import rospy
-from subprocess import call
+import subprocess
+import sys
+
 from .directory import LoggingDirectory
 
 
-class UsageError(Exception):
-    """ Usage exception for invalid arguments. """
-    def __init__(self, msg):
-        self.msg = msg
+def parameters():
+    """ Get ROS parameter values.
 
-
-class LoggerNode(object):
-    """ rosbag_record logger node. """
-    def __init__(self, argv=None):
-        """ Constructor. """
-        if argv is None:
-            argv = sys.argv
-        if len(argv) < 2:
-            raise UsageError('error: no topics to record')
-
-        rospy.init_node('rosbag_record')
-
-        # configure logging directory
-        account, directory = self.parameters()
-        self.logdir = LoggingDirectory(account, directory)
-        rospy.loginfo('logs go here: ' + self.logdir.pwd())
-        self.logdir.chdir()             # change to that directory
-
-        # this is the command we will issue
-        print(str(['rosrun', 'rosbag', 'record'] + argv[1:]))
-        rospy.sleep(2)
-
-    def parameters(self):
-        """ Get ROS parameter values.
-
-        :returns: (account, directory) tuple
-        """
-        account = rospy.get_param('~logging_account', None)
-        rospy.loginfo('~logging_account: ' + str(account))
-        directory = rospy.get_param('~logging_directory', None)
-        rospy.loginfo('~logging_directory: ' + str(directory))
-        return account, directory
+    :returns: (account, directory) tuple
+    """
+    account = rospy.get_param('~logging_account', None)
+    rospy.loginfo('~logging_account: ' + str(account))
+    directory = rospy.get_param('~logging_directory', None)
+    rospy.loginfo('~logging_directory: ' + str(directory))
+    return account, directory
 
 
 def main(argv=None):
     """ Main function. """
-    try:
-        node = LoggerNode(argv)
-    except UsageError, err:
-        print(err.msg, file=sys.stderr)
+    if argv is None:
+        argv = sys.argv
+    if len(argv) < 2:
+        print('error: no topics to record', file=sys.stderr)
         print("""
 usage: rosbag_record topic1 [ topic2 ... ]
 """, file=sys.stderr)
         return 9
-    else:
-        return 0
+
+    # create node (for reading ROS parameters)
+    rospy.init_node('rosbag_record')
+
+    # configure logging directory
+    account, directory = parameters()
+    logdir = LoggingDirectory(account, directory)
+    rospy.loginfo('logs go here: ' + logdir.pwd())
+    logdir.chdir()                      # change to that directory
+
+    # this is the command we will issue:
+    cmd = ['rosrun', 'rosbag', 'record', '-obwi']
+    cmd.extend(argv[1:])
+    rospy.loginfo('running command: ' + str(cmd))
+
+    return subprocess.call(cmd)
 
 
 if __name__ == '__main__':
