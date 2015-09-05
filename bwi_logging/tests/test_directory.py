@@ -8,19 +8,29 @@ Does not require a ROS environment.
 from __future__ import absolute_import, print_function
 
 PKG='bwi_logging'
-import rospkg
-import sys
 import os
 import stat
 import unittest
 
+# module under test:
 from bwi_logging.directory import *
+
+
+def delete_file(filename):
+    """ Delete a file, not complaining if it does not exist.
+    :param filename: path to file.
+    """
+    try:
+        os.remove(filename)
+    except OSError:             # OK if file did not exist
+        pass
+
 
 class TestLoggingDirectory(unittest.TestCase):
     """Unit tests for directory module. """
 
     def test_using_no_parameters(self):
-        """Test with neither parameter provided."""
+        """ Test with neither parameter provided. """
         home = os.environ['HOME']
         ld = LoggingDirectory(None, None)
         d = home + '/.ros/bwi/bwi_logging'
@@ -29,21 +39,31 @@ class TestLoggingDirectory(unittest.TestCase):
         self.assertEqual(os.getcwd(), d)
 
     def test_invalid_account(self):
-        """Test with invalid account name parameter."""
-        acct = 'invalid_account'
+        """ Test with invalid account name parameter. """
+        acct = 'invalid_account'        # (assumed not to exist)
         ld = LoggingDirectory(acct, None)
-        d = '/tmp/bwi/bwi_logging'
+        d = '/tmp/bwi/bwi_logging'      # path of last resort
         self.assertEqual(ld.pwd(), d)
         ld.chdir()
         self.assertEqual(os.getcwd(), d)
 
     def test_explicit_path_name(self):
-        """Test with explicit path name parameter."""
-        path = '/tmp/bwi_logging/tests'
+        """ Test with explicit path name parameter. """
+        um = os.umask(0o022)            # start by suppressing group write
+        parent = '/tmp/bwi_logging'
+        os.system('rm -rf ' + parent)
+
+        # make sure at least two directories are created
+        path = os.path.join(parent, 'tests')
         ld = LoggingDirectory(None, path)
         self.assertEqual(ld.pwd(), path)
         ld.chdir()
         self.assertEqual(os.getcwd(), path)
+
+        # verify group write permissions
+        st = os.stat(path)
+        self.assertEqual(st.st_mode & stat.S_IWGRP, stat.S_IWGRP)
+        os.umask(um)                    # restore umask permissions
 
 
 if __name__ == '__main__':

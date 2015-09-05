@@ -56,33 +56,35 @@ class LoggingDirectory(object):
         """
         try_dirs = []                 # list of directories to try
         if directory is None:
-            home = os.environ.get('HOME', None)
+            home = os.path.expanduser('~')
             if account is not None:
-                # TODO: get passwd entry and extract home directory,
-                # this is just a crude approximation:
-                home = os.path.join('/home/', account)
-            if home is not None:    # have a home directory?
+                home = os.path.expanduser('~' + account)
+            if home[0] != '~':          # expansion successful?
                 try_dirs.append(os.path.join(home, '.ros',
                                              'bwi', 'bwi_logging'))
-        else:
+        else:                           # explicit directory parameter:
             try_dirs.append(directory)
 
-        # /tmp is the last resort
+        # /tmp/bwi/bwi_logging is the last resort if nothing else works
         try_dirs.append(os.path.join('/tmp', 'bwi', 'bwi_logging'))
 
         for d in try_dirs:
-            self.logdir = d
-            if os.access(d, os.W_OK):  # is it writeable?
+            if os.access(d, os.W_OK):       # is it writable?
+                self.logdir = d
                 return
-            else:                           # create one, if possible
+            else:                           # create it, if possible
                 try:
+                    um = os.umask(0o002)    # override group umask setting
                     os.makedirs(d, mode=0o2775)
-                    # TODO: setgid, set group to 'bwi'
+                    os.umask(um)            # restore umask
                 except OSError:
                     continue                # try another location
                 else:
+                    self.logdir = d
                     return
-        raise OSError
+
+        # nothing worked
+        raise OSError('error: no logging directory accessible')
 
     def chdir(self):
         """ Change current directory to the selected logging directory. """
