@@ -41,64 +41,52 @@ robots.
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
-import sys
-import rospy
-from subprocess import call
-from .directory import LoggingDirectory
+import os
 
 
-class UsageError(Exception):
-    """ Usage exception for invalid arguments. """
-    def __init__(self, msg):
-        self.msg = msg
+class LoggingDirectory(object):
+    """Logging directory object.
 
+    :param account: User account where logs are saved, or ``None``.
+    :param directory: Directory path in which to save logs, or ``None``.
+    """
 
-class LoggerNode(object):
-    """ rosbag_record logger node. """
-    def __init__(self, argv=None):
-        """ Constructor. """
-        if argv is None:
-            argv = sys.argv
-        if len(argv) < 2:
-            raise UsageError('error: no topics to record')
+    def __init__(self, account, directory):
+        """ Constructor.
 
-        rospy.init_node('rosbag_record')
-
-        # configure logging directory
-        account, directory = self.parameters()
-        self.logdir = LoggingDirectory(account, directory)
-        rospy.loginfo('logs go here: ' + self.logdir.pwd())
-        self.logdir.chdir()             # change to that directory
-
-        # this is the command we will issue
-        print(str(['rosrun', 'rosbag', 'record'] + argv[1:]))
-        rospy.sleep(2)
-
-    def parameters(self):
-        """ Get ROS parameter values.
-
-        :returns: (account, directory) tuple
+        :raises: :exc:`OSError` if no usable directory found.
         """
-        account = rospy.get_param('~logging_account', None)
-        rospy.loginfo('~logging_account: ' + str(account))
-        directory = rospy.get_param('~logging_directory', None)
-        rospy.loginfo('~logging_directory: ' + str(directory))
-        return account, directory
+        try_dirs = []                 # list of directories to try
+        if directory is None:
+            home = os.environ.get('HOME', None)
+            if account is not None:
+                # TODO: get passwd entry and extract home directory,
+                # this is just a crude approximation:
+                home = os.path.join('/home/', account)
+            if home is not None:    # have a home directory?
+                try_dirs.append(os.path.join(home, '.ros'))
+        else:
+            try_dirs.append(directory)
+        try_dirs.append('/tmp')         # /tmp is the last resort
 
+        for d in try_dirs:
+            self.logdir = os.path.join(d, 'bwi', 'bwi_logging')
+            if os.access(self.logdir, os.W_OK):  # is it writeable?
+                return
+            else:                           # create one, if possible
+                try:
+                    os.makedirs(self.logdir, mode=0o2775)
+                    # TODO: setgid, set group to 'bwi'
+                except OSError:
+                    continue                # try another location
+                else:
+                    return
+        raise OSError
 
-def main(argv=None):
-    """ Main function. """
-    try:
-        node = LoggerNode(argv)
-    except UsageError, err:
-        print(err.msg, file=sys.stderr)
-        print("""
-usage: rosbag_record topic1 [ topic2 ... ]
-""", file=sys.stderr)
-        return 9
-    else:
-        return 0
+    def chdir(self):
+        """ Change current directory to the selected logging directory. """
+        os.chdir(self.logdir)
 
-
-if __name__ == '__main__':
-    sys.exit(main())
+    def pwd(self):
+        """ :returns: selected logging directory. """
+        return self.logdir
