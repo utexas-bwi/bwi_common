@@ -71,7 +71,7 @@ usage: rosbag_record topic1 [ topic2 ... ]
 """, file=sys.stderr)
         return 9
 
-    # create node (for reading ROS parameters)
+    # create node for reading ROS parameters
     rospy.init_node('rosbag_record')
 
     # configure logging directory
@@ -81,7 +81,7 @@ usage: rosbag_record topic1 [ topic2 ... ]
     logdir.chdir()                      # change to that directory
 
     # this is the command we will issue:
-    cmd = ['rosrun', 'rosbag', 'record', '-obwi']
+    cmd = ['rosbag', 'record', '-obwi']
     cmd.extend(argv[1:])
     rospy.loginfo('running command: ' + str(cmd))
 

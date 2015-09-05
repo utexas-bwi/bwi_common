@@ -1,9 +1,13 @@
 <launch>
 
-  <arg name="dir_path" default="" />
+  <arg name="account" default="bwilab" />
+  <arg name="directory" default="" />
   <arg name="topics" default="odom amcl_pose /diagnostics" />
 
   <node name="rosbag_record" pkg="bwi_logging" type="rosbag_record"
-        args="$(arg topics) -o $(arg dir_path)" />
+        args="$(arg topics)">
+    <param name="logging_account" value="$(arg account)"/>
+    <param name="logging_directory" value="$(arg directory)"/>
+  </node>
 
 </launch>
