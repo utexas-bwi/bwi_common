@@ -73,13 +73,14 @@ class LoggingDirectory(object):
                 self.logdir = d
                 return
             else:                           # create it, if possible
+                um = os.umask(0o002)        # override group umask setting
                 try:
-                    um = os.umask(0o002)    # override group umask setting
                     os.makedirs(d, mode=0o2775)
-                    os.umask(um)            # restore umask
                 except OSError:
+                    os.umask(um)            # restore umask
                     continue                # try another location
                 else:
+                    os.umask(um)            # restore umask
                     self.logdir = d
                     return
 
