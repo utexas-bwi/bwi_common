@@ -32,11 +32,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-""".. module:: logger_node
+""".. module:: directory
 
-This Python script runs `rosbag record` on a list of ROS topics,
-saving the results in an appropriate directory for use with the BWI
-robots.
+This Python module manages the directory into which logs are saved.
 """
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
@@ -64,18 +62,21 @@ class LoggingDirectory(object):
                 # this is just a crude approximation:
                 home = os.path.join('/home/', account)
             if home is not None:    # have a home directory?
-                try_dirs.append(os.path.join(home, '.ros'))
+                try_dirs.append(os.path.join(home, '.ros',
+                                             'bwi', 'bwi_logging'))
         else:
             try_dirs.append(directory)
-        try_dirs.append('/tmp')         # /tmp is the last resort
+
+        # /tmp is the last resort
+        try_dirs.append(os.path.join('/tmp', 'bwi', 'bwi_logging'))
 
         for d in try_dirs:
-            self.logdir = os.path.join(d, 'bwi', 'bwi_logging')
-            if os.access(self.logdir, os.W_OK):  # is it writeable?
+            self.logdir = d
+            if os.access(d, os.W_OK):  # is it writeable?
                 return
             else:                           # create one, if possible
                 try:
-                    os.makedirs(self.logdir, mode=0o2775)
+                    os.makedirs(d, mode=0o2775)
                     # TODO: setgid, set group to 'bwi'
                 except OSError:
                     continue                # try another location
