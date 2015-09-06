@@ -48,18 +48,6 @@ import sys
 from .directory import LoggingDirectory
 
 
-def parameters():
-    """ Get ROS parameter values.
-
-    :returns: (account, directory) tuple
-    """
-    account = rospy.get_param('~logging_account', None)
-    rospy.loginfo('~logging_account: ' + str(account))
-    directory = rospy.get_param('~logging_directory', None)
-    rospy.loginfo('~logging_directory: ' + str(directory))
-    return account, directory
-
-
 def main(argv=None):
     """ Main function. """
     if argv is None:
@@ -75,7 +63,10 @@ usage: rosbag_record topic1 [ topic2 ... ]
     rospy.init_node('rosbag_record')
 
     # configure logging directory
-    account, directory = parameters()
+    account = rospy.get_param('~account', None)
+    rospy.loginfo('~account: ' + str(account))
+    directory = rospy.get_param('~directory', None)
+    rospy.loginfo('~directory: ' + str(directory))
     logdir = LoggingDirectory(account, directory)
     rospy.loginfo('logs go here: ' + logdir.pwd())
     logdir.chdir()                      # change to that directory

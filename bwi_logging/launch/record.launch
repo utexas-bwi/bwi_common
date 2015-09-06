@@ -6,8 +6,8 @@
 
   <node name="rosbag_record" pkg="bwi_logging" type="rosbag_record"
         args="$(arg topics)">
-    <param name="logging_account" value="$(arg account)"/>
-    <param name="logging_directory" value="$(arg directory)"/>
+    <param name="account" value="$(arg account)"/>
+    <param name="directory" value="$(arg directory)"/>
   </node>
 
 </launch>

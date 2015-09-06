@@ -55,15 +55,15 @@ class LoggingDirectory(object):
         :raises: :exc:`OSError` if no usable directory found.
         """
         try_dirs = []                 # list of directories to try
-        if directory is None:
+        if directory:
+            try_dirs.append(directory)
+        else:
             home = os.path.expanduser('~')
-            if account is not None:
+            if account:
                 home = os.path.expanduser('~' + account)
             if home[0] != '~':          # expansion successful?
                 try_dirs.append(os.path.join(home, '.ros',
                                              'bwi', 'bwi_logging'))
-        else:                           # explicit directory parameter:
-            try_dirs.append(directory)
 
         # /tmp/bwi/bwi_logging is the last resort if nothing else works
         try_dirs.append(os.path.join('/tmp', 'bwi', 'bwi_logging'))

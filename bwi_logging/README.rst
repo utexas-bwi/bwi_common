@@ -14,6 +14,10 @@ This ROS node is a wrapper for the standard `rosbag`_ ``record``
 command, which it invokes after changing to an appropriate logging
 directory.
 
+The goal of this node is to choose a good place to save the bags.
+When necessary, intermediate directories will be created, with group
+write permissions, if possible.
+
 Subscribed topics
 '''''''''''''''''
 
@@ -23,17 +27,18 @@ All topics passed as command arguments will be subscribed by the
 Parameters
 ''''''''''
 
-``~logging_account`` (string, default: "")
-    The user account on the local system in which to save bag
-    files. If none is specified, use ``${LOGNAME}`` in the current
-    environment.
+``~account`` (string, default: "")
+    A user account name on the local system for saving bag files (the
+    current user, by default).  Unless an explicit ``directory``
+    parameter was provided, save logs in the ``.ros/bwi/bwi_logging``
+    subdirectory of the ``account`` home directory.
 
-``~logging_directory`` (string, default: "")
-    The desired directory for saving ROS topic bag files. If none is
-    specified, use the ``.ros/bwi/logging`` subdirectory of the
-    ``logging_account`` home directory. If that is not accessible, use
-    ``/tmp/bwi/logging``.  When necessary and allowed, intermediate
-    directories will be created, like with ``mkdir -p``.
+``~directory`` (string, default: "")
+    An explicit directory for saving ROS topic bag files.  If
+    ``directory`` is specified, the ``account`` parameter is ignored.
+
+If none of the above locations are accessible, use
+``/tmp/bwi/bwi_logging``.
 
 Usage
 '''''
