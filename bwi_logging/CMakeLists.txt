@@ -53,8 +53,8 @@ install(DIRECTORY launch/
 catkin_install_python(PROGRAMS nodes/rosbag_record
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(FILES scripts/upload
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(PROGRAMS scripts/upload
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 # Lint Python modules
 file(GLOB_RECURSE ${PROJECT_NAME}_PY_NODES
