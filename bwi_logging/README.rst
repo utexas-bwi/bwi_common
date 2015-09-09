@@ -27,27 +27,45 @@ All topics passed as command arguments will be subscribed by the
 Parameters
 ''''''''''
 
-``~account`` (string, default: "")
-    A user account name on the local system for saving bag files (the
-    current user, by default).  Unless an explicit ``directory``
-    parameter was provided, save logs in the ``.ros/bwi/bwi_logging``
-    subdirectory of the ``account`` home directory.
+``~account`` (string, default: current user)
+    A user account name on the local system for saving bag files.
+    Unless an explicit ``directory`` parameter was provided, save logs
+    in the ``.ros/bwi/bwi_logging`` subdirectory of the ``account``
+    home directory.
 
-``~directory`` (string, default: "")
+``~directory`` (string, default: None)
     An explicit directory for saving ROS topic bag files.  If
     ``directory`` is specified, the ``account`` parameter is ignored.
 
-If none of the above locations are accessible, use
-``/tmp/bwi/bwi_logging``.
+If the ``account`` or ``directory`` selected is not accessible, bags
+are saved in ``/tmp/bwi/bwi_logging``, instead.
 
 Usage
 '''''
 
 ::
 
-    rosrun rosbag_record topic1 [ topic2 ... ]
+    rosrun bwi_logging rosbag_record topic1 [ topic2 ... ]
 
 Where each ``topic`` is the name of a ROS topic to record.
+
+Scripts
+=======
+
+upload
+------
+
+Copies any newly-saved bag files in the current directory to the lab
+server, deleting the local copy afterwards.
+
+Usage
+'''''
+
+::
+
+    cd ~bwilab/.ros/bwi/bwi_logging
+    rosrun bwi_logging upload
+
 
 .. _`bwi_logging`: http://wiki.ros.org/bwi_logging
 .. _ROS: http:/ros.org

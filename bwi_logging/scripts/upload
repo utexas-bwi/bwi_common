@@ -1,0 +1,14 @@
+#!/bin/bash
+
+## Upload saved bag files from the current directory.
+
+if [ "$HOSTNAME" == "" ]
+then    echo '$HOSTNAME must be set for this operation'
+        exit 9
+fi
+
+RSYNC=/usr/bin/rsync
+SERVER=nixons-head.csres.utexas.edu
+
+echo $RSYNC -avz --remove-sent-files -e 'ssh -p40' ./ $SERVER:~bwilab/robot/$HOSTNAME
+$RSYNC -avz --remove-sent-files -e 'ssh -p40' ./ $SERVER:~bwilab/robot/$HOSTNAME
