@@ -10,6 +10,7 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
+#include <std_srvs/Empty.h>
 #include <tf/transform_datatypes.h>
 
 ros::ServiceClient spawn_model_client;
@@ -20,6 +21,10 @@ float person_diameter = 0.5;
 float linear_velocity_multiplier = 1.0;
 float angular_velocity_multiplier = 1.0;
 std::string person_urdf;
+
+ros::ServiceServer pause_service;
+ros::ServiceServer unpause_service;
+bool global_pause;
 
 nav_msgs::OccupancyGrid map_;
 nav_msgs::OccupancyGrid inflated_map_;
@@ -38,6 +43,14 @@ std::vector<ros::Time> pause_start_times;
 ros::Publisher status_publisher;
 
 RNG rng(time(NULL));
+
+bool globalPauseCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) {
+  global_pause = true;
+}
+
+bool globalUnpauseCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) {
+  global_pause = false;
+}
 
 bwi_mapper::Point2d getPersonLocation(int person_idx, int try_alternates = 0) {
   bwi_mapper::Point2f person_loc_map(locations[person_idx].position.x, locations[person_idx].position.y);
@@ -178,16 +191,22 @@ void runner() {
         generateNewGoal(i);
       }
 
-      if (robot_paused[i]) {
-        ros::Duration d = current_time - pause_start_times[i];
-        if (d.toSec() > 10) {
-          robot_paused[i] = false;
-          generateNewGoal(i);
+      if (!global_pause) {
+        if (robot_paused[i]) {
+          ros::Duration d = current_time - pause_start_times[i];
+          if (d.toSec() > 10) {
+            robot_paused[i] = false;
+            generateNewGoal(i);
+          }
         }
-      }
 
-      if (!robot_paused[i]) {
-        sendVelocityCommand(i);
+        if (!robot_paused[i]) {
+          sendVelocityCommand(i);
+        }
+      } else {
+        // Publish zero velocity.
+        geometry_msgs::Twist twist_msg;
+        command_publisher[i].publish(twist_msg);
       }
 
       // Add this robot to the status array.
@@ -241,6 +260,10 @@ int initializeRosCommunication() {
   bwi_mapper::inflateMap(person_diameter / 2, map_, inflated_map_);
 
   status_publisher = private_nh.advertise<bwi_msgs::AvailableRobotWithLocationArray>("status", 1);
+
+  pause_service = private_nh.advertiseService("pause", globalPauseCallback);
+  unpause_service = private_nh.advertiseService("unpause", globalUnpauseCallback);
+
   return 0;
 }
 
