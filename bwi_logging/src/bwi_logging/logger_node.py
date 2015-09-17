@@ -55,12 +55,12 @@ def main(argv=None):
     if len(argv) < 2:
         print('error: no topics to record', file=sys.stderr)
         print("""
-usage: rosbag_record topic1 [ topic2 ... ]
+usage: rosrun bwi_logging record topic1 [ topic2 ... ]
 """, file=sys.stderr)
         return 9
 
     # create node for reading ROS parameters
-    rospy.init_node('rosbag_record')
+    rospy.init_node('record')
 
     # configure logging directory
     directory = rospy.get_param('~directory', None)

@@ -3,7 +3,7 @@
   <arg name="directory" default="" />
   <arg name="topics" default="odom amcl_pose /diagnostics" />
 
-  <node name="rosbag_record" pkg="bwi_logging" type="rosbag_record"
+  <node name="record" pkg="bwi_logging" type="record"
         args="$(arg topics)">
     <param name="directory" value="$(arg directory)"/>
   </node>

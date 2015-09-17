@@ -7,8 +7,8 @@ collecting, analysing and uploading log data when running BWI robots.
 ROS interface
 =============
 
-rosbag_record
--------------
+record
+------
 
 This ROS node is a wrapper for the standard `rosbag`_ ``record``
 command, which it invokes after changing to an appropriate logging
@@ -38,7 +38,7 @@ Usage
 
 ::
 
-    rosrun bwi_logging rosbag_record topic1 [ topic2 ... ]
+    rosrun bwi_logging record topic1 [ topic2 ... ]
 
 Where each ``topic`` is the name of a ROS topic to record.
 

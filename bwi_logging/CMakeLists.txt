@@ -50,7 +50,7 @@ install(TARGETS frame_recording
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
-catkin_install_python(PROGRAMS nodes/rosbag_record
+catkin_install_python(PROGRAMS nodes/record
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(PROGRAMS scripts/upload
