@@ -7,8 +7,8 @@ collecting, analysing and uploading log data when running BWI robots.
 ROS interface
 =============
 
-record
-------
+``record`` node
+---------------
 
 This ROS node is a wrapper for the standard `rosbag`_ ``record``
 command, which it invokes after changing to an appropriate logging
@@ -42,6 +42,38 @@ Usage
 
 Where each ``topic`` is the name of a ROS topic to record.
 
+
+``record`` launch script
+------------------------
+
+This ROS launch script runs the ``record`` node with appropriate
+parameters.
+
+Arguments
+'''''''''
+
+``directory`` (string, default: ``~/.ros/bwi/bwi_logging``)
+    An explicit directory for saving ROS topic bag files.
+
+``topics`` (string, default: ``odom amcl_pose /diagnostics``)
+    The ROS topics to record.
+
+Usage
+'''''
+
+To record the usual topics in the usual place::
+
+    roslaunch bwi_logging record
+
+To record different topic names::
+
+    roslaunch bwi_logging record topics:='filtered_odom /diagnostics /tf'
+
+To write the bag file in a different place::
+
+    roslaunch bwi_logging record directory:="~bwilab/.ros/bwi/bwi_logging"
+
+
 Scripts
 =======
 
@@ -57,11 +89,11 @@ server, and ``$HOSTNAME`` should be set to the part of the full domain
 name preceding the first dot.  Files already present on the server are
 neither sent or deleted.
 
-You may specify at most one of these options:
+You may specify at most one of these options::
 
-  ``-d``  delete files uploaded successfully (default)
-  ``-h``  print a help message
-  ``-k``  keep uploaded files
+    -d  delete files uploaded successfully (default)
+    -h  print a help message
+    -k  keep uploaded files
 
 Usage
 '''''
