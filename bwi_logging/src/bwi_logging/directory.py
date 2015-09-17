@@ -45,11 +45,10 @@ import os
 class LoggingDirectory(object):
     """Logging directory object.
 
-    :param account: User account where logs are saved, or ``None``.
     :param directory: Directory path in which to save logs, or ``None``.
     """
 
-    def __init__(self, account, directory):
+    def __init__(self, directory):
         """ Constructor.
 
         :raises: :exc:`OSError` if no usable directory found.
@@ -59,8 +58,6 @@ class LoggingDirectory(object):
             try_dirs.append(directory)
         else:
             home = os.path.expanduser('~')
-            if account:
-                home = os.path.expanduser('~' + account)
             if home[0] != '~':          # expansion successful?
                 try_dirs.append(os.path.join(home, '.ros',
                                              'bwi', 'bwi_logging'))

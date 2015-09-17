@@ -27,18 +27,11 @@ All topics passed as command arguments will be subscribed by the
 Parameters
 ''''''''''
 
-``~account`` (string, default: current user)
-    A user account name on the local system for saving bag files.
-    Unless an explicit ``directory`` parameter was provided, save logs
-    in the ``.ros/bwi/bwi_logging`` subdirectory of the ``account``
-    home directory.
+``~directory`` (string, default: ``~/.ros/bwi/bwi_logging``)
+    An explicit directory for saving ROS topic bag files.
 
-``~directory`` (string, default: None)
-    An explicit directory for saving ROS topic bag files.  If
-    ``directory`` is specified, the ``account`` parameter is ignored.
-
-If the ``account`` or ``directory`` selected is not accessible, bags
-are saved in ``/tmp/bwi/bwi_logging``, instead.
+If the``directory`` is not accessible, bags are saved in
+``/tmp/bwi/bwi_logging``, instead.
 
 Usage
 '''''

@@ -32,17 +32,8 @@ class TestLoggingDirectory(unittest.TestCase):
     def test_using_no_parameters(self):
         """ Test with neither parameter provided. """
         home = os.environ['HOME']
-        ld = LoggingDirectory(None, None)
+        ld = LoggingDirectory(None)
         d = home + '/.ros/bwi/bwi_logging'
-        self.assertEqual(ld.pwd(), d)
-        ld.chdir()
-        self.assertEqual(os.getcwd(), d)
-
-    def test_invalid_account(self):
-        """ Test with invalid account name parameter. """
-        acct = 'invalid_account'        # (assumed not to exist)
-        ld = LoggingDirectory(acct, None)
-        d = '/tmp/bwi/bwi_logging'      # path of last resort
         self.assertEqual(ld.pwd(), d)
         ld.chdir()
         self.assertEqual(os.getcwd(), d)
@@ -55,7 +46,7 @@ class TestLoggingDirectory(unittest.TestCase):
 
         # make sure at least two directories are created
         path = os.path.join(parent, 'tests')
-        ld = LoggingDirectory(None, path)
+        ld = LoggingDirectory(path)
         self.assertEqual(ld.pwd(), path)
         ld.chdir()
         self.assertEqual(os.getcwd(), path)

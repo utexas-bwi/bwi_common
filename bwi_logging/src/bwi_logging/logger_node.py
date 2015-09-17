@@ -63,11 +63,9 @@ usage: rosbag_record topic1 [ topic2 ... ]
     rospy.init_node('rosbag_record')
 
     # configure logging directory
-    account = rospy.get_param('~account', None)
-    rospy.loginfo('~account: ' + str(account))
     directory = rospy.get_param('~directory', None)
     rospy.loginfo('~directory: ' + str(directory))
-    logdir = LoggingDirectory(account, directory)
+    logdir = LoggingDirectory(directory)
     rospy.loginfo('logs go here: ' + logdir.pwd())
     logdir.chdir()                      # change to that directory
 
