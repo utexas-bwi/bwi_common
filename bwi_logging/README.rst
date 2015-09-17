@@ -30,7 +30,7 @@ Parameters
 ``~directory`` (string, default: ``~/.ros/bwi/bwi_logging``)
     An explicit directory for saving ROS topic bag files.
 
-If the``directory`` is not accessible, bags are saved in
+If the ``directory`` is not accessible, bags are saved in
 ``/tmp/bwi/bwi_logging``, instead.
 
 Usage
