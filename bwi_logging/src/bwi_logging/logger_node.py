@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 # Software License Agreement (BSD License)
 #
 # Copyright (C) 2015, Jack O'Quin
@@ -30,66 +32,50 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+""".. module:: logger_node
+
+This Python script runs `rosbag record` on a list of ROS topics,
+saving the results in an appropriate directory for use with the BWI
+robots.
 """
-.. module:: requester_node
-
-Stop base controller requester node.
-
-This Python module implements a requester interface for pausing or
-running the robot base.
-
-.. include:: weblinks.rst
-
-"""
-
 # enable some python3 compatibility options:
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import, print_function
 
-import sys
 import rospy
+import subprocess
+import sys
 
-from .service import StopBaseClient
-from .transitions import STATE_NAME
-
-
-class RequesterNode(object):
-    """ Stop base requester node.
-
-    :param status: requested status.
-    :type status: int
-    """
-    def __init__(self, status):
-        """ Constructor. """
-        rospy.init_node('stop_base_requester')
-        self.client = StopBaseClient()
-
-        # make the service request
-        result = self.client.stop_base(
-            status=status,
-            requester=rospy.get_name())
-
-        rospy.loginfo('Stop base is now '
-                      + STATE_NAME[result.status.status])
+from .directory import LoggingDirectory
 
 
-STATUS_OPTIONS = {
-    'RUNNING': 0, 'running': 0, 'r': 0,
-    'PAUSED': 1, 'paused': 1, 'p': 1,
-    'STOPPED': 2, 'stopped': 2, 's': 2}
+def main(argv=None):
+    """ Main function. """
+    if argv is None:
+        argv = sys.argv
+    if len(argv) < 2:
+        print('error: no topics to record', file=sys.stderr)
+        print("""
+usage: rosrun bwi_logging record topic1 [ topic2 ... ]
+""", file=sys.stderr)
+        return 9
+
+    # create node for reading ROS parameters
+    rospy.init_node('record')
+
+    # configure logging directory
+    directory = rospy.get_param('~directory', None)
+    rospy.loginfo('~directory: ' + str(directory))
+    logdir = LoggingDirectory(directory)
+    rospy.loginfo('logs go here: ' + logdir.pwd())
+    logdir.chdir()                      # change to that directory
+
+    # this is the command we will issue:
+    cmd = ['rosbag', 'record', '-obwi']
+    cmd.extend(argv[1:])
+    rospy.loginfo('running command: ' + str(cmd))
+
+    return subprocess.call(cmd)
 
 
-def main():
-    """ Requester node main entry point. """
-    if len(sys.argv) < 2 or not sys.argv[1] in STATUS_OPTIONS:
-        print(""" Usage:
-rosrun stop_base request <status>
-
-where: <status> can be:
-        'RUNNING', 'running' or 'r'
-        'PAUSED', 'paused' or 'p'
-        'STOPPED', 'stopped' or 's'
-""")
-        sys.exit(9)
-
-    node = RequesterNode(STATUS_OPTIONS[sys.argv[1]])
-    sys.exit(0)
+if __name__ == '__main__':
+    sys.exit(main())

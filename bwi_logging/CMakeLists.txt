@@ -3,18 +3,17 @@ project(bwi_logging)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    sensor_msgs
     cv_bridge
+    geometry_msgs
     image_transport
     message_filters
     nav_msgs
-    geometry_msgs
-)
+    roscpp
+    roslint
+    sensor_msgs)
 
-###################################
-## catkin specific configuration ##
-###################################
+catkin_python_setup()
+
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
 ## INCLUDE_DIRS: uncomment this if you package contains header files
@@ -22,8 +21,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    CATKIN_DEPENDS roscpp message_filters sensor_msgs nav_msgs geometry_msgs
-)
+  CATKIN_DEPENDS
+    geometry_msgs
+    message_filters
+    nav_msgs
+    roscpp
+    sensor_msgs)
 
 ###########
 ## Build ##
@@ -47,17 +50,24 @@ install(TARGETS frame_recording
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
+catkin_install_python(PROGRAMS nodes/record
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(PROGRAMS scripts/upload
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+# Lint Python modules
+file(GLOB_RECURSE ${PROJECT_NAME}_PY_NODES
+     RELATIVE ${PROJECT_SOURCE_DIR} nodes/*)
+file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS
+     RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/*.py)
+roslint_python(${${PROJECT_NAME}_PY_NODES}
+               ${${PROJECT_NAME}_PY_SRCS})
+
 #############
 ## Testing ##
 #############
 
 if (CATKIN_ENABLE_TESTING)
-
-  # these dependencies are only needed for unit testing
-  find_package(roslaunch REQUIRED)
-  find_package(rostest REQUIRED)
-
-  # parse check all the launch/*.launch files
-  roslaunch_add_file_check(launch)
-
+  add_subdirectory(tests)
 endif()

@@ -72,17 +72,17 @@ Usage
 
     rosrun stop_base request <status>
 
-Where ``<staus>`` can be:
+Where ``<status>`` can be:
 
  * ``RUNNING``, ``running`` or ``r``
  * ``PAUSED``, ``paused`` or ``p``
  * ``STOPPED``, ``stopped`` or ``s``
 
 .. _`bwi_msgs/StopBase`:
-   http://docs.ros.org/indigo/api/bwi_msgs/html/srv/StopBase.html
+   http://docs.ros.org/latest-available/api/bwi_msgs/html/srv/StopBase.html
 .. _`bwi_msgs/StopBaseStatus`:
-   http://docs.ros.org/indigo/api/bwi_msgs/html/msg/StopBaseStatus.html
+   http://docs.ros.org/latest-available/api/bwi_msgs/html/msg/StopBaseStatus.html
 .. _`geometry_msgs/Twist`:
-   http://docs.ros.org/api/geometry_msgs/html/msg/Twist.html
+   http://docs.ros.org/latest-available/api/geometry_msgs/html/msg/Twist.html
 .. _ROS: http:/ros.org
 .. _`stop_base`: http://wiki.ros.org/stop_base

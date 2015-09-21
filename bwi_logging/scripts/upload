@@ -1,0 +1,37 @@
+#!/bin/bash
+
+## Upload saved bag files from the current directory.
+
+if [ "$#" -gt "1" -o "$1" = "-h" ]
+then    echo "usage: `basename $0` [option]"
+        echo ""
+        echo "Uploads files matching 'bwi_*.bag' from the current directory to the"
+        echo "main BWI server. \$HOSTNAME should be the lowest-level domain name."
+        echo ""
+        echo "Supports at most one of these options:"
+        echo -e "\t-d\tdelete files uploaded successfully (default)"
+        echo -e "\t-h\tprint this help message"
+        echo -e "\t-k\tkeep uploaded files"
+        exit 1
+fi
+del_opt=${1:-"-d"}
+if [ "$del_opt" = "-d" ]
+then    del_opt="--remove-sent-files"
+else
+        if [ "$del_opt" = "-k" ]
+        then    del_opt=""
+        else    echo "invalid parameter: $del_opt (try -h for help)"
+                exit 2
+        fi
+fi
+
+if [ "$HOSTNAME" == "" ]
+then    echo '$HOSTNAME must be set for this operation'
+        exit 9
+fi
+
+RSYNC=/usr/bin/rsync
+SERVER=nixons-head.csres.utexas.edu
+
+echo $RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:~bwilab/robot/$HOSTNAME
+$RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:~bwilab/robot/$HOSTNAME

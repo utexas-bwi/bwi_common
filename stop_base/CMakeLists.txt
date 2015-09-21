@@ -9,9 +9,9 @@ catkin_package(CATKIN_DEPENDS bwi_msgs geometry_msgs)
 # Lint Python modules
 file(GLOB_RECURSE ${PROJECT_NAME}_PY_NODES
      RELATIVE ${PROJECT_SOURCE_DIR} nodes/*)
-file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS 
+file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS
      RELATIVE ${PROJECT_SOURCE_DIR} src/*.py)
-roslint_python(${${PROJECT_NAME}_PY_SCRIPTS}
+roslint_python(${${PROJECT_NAME}_PY_NODES}
                ${${PROJECT_NAME}_PY_SRCS})
 
 catkin_install_python(PROGRAMS nodes/request nodes/stop_base_controller
