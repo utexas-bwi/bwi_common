@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_kr_execution</name>
-  <version>0.3.6</version>
+  <version>0.3.7</version>
   <description>
     ROS nodes for using the robot's Knowledge Representation.
 
