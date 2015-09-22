@@ -2,8 +2,8 @@
 Changelog for package bwi_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.7 (2015-09-22)
+------------------
 * make logging work, even when installed as a binary package (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
 * add upload option to not delete files copied (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
 * add upload script for bags (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
@@ -31,4 +31,3 @@ Forthcoming
 * edited meta info for bwi_logging
 * added bwi_logging package
 * Contributors: Shiqi Zhang
-------------------

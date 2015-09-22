@@ -1,8 +1,8 @@
 Change history
 ==============
 
-Forthcoming
------------
+0.3.7 (2015-09-22)
+------------------
 * install stop_base nodes (`#37 <https://github.com/jack-oquin/bwi_common/issues/37>`_)
 * stop_base: fix broken links in README
 * Contributors: Jack O'Quin
