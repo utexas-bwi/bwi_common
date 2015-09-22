@@ -2,6 +2,16 @@
 Changelog for package bwi_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make logging work, even when installed as a binary package (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* add upload option to not delete files copied (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* add upload script for bags (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* add /diagnostics to default topic list (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* create logging directory, if needed (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* add wrapper node for rosbag_record (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)
+* Contributors: Jack O'Quin
+
 0.3.6 (2015-08-25)
 ------------------
 

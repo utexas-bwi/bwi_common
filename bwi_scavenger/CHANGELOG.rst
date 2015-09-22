@@ -2,6 +2,9 @@
 Changelog for package bwi_scavenger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.6 (2015-08-25)
 ------------------
 * bwi_scavenger: remove segbot_gui and bwi_rlg references (`#30 <https://github.com/utexas-bwi/bwi_common/issues/30>`_)

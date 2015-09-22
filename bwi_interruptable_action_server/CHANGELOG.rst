@@ -2,6 +2,9 @@
 Changelog for package bwi_interruptable_action_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.6 (2015-08-25)
 ------------------
 

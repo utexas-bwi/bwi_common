@@ -2,6 +2,9 @@
 Changelog for package bwi_rqt_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.6 (2015-08-25)
 ------------------
 * bwi_rqt_plugins: remove broken CMake install (`#34 <https://github.com/utexas-bwi/bwi_common/issues/34>`_)

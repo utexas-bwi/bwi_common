@@ -2,6 +2,9 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.6 (2015-08-25)
 ------------------
 * bwi_kr_execution: remove segbot_gui references (`#30 <https://github.com/utexas-bwi/bwi_common/issues/30>`_)

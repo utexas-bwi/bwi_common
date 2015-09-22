@@ -2,6 +2,9 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.6 (2015-08-25)
 ------------------
 * add SemanticParser.srv to bwi_msgs (`#30 <https://github.com/utexas-bwi/bwi_common/issues/30>`_)
