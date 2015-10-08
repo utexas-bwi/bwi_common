@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+  <name>joystick_teleop</name>
+  <version>1.0.0</version>
+  <description>
+    Allows robots to be controlled with joysticks through the use of the joy library.
+  </description>
+
+  <maintainer email="musigonzales@gmail.com">Alex Gonzales</maintainer>
+
+  <license>BSD</license>
+  
+  <url type="repository">https://github.com/utexas-bwi/segbot.git</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/segbot/issues</url>
+  
+
+  <author email="musigonzales@gmail.com">Alex Gonzales</author>
+ 
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>joy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <run_depend>joy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+
+
+  <export>
+
+  </export>
+</package>
