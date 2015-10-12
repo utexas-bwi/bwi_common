@@ -62,7 +62,7 @@ void ScavTaskWhiteBoard::callback_human_detected(const geometry_msgs::PoseStampe
         cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
 
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time(); 
-        wb_path_to_image = directory + "white_board_" + boost::posix_time::to_simple_string(curr_time); 
+        wb_path_to_image = directory + "white_board_" + boost::posix_time::to_simple_string(curr_time) + ".JPG"; 
 
         if (false == boost::filesystem::is_directory(directory)) {
             boost::filesystem::path tmp_path(directory);

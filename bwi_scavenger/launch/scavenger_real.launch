@@ -3,9 +3,9 @@
     <arg name="sim_positions" default="$(find bwi_scavenger)/support/simulation.yaml" />
     <arg name="real_positions" default="$(find bwi_scavenger)/support/real.yaml" />
 
-    <node name="scavenger" pkg="bwi_scavenger" type="scavenger" >
-        <param name="path_to_search_points" value="$(arg real_positions)" />
-    </node>
+    <param name="path_to_search_points" value="$(arg real_positions)" />
+
+    <node name="scavenger" pkg="bwi_scavenger" type="scavenger" />
 
     <include file="$(find bwi_logging)/launch/record.launch" />
 
