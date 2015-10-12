@@ -14,7 +14,7 @@
 #include "ScavTaskFetchObject.h"
 
 #define TIMEOUT (600) // return failure if not finished in 10 minutes
-#define NUM_OF_TASKS (2)
+#define NUM_OF_TASKS (4)
 #define NUM_OF_TASK_TYPES (3)
 
 int main(int argc, char **argv) {
@@ -31,8 +31,7 @@ int main(int argc, char **argv) {
 
         cnt++; 
         ros::Duration(0.1).sleep();       
-        // int r = rand() % NUM_OF_TASK_TYPES; 
-        int r = 0; 
+        int r = rand() % NUM_OF_TASK_TYPES; 
 
         if (r == 0) {
             // Color color = static_cast<Color>(rand() % COLOR_LENGTH);

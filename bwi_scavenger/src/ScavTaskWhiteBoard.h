@@ -32,6 +32,8 @@ public:
     SearchPlanner *search_planner; 
     std::string directory;
 
+    bool task_completed; 
+
     bool inRectangle(Pose p, Pose top_left, Pose top_right, Pose bottom_left); 
 }; 
 

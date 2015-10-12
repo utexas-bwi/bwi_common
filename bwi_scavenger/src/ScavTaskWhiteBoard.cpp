@@ -21,6 +21,8 @@ ScavTaskWhiteBoard::ScavTaskWhiteBoard(ros::NodeHandle *nh, std::string dir) {
     directory = dir;
     task_description = "find a person standing near a whiteboard"; 
     task_name = "White board"; 
+
+    task_completed = false; 
 }
 
 
@@ -70,6 +72,7 @@ void ScavTaskWhiteBoard::callback_human_detected(const geometry_msgs::PoseStampe
         } 
         cv::imwrite(wb_path_to_image, cv_ptr->image);
         search_planner->setTargetDetection(true); // change status to terminate the motion thread
+        task_completed = true; 
     }
 }
 
@@ -88,7 +91,7 @@ void ScavTaskWhiteBoard::motionThread() {
     search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
 
     int next_goal_index;                                                        
-    while (ros::ok()) {
+    while (ros::ok() and task_completed == false) {
         search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
         search_planner->analyzeScene(0.25*PI, PI/10.0);
         search_planner->updateBelief(next_goal_index);
@@ -105,7 +108,7 @@ void ScavTaskWhiteBoard::visionThread() {
         &ScavTaskWhiteBoard::callback_image, this);
 
     ros::Rate r(10); 
-    while (ros::ok() and r.sleep()) {
+    while (ros::ok() and r.sleep() and task_completed == false) {
         ros::spinOnce(); 
     }
 }

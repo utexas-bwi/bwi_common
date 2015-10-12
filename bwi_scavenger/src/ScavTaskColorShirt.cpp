@@ -68,7 +68,7 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
 
     if (ratio > COLOR_RATIO && ros::ok()) { 
 
-        ROS_INFO_STREAM("person wearing" << color << "shirt detected"); 
+        ROS_INFO_STREAM("person wearing " << color << " shirt detected"); 
         
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();  
         std::string time_str = boost::posix_time::to_simple_string(curr_time); 
@@ -79,8 +79,10 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
             boost::filesystem::path tmp_path(directory);
             boost::filesystem::create_directory(tmp_path);
         }
-        path_to_image = directory + "color_shirt_" + time_str; 
+        path_to_image = directory + "color_shirt_" + time_str + ".PNG"; 
         cv::imwrite(path_to_image, cv_ptr->image);
+
+        task_completed = true; 
     }
 }
 
@@ -90,7 +92,8 @@ ScavTaskColorShirt::ScavTaskColorShirt(ros::NodeHandle *nh, std::string dir, Col
     color = shirt_color; 
     task_description = "find a person wearing a color shirt: "; 
     task_name = "Color shirt: "; 
-    
+
+    task_completed = false;     
     std::ostringstream stream; 
     stream << color;       
     task_parameters.push_back(stream.str()); 
@@ -107,7 +110,7 @@ void ScavTaskColorShirt::motionThread() {
     search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
 
     int next_goal_index;                                                        
-    while (ros::ok()) {
+    while (ros::ok() and task_completed == false) {
         search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
         search_planner->analyzeScene(0.25*PI, PI/10.0);
         search_planner->updateBelief(next_goal_index);
@@ -125,7 +128,7 @@ void ScavTaskColorShirt::visionThread() {
 
     ros::Rate rate(10); 
 
-    while (ros::ok() and rate.sleep()) {
+    while (ros::ok() and rate.sleep() and task_completed == false) {
         ros::spinOnce(); 
     }
 }

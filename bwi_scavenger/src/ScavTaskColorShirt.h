@@ -44,6 +44,7 @@ public:
 
     Color color; 
     std::string directory; 
+    bool task_completed; 
 
     void callback_image_saver(const sensor_msgs::ImageConstPtr& msg); 
     void callback_human_detection(const PointCloud::ConstPtr& msg); 
