@@ -35,13 +35,13 @@ hasdoor(l3test_404, d3test_404).
 hasdoor(l3test_400, d3test_404).
 
 %hide non fluents
-%#hide elevdoor/2.
-%#hide elevhasdoor/2.
-%#hide elevator/1.
-%#hide door/1.
-%#hide thing/1.
-%#hide sameroom/2.
-%#hide orientation/1.
-%#hide floor/2.
-%#hide elevroom/1.
-%#hide elevdoor/1.
+%#show elevdoor/2.
+%#show elevhasdoor/2.
+%#show elevator/1.
+%#show door/1.
+%#show thing/1.
+%#show sameroom/2.
+%#show orientation/1.
+%#show floor/2.
+%#show elevroom/1.
+%#show elevdoor/1.

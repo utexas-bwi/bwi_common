@@ -59,3 +59,13 @@ hasdoor(l3_elev_west, d3_elev_west).
 hasdoor(l3_200, d3_elev_east).
 hasdoor(l3_200, d3_elev_west).
 
+%#show elevdoor/2.
+%#show elevhasdoor/2.
+%#show elevator/1.
+%#show door/1.
+%#show thing/1.
+%#show sameroom/2.
+%#show orientation/1.
+%#show floor/2.
+%#show elevroom/1.
+%#show elevdoor/1.
