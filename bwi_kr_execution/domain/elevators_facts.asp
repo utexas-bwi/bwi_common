@@ -51,8 +51,8 @@ door(D) :- elevdoor(D).
 
 hasdoor(l2_elev_east, d2_elev_east).
 hasdoor(l2_elev_west, d2_elev_west).
-hasdoor(l2_302, d2_elev_east).
-hasdoor(l2_302, d2_elev_west).
+hasdoor(l2_200, d2_elev_east).
+hasdoor(l2_200, d2_elev_west).
 
 hasdoor(l3_elev_east, d3_elev_east).
 hasdoor(l3_elev_west, d3_elev_west).
