@@ -59,6 +59,7 @@ hasdoor(l3_elev_west, d3_elev_west).
 hasdoor(l3_200, d3_elev_east).
 hasdoor(l3_200, d3_elev_west).
 
+%#show hasdoor/2.
 %#show elevdoor/2.
 %#show elevhasdoor/2.
 %#show elevator/1.

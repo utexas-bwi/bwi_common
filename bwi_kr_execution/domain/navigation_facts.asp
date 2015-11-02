@@ -35,8 +35,19 @@ room(l3_436).
 room(l3_512). 
 room(l3_434). 
 room(l3_432). 
-room(l3_408). 
-room(l2_302). 
+room(l3_408).
+
+room(l2_302).
+room(l2_300).
+room(l2_702).
+room(l2_700).
+room(l2_800).
+room(l2_200). 
+room(l2_600).
+room(l2_100).
+room(l2_102).
+room(l2_500).
+room(l2_400).
 
 
 door(d3_404). 
