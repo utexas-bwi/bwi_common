@@ -18,7 +18,7 @@ int total_random_persons;
 int launched_random_persons;
 std::string map_file;
 float person_diameter = 0.5;
-float linear_velocity_multiplier = 1.0;
+float linear_velocity_multiplier = 0.1;
 float angular_velocity_multiplier = 1.0;
 std::string person_urdf;
 
@@ -282,7 +282,10 @@ void launchRandomPersons() {
     spawn.request.robot_namespace = spawn.request.model_name;
 
     // TODO handle spawn location.
-    spawn.request.initial_pose.position.y = 4 + 0.8*i;
+    // spawn.request.initial_pose.position.y = 4 + 0.8*i;
+    // spawn.request.initial_pose.orientation.w = 1.0;
+    spawn.request.initial_pose.position.x = 6.46 + 0.8*i;
+    spawn.request.initial_pose.position.y = 8.22621440887;
     spawn.request.initial_pose.orientation.w = 1.0;
 
     spawn.response.success = false;

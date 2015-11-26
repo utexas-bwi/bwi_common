@@ -1,7 +1,7 @@
 <launch>
 
-  <arg name="map_file" />
-  <arg name="num_persons" default="3" />
+  <arg name="map_file" default="$(find utexas_gdc)/maps/simulation/3ne/doors_map_corpp.yaml"/>
+  <arg name="num_persons" default="1" />
   <arg name="urdf_file" default="$(find bwi_gazebo_entities)/persons/automated_person.urdf.xacro" />
 
   <node name="random_persons_controller" pkg="bwi_gazebo_entities" type="random_persons_controller"
