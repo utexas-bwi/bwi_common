@@ -12,10 +12,13 @@
 #include "ScavTaskColorShirt.h"
 #include "ScavTaskWhiteBoard.h"
 #include "ScavTaskFetchObject.h"
+#include "ScavTaskHumanFollowing.h"
 
 #define TIMEOUT (600) // return failure if not finished in 10 minutes
 #define NUM_OF_TASKS (4)
-#define NUM_OF_TASK_TYPES (3)
+#define NUM_OF_TASK_TYPES (4)
+
+using namespace scav_task_human_following; 
 
 int main(int argc, char **argv) {
 
@@ -43,6 +46,9 @@ int main(int argc, char **argv) {
         } 
         else if (r == 2) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskFetchObject(nh, dir), TODO)); 
+        } 
+        else if (r == 3) {
+            task_manager->addTask(new TaskWithStatus(new ScavTaskHumanFollowing(nh, dir), TODO)); 
         } 
         else {
             cnt--; 

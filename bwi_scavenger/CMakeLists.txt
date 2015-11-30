@@ -51,6 +51,7 @@ include_directories(
   ${YAML_CPP_INCLUDE_DIRS})
 
 add_executable(scavenger src/scavenger.cpp src/ScavTaskColorShirt.cpp 
+    src/ScavTaskHumanFollowing.cpp
     src/ScavTaskFetchObject.cpp src/ScavTaskWhiteBoard.cpp src/TaskManager.cpp
     src/SearchPlanner.cpp)
 target_link_libraries(scavenger
