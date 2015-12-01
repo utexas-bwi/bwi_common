@@ -17,7 +17,7 @@ namespace scav_task_human_following {
 
 sensor_msgs::ImageConstPtr wb_image; 
 std::string wb_path_to_image; 
-geometry_msgs::Pose human_pose; 
+geometry_msgs::PoseStamped human_pose; 
 bool human_detected; 
 
 ros::Time detected_time; 
@@ -42,20 +42,26 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
     ROS_INFO("People detected");
 
-    cv_bridge::CvImageConstPtr cv_ptr;
-    cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
+    // cv_bridge::CvImageConstPtr cv_ptr;
+    // cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
 
-    boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time(); 
-    wb_path_to_image = directory + "human_following_" + 
-        boost::posix_time::to_simple_string(curr_time) + ".JPG"; 
+    // boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time(); 
+    // wb_path_to_image = directory + "human_following_" + 
+    //     boost::posix_time::to_simple_string(curr_time) + ".JPG"; 
 
-    if (false == boost::filesystem::is_directory(directory)) {
-        boost::filesystem::path tmp_path(directory);
-        boost::filesystem::create_directory(tmp_path);
-    } 
-    cv::imwrite(wb_path_to_image, cv_ptr->image);
-    search_planner->setTargetDetection(true); // change status to terminate the motion thread
-    human_pose = msg->pose; 
+    // if (false == boost::filesystem::is_directory(directory)) {
+    //     boost::filesystem::path tmp_path(directory);
+    //     boost::filesystem::create_directory(tmp_path);
+    // } 
+    // cv::imwrite(wb_path_to_image, cv_ptr->image);
+    // search_planner->setTargetDetection(true); // change status to terminate the motion thread
+    human_pose.pose.position = msg->pose.position; 
+    human_pose.pose.orientation.x = 0;
+    human_pose.pose.orientation.y = 0;
+    human_pose.pose.orientation.z = 0;
+    human_pose.pose.orientation.w = 1; 
+
+    human_pose.header.frame_id = "level_mux/map";
 
 }
 
