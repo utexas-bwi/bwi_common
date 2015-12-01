@@ -13,12 +13,14 @@
 
 
 
-namespace scav_task_human_following{
-
-typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
+namespace scav_task_human_following {
 
 sensor_msgs::ImageConstPtr wb_image; 
 std::string wb_path_to_image; 
+geometry_msgs::Pose human_pose; 
+bool human_detected; 
+
+ros::Time detected_time; 
 
 ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) {
     this->nh = nh; 
@@ -30,10 +32,14 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
         "/move_base_interruptable_simple/goal", 100);
 
     task_completed = false; 
+    human_detected = false; 
 }
 
 void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
+    human_detected = true; 
+    detected_time = ros::Time::now(); 
+
     ROS_INFO("People detected");
 
     cv_bridge::CvImageConstPtr cv_ptr;
@@ -49,8 +55,8 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
     } 
     cv::imwrite(wb_path_to_image, cv_ptr->image);
     search_planner->setTargetDetection(true); // change status to terminate the motion thread
-    pub_simple_goal.publish(msg->pose); 
-    task_completed = true; 
+    human_pose = msg->pose; 
+
 }
 
 void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& msg) {
@@ -60,7 +66,21 @@ void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& ms
 void ScavTaskHumanFollowing::motionThread() {
 
     ros::Rate r(10); 
-    while (ros::ok() and r.sleep() and task_completed == false) {}
+    while (ros::ok() and r.sleep() and task_completed == false) {
+
+        ros::spinOnce(); 
+        if (human_detected) {
+
+            pub_simple_goal.publish(human_pose); 
+            ros::spinOnce(); 
+            pub_simple_goal.publish(human_pose); 
+            ros::spinOnce(); 
+            pub_simple_goal.publish(human_pose); 
+            ros::spinOnce(); 
+
+            task_completed = true; 
+        }
+    }
 }
 
 void ScavTaskHumanFollowing::visionThread() {
