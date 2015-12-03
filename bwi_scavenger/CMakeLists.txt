@@ -54,15 +54,22 @@ add_executable(scavenger src/scavenger.cpp src/ScavTaskColorShirt.cpp
     src/ScavTaskHumanFollowing.cpp
     src/ScavTaskFetchObject.cpp src/ScavTaskWhiteBoard.cpp src/TaskManager.cpp
     src/SearchPlanner.cpp)
+
 target_link_libraries(scavenger
     ${catkin_LIBRARIES}
     ${PCL_LIBRARY_DIRS}
     ${OpenCV_LIBRARIES}
     ${YAML_CPP_LIBRARIES})
 
+add_executable(draw_trajectory trajectory/draw_trajectory.cpp)
+
+target_link_libraries(draw_trajectory ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
 
-install(TARGETS scavenger
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS 
+          scavenger 
+          draw_trajectory
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
