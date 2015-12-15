@@ -2,24 +2,43 @@
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Vector3.h>
 #include <cmath>
+#include <boost/lexical_cast.hpp>
 
 visualization_msgs::Marker robot_line_strip;
 visualization_msgs::Marker human_line_strip;
+visualization_msgs::Marker text_view_facing;
+
 
 ros::Publisher robot_marker_pub;
 ros::Publisher human_marker_pub;
+ros::Publisher text_marker_pub;
 
 ros::Time frame_time; 
 bool task_done; 
+double scav_distance = 0.0; 
 
 void robot_callback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {
+
     geometry_msgs::Point p;
     p.x = msg->pose.pose.position.x; 
     p.y = msg->pose.pose.position.y; 
     p.z = msg->pose.pose.position.z; 
+
+    if (false  == robot_line_strip.points.empty()) {
+        double dis = pow((p.x-robot_line_strip.points.back().x), 2.0) + 
+                     pow((p.y-robot_line_strip.points.back().y), 2.0); 
+        scav_distance += pow(dis, 0.5); 
+    }
     robot_line_strip.points.push_back(p); 
 
+    text_view_facing.pose.position = p;
+    text_view_facing.pose.position.y += 1.0;
+    text_view_facing.text = boost::lexical_cast<std::string>(scav_distance);
+
+    text_marker_pub.publish(text_view_facing); 
     robot_marker_pub.publish(robot_line_strip);
 }
 
@@ -49,6 +68,7 @@ int main( int argc, char** argv )
 
     robot_marker_pub = nh.advertise<visualization_msgs::Marker> ("scav_robot_marker", 10);
     human_marker_pub = nh.advertise<visualization_msgs::Marker> ("scav_human_marker", 10);
+    text_marker_pub = nh.advertise<visualization_msgs::Marker> ("scav_text_marker" ,10); 
 
     ros::Subscriber robot_pos_sub = nh.subscribe("/amcl_pose", 100, robot_callback); 
     ros::Subscriber human_pos_sub = nh.subscribe("/segbot_pcl_person_detector/human_poses", 100, human_callback); 
@@ -73,6 +93,19 @@ int main( int argc, char** argv )
 
     robot_line_strip.color.b = 1.0;
     human_line_strip.color.r = 1.0;
+
+    // for adding text
+    geometry_msgs::Vector3 vec; 
+    vec.x = vec.y = vec.z = 1.0; 
+    text_view_facing.header.frame_id = "level_mux/map";
+    text_view_facing.header.stamp = ros::Time::now();
+    text_view_facing.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    text_view_facing.ns = "trajectory_namespace";
+    text_view_facing.id = 3; 
+    text_view_facing.scale = vec; 
+    text_view_facing.color.a = text_view_facing.color.r = 1.0; 
+    text_view_facing.color.b = 0.5; 
+    text_view_facing.pose.orientation.w = 1.0;
 
     ros::Rate r(10);
 
