@@ -1,7 +1,11 @@
 <launch>
 
   <arg name="directory" default="" />
-  <arg name="topics" default="odom amcl_pose /diagnostics" />
+  <arg name="topics" default="odom_1hz amcl_pose /diagnostics" />
+
+  <!-- drop 99 out of every 100 messages from the odom topic -->
+  <node name="drop_odom" pkg="topic_tools" type="drop"
+        args="odom 99 100 odom_1hz"/>
 
   <node name="record" pkg="bwi_logging" type="record"
         args="$(arg topics)">
