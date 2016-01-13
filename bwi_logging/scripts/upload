@@ -30,12 +30,28 @@ then    echo '$HOSTNAME must be set for this operation'
         exit 9
 fi
 
+# See if there is anything to do.
+if ! ls bwi_*.bag 1> /dev/null 2>&1
+then    echo "No new bag files here to upload."
+        exit 0
+fi
+
+# Make a subdirectory for the compressed files.
+COMPRESSED="compressed"
+mkdir -p $COMPRESSED
+
+# Compress the data, then remove the uncompressed copies.
+rosbag compress --output-dir=$COMPRESSED bwi_*.bag
+rm -f bwi_*.bag
+
 RSYNC=/usr/bin/rsync
 SERVER=nixons-head.csres.utexas.edu
 TARGET_DIR=~bwilab/robot/$HOSTNAME
 
-# Make sure target directory exists:
+# Make sure the target directory exists:
 ssh -p40 $SERVER mkdir -p $TARGET_DIR
 
+# Copy compressed files to the server
+cd $COMPRESSED
 echo $RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:$TARGET_DIR
-$RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:$TARGET_DIR
+exec $RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:$TARGET_DIR
