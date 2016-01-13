@@ -32,6 +32,10 @@ fi
 
 RSYNC=/usr/bin/rsync
 SERVER=nixons-head.csres.utexas.edu
+TARGET_DIR=~bwilab/robot/$HOSTNAME
 
-echo $RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:~bwilab/robot/$HOSTNAME
-$RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:~bwilab/robot/$HOSTNAME
+# Make sure target directory exists:
+ssh -p40 $SERVER mkdir -p $TARGET_DIR
+
+echo $RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:$TARGET_DIR
+$RSYNC -avz $del_opt -e 'ssh -p40' bwi_*.bag $SERVER:$TARGET_DIR
