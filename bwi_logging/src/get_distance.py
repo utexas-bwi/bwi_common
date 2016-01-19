@@ -23,8 +23,9 @@ for filename in filenames:
     if not filename.endswith('.bag'):
         continue
 
-    print('working on: ' + path+filename)
-    bag = rosbag.Bag(path+filename)
+    fpath = os.path.join(path, filename)
+    print('working on: ' + fpath)
+    bag = rosbag.Bag(fpath)
 
     time_start = -1
     time_consumed = 0
@@ -34,7 +35,7 @@ for filename in filenames:
     y = None
 
     time_current = -1
-    for topic, msg, t in bag.read_messages(topics=['odom']):
+    for topic, msg, t in bag.read_messages(topics=['odom_1hz']):
 
         time_current = int(msg.header.stamp.secs)
         x_current = float(msg.pose.pose.position.x)
@@ -56,7 +57,7 @@ for filename in filenames:
 
     bag.close()
 
-    f = open(path+output_filename, 'a')
+    f = open(os.path.join(path, output_filename), 'a')
     f.write(strftime("%Y-%m-%d %H:%M:%S", gmtime()) + \
             '  filename: ' + filename + \
             '  time: ' + str(time_consumed) + \
