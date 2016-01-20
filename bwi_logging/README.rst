@@ -77,6 +77,24 @@ To write the bag file in a different place::
 Scripts
 =======
 
+distance_traveled
+-----------------
+
+Prints the time comsumed and distance traveled for one or more ROS bag
+files listed on the command line. Invalid files, or names not ending
+in ".bag" are reported as having zero duration and zero distance.
+
+Usage
+'''''
+::
+    rosrun bwi_logging distance_traveled bag1 [bag2 ...]
+
+Example
+'''''''
+::
+    $ rosrun bwi_logging distance_traveled bwi_2016-01-06-11-13-34.bag  
+      time: 2:04:08  distance: 2999.99  filename: bwi_2016-01-06-11-13-34.bag
+
 upload
 ------
 

@@ -32,23 +32,37 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-""".. module:: distance
+""".. module:: bagfile
 
-This Python module manages the directory into which logs are saved.
+This Python module provides function for accessing information saved
+in ROS bag files.
+
 """
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
-import datetime
 import os
 import rosbag
-import sys
 
-def get_distance(filename):
+def distance_traveled(filename):
+    """Compute distance traveled and time consumed.
 
-    bag = rosbag.Bag(filename)
+    :param: filename path to bag file.
+    :type:  str
+
+    :returns: (time_consumed, distance_traveled, filename) tuple.
+              The time is in seconds, distance in meters.
+
+    Reports zero time and distance if filename is not a valid bag file.
+    """
+
+    try:
+        bag = rosbag.Bag(filename)
+    except IOError:
+        return 0, 0.0, filename
+
     time_start = -1
-    distance_traveled = 0.0
+    total_distance = 0.0
     time_current = -1
     x = None
     y = None
@@ -65,30 +79,10 @@ def get_distance(filename):
             time_start = time_current
             continue
 
-        distance_traveled += ((x_current - x)**2 + (y_current - y)**2)**0.5
+        total_distance += ((x_current - x)**2 + (y_current - y)**2)**0.5
         x = x_current
         y = y_current
 
     bag.close()
     time_consumed = time_current - time_start
-    return filename, time_consumed, distance_traveled
-
-
-def main(argv=None):
-    """ Main function (for testing). """
-    if argv is None:
-        argv = sys.argv
-    if len(argv) != 2:
-        print('error: no bag file name', file=sys.stderr)
-        print("""
-usage: rosrun bwi_logging distance.py filename
-""", file=sys.stderr)
-        return 9
-    f, t, d = get_distance(argv[1])
-    print('  filename: ' + f +
-          '  time: ' + str(datetime.timedelta(seconds=t)) +
-          '  distance: ' + str(d) + '\n')
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    return time_consumed, total_distance, filename
