@@ -50,13 +50,10 @@ install(TARGETS frame_recording
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
-catkin_install_python(PROGRAMS nodes/record
+catkin_install_python(PROGRAMS nodes/record scripts/distance_traveled
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS
-          scripts/clone_server
-          scripts/distance_traveled
-          scripts/upload
+install(PROGRAMS scripts/clone_server scripts/upload
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 # Lint Python modules
