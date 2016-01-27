@@ -53,7 +53,10 @@ install(DIRECTORY launch/
 catkin_install_python(PROGRAMS nodes/record
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS scripts/upload scripts/distance_traveled
+install(PROGRAMS
+          scripts/clone_server
+          scripts/distance_traveled
+          scripts/upload
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 # Lint Python modules
