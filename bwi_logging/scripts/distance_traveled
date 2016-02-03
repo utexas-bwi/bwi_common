@@ -15,6 +15,9 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(9)
 
+    tot_time = 0
+    tot_dist = 0.0
+
     for filename in sys.argv[1:]:
 
         if not filename.endswith('.bag'):
@@ -24,5 +27,11 @@ if __name__ == '__main__':
         print('  time: ' + str(datetime.timedelta(seconds=t)) +
               '  distance: ' + "{0:.2f}".format(d) +
               '  filename: ' + f)
+
+        tot_time += t
+        tot_dist += d
+
+    print('\ntotal time:     ' + str(datetime.timedelta(seconds=tot_time)) +
+          '\ntotal distance: ' + "{0:.2f}".format(tot_dist))
 
     sys.exit(0)
