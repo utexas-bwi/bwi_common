@@ -12,7 +12,6 @@
         args="$(arg topics)">
     <param name="directory"   value="$(arg directory)"/>
     <param name="exp_topics"  value="$(arg exp_topics)"/>
-    <param name="topics"      value="$(arg topics)"/>
   </node>
 
 </launch>
