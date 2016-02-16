@@ -44,20 +44,13 @@ from __future__ import absolute_import, print_function
 import rospy
 import subprocess
 import sys
+import os
 
 from .directory import LoggingDirectory
 
 
 def main(argv=None):
     """ Main function. """
-    if argv is None:
-        argv = sys.argv
-    if len(argv) < 2:
-        print('error: no topics to record', file=sys.stderr)
-        print("""
-usage: rosrun bwi_logging record topic1 [ topic2 ... ]
-""", file=sys.stderr)
-        return 9
 
     # create node for reading ROS parameters
     rospy.init_node('record')
@@ -69,12 +62,47 @@ usage: rosrun bwi_logging record topic1 [ topic2 ... ]
     rospy.loginfo('logs go here: ' + logdir.pwd())
     logdir.chdir()                      # change to that directory
 
-    # this is the command we will issue:
-    cmd = ['rosbag', 'record', '-obwi']
-    cmd.extend(argv[1:])
-    rospy.loginfo('running command: ' + str(cmd))
+    # get the topics to log
+    topics = rospy.get_param('~topics', None)
+    rospy.loginfo('topics to record: ' + str(topics))
 
-    return subprocess.call(cmd)
+    # get the experimental topics to log
+    exp_topics = rospy.get_param('~exp_topics', None)
+    rospy.loginfo('exp_topics to record: ' + str(exp_topics))
+
+    # delete the parameters from the server to prevent confusion
+    if rospy.has_param("~topics"):      rospy.delete_param("~topics")
+    if rospy.has_param("~exp_topics"):  rospy.delete_param("~exp_topics")
+
+    # ensure the topics are set
+    if topics == None:
+        print('error: no topics to record', file=sys.stderr)
+        print("""
+    usage: rosrun bwi_logging _topics:=\"topic1 topic2 ...\" [_exp_topics:=\"topic3 topic4 ...\"]
+    """, file=sys.stderr)
+        return 9
+
+    # Record default topics
+    cmd = ['rosbag', 'record', '-obwi']
+    cmd.extend(topics.split())
+    rospy.loginfo('about to run command: ' + str(cmd))
+
+    # Record experimental topics
+    experimental = False
+    if exp_topics != None:
+        cmd_exp = ['rosbag', 'record', '-oextra']
+        cmd_exp.extend(exp_topics.split())
+        rospy.loginfo('about to fork and run command: ' + str(cmd_exp))
+        experimental = True
+
+    if experimental == False:
+        return subprocess.call(cmd)
+    else:
+        pid = os.fork()
+        if pid == 0:
+            return subprocess.call(cmd)
+        else:
+            return subprocess.call(cmd_exp)
 
 
 if __name__ == '__main__':
