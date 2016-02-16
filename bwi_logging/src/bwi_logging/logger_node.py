@@ -90,7 +90,7 @@ def main(argv=None):
     # Record experimental topics
     experimental = False
     if exp_topics != None:
-        cmd_exp = ['rosbag', 'record', '-oexp']
+        cmd_exp = ['rosbag', 'record', '-oextra']
         cmd_exp.extend(exp_topics.split())
         rospy.loginfo('about to fork and run command: ' + str(cmd_exp))
         experimental = True
@@ -102,7 +102,6 @@ def main(argv=None):
         if pid == 0:
             return subprocess.call(cmd)
         else:
-            # delete the parameters from the server to prevent confusion
             return subprocess.call(cmd_exp)
 
 
