@@ -11,6 +11,7 @@
   <node name="record" pkg="bwi_logging" type="record"
         args="$(arg topics)">
     <param name="directory"   value="$(arg directory)"/>
+    <param name="topics"      value="$(arg topics)" />
     <param name="exp_topics"  value="$(arg exp_topics)"/>
   </node>
 
