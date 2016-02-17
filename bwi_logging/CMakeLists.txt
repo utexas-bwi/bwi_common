@@ -28,24 +28,9 @@ catkin_package(
     roscpp
     sensor_msgs)
 
-###########
-## Build ##
-###########
-
-include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
-
-add_executable(frame_recording src/frame_recording.cpp)
-target_link_libraries(frame_recording ${catkin_LIBRARIES})
-
 #############
 ## Install ##
 #############
-
-install(TARGETS frame_recording
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
 
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
@@ -53,8 +38,9 @@ install(DIRECTORY launch/
 catkin_install_python(PROGRAMS nodes/record
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS scripts/upload
-        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+#############
+## Testing ##
+#############
 
 # Lint Python modules
 file(GLOB_RECURSE ${PROJECT_NAME}_PY_NODES
@@ -63,10 +49,6 @@ file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS
      RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/*.py)
 roslint_python(${${PROJECT_NAME}_PY_NODES}
                ${${PROJECT_NAME}_PY_SRCS})
-
-#############
-## Testing ##
-#############
 
 if (CATKIN_ENABLE_TESTING)
   add_subdirectory(tests)
