@@ -48,8 +48,8 @@ import sys
 from .directory import LoggingDirectory
 
 
-""" Main function. """
 def main(argv=None):
+    """ Main function. """
 
     # create node for reading ROS parameters
     rospy.init_node('record')
@@ -58,9 +58,7 @@ def main(argv=None):
     topics = rospy.get_param('~topics', None)
     if topics == None or topics == "":
         print('error: no topics to record', file=sys.stderr)
-        print("""
-usage: rosrun bwi_logging record topic1 [ topic2 ... ]
-""", file=sys.stderr)
+        print(""" usage: rosrun bwi_logging record _topics:=\"topic1 topic2 ...\" [_directory:=\"\"] [_prefix:=\"bwi\"] """, file=sys.stderr)
         return 9
     rospy.loginfo('topics to record: ' + topics)
 
@@ -73,11 +71,13 @@ usage: rosrun bwi_logging record topic1 [ topic2 ... ]
 
     # get the file prefix
     prefix = rospy.get_param('~prefix', 'bwi')
+    rospy.loginfo('logging with prefix: ' + str(prefix))
 
     # this is the command we will issue:
     cmd = ['rosbag', 'record', '-o'+prefix]
     cmd.extend(topics.split())
     rospy.loginfo('running command: ' + str(cmd))
+
 
     # run the command
     return subprocess.call(cmd)
