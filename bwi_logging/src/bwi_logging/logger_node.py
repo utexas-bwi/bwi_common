@@ -74,7 +74,7 @@ def main(argv=None):
     rospy.loginfo('logging with prefix: ' + str(prefix))
 
     # this is the command we will issue:
-    cmd = ['rosbag', 'record', '-o'+prefix]
+    cmd = ['rosbag', 'record', '-o' + prefix, '-j']
     cmd.extend(topics.split())
     rospy.loginfo('running command: ' + str(cmd))
 
