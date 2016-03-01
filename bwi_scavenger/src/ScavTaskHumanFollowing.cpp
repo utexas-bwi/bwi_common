@@ -31,7 +31,7 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
     pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>(
         "/move_base_interruptable_simple/goal", 100);
 
-    task_completed = false; 
+    // task_completed = false; 
     human_detected = false; 
 }
 
@@ -84,7 +84,7 @@ void ScavTaskHumanFollowing::motionThread() {
             pub_simple_goal.publish(human_pose); 
             ros::spinOnce(); 
 
-            task_completed = true; 
+            // task_completed = true; 
         }
     }
 }
@@ -99,7 +99,7 @@ void ScavTaskHumanFollowing::visionThread() {
         1, &ScavTaskHumanFollowing::callback_image, this);
 
     ros::Rate r(10); 
-    while (ros::ok() and r.sleep() and task_completed == false) {
+    while (ros::ok() and r.sleep()) {  
         ros::spinOnce(); 
     }
 }
