@@ -16,22 +16,26 @@ class ScavTaskHumanFollowing : public ScavTask {
 public:
 
     ScavTaskHumanFollowing() {}
-    ScavTaskHumanFollowing(ros::NodeHandle *node_handle, std::string path_of_dir); 
+    ScavTaskHumanFollowing(ros::NodeHandle *node_handle, std::string path_of_dir);
 
-    void executeTask(int timeout, TaskResult &result, std::string &record); 
+    void executeTask(int timeout, TaskResult &result, std::string &record);
     void visionThread();
-    void motionThread(); 
+    void motionThread();
 
-    void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg); 
-    void callback_image(const sensor_msgs::ImageConstPtr& msg); 
+    void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    void callback_image(const sensor_msgs::ImageConstPtr& msg);
 
-    void moveToPose(const geometry_msgs::Pose); 
+    void amclPoseCallback(
+        const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
 
-    SearchPlanner *search_planner; 
+
+    void moveToPose(const geometry_msgs::Pose);
+
+    SearchPlanner *search_planner;
     std::string directory;
-    ros::Publisher pub_simple_goal; 
+    ros::Publisher pub_simple_goal;
 
-    bool task_completed; 
-}; 
+    bool task_completed;
+};
 }
 #endif
