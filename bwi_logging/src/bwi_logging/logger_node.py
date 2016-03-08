@@ -85,7 +85,11 @@ def main(argv=None):
     # run the rosbag command
     status = subprocess.call(cmd)
 
+    rospy.loginfo('rosbag returned status: ' + str(status))
+
     if status == 0 and prefix == DEFAULT_PREFIX:
+
+        rospy.loginfo('start uploading bags')
 
         # In the background, begin uploading the newly-written bag to
         # the BWI server:
