@@ -91,7 +91,10 @@ def main(argv=None):
         # the BWI server:
         upload_cmd = ['/usr/bin/nohup', '/usr/local/bin/bwi',
                       'bags', '-d', logdir.pwd(), prefix]
-        subprocess.call(upload_cmd)
+        try:
+            subprocess.Popen(upload_cmd)
+        except OSError as e:
+            rospy.logwarn('BWI bags upload failed: ' + str(e))
 
     return status
 
