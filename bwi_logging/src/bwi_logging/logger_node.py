@@ -92,8 +92,9 @@ def main(argv=None):
         rospy.loginfo('start uploading bags')
 
         # In the background, begin uploading the newly-written bag to
-        # the BWI server:
-        upload_cmd = ['/usr/bin/nohup', '/usr/local/bin/bwi',
+        # the BWI server.  The setsid isolates the uploading scripts
+        # from ROS shutdown signals.
+        upload_cmd = ['/usr/bin/setsid', '/usr/local/bin/bwi',
                       'bags', '-d', logdir.pwd(), prefix]
         try:
             subprocess.Popen(upload_cmd)
