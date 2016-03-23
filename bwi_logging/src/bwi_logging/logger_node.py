@@ -94,9 +94,10 @@ def main(argv=None):
 
         # In the background, begin uploading the newly-written bag to
         # the BWI server.  The setsid isolates the uploading scripts
-        # from ROS shutdown signals.
+        # from ROS shutdown signals.  The -w120 waits two minutes
+        # before starting to upload.
         upload_cmd = ['/usr/bin/setsid', '/usr/local/bin/bwi',
-                      'bags', '-w20', '-d', logdir.pwd(), prefix, '&']
+                      'bags', '-w120', '-d', logdir.pwd(), prefix, '&']
         cmd_str = ' '.join(x for x in upload_cmd)
         print('running command: ' + cmd_str)
         os.system(cmd_str)
