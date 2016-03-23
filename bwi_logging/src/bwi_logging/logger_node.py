@@ -41,6 +41,7 @@ robots.
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
+import os
 import rospy
 import subprocess
 import sys
@@ -95,11 +96,10 @@ def main(argv=None):
         # the BWI server.  The setsid isolates the uploading scripts
         # from ROS shutdown signals.
         upload_cmd = ['/usr/bin/setsid', '/usr/local/bin/bwi',
-                      'bags', '-d', logdir.pwd(), prefix]
-        try:
-            subprocess.Popen(upload_cmd)
-        except OSError as e:
-            rospy.logwarn('BWI bags upload failed: ' + str(e))
+                      'bags', '-w20', '-d', logdir.pwd(), prefix, '&']
+        cmd_str = ' '.join(x for x in upload_cmd)
+        print('running command: ' + cmd_str)
+        os.system(cmd_str)
 
     return status
 
