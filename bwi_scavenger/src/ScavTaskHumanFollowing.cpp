@@ -29,14 +29,19 @@ ros::Time detected_time;
 
 
 
-ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) {
+ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) : ac("move_base", true) {
+
     this->nh = nh;
     directory = dir;
     task_description = "following a human for a distance";
     task_name = "Human following";
 
-    pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>(
-        "/move_base_interruptable_simple/goal", 100);
+    while (!ac.waitForServer(ros::Duration(5.0)))
+    {
+        ROS_INFO("Waiting for the move_base action server to come up");
+    }
+    // pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>(
+    //     "/move_base_interruptable_simple/goal", 100);
 
     // task_completed = false;
     human_detected = false;
@@ -64,6 +69,7 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
     human_pose.pose.position = msg->pose.position;
     human_pose.header.frame_id = "level_mux/map";
+    human_pose.header.stamp = msg->header.stamp;
     human_pose.pose.orientation.x = 0;
     human_pose.pose.orientation.y = 0;
     human_pose.pose.orientation.z = 0;
@@ -108,13 +114,9 @@ void ScavTaskHumanFollowing::motionThread() {
 
         ros::spinOnce();
         if (human_detected) {
-
-            pub_simple_goal.publish(human_following_pose);
-            ros::spinOnce();
-            pub_simple_goal.publish(human_following_pose);
-            ros::spinOnce();
-            pub_simple_goal.publish(human_following_pose);
-            ros::spinOnce();
+            move_base_msgs::MoveBaseGoal goal;
+            goal.target_pose = human_following_pose;
+            ac.sendGoal(goal);
 
             human_detected = false;
             // task_completed = true;

@@ -10,12 +10,17 @@
 #include "ScavTask.h"
 #include "SearchPlanner.h"
 
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+
 namespace scav_task_human_following {
 
 class ScavTaskHumanFollowing : public ScavTask {
 public:
 
-    ScavTaskHumanFollowing() {}
+    ScavTaskHumanFollowing() : ac("") {}
     ScavTaskHumanFollowing(ros::NodeHandle *node_handle, std::string path_of_dir);
 
     void executeTask(int timeout, TaskResult &result, std::string &record);
@@ -33,7 +38,11 @@ public:
 
     SearchPlanner *search_planner;
     std::string directory;
-    ros::Publisher pub_simple_goal;
+
+    MoveBaseClient ac;
+
+    // ros::Publisher pub_simple_goal;
+    // ros::Subscriber sub_goal_result;
 
     bool task_completed;
 };
