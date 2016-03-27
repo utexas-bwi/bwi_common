@@ -19,11 +19,15 @@ namespace scav_task_human_following {
 sensor_msgs::ImageConstPtr wb_image;
 std::string wb_path_to_image;
 geometry_msgs::PoseStamped human_pose;
+geometry_msgs::PoseStamped human_following_pose;
 geometry_msgs::Pose current_pose;
 
+double human_following_pose_offset = 1;
 bool human_detected;
 
 ros::Time detected_time;
+
+
 
 ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) {
     this->nh = nh;
@@ -44,6 +48,7 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
     ROS_INFO("People detected");
 
+    // Filename formatting
     boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();
     wb_path_to_image = directory + "human_following_" + boost::posix_time::to_simple_string(curr_time) + ".PNG";
 
@@ -54,34 +59,30 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
         boost::filesystem::create_directory(tmp_path);
     }
     cv::imwrite(wb_path_to_image, cv_ptr->image);
-    search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
+    // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
     human_pose.pose.position = msg->pose.position;
+    human_pose.header.frame_id = "level_mux/map";
     human_pose.pose.orientation.x = 0;
     human_pose.pose.orientation.y = 0;
     human_pose.pose.orientation.z = 0;
     human_pose.pose.orientation.w = 1;
-
-    human_pose.header.frame_id = "level_mux/map";
+    ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
 
     // Modify the location of the human so that it's slightly off in the direction
     // of the robot
+    human_following_pose = human_pose;
     double theta = atan2(human_pose.pose.position.y - current_pose.position.y,
                          human_pose.pose.position.x - current_pose.position.x);
-
-    // Convert angle to the right range by adding PI
-    ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
-    double human_pose_offset = 1;
-    human_pose.pose.position.x -= human_pose_offset * cos(theta);
-    human_pose.pose.position.y -= human_pose_offset * sin(theta);
-
-    human_pose.pose.orientation.x = 0;
-    human_pose.pose.orientation.y = 0;
-    human_pose.pose.orientation.z = sin((theta)/2);
-    human_pose.pose.orientation.w = cos((theta)/2);
-
-    ROS_INFO("Human_pose after  (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
+    // Convert angle to the right range by adding PI? Doesn't feel like this is needed for ROS
+    human_following_pose.pose.position.x -= human_following_pose_offset * cos(theta);
+    human_following_pose.pose.position.y -= human_following_pose_offset * sin(theta);
+    human_following_pose.pose.orientation.x = 0;
+    human_following_pose.pose.orientation.y = 0;
+    human_following_pose.pose.orientation.z = sin((theta)/2);
+    human_following_pose.pose.orientation.w = cos((theta)/2);
+    ROS_INFO("human_following_pose after  (%.2f, %.2f)", human_following_pose.pose.position.x, human_following_pose.pose.position.y);
 
     human_detected = true;
 }
@@ -108,11 +109,11 @@ void ScavTaskHumanFollowing::motionThread() {
         ros::spinOnce();
         if (human_detected) {
 
-            pub_simple_goal.publish(human_pose);
+            pub_simple_goal.publish(human_following_pose);
             ros::spinOnce();
-            pub_simple_goal.publish(human_pose);
+            pub_simple_goal.publish(human_following_pose);
             ros::spinOnce();
-            pub_simple_goal.publish(human_pose);
+            pub_simple_goal.publish(human_following_pose);
             ros::spinOnce();
 
             human_detected = false;
