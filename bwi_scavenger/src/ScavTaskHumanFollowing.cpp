@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "geometry_msgs/PoseStamped.h"
+#include <geometry_msgs/Twist.h>
 #include "std_msgs/String.h"
 
 #include <pcl_ros/point_cloud.h>
@@ -16,14 +17,6 @@ namespace scav_task_human_following {
 
 sensor_msgs::ImageConstPtr wb_image;
 std::string wb_path_to_image;
-geometry_msgs::PoseStamped human_pose;
-geometry_msgs::PoseStamped human_following_pose;
-geometry_msgs::Pose current_pose;
-
-double human_following_pose_offset = 1;
-int human_detected;
-ros::Time detected_time;
-
 
 
 ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) : ac("move_base", true)
@@ -37,19 +30,19 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
     {
         ROS_INFO("Waiting for the move_base action server to come up");
     }
-    // pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>(
-    //     "/move_base_interruptable_simple/goal", 100);
 
-    // task_completed = false;
+    cmd_vel_pub = nh->advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
+    task_completed = false;
     human_detected = 0;
- }
+}
+
 
 void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
     detected_time = ros::Time::now();
 
-    ROS_INFO("People detected");
+    ROS_INFO("Person detected");
 
     // Filename formatting
     boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();
@@ -66,12 +59,13 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
     // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
     // Check if the new human pose is far enough from the previous one the justify sending a new waypoint
-
-    double human_pose_delta_threshold = 1.0;
-
     double human_pose_delta = sqrt(pow(msg->pose.position.x - human_pose.pose.position.x, 2) +
                                    pow(msg->pose.position.y - human_pose.pose.position.y, 2));
     if (human_pose_delta > human_pose_delta_threshold) {
+        // // Noise protection
+        // human_pose_candidate_count += 1;
+        // human_pose_candidate.pose.position = msg->pose.position;
+
         human_pose.pose.position = msg->pose.position;
         human_pose.header.frame_id = "level_mux/map";
         human_pose.header.stamp = msg->header.stamp;
@@ -79,7 +73,7 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
         human_pose.pose.orientation.y = 0;
         human_pose.pose.orientation.z = 0;
         human_pose.pose.orientation.w = 1;
-        ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
+        // ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
 
         // Modify the location of the human so that it's slightly off in the direction
         // of the robot
@@ -93,7 +87,11 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
         human_following_pose.pose.orientation.y = 0;
         human_following_pose.pose.orientation.z = sin((theta)/2);
         human_following_pose.pose.orientation.w = cos((theta)/2);
-        ROS_INFO("human_following_pose after  (%.2f, %.2f)", human_following_pose.pose.position.x, human_following_pose.pose.position.y);
+        human_pose.pose.orientation.x = 0;
+        human_pose.pose.orientation.y = 0;
+        human_pose.pose.orientation.z = sin((theta)/2);
+        human_pose.pose.orientation.w = cos((theta)/2);
+        // ROS_INFO("human_following_pose after  (%.2f, %.2f)", human_following_pose.pose.position.x, human_following_pose.pose.position.y);
 
         human_detected = 1;
     }
@@ -106,7 +104,7 @@ void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& ms
 }
 
 
-void ScavTaskHumanFollowing::callback_ac_followed_done(const actionlib::SimpleClientGoalState& state,
+void ScavTaskHumanFollowing::callback_ac_followed(const actionlib::SimpleClientGoalState& state,
                                                        const move_base_msgs::MoveBaseResultConstPtr& result)
 {
     ROS_INFO("Reached human following way point");
@@ -121,11 +119,17 @@ void ScavTaskHumanFollowing::callback_ac_followed_done(const actionlib::SimpleCl
     }
 }
 
-void ScavTaskHumanFollowing::callback_ac_reached_done(const actionlib::SimpleClientGoalState& state,
+void ScavTaskHumanFollowing::callback_ac_reached(const actionlib::SimpleClientGoalState& state,
                                                       const move_base_msgs::MoveBaseResultConstPtr& result)
 {
-
     ROS_INFO("Reached human last seen location");
+    human_detected = 4;
+}
+
+void ScavTaskHumanFollowing::callback_ac_done(const actionlib::SimpleClientGoalState& state,
+                                                 const move_base_msgs::MoveBaseResultConstPtr& result)
+{
+    human_detected = 4;
 }
 
 void ScavTaskHumanFollowing::amclPoseCallback(
@@ -143,23 +147,40 @@ void ScavTaskHumanFollowing::motionThread() {
     ros::Rate r(2);
     // Loop to send action requests
     while (ros::ok() and r.sleep() and task_completed == false) {
-
         ros::spinOnce();
 
         // Set new waypoint if new human is detected
         if (human_detected == 1) {
             human_detected = 0;
             goal.target_pose = human_following_pose;
-            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_followed_done, this,  _1, _2));
+            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_followed, this,  _1, _2));
 
-            // task_completed = true;
         }
-        // callback_ac_followed_done should set the condition to go to human's last seen location
+        // callback_ac_followed should set the condition to go to human's last seen location
         if (human_detected == 2) {
             human_detected = 0;
             goal.target_pose = human_pose;
-            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_reached_done, this,  _1, _2));
+            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_reached, this,  _1, _2));
+        }
+        // if (human_detected == 3) {
+        //     // Spin
+        //     human_detected = 0;
+        //     geometry_msgs::Twist rotate;
+        //     rotate.angular.z = -0.4;
 
+        //     ros::Time start_time = ros::Time::now();
+        //     ros::Duration spin_timeout(4.0); // Timeout of 2 seconds
+        //     while(ros::Time::now() - start_time < spin_timeout) {
+        //         cmd_vel_pub.publish(rotate);
+        //         ros::spinOnce();
+        //     }
+        //     goal.target_pose = human_pose;
+        //     ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_reached, this,  _1, _2));
+        // }
+        if (human_detected == 4) {
+            human_detected = 0;
+            ROS_INFO("Human lost, following task complete");
+            // task_completed = true;
         }
     }
 }

@@ -30,11 +30,12 @@ public:
 
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void callback_image(const sensor_msgs::ImageConstPtr& msg);
-    void callback_ac_followed_done(const actionlib::SimpleClientGoalState& state,
-                                  const move_base_msgs::MoveBaseResultConstPtr& result);
-    void callback_ac_reached_done(const actionlib::SimpleClientGoalState& state,
-                                  const move_base_msgs::MoveBaseResultConstPtr& result);
-
+    void callback_ac_followed(const actionlib::SimpleClientGoalState& state,
+                              const move_base_msgs::MoveBaseResultConstPtr& result);
+    void callback_ac_reached(const actionlib::SimpleClientGoalState& state,
+                             const move_base_msgs::MoveBaseResultConstPtr& result);
+    void callback_ac_done(const actionlib::SimpleClientGoalState& state,
+                          const move_base_msgs::MoveBaseResultConstPtr& result);
 
     void amclPoseCallback(
         const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
@@ -45,12 +46,19 @@ public:
     SearchPlanner *search_planner;
     std::string directory;
 
+    bool task_completed;
+private:
+    static const double human_following_pose_offset = 1;
+    static const double human_pose_delta_threshold = 1.0;
+
+    geometry_msgs::PoseStamped human_pose;
+    geometry_msgs::PoseStamped human_following_pose;
+    geometry_msgs::Pose current_pose;
+    int human_detected;
+    ros::Time detected_time;
+    ros::Publisher cmd_vel_pub;
     MoveBaseClient ac;
 
-    // ros::Publisher pub_simple_goal;
-    // ros::Subscriber sub_goal_result;
-
-    bool task_completed;
 };
 }
 #endif
