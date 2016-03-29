@@ -12,8 +12,6 @@
 
 #include "ScavTaskHumanFollowing.h"
 
-
-
 namespace scav_task_human_following {
 
 sensor_msgs::ImageConstPtr wb_image;
@@ -23,14 +21,13 @@ geometry_msgs::PoseStamped human_following_pose;
 geometry_msgs::Pose current_pose;
 
 double human_following_pose_offset = 1;
-bool human_detected;
-
+int human_detected;
 ros::Time detected_time;
 
 
 
-ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) : ac("move_base", true) {
-
+ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string dir) : ac("move_base", true)
+{
     this->nh = nh;
     directory = dir;
     task_description = "following a human for a distance";
@@ -44,8 +41,9 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
     //     "/move_base_interruptable_simple/goal", 100);
 
     // task_completed = false;
-    human_detected = false;
-}
+
+    human_detected = 0;
+ }
 
 void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
@@ -67,59 +65,101 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
     // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
-    human_pose.pose.position = msg->pose.position;
-    human_pose.header.frame_id = "level_mux/map";
-    human_pose.header.stamp = msg->header.stamp;
-    human_pose.pose.orientation.x = 0;
-    human_pose.pose.orientation.y = 0;
-    human_pose.pose.orientation.z = 0;
-    human_pose.pose.orientation.w = 1;
-    ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
+    // Check if the new human pose is far enough from the previous one the justify sending a new waypoint
 
-    // Modify the location of the human so that it's slightly off in the direction
-    // of the robot
-    human_following_pose = human_pose;
-    double theta = atan2(human_pose.pose.position.y - current_pose.position.y,
-                         human_pose.pose.position.x - current_pose.position.x);
-    // Convert angle to the right range by adding PI? Doesn't feel like this is needed for ROS
-    human_following_pose.pose.position.x -= human_following_pose_offset * cos(theta);
-    human_following_pose.pose.position.y -= human_following_pose_offset * sin(theta);
-    human_following_pose.pose.orientation.x = 0;
-    human_following_pose.pose.orientation.y = 0;
-    human_following_pose.pose.orientation.z = sin((theta)/2);
-    human_following_pose.pose.orientation.w = cos((theta)/2);
-    ROS_INFO("human_following_pose after  (%.2f, %.2f)", human_following_pose.pose.position.x, human_following_pose.pose.position.y);
+    double human_pose_delta_threshold = 1.0;
 
-    human_detected = true;
+    double human_pose_delta = sqrt(pow(msg->pose.position.x - human_pose.pose.position.x, 2) +
+                                   pow(msg->pose.position.y - human_pose.pose.position.y, 2));
+    if (human_pose_delta > human_pose_delta_threshold) {
+        human_pose.pose.position = msg->pose.position;
+        human_pose.header.frame_id = "level_mux/map";
+        human_pose.header.stamp = msg->header.stamp;
+        human_pose.pose.orientation.x = 0;
+        human_pose.pose.orientation.y = 0;
+        human_pose.pose.orientation.z = 0;
+        human_pose.pose.orientation.w = 1;
+        ROS_INFO("Human_pose before (%.2f, %.2f)", human_pose.pose.position.x, human_pose.pose.position.y);
+
+        // Modify the location of the human so that it's slightly off in the direction
+        // of the robot
+        human_following_pose = human_pose;
+        double theta = atan2(human_pose.pose.position.y - current_pose.position.y,
+                             human_pose.pose.position.x - current_pose.position.x);
+        // Convert angle to the right range by adding PI? Doesn't feel like this is needed for ROS
+        human_following_pose.pose.position.x -= human_following_pose_offset * cos(theta);
+        human_following_pose.pose.position.y -= human_following_pose_offset * sin(theta);
+        human_following_pose.pose.orientation.x = 0;
+        human_following_pose.pose.orientation.y = 0;
+        human_following_pose.pose.orientation.z = sin((theta)/2);
+        human_following_pose.pose.orientation.w = cos((theta)/2);
+        ROS_INFO("human_following_pose after  (%.2f, %.2f)", human_following_pose.pose.position.x, human_following_pose.pose.position.y);
+
+        human_detected = 1;
+    }
 }
 
-void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& msg) {
+
+void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& msg)
+{
     wb_image = msg;
 }
 
+
+void ScavTaskHumanFollowing::callback_ac_followed_done(const actionlib::SimpleClientGoalState& state,
+                                                       const move_base_msgs::MoveBaseResultConstPtr& result)
+{
+    ROS_INFO("Reached human following way point");
+    // Only proceed to move to human's location if the person has not been seen for a fixed duraction
+    ros::Duration last_detected_duration_threshold (0.2);
+    ros::Duration detection_time_elapsed = ros::Time::now() - detected_time;
+    if (detection_time_elapsed < last_detected_duration_threshold){
+        ROS_INFO("Human still in view, not moving in; detection_elapsed: %f", detection_time_elapsed.toSec());
+    } else {
+        ROS_INFO("Move to human's last seen location");
+        human_detected = 2;
+    }
+}
+
+void ScavTaskHumanFollowing::callback_ac_reached_done(const actionlib::SimpleClientGoalState& state,
+                                                      const move_base_msgs::MoveBaseResultConstPtr& result)
+{
+
+    ROS_INFO("Reached human last seen location");
+}
 
 void ScavTaskHumanFollowing::amclPoseCallback(
     const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {
     current_pose = msg->pose.pose;
 }
 
-
 void ScavTaskHumanFollowing::motionThread() {
     // Keep track of the robot's current pose
     ros::Subscriber amcl_pose_sub;
     amcl_pose_sub = nh->subscribe("amcl_pose", 100, &ScavTaskHumanFollowing::amclPoseCallback, this);
 
-    ros::Rate r(10);
+    move_base_msgs::MoveBaseGoal goal;
+
+    ros::Rate r(2);
+    // Loop to send action requests
     while (ros::ok() and r.sleep() and task_completed == false) {
 
         ros::spinOnce();
-        if (human_detected) {
-            move_base_msgs::MoveBaseGoal goal;
-            goal.target_pose = human_following_pose;
-            ac.sendGoal(goal);
 
-            human_detected = false;
+        // Set new waypoint if new human is detected
+        if (human_detected == 1) {
+            human_detected = 0;
+            goal.target_pose = human_following_pose;
+            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_followed_done, this,  _1, _2));
+
             // task_completed = true;
+        }
+        // callback_ac_followed_done should set the condition to go to human's last seen location
+        if (human_detected == 2) {
+            human_detected = 0;
+            goal.target_pose = human_pose;
+            ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_reached_done, this,  _1, _2));
+
         }
     }
 }
@@ -149,4 +189,6 @@ void ScavTaskHumanFollowing::executeTask(int timeout, TaskResult &result, std::s
     record = wb_path_to_image;
     result = SUCCEEDED;
 }
+
+
 }

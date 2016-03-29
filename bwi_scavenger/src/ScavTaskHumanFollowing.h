@@ -11,6 +11,7 @@
 #include "SearchPlanner.h"
 
 #include <move_base_msgs/MoveBaseAction.h>
+#include <move_base_msgs/MoveBaseActionResult.h>
 #include <actionlib/client/simple_action_client.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
@@ -29,6 +30,11 @@ public:
 
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void callback_image(const sensor_msgs::ImageConstPtr& msg);
+    void callback_ac_followed_done(const actionlib::SimpleClientGoalState& state,
+                                  const move_base_msgs::MoveBaseResultConstPtr& result);
+    void callback_ac_reached_done(const actionlib::SimpleClientGoalState& state,
+                                  const move_base_msgs::MoveBaseResultConstPtr& result);
+
 
     void amclPoseCallback(
         const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
