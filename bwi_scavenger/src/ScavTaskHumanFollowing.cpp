@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <math.h>
 
 #include "geometry_msgs/PoseStamped.h"
@@ -16,6 +17,7 @@
 namespace scav_task_human_following {
 
 sensor_msgs::ImageConstPtr wb_image;
+sensor_msgs::ImageConstPtr wb_image_candidate;
 std::string wb_path_to_image;
 
 
@@ -44,24 +46,16 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
     ROS_INFO("Person detected");
 
-    // Filename formatting
-    boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();
-    wb_path_to_image = directory + "human_following_" + boost::posix_time::to_simple_string(curr_time) + ".PNG";
-
-    cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
-
-    if (false == boost::filesystem::is_directory(directory)) {
-        boost::filesystem::path tmp_path(directory);
-        boost::filesystem::create_directory(tmp_path);
-    }
-    cv::imwrite(wb_path_to_image, cv_ptr->image);
-
-    // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
     // Check if the new human pose is far enough from the previous one the justify sending a new waypoint
     double human_pose_delta = sqrt(pow(msg->pose.position.x - human_pose.pose.position.x, 2) +
                                    pow(msg->pose.position.y - human_pose.pose.position.y, 2));
     if (human_pose_delta > human_pose_delta_threshold) {
+        // Filename formatting
+        boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();
+        wb_path_to_image = directory + "human_following_" + boost::posix_time::to_iso_extended_string(curr_time) + ".PNG";
+        wb_image = wb_image_candidate;
+
         // // Noise protection
         // human_pose_candidate_count += 1;
         // human_pose_candidate.pose.position = msg->pose.position;
@@ -100,7 +94,7 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
 
 void ScavTaskHumanFollowing::callback_image(const sensor_msgs::ImageConstPtr& msg)
 {
-    wb_image = msg;
+    wb_image_candidate = msg;
 }
 
 
@@ -180,6 +174,25 @@ void ScavTaskHumanFollowing::motionThread() {
         if (human_detected == 4) {
             human_detected = 0;
             ROS_INFO("Human lost, following task complete");
+
+            cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
+
+            if (boost::filesystem::is_directory(directory) == false) {
+                boost::filesystem::path tmp_path(directory);
+                boost::filesystem::create_directory(tmp_path);
+            }
+            ROS_INFO("Saving image at %s", wb_path_to_image.c_str());
+            cv::imwrite(wb_path_to_image, cv_ptr->image);
+
+            // Scp the log file to remote machine
+            std::string scp_remote_path = "wxie@hypnotoad.csres.utexas.edu:~/bwi_scavenger_log_files/";
+            std::string system_string = "scp -P 40 " + wb_path_to_image + " " + scp_remote_path;
+            ROS_INFO("%s", system_string.c_str());
+            if (system(system_string.c_str()) == -1) {
+                ROS_WARN("Problem transferring log image file to remote machine. Please ssh permission and remote machine");
+            }
+            // search_planner->setTargetDetection(true); // change status to terminate the motion thread
+
             // task_completed = true;
         }
     }
