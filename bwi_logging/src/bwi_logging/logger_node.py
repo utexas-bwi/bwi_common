@@ -41,26 +41,31 @@ robots.
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
+import os
 import rospy
 import subprocess
 import sys
 
 from .directory import LoggingDirectory
 
+DEFAULT_PREFIX = 'bwi'
+
 
 def main(argv=None):
     """ Main function. """
-    if argv is None:
-        argv = sys.argv
-    if len(argv) < 2:
-        print('error: no topics to record', file=sys.stderr)
-        print("""
-usage: rosrun bwi_logging record topic1 [ topic2 ... ]
-""", file=sys.stderr)
-        return 9
 
     # create node for reading ROS parameters
     rospy.init_node('record')
+
+    # get the topics
+    topics = rospy.get_param('~topics', None)
+    if topics is None or topics == "":
+        print('error: no topics to record', file=sys.stderr)
+        print(' usage: rosrun bwi_logging record' +
+              ' _topics:="topic1 topic2 ..."' +
+              ' [_directory:=""] [_prefix:="bwi"]', file=sys.stderr)
+        return 9
+    rospy.loginfo('topics to record: ' + topics)
 
     # configure logging directory
     directory = rospy.get_param('~directory', None)
@@ -69,13 +74,35 @@ usage: rosrun bwi_logging record topic1 [ topic2 ... ]
     rospy.loginfo('logs go here: ' + logdir.pwd())
     logdir.chdir()                      # change to that directory
 
+    # get the file prefix
+    prefix = rospy.get_param('~prefix', DEFAULT_PREFIX)
+    rospy.loginfo('logging with prefix: ' + str(prefix))
+
     # this is the command we will issue:
-    cmd = ['rosbag', 'record', '-obwi']
-    cmd.extend(argv[1:])
+    cmd = ['rosbag', 'record', '-o' + prefix, '-j']
+    cmd.extend(topics.split())
     rospy.loginfo('running command: ' + str(cmd))
 
-    return subprocess.call(cmd)
+    # run the rosbag command
+    status = subprocess.call(cmd)
 
+    rospy.loginfo('rosbag returned status: ' + str(status))
+
+    if status == 0 and prefix == DEFAULT_PREFIX:
+
+        rospy.loginfo('start uploading bags')
+
+        # In the background, begin uploading the newly-written bag to
+        # the BWI server.  The setsid isolates the uploading scripts
+        # from ROS shutdown signals.  The -w120 waits two minutes
+        # before starting to upload.
+        upload_cmd = ['/usr/bin/setsid', '/usr/local/bin/bwi',
+                      'bags', '-w120', '-d', logdir.pwd(), prefix, '&']
+        cmd_str = ' '.join(x for x in upload_cmd)
+        print('running command: ' + cmd_str)
+        os.system(cmd_str)
+
+    return status
 
 if __name__ == '__main__':
     sys.exit(main())
