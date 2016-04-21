@@ -239,10 +239,10 @@ inside(o3test_402, l3test_402).
 
 %hide non fluents
 
-%#hide room/1.
-%#hide door/1.
-%#hide hasdoor/2.
-%#hide dooracc/3.
-%#hide acc/2.
-%#hide object/1. 
-%#hide inside/2.
+%#show room/1.
+%#show door/1.
+%#show hasdoor/2.
+%#show dooracc/3.
+%#show acc/2.
+%#show object/1. 
+%#show inside/2.

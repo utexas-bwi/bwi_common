@@ -35,8 +35,19 @@ room(l3_436).
 room(l3_512). 
 room(l3_434). 
 room(l3_432). 
-room(l3_408). 
-room(l2_302). 
+room(l3_408).
+
+room(l2_302).
+room(l2_300).
+room(l2_702).
+room(l2_700).
+room(l2_800).
+room(l2_200). 
+room(l2_600).
+room(l2_100).
+room(l2_102).
+room(l2_500).
+room(l2_400).
 
 
 door(d3_404). 
@@ -61,6 +72,15 @@ door(d3_414b2).
 door(d3_414b1). 
 door(d3_432). 
 door(d3_436).
+
+door(d2_302_south).
+door(d2_302_east).
+door(d2_300).
+door(d2_102_west).
+door(d2_102_east).
+door(d2_702_north).
+door(d2_702_east).
+door(d2_700).
 
 
 hasdoor(l3_404,d3_404). 
@@ -130,6 +150,31 @@ hasdoor(l3_436,d3_436).
 hasdoor(l3_400,d3_436). 
 
 
+hasdoor(l2_302, d2_302_south).
+hasdoor(l2_100, d2_302_south).
+
+hasdoor(l2_302, d2_302_east).
+hasdoor(l2_200, d2_302_east).
+
+hasdoor(l2_300, d2_300).
+hasdoor(l2_200, d2_300).
+
+hasdoor(l2_102, d2_102_west).
+hasdoor(l2_100, d2_102_west).
+
+hasdoor(l2_102, d2_102_east).
+hasdoor(l2_100, d2_102_east).
+
+hasdoor(l2_702, d2_702_north).
+hasdoor(l2_100, d2_702_north).
+
+hasdoor(l2_702, d2_702_east).
+hasdoor(l2_600, d2_702_east).
+
+hasdoor(l2_700, d2_700).
+hasdoor(l2_600, d2_700).
+
+
 acc(l3_434, l3_400). 
 acc(l3_434, l3_500). 
 acc(l3_518, l3_500). 
@@ -145,6 +190,14 @@ acc(l3_302, l3_303).
 acc(l3_302, l3_300). 
 acc(l3_250, l3_300). 
 acc(l3_250, l3_303). 
+
+
+acc(l2_302, l2_300).
+acc(l2_200, l2_100).
+acc(l2_200, l2_400).
+acc(l2_400, l2_500).
+acc(l2_100, l2_600).
+acc(l2_702, l2_700).
 
 
 dooracc(R1,D,R2) :- hasdoor(R1,D), hasdoor(R2,D), R1 != R2, door(D), room(R1), room(R2).
