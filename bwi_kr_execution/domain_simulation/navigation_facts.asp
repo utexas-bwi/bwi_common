@@ -75,6 +75,9 @@ door(d3_414b2).
 door(d3_414b1).
 door(d3_432).
 
+door(d3_400).
+door(d3_500).
+
 door(d2_302_south).
 door(d2_302_east).
 door(d2_300).

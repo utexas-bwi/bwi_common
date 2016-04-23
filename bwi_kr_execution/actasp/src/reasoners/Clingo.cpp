@@ -58,7 +58,7 @@ Clingo::Clingo(unsigned int max_n,
     this->domainDir += "/";
 
   //TODO test the existance of the directories
-  
+
   //create current file
   ifstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
   if(!currentFile.good()) //doesn't exist, create it or clingo will go mad
@@ -152,7 +152,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
 
   list<AnswerSet> allSets;
   bool interrupted = false;
-  
+
   string line;
   while(file) {
 
@@ -160,7 +160,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
 
     if(line == "UNSATISFIABLE" || line == "UNKNOWN")
       return list<AnswerSet>();
-    
+
     if((line.find("INTERRUPTED") != string::npos) || (line.find("KILLED") != string::npos) )
       interrupted = true;
 
@@ -174,10 +174,10 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
         }
     }
   }
-  
+
   if(interrupted) //the last answer set might be invalid
     allSets.pop_back();
-  
+
  return allSets;
 }
 
@@ -503,7 +503,7 @@ MultiPolicy Clingo::computePolicy(const std::vector<actasp::AspRule>& goal, doub
     planStream << endl;
   }
   ROS_INFO_STREAM(planStream.str());
-//   
+//
 //   cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
 
@@ -586,7 +586,7 @@ std::vector< AnswerSet > Clingo::computeAllPlans(const std::vector<actasp::AspRu
   }
 
   vector<AnswerSet> finalVector(goodPointers.begin(),goodPointers.end());
-  
+
 //   cout << "  ---  good plans ---" << endl;
 //   vector< AnswerSet>::const_iterator printIt = finalVector.begin();
 //   for (; printIt != finalVector.end(); ++printIt) {
@@ -605,11 +605,23 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
 
 //   clock_t kr1_begin = clock();
 
-  string planQuery = generatePlanQuery(goal);
+  stringstream planQuery;
+  std::vector<actasp::AspRule> goalRules = goal;
+  // planQuery << "#program volatile(" << incrementalVar << ")." << endl; // Commented out from generatePlanQuery
+  planQuery << "#external query(" << incrementalVar << ")." << endl;
 
-  stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
+  std::vector<actasp::AspRule>::iterator ruleIt = goalRules.begin();
+  AspFluent query("query(n)");
+  for (; ruleIt != goalRules.end(); ++ruleIt) {
+    (*ruleIt).body.push_back(query);
+  }
 
-  monitorQuery << "#program plan(" << incrementalVar << ")." << endl;
+  planQuery << aspString(goalRules,incrementalVar) << endl;
+  planQuery << actionFilter;
+
+  stringstream monitorQuery(planQuery.str(), ios_base::app | ios_base::out);
+
+  // monitorQuery << "#program plan(" << incrementalVar << ")." << endl;
 
   const AnswerSet::FluentSet &allActions = plan.getFluents();
   AnswerSet::FluentSet::const_iterator actionIt = allActions.begin();
@@ -621,7 +633,7 @@ bool Clingo::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRul
 //   clock_t kr1_end = clock();
 //   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
-  return !valid; 
+  return !valid;
 }
 
 AnswerSet Clingo::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
