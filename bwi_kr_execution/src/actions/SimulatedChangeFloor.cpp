@@ -56,7 +56,7 @@ void ChangeFloor::run() {
     if (askToChangeFloor->hasFinished()) {
       // Check response to see it's positive.
       int response_idx = askToChangeFloor->getResponseIndex();
-      if (response_idx >= 0 && response_idx == 0) {
+      if (response_idx == 0) {
 
         // Get the doors for this elevator.
         std::string facing_door;
@@ -150,6 +150,6 @@ std::vector<std::string> ChangeFloor::getParameters() const {
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-ActionFactory changeFloor(new ChangeFloor(), false);
+ActionFactory changeFloor(new ChangeFloor());
 
 }

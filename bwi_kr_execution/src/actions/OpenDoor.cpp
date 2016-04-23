@@ -91,6 +91,6 @@ std::vector<std::string> OpenDoor::getParameters() const {
 }
 
 
-ActionFactory openDoorFactory(new OpenDoor());
+ActionFactory openDoorFactory(new OpenDoor(), false);
   
 }
