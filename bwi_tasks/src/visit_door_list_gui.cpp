@@ -42,6 +42,7 @@ int main(int argc, char**argv) {
 	//use gui to decide which door to go to
 	bwi_msgs::QuestionDialog question;
 	question.request.type = question.request.CHOICE_QUESTION;
+	
 	question.request.message = "Please select the next door:";
 	for (unsigned int k = 0; k < doors.size(); k++){
 		question.request.options.push_back(doors.at(k));
