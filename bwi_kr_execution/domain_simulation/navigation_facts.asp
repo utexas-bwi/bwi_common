@@ -236,6 +236,14 @@ acc(R1,R1) :- room(R1).
 acc(R1,R2) :- acc(R2,R1), room(R1), room(R2).
 acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 
+% Prevent warnings if not objects are present in environment.
+object(something).
+inside(O, R1) :- inside(O, R1).
+
+badDoor(d3_418).
+badDoor(d3_414b1).
+badDoor(d3_414b2).
+
 %hide non fluents
 
 %#show room/1.

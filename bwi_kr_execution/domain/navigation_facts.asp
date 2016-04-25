@@ -213,3 +213,6 @@ acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 object(coffee_counter).                                                         
 inside(coffee_counter, l2_302).
 
+badDoor(d3_418).
+badDoor(d3_414b1).
+badDoor(d3_414b2).
