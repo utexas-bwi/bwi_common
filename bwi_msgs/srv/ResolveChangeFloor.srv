@@ -1,6 +1,7 @@
-string new_rooms
+string new_room
 string facing_door
 ---
-geometry_msgs/PoseStampedWithCovariance pose
+string floor_name
+geometry_msgs/PoseWithCovarianceStamped pose
 bool success
 string error_message

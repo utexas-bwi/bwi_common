@@ -11,6 +11,7 @@
 #include <actasp/PlanningObserver.h>
 #include <actasp/execution_observer_utils.h>
 
+#include <iostream>
 #include <list>
 #include <algorithm>
 #include <iterator>

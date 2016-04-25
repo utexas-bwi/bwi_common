@@ -21,6 +21,7 @@
 
   <depend>actionlib_msgs</depend>
   <depend>bwi_planning_common</depend>
+  <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
 
   <exec_depend>message_runtime</exec_depend>
