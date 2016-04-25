@@ -5,6 +5,7 @@ find_package(catkin REQUIRED
   COMPONENTS 
     actionlib_msgs
     bwi_planning_common 
+    geometry_msgs
     message_generation
     std_msgs
 )
@@ -22,6 +23,7 @@ add_service_files(
   FILES
     DoorHandlerInterface.srv
     QuestionDialog.srv
+    ResolveChangeFloor.srv
     SemanticParser.srv
     StopBase.srv
 )
@@ -32,13 +34,14 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs bwi_planning_common std_msgs
+  DEPENDENCIES actionlib_msgs bwi_planning_common geometry_msgs std_msgs
 )
 
 catkin_package(
   CATKIN_DEPENDS 
     actionlib_msgs
     bwi_planning_common
+    geometry_msgs
     message_runtime
     std_msgs
 )
