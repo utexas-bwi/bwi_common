@@ -38,7 +38,7 @@ void StaticFacts::retrieveStaticFacts(AspKR *reasoner, const std::string& domain
 
   /* std::cout << "out" << std::endl; */
   std::string query = boost::algorithm::join(query_string_list, "\n");
-  static_facts = (reasoner->query(query, 0, 0)).front();
+  static_facts = (reasoner->query(query, 0)).front();
 }
 
 std::list<actasp::AspAtom> StaticFacts::staticFacts() {

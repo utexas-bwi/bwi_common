@@ -110,14 +110,16 @@ hasdoor(l3_400,d3_422).
 hasdoor(l3_420,d3_420). 
 hasdoor(l3_400,d3_420). 
 
-hasdoor(l3_400,d3_414a2). 
+%please be coherent with the simulation domain with a1 and a2
+hasdoor(l3_500,d3_414a2).  
 hasdoor(l3_414a,d3_414a2). 
 
 hasdoor(l3_414,d3_414a3). 
 hasdoor(l3_414a,d3_414a3). 
 
+%please be coherent with the simulation domain with a1 and a2
 hasdoor(l3_414a,d3_414a1). 
-hasdoor(l3_500,d3_414a1). 
+hasdoor(l3_400,d3_414a1). 
 
 hasdoor(l3_416,d3_416). 
 hasdoor(l3_400,d3_416). 

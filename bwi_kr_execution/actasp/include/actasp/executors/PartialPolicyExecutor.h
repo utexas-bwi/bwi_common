@@ -2,24 +2,26 @@
 #define actasp_MultiPolicyExecutor_h__guard
 
 #include <actasp/ActionExecutor.h>
-#include <actasp/MultiPolicy.h>
+#include <actasp/PartialPolicy.h>
 #include <actasp/AspRule.h>
 
 #include <vector>
 #include <list>
+#include <map>
 
 namespace actasp {
 	
+class Action;
 class AspKR;
 class MultiPlanner;
 class ActionSelector;
 class ExecutionObserver;
 class PlanningObserver;
 
-class MultiPolicyExecutor : public ActionExecutor {
+class PartialPolicyExecutor : public ActionExecutor {
 public:
 	
-  MultiPolicyExecutor(AspKR* kr, MultiPlanner *planner, ActionSelector *selector, 
+  PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, ActionSelector *selector, 
                       const std::map<std::string, Action * >& actionMap, double suboptimality);
   
   using ActionExecutor::setGoal;
@@ -33,7 +35,7 @@ public:
   void addExecutionObserver(ExecutionObserver *observer) throw();
   void removeExecutionObserver(ExecutionObserver *observer) throw();
   
-  ~MultiPolicyExecutor();
+  ~PartialPolicyExecutor();
  
 private:
   
@@ -49,7 +51,7 @@ private:
   MultiPlanner *planner;
 	std::vector<actasp::AspRule> goalRules;
   
-	MultiPolicy policy;
+	PartialPolicy* policy;
 
   //customization
   double suboptimality;

@@ -6,10 +6,8 @@
 
 #include <algorithm>
 
-//#include <iostream>
+#include <iostream>
 #include <iterator>
-
-#include <ros/console.h>
 
 using namespace std;
 
@@ -46,29 +44,25 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
 
   const list<AspFluentRef> planCleaned = cleanPlan(plan); //remove fluents that are not actions
 
-  stringstream cleanPlanStream;
-  cleanPlanStream << "piano pulito: ";
-  copy(planCleaned.begin(), planCleaned.end(), ostream_iterator<string>(cleanPlanStream, " "));
-  cleanPlanStream << endl;
-  ROS_DEBUG_STREAM(cleanPlanStream.str());
+//   cout << "piano pulito: ";
+//   copy(planCleaned.begin(), planCleaned.end(), ostream_iterator<string>(cout, " "));
+//   cout << endl;
   
   //find the first action that does not belong to any minimal plan
   list<AspFluentRef>::const_iterator firstSuspect = findFirstSuspiciousAction(planCleaned); 
 
   
   if(firstSuspect == planCleaned.end()) {
-    ROS_DEBUG_STREAM( "good");
+//     cout << "good" << endl;
     return false;
   }
   
-  ROS_DEBUG_STREAM("first suspect: " << std::string(*firstSuspect));
 //   cout << "first suspect: " << firstSuspect->toString() << endl;
   
   for(int l = 1, size = planCleaned.size(); l <= size - shortestLength; ++l) {
 
     if(checkSectionWithLength(planCleaned,firstSuspect,l)) {
       bad->insert(planCleaned);
-      ROS_DEBUG_STREAM( "bad!");
       return true;
     }
 
@@ -83,10 +77,10 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
   bool lastCheck = checkPlanValidity(withoutBeforeSuspect);
   if(lastCheck) {
     bad->insert(planCleaned);
-    ROS_DEBUG_STREAM( "bad!");
+    //cout <<  "bad!" << endl;
   }
-  else
-    ROS_DEBUG_STREAM( "good after check");
+//  else
+//    cout << "good after check" << endl;
   
   return lastCheck;
   
@@ -119,7 +113,7 @@ bool IsNotLocallyOptimal::hasLoops(const AnswerSet& plan) const {
     int timeStep = 0;
     
     AnswerSet::FluentSet::const_iterator p = plan.getFluents().begin();
-    for(p; p!= plan.getFluents().end(); ++p) {
+    for(; p!= plan.getFluents().end(); ++p) {
       
       if(p->getTimeStep() != timeStep) {
 
@@ -173,11 +167,9 @@ bool IsNotLocallyOptimal::checkSectionWithLength(const std::list<AspFluentRef>& 
       
       testPlan.insert(testPlan.end(),final,planCleaned.end());
       
-      stringstream tps;
-      
-      tps << "test plan: ";
-      copy(testPlan.begin(), testPlan.end(), ostream_iterator<string>(tps, " "));
-      ROS_DEBUG_STREAM( tps.str());
+//         cout << "test plan: ";
+//         copy(testPlan.begin(), testPlan.end(), ostream_iterator<string>(cout, " "));
+//         cout << endl;
     
       if(checkPlanValidity(testPlan)) {
 //         cout << "bad" << endl;
