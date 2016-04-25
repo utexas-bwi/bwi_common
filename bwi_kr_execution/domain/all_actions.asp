@@ -18,3 +18,5 @@ noop(I) :- noop(I), I>0, I=n-1.
 #show gothrough/2.
 #show opendoor/2.
 #show goto/2.
+#show callelevator/3.
+#show changefloor/2.

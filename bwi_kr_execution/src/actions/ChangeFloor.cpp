@@ -150,6 +150,6 @@ std::vector<std::string> ChangeFloor::getParameters() const {
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-ActionFactory changeFloor(new ChangeFloor(), false);
+ActionFactory changeFloor(new ChangeFloor());
 
 }
