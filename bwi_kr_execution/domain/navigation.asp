@@ -42,6 +42,12 @@ facing(O,I) :- goto(O,I), I>0, I=n-1.
 beside(O,I) :- goto(O,I), I>0, I=n-1.
 at(R,I) :- goto(O,I), inside(O,R), I>0, I=n-1.
 :- goto(O,I), inside(O,R1), at(R2,I-1), not acc(R1,R2).
+
+
+% Prevent warnings if not objects are present in environment.
+object(O) :- object(O).
+inside(O, R1) :- inside(O, R1).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Static laws
