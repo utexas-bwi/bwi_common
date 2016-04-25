@@ -24,6 +24,7 @@ add_service_files(
     DoorHandlerInterface.srv
     QuestionDialog.srv
     ResolveChangeFloor.srv
+    RobotTeleporterInterface.srv
     SemanticParser.srv
     StopBase.srv
 )
