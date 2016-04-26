@@ -1,4 +1,4 @@
-#include "ChangeFloor.h"
+#include "SimulatedChangeFloor.h"
 
 #include <boost/foreach.hpp>
 
@@ -10,74 +10,73 @@
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
+#include <bwi_msgs/DoorHandlerInterface.h>
 #include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/ResolveChangeFloor.h>
+#include <bwi_msgs/RobotTeleporterInterface.h>
 
 namespace bwi_krexec {
 
-ChangeFloor::ChangeFloor() :
+SimulatedChangeFloor::SimulatedChangeFloor() :
              done(false),
-             asked(false),
              failed(false) {}
 
-void ChangeFloor::run() {
-  
-  if(!asked) {
+void SimulatedChangeFloor::run() {
 
+  if (!done) {
+  
     // Get the doors for this elevator.
-    std::string dest_floor;
+    std::string facing_door;
     std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-      if (fact.getName() == "floor") {
+      if (fact.getName() == "hasdoor") {
         std::vector<std::string> params = fact.getParameters();
         if (params[0] == dest_room) {
-          dest_floor = params[1];
+          // NOTE: This makes the assumption that an elevator room only has a single door, which is true for GDC.
+          facing_door = params[1];
           break;
         }
       }
     }
 
-    if (dest_floor.empty()) {
-      ROS_ERROR_STREAM("Unable to retrieve floor for destination " << dest_room << ". Cannot complete action!");
-      done = true;
+    if (facing_door.empty()) {
+      ROS_ERROR_STREAM("Unable to retrieve door we're facing for destination " << dest_room << ". Cannot complete action!");
       failed = true;
     } else {
-      std::vector<std::string> options;
-      options.push_back("Reached!");
-      askToChangeFloor.reset(new CallGUI("askToChangeFloor", 
-                                         CallGUI::CHOICE_QUESTION,  
-                                         "Could you press the button for floor " + dest_floor + 
-                                           ", and then let me know when the elevator arrives there?", 
-                                         120.0f, 
-                                         options));
-      askToChangeFloor->run();
-    }
-    asked = true;
-  } else if(!done) {
-    if (askToChangeFloor->hasFinished()) {
-      // Check response to see it's positive.
-      int response_idx = askToChangeFloor->getResponseIndex();
-      if (response_idx == 0) {
 
-        // Get the doors for this elevator.
-        std::string facing_door;
-        std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
-        BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-          if (fact.getName() == "hasdoor") {
-            std::vector<std::string> params = fact.getParameters();
-            if (params[0] == dest_room) {
-              // NOTE: This makes the assumption that an elevator room only has a single door, which is true for GDC.
-              facing_door = params[1];
-              break;
-            }
-          }
-        }
+      // Resolve the location to which the robot needs to be teleported to.
+      ros::NodeHandle n;
+      ros::ServiceClient change_floor_resolution_client = 
+          n.serviceClient<bwi_msgs::ResolveChangeFloor>("resolve_change_floor");
+      change_floor_resolution_client.waitForExistence();
 
-        if (facing_door.empty()) {
-          ROS_ERROR_STREAM("Unable to retrieve door we're facing for destination " << dest_room << ". Cannot complete action!");
-          failed = true;
-        } else {
+      bwi_msgs::ResolveChangeFloor rcf;
+      rcf.request.new_room = dest_room;
+      rcf.request.facing_door = facing_door;
+      if (change_floor_resolution_client.call(rcf) && rcf.response.success) {
+
+        // Teleport robot to resolved location.
+        ros::ServiceClient robot_teleporter_client = 
+            n.serviceClient<bwi_msgs::RobotTeleporterInterface>("teleport_robot");
+        robot_teleporter_client.waitForExistence();
+
+        bwi_msgs::RobotTeleporterInterface rti;
+        rti.request.pose = rcf.response.pose.pose.pose;
+        if (robot_teleporter_client.call(rti) && rti.response.success) {
+
+          // Open Elevator door.
+          ros::ServiceClient door_client = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
+          door_client.waitForExistence();
+
+          bwi_msgs::DoorHandlerInterface dhi;
+
+          dhi.request.all_doors = false;
+          dhi.request.door = facing_door;
+          dhi.request.open = true;
+
+          door_client.call(dhi);
+
           // Attempt to change the robot's location to this floor and location.
-          //
           boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
           lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
                                                                                                            true));
@@ -89,7 +88,7 @@ void ChangeFloor::run() {
           lnac->sendGoal(goal);
           lnac->waitForResult();
 
-          // TODO incorporate the return of the changefloor command as well.
+          // Update knowledge base to reflect change in position.
           ros::NodeHandle n;
           ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
           krClient.waitForExistence();
@@ -117,39 +116,40 @@ void ChangeFloor::run() {
           uf.request.fluents.push_back(at_loc);
           krClient.call(uf);
 
-          CallGUI thanks("thanks", CallGUI::DISPLAY,  "Thanks! Could you keep the door open while I exit the elevator?");
-          thanks.run();
+        } else {
+          ROS_ERROR_STREAM("Failed robot teleportation to pose " << rti.request.pose);
+          failed = true;
         }
       } else {
-        // A door didn't open in the timeout specified.
+        ROS_ERROR_STREAM("Change floor resolution failed for room " << dest_room << " and door " << facing_door);
         failed = true;
       }
-      done = true;
     }
   }
- 
+
+  done = true;
 }
 
-bool ChangeFloor::hasFinished() const {
+bool SimulatedChangeFloor::hasFinished() const {
   return done;
 }
 
-bool ChangeFloor::hasFailed() const {
+bool SimulatedChangeFloor::hasFailed() const {
   return failed;
 }
 
-actasp::Action *ChangeFloor::cloneAndInit(const actasp::AspFluent & fluent) const {
-  ChangeFloor *other = new ChangeFloor();
+actasp::Action *SimulatedChangeFloor::cloneAndInit(const actasp::AspFluent & fluent) const {
+  SimulatedChangeFloor *other = new SimulatedChangeFloor();
   other->dest_room = fluent.getParameters().at(0);
   return other;
 }
 
-std::vector<std::string> ChangeFloor::getParameters() const {
-  return std::vector<std::string>(1,dest_room);
+std::vector<std::string> SimulatedChangeFloor::getParameters() const {
+  return std::vector<std::string>(1, dest_room);
 }
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-ActionFactory changeFloor(new ChangeFloor());
+ActionFactory simulatedChangeFloor(new SimulatedChangeFloor(), true);
 
 }
