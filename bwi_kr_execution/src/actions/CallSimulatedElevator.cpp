@@ -52,6 +52,7 @@ void CallSimulatedElevator::run() {
       dhi.request.all_doors = false;
       dhi.request.door = selectedDoor;
       dhi.request.open = true;
+      dhi.request.open_timeout = 45.0f;
 
       doorClient.call(dhi);
 

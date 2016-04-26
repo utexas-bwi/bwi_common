@@ -73,6 +73,7 @@ void SimulatedChangeFloor::run() {
           dhi.request.all_doors = false;
           dhi.request.door = facing_door;
           dhi.request.open = true;
+          dhi.request.open_timeout = 30.0f;
 
           door_client.call(dhi);
 

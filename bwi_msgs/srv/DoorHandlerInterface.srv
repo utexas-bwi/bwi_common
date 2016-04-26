@@ -1,6 +1,7 @@
 string door
 bool open
 bool all_doors
+float32 open_timeout
 ---
 bool success
 string status
