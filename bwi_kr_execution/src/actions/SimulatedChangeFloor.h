@@ -34,6 +34,9 @@ struct SimulatedChangeFloor : public actasp::Action {
 
     std::string dest_room;
 
+    bool robot_teleported;
+    ros::Time robot_teleportation_start_time;
+
     bool done;
     bool failed;
 

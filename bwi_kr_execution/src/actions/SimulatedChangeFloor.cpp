@@ -18,6 +18,7 @@
 namespace bwi_krexec {
 
 SimulatedChangeFloor::SimulatedChangeFloor() :
+             robot_teleported(false),
              done(false),
              failed(false) {}
 
@@ -42,29 +43,50 @@ void SimulatedChangeFloor::run() {
     if (facing_door.empty()) {
       ROS_ERROR_STREAM("Unable to retrieve door we're facing for destination " << dest_room << ". Cannot complete action!");
       failed = true;
+      done = true;
     } else {
 
-      // Resolve the location to which the robot needs to be teleported to.
-      ros::NodeHandle n;
-      ros::ServiceClient change_floor_resolution_client = 
+      if (!robot_teleported) {
+
+        // Resolve the location to which the robot needs to be teleported to.
+        ros::NodeHandle n;
+        ros::ServiceClient change_floor_resolution_client = 
           n.serviceClient<bwi_msgs::ResolveChangeFloor>("resolve_change_floor");
-      change_floor_resolution_client.waitForExistence();
+        change_floor_resolution_client.waitForExistence();
 
-      bwi_msgs::ResolveChangeFloor rcf;
-      rcf.request.new_room = dest_room;
-      rcf.request.facing_door = facing_door;
-      if (change_floor_resolution_client.call(rcf) && rcf.response.success) {
+        bwi_msgs::ResolveChangeFloor rcf;
+        rcf.request.new_room = dest_room;
+        rcf.request.facing_door = facing_door;
+        if (change_floor_resolution_client.call(rcf) && rcf.response.success) {
 
-        // Teleport robot to resolved location.
-        ros::ServiceClient robot_teleporter_client = 
+          // Teleport robot to resolved location.
+          ros::ServiceClient robot_teleporter_client = 
             n.serviceClient<bwi_msgs::RobotTeleporterInterface>("teleport_robot");
-        robot_teleporter_client.waitForExistence();
+          robot_teleporter_client.waitForExistence();
 
-        bwi_msgs::RobotTeleporterInterface rti;
-        rti.request.pose = rcf.response.pose.pose.pose;
-        if (robot_teleporter_client.call(rti) && rti.response.success) {
+          bwi_msgs::RobotTeleporterInterface rti;
+          rti.request.pose = rcf.response.pose.pose.pose;
+
+          if (robot_teleporter_client.call(rti) && rti.response.success) {
+            robot_teleported = true;
+            robot_teleportation_start_time = ros::Time::now();
+          } else {
+            ROS_ERROR_STREAM("Failed robot teleportation to pose " << rti.request.pose);
+            failed = true;
+            done = true;
+          }
+        } else {
+          ROS_ERROR_STREAM("Change floor resolution failed for room " << dest_room << " and door " << facing_door);
+          failed = true;
+          done = true;
+        }
+
+      } else {
+
+        if (ros::Time::now() - robot_teleportation_start_time > ros::Duration(10.0f)) {
 
           // Open Elevator door.
+          ros::NodeHandle n;
           ros::ServiceClient door_client = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
           door_client.waitForExistence();
 
@@ -90,7 +112,6 @@ void SimulatedChangeFloor::run() {
           lnac->waitForResult();
 
           // Update knowledge base to reflect change in position.
-          ros::NodeHandle n;
           ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
           krClient.waitForExistence();
           bwi_kr_execution::UpdateFluents uf;
@@ -117,18 +138,12 @@ void SimulatedChangeFloor::run() {
           uf.request.fluents.push_back(at_loc);
           krClient.call(uf);
 
-        } else {
-          ROS_ERROR_STREAM("Failed robot teleportation to pose " << rti.request.pose);
-          failed = true;
+          done = true;
         }
-      } else {
-        ROS_ERROR_STREAM("Change floor resolution failed for room " << dest_room << " and door " << facing_door);
-        failed = true;
       }
     }
   }
 
-  done = true;
 }
 
 bool SimulatedChangeFloor::hasFinished() const {

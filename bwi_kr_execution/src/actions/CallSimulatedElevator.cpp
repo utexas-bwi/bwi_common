@@ -69,6 +69,13 @@ void CallSimulatedElevator::run() {
     open_door.name = "open";
     open_door.variables.push_back(selectedDoor);
     uf.request.fluents.push_back(open_door);
+
+    /* TODO: Remove this hack. Also, pretend you're facing the door that opened. This way it's shorter to use the open elevator. */
+    bwi_kr_execution::AspFluent facing_door;
+    facing_door.name = "facing";
+    facing_door.variables.push_back(selectedDoor);
+    uf.request.fluents.push_back(facing_door);
+
     krClient.call(uf);
 
     done = true;
