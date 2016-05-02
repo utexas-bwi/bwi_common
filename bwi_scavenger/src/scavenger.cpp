@@ -15,7 +15,7 @@
 #include "ScavTaskHumanFollowing.h"
 
 #define TIMEOUT (600) // return failure if not finished in 10 minutes
-#define NUM_OF_TASKS (4)
+#define NUM_OF_TASKS (16)
 #define NUM_OF_TASK_TYPES (4)
 
 using namespace scav_task_human_following; 
@@ -36,12 +36,12 @@ int main(int argc, char **argv) {
         ros::Duration(0.1).sleep();       
         int r = rand() % NUM_OF_TASK_TYPES; 
 
-        /*
         if (r == 0) {
             // Color color = static_cast<Color>(rand() % COLOR_LENGTH);
             // task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, color), TODO)); 
-            task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, BLUE), TODO)); 
+            task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, RED), TODO)); 
         } 
+	/*
         else if (r == 1) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskWhiteBoard(nh, dir), TODO)); 
         } 
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
             cnt--; 
         }
         */
-        if (r == 3) {
+        else if (r == 3) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskHumanFollowing(nh, dir), TODO)); 
         } 
         else {
