@@ -5,7 +5,6 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs 
   bwi_msgs
-  dynamic_reconfigure
   message_generation
   roscpp
   roslib
@@ -45,7 +44,6 @@ catkin_package(
   CATKIN_DEPENDS
     actionlib_msgs
     bwi_msgs
-    dynamic_reconfigure
     message_runtime
     roscpp
     sound_play
