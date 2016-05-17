@@ -4,6 +4,7 @@
 
 #include "bwi_kr_execution/CurrentStateQuery.h"
 
+#include <dynamic_reconfigure/Reconfigure.h>
 #include <ros/console.h>
 #include <ros/ros.h>
 
@@ -57,8 +58,23 @@ void GoThrough::run() {
   else 
     initialPosition = atIt->variables[0];
   
+  ros::ServiceClient static_costmap_service = 
+    n.serviceClient<dynamic_reconfigure::Reconfigure> ( "move_base/global_costmap/static_layer/set_parameters" );
+  dynamic_reconfigure::Reconfigure static_costmap_toggle_call;
+  static_costmap_toggle_call.request.config.bools.resize(1);
+  static_costmap_toggle_call.request.config.bools[0].name = "enabled";
+  if (!request_in_progress && !done) {
+    static_costmap_toggle_call.request.config.bools[0].value = false;
+    static_costmap_service.call(static_costmap_toggle_call);
+  }
+
   bwi_krexec::LogicalNavigation::run();
   
+  if (done) {
+    static_costmap_toggle_call.request.config.bools[0].value = true;
+    static_costmap_service.call(static_costmap_toggle_call);
+  }
+
    krClient.call(csq);
   
   atIt = find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
