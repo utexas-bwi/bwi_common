@@ -157,11 +157,13 @@ int main(int argc, char**argv) {
   bwi_kr_execution::ExecutePlanGoal in_front_of_lab = initialStateFormula();
   
   vector<Task> tasks;
-//   tasks.push_back(Task(in_front_of_lab, goToPlace("l2_302")));
+//  tasks.push_back(Task(in_front_of_lab, goToPlace("l2_302")));
   tasks.push_back(Task(in_front_of_lab, findPerson("matteo")));
-  tasks.push_back(Task(in_front_of_lab, findPerson("peter")));
-  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_516")));
-  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_414a")));
+//  tasks.push_back(Task(in_front_of_lab, findPerson("peter")));
+//  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_418")));
+//  tasks.push_back(Task(in_front_of_lab, goToPlace("l3_414a")));
+  //tasks.push_back(Task(in_front_of_lab, goToPlace("l3_418")));
+  //tasks.push_back(Task(in_front_of_lab, goToPlace("l3_414b")));
   
 
   Client client("action_executor/execute_plan", true);
@@ -179,7 +181,7 @@ int main(int argc, char**argv) {
     if (!goToInitialState(client, chosen.initial_state))
       continue;
 
-    resetMemory();
+   // resetMemory();
 
 
     ROS_INFO("sending goal");

@@ -39,8 +39,6 @@ int main(int argc, char**argv) {
   ros::Rate wait_rate(10);
   while(ros::ok() && !client.getState().isDone())
     wait_rate.sleep();
-  
-  cerr << "che cazzo " << endl;
     
   if (!client.getState().isDone()) {
     ROS_INFO("Canceling goal");

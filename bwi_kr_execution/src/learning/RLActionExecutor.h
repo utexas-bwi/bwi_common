@@ -15,6 +15,7 @@ class MultiPlanner;
 class ActionSelector;
 class ExecutionObserver;
 class PlanningObserver;
+class Action;
 
 class RLActionExecutor : public ActionExecutor {
 public:

@@ -68,7 +68,10 @@ std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) c
 	return set<AspFluent>(bounds.first,bounds.second);
 }
 
-unsigned int AnswerSet::maxTimeStep() const throw() {
+unsigned int AnswerSet::maxTimeStep() const throw(std::logic_error) {
+  if(fluents.empty())
+    throw logic_error("maxTimeStep() invoked on an  empty answer set, which therefore has not time step at all");
+  
   return fluents.rbegin()->getTimeStep();
 }
 

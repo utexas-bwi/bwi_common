@@ -47,7 +47,7 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
 
     belief = std::vector<float> (yaml_positions.size(), 1.0/yaml_positions.size()); 
 
-    client_make_plan = nh->serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan"); 
+    client_make_plan = nh->serviceClient <nav_msgs::GetPlan> ("move_base/GlobalPlanner/make_plan"); 
 
     pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>("/move_base_interruptable_simple/goal", 100);
 

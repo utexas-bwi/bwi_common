@@ -38,7 +38,7 @@ public:
 	
 	std::set<actasp::AspFluent> getFluentsAtTime(unsigned int timeStep) const throw();
   
-  unsigned int maxTimeStep() const throw();
+  unsigned int maxTimeStep() const throw(std::logic_error);
 
 private:
   

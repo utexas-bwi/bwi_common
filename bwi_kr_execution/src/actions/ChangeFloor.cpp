@@ -56,7 +56,7 @@ void ChangeFloor::run() {
     if (askToChangeFloor->hasFinished()) {
       // Check response to see it's positive.
       int response_idx = askToChangeFloor->getResponseIndex();
-      if (response_idx >= 0 && response_idx == 0) {
+      if (response_idx == 0) {
 
         // Get the doors for this elevator.
         std::string facing_door;
@@ -76,8 +76,8 @@ void ChangeFloor::run() {
           ROS_ERROR_STREAM("Unable to retrieve door we're facing for destination " << dest_room << ". Cannot complete action!");
           failed = true;
         } else {
+
           // Attempt to change the robot's location to this floor and location.
-          //
           boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
           lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
                                                                                                            true));
@@ -150,6 +150,6 @@ std::vector<std::string> ChangeFloor::getParameters() const {
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-ActionFactory changeFloor(new ChangeFloor());
+ActionFactory changeFloor(new ChangeFloor(), false);
 
 }
