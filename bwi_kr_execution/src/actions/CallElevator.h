@@ -36,7 +36,7 @@ bool going_up;
 bool asked;
 bool done;
 bool failed;
-std::vector<std::string> doors;
+std::string facing_door;
 
 boost::shared_ptr<CallGUI> askToCallElevator;
 

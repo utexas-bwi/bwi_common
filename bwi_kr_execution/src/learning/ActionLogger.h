@@ -5,6 +5,10 @@
 
 #include <fstream>
 
+namespace actasp {
+  class PartialPolicy;
+}
+
 struct ActionLogger : public actasp::ExecutionObserver {
   
   ActionLogger();
@@ -14,6 +18,9 @@ struct ActionLogger : public actasp::ExecutionObserver {
   
   void setFile(const std::string& path);
   void taskCompleted();
+  
+  void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() {}
+  void policyChanged(actasp::PartialPolicy* policy) throw() {}
   
   ~ActionLogger();
 

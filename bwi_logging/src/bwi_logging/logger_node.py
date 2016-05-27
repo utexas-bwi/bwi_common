@@ -41,11 +41,14 @@ robots.
 # enable some python3 compatibility options:
 from __future__ import absolute_import, print_function
 
+import os
 import rospy
 import subprocess
 import sys
 
 from .directory import LoggingDirectory
+
+DEFAULT_PREFIX = 'bwi'
 
 
 def main(argv=None):
@@ -56,9 +59,11 @@ def main(argv=None):
 
     # get the topics
     topics = rospy.get_param('~topics', None)
-    if topics == None or topics == "":
+    if topics is None or topics == "":
         print('error: no topics to record', file=sys.stderr)
-        print(""" usage: rosrun bwi_logging record _topics:=\"topic1 topic2 ...\" [_directory:=\"\"] [_prefix:=\"bwi\"] """, file=sys.stderr)
+        print(' usage: rosrun bwi_logging record' +
+              ' _topics:="topic1 topic2 ..."' +
+              ' [_directory:=""] [_prefix:="bwi"]', file=sys.stderr)
         return 9
     rospy.loginfo('topics to record: ' + topics)
 
@@ -70,7 +75,7 @@ def main(argv=None):
     logdir.chdir()                      # change to that directory
 
     # get the file prefix
-    prefix = rospy.get_param('~prefix', 'bwi')
+    prefix = rospy.get_param('~prefix', DEFAULT_PREFIX)
     rospy.loginfo('logging with prefix: ' + str(prefix))
 
     # this is the command we will issue:
@@ -78,9 +83,26 @@ def main(argv=None):
     cmd.extend(topics.split())
     rospy.loginfo('running command: ' + str(cmd))
 
+    # run the rosbag command
+    status = subprocess.call(cmd)
 
-    # run the command
-    return subprocess.call(cmd)
+    rospy.loginfo('rosbag returned status: ' + str(status))
+
+    if status == 0 and prefix == DEFAULT_PREFIX:
+
+        rospy.loginfo('start uploading bags')
+
+        # In the background, begin uploading the newly-written bag to
+        # the BWI server.  The setsid isolates the uploading scripts
+        # from ROS shutdown signals.  The -w120 waits two minutes
+        # before starting to upload.
+        upload_cmd = ['/usr/bin/setsid', '/usr/local/bin/bwi',
+                      'bags', '-w120', '-d', logdir.pwd(), prefix, '&']
+        cmd_str = ' '.join(x for x in upload_cmd)
+        print('running command: ' + cmd_str)
+        os.system(cmd_str)
+
+    return status
 
 if __name__ == '__main__':
     sys.exit(main())
