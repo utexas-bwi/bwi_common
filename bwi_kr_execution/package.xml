@@ -1,13 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_kr_execution</name>
-  <version>0.3.7</version>
-  <description>
-    ROS nodes for using the robot's Knowledge Representation.
-
-    Part of the Building-Wide Intelligence project of the University
-    of Texas at Austin.
-  </description>
+  <version>0.3.2</version>
+  <description>The bwi_kr_execution package</description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
   <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
@@ -22,19 +17,17 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>message_generation</build_depend>
-
   <depend>actionlib</depend>
-  <depend>actionlib_msgs</depend>
-  <depend>bwi_msgs</depend>
+  <depend>actionlib_msgs</depend> 
+  <depend>bwi_msgs</depend> 
   <depend>roscpp</depend>
   <depend>roslib</depend>
   <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>gringo</depend>
+  <depend>clingo</depend>
 
-  <exec_depend>bwi_rqt_plugins</exec_depend>
+  <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>
 
 </package>

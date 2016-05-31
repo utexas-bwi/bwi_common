@@ -11,7 +11,7 @@
 namespace actasp {
 
 template<typename FluentClass> //typically AspFluent, possibly AspFluentRef
-struct StateComparator : public std::binary_function<const std::set<FluentClass>&,const std::set<FluentClass>&, bool> {
+struct StateComparator : public std::binary_function<std::set<FluentClass>,std::set<FluentClass>, bool> {
     
   bool operator()(const std::set<FluentClass> &first,const std::set<FluentClass> &second) const {
 
@@ -40,6 +40,16 @@ struct StateComparator : public std::binary_function<const std::set<FluentClass>
     
 };
 
+//assumes fluents are in the same order. 
+//equals if everything else than timestep is equal.
+struct stateEquals {
+
+  stateEquals(const std::set<AspFluent>& state) : state(state) {}
+
+  bool operator()(const std::set<AspFluent>& otherstate) const;
+
+  std::set<AspFluent> state;
+};  
 
 
 }

@@ -1,7 +1,9 @@
 
 #include "actions/ActionFactory.h"
 
-#include "actasp/reasoners/Clingo.h"
+#include "actasp/reasoners/Reasoner.h"
+#include <actasp/QueryGenerator.h>
+#include <actasp/reasoners/Clingo4_2.h>
 #include "actasp/action_utils.h"
 
 #include "msgs_utils.h"
@@ -72,8 +74,9 @@ int main(int argc, char **argv) {
 
   boost::filesystem::create_directories(queryDirectory);
 
-  reasoner = new Clingo(MAX_N,"n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
-  reasoner->reset();
+  QueryGenerator* generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  reasoner = new Reasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
+  reasoner->resetCurrentState();
 
   ros::ServiceServer update_fluents = n.advertiseService("update_fluents", updateFluents);
   ros::ServiceServer current_state_query = n.advertiseService("current_state_query", currentStateQuery);
@@ -89,6 +92,7 @@ int main(int argc, char **argv) {
   ros::spin();
 
   delete reasoner;
+  delete generator;
 
   return 0;
 }
@@ -158,5 +162,5 @@ bool isPlanvalid(bwi_kr_execution::IsPlanValid::Request& req, bwi_kr_execution::
 }
 
 bool resetState(std_srvs::Empty::Request &, std_srvs::Empty::Response &) {
-  reasoner->reset();
+  reasoner->resetCurrentState();
 }

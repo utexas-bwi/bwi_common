@@ -4,18 +4,16 @@
 
 #include "actasp/AspAtom.h"
 #include "actasp/AspKR.h"
-#include "actasp/reasoners/Clingo.h"
+#include "actasp/reasoners/Reasoner.h"
+#include <actasp/reasoners/FilteringReasoner.h>
+#include <actasp/FilteringQueryGenerator.h>
 
 namespace bwi_krexec {
   
-  class RemoteReasoner : public actasp::AspKR {
+  class RemoteReasoner : public actasp::FilteringKR {
   public:
     
-    RemoteReasoner(unsigned int max_n,
-         const std::string& queryDir,
-         const std::string& domainDir,
-         const actasp::ActionSet& actions,
-         unsigned int max_time = 0);
+  RemoteReasoner(actasp::FilteringQueryGenerator *actualReasoner,unsigned int max_n,const actasp::ActionSet& allActions);
     
   actasp::ActionSet availableActions() const throw();
   
@@ -27,17 +25,18 @@ namespace bwi_krexec {
   
   std::vector< actasp::AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
   
-  void reset() throw();
-
-  actasp::MultiPolicy computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
+  void resetCurrentState() throw();
   
   actasp::AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error);
   
-  std::list< std::list<actasp::AspAtom> > query(const std::string &queryString, unsigned int initialTimeStep,
-                                   unsigned int finalTimeStep) const throw();
+  actasp::GraphPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
+  
+  actasp::AnswerSet filterState(const std::vector<actasp::AnswerSet>& plans, const std::vector<actasp::AspRule>& goals);
+  
+  std::list< std::list<actasp::AspAtom> > query(const std::string &queryString, unsigned int timeStep) const throw();
   
   private:
-    actasp::Clingo local;
+    actasp::FilteringReasoner local;
   
   };
 }

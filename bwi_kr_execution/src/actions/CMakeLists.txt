@@ -12,6 +12,8 @@ SET( kractions_SRC ${KREXEC_SRC}
 	${CMAKE_CURRENT_SOURCE_DIR}/AskPerson.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Remind.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ChangeFloor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SimulatedChangeFloor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CallElevator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CallSimulatedElevator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../StaticFacts.cpp
 	PARENT_SCOPE)

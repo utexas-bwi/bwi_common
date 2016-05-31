@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_tasks</name>
-  <version>0.3.7</version>
+  <version>0.3.2</version>
   <description>
     High-level tasks for the UTexas Building-Wide Intelligence project. 
   </description>

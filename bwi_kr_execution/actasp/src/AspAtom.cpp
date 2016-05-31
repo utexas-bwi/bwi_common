@@ -17,8 +17,13 @@ std::string AspAtom::getName() const throw() {
   
 std::vector<std::string> AspAtom::getParameters() const throw() {
     
-  size_t start = atom.find_first_of('(')+1;
+  size_t start = atom.find_first_of('(');
   size_t end = atom.find_last_of(')'); //should be the last character...
+  
+  if(start == string::npos || end == string::npos)
+    return vector<string>();
+  
+  start++;
   
   vector<string> params;
   
