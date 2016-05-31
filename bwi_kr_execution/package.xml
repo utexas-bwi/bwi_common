@@ -25,7 +25,7 @@
   <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>clingo</depend>
+  <depend>gringo</depend>
 
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>
