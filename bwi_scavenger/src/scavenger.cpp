@@ -36,25 +36,17 @@ int main(int argc, char **argv) {
         ros::Duration(0.1).sleep();       
         int r = rand() % NUM_OF_TASK_TYPES; 
 
+        // to initialize a task and label its status as Todo
         if (r == 0) {
-            // Color color = static_cast<Color>(rand() % COLOR_LENGTH);
-            // task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, color), TODO)); 
-            task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, RED), TODO)); 
+            Color color = static_cast<Color>(rand() % COLOR_LENGTH);
+            task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, color), TODO)); 
         } 
-	/*
         else if (r == 1) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskWhiteBoard(nh, dir), TODO)); 
         } 
         else if (r == 2) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskFetchObject(nh, dir), TODO)); 
         } 
-        else if (r == 3) {
-            task_manager->addTask(new TaskWithStatus(new ScavTaskHumanFollowing(nh, dir), TODO)); 
-        } 
-        else {
-            cnt--; 
-        }
-        */
         else if (r == 3) {
             task_manager->addTask(new TaskWithStatus(new ScavTaskHumanFollowing(nh, dir), TODO)); 
         } 
@@ -75,3 +67,4 @@ int main(int argc, char **argv) {
 
     return 0; 
 }
+
