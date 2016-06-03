@@ -29,7 +29,7 @@ public:
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg); 
     void callback_image(const sensor_msgs::ImageConstPtr& msg); 
 
-    SearchPlanner *search_planner; 
+    SearchPlannerSimple *search_planner_simple; 
     std::string directory;
 
     bool task_completed; 

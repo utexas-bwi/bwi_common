@@ -22,6 +22,8 @@ void ScavTaskFetchObject::executeTask(int timeout, TaskResult &result, std::stri
     boost::thread motion( &ScavTaskFetchObject::motionThread, this);
     boost::thread hri( &ScavTaskFetchObject::hriThread, this);
 
+    target_detected = false; 
+
     motion.join();
     hri.join();
     record = path_to_text;
@@ -38,13 +40,11 @@ void ScavTaskFetchObject::motionThread() {
         ROS_ERROR("path to yaml file of search points not set"); 
     ros::param::get("path_to_search_points", path_to_yaml); 
 
-    search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
+    search_planner_simple = new SearchPlannerSimple(nh);           
 
     int next_goal_index;                                                        
-    while (ros::ok() and false == search_planner->getTargetDetection()) {
-        search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
-        search_planner->analyzeScene(0.25*PI, PI/10.0);
-        search_planner->updateBelief(next_goal_index);
+    while (ros::ok() && false == target_detected) {
+        search_planner_simple->moveToNextDoor();
     }
 }
 
@@ -62,7 +62,8 @@ void ScavTaskFetchObject::hriThread() {
     srv.request.timeout = bwi_msgs::QuestionDialogRequest::NO_TIMEOUT; 
     gui_service_client->waitForExistence(); 
     gui_service_client->call(srv); 
-    search_planner->setTargetDetection(true); 
+
+    targetDetected = true; 
 
     // what's the object's name? saved to room_from
     srv.request.type = 2;

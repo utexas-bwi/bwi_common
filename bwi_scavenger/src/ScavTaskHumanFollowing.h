@@ -43,7 +43,7 @@ public:
 
     void moveToPose(const geometry_msgs::Pose);
 
-    SearchPlanner *search_planner;
+    SearchPlannerSimple *search_planner_simple;
     std::string directory;
 
     bool task_completed;

@@ -92,7 +92,7 @@ void ScavTaskWhiteBoard::motionThread() {
 
     int next_goal_index;                                                        
     while (ros::ok() and task_completed == false) {
-        search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
+        search_planner->moveToNextScene(search_planner->selectNextScene(search_planner->belief, next_goal_index));
         search_planner->analyzeScene(0.25*PI, PI/10.0);
         search_planner->updateBelief(next_goal_index);
     }

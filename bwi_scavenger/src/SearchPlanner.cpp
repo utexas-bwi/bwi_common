@@ -12,6 +12,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
+#include "bwi_kr_execution/ExecutePlanAction.h"
 #include "SearchPlanner.h"
 
 #include <fstream>
@@ -27,6 +28,51 @@ geometry_msgs::PoseWithCovarianceStamped curr_position;
 void callbackCurrPos(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {
     curr_position = *msg;
 }
+
+
+SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
+
+    nh = node_handle;
+
+    doors.push_back("d3_414b1");
+    doors.push_back("d3_414b2");
+    doors.push_back("d3_414a1");
+    doors.push_back("d3_414a2");
+
+    client = KrClinet("/action_executor/execute_plan", true);
+    client.waitForServer(); 
+}
+
+bool SearchPlannerSimple::moveToNextDoor() {
+    
+    int goal_door = 0; 
+
+    ROS_INFO_STREAM("going to " << doors.at(goal_door));
+    bwi_kr_execution::ExecutePlanGoal goal; 
+    bwi_kr_execution::AspRule rule;
+    bwi_kr_execution::AspFluent fluent;
+    fluent.name = "not beside";
+    fluent.variables.push_back(doors.at(goal_door));
+    rule.body.push_back(fluent);
+    goal.aspGoal.push_back(rule);
+
+    ROS_INFO("sending goal"); 
+    client.sendGoalAndWait(goal); 
+
+    if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
+        ROS_INFO("Aborted");
+    } else if (client.getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
+        ROS_INFO("Preempted");
+    }
+
+    else if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+        ROS_INFO("Succeeded!");
+    } else
+        ROS_INFO("Terminated");
+
+    return 0; 
+}
+
 
 SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_yaml, float goal_tolerance) : 
         tolerance(goal_tolerance) {

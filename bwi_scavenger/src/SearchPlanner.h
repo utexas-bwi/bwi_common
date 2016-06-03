@@ -9,6 +9,22 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 
 #define PI (3.1415926)
+typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> KrClient;
+
+class SearchPlannerSimple {
+public:
+
+    SearchPlannerSimple(ros::NodeHandle *nh); 
+
+    bool moveToNextDoor(); 
+
+private: 
+
+    KrClient client; 
+    ros::NodeHandle *nh;
+    std::vector<std::string> doors; 
+
+}; 
 
 class SearchPlanner {
 public: 

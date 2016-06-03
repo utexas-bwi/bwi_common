@@ -40,7 +40,7 @@ public:
     void visionThread();
     void motionThread(); 
 
-    SearchPlanner *search_planner; 
+    SearchPlannerSimple *search_planner_simple; 
 
     Color color; 
     std::string directory; 

@@ -26,8 +26,9 @@ public:
     void motionThread(); 
 
     bool random_walk_flag; 
+    bool target_detected; 
 
-    SearchPlanner *search_planner; 
+    SearchPlannerSimple *search_planner_simple; 
 
     std::string object_name, room_name_from, room_name_to; 
 
