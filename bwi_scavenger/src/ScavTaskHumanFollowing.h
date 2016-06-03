@@ -10,28 +10,55 @@
 #include "ScavTask.h"
 #include "SearchPlanner.h"
 
+#include <move_base_msgs/MoveBaseAction.h>
+#include <move_base_msgs/MoveBaseActionResult.h>
+#include <actionlib/client/simple_action_client.h>
+
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+
 namespace scav_task_human_following {
 
 class ScavTaskHumanFollowing : public ScavTask {
 public:
 
-    ScavTaskHumanFollowing() {}
-    ScavTaskHumanFollowing(ros::NodeHandle *node_handle, std::string path_of_dir); 
+    ScavTaskHumanFollowing() : ac("") {}
+    ScavTaskHumanFollowing(ros::NodeHandle *node_handle, std::string path_of_dir);
 
-    void executeTask(int timeout, TaskResult &result, std::string &record); 
+    void executeTask(int timeout, TaskResult &result, std::string &record);
     void visionThread();
-    void motionThread(); 
+    void motionThread();
 
-    void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg); 
-    void callback_image(const sensor_msgs::ImageConstPtr& msg); 
+    void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    void callback_image(const sensor_msgs::ImageConstPtr& msg);
+    void callback_ac_followed(const actionlib::SimpleClientGoalState& state,
+                              const move_base_msgs::MoveBaseResultConstPtr& result);
+    void callback_ac_reached(const actionlib::SimpleClientGoalState& state,
+                             const move_base_msgs::MoveBaseResultConstPtr& result);
+    void callback_ac_done(const actionlib::SimpleClientGoalState& state,
+                          const move_base_msgs::MoveBaseResultConstPtr& result);
 
-    void moveToPose(const geometry_msgs::Pose); 
+    void amclPoseCallback(
+        const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
 
-    SearchPlanner *search_planner; 
+
+    void moveToPose(const geometry_msgs::Pose);
+
+    SearchPlanner *search_planner;
     std::string directory;
-    ros::Publisher pub_simple_goal; 
 
-    bool task_completed; 
-}; 
+    bool task_completed;
+private:
+    static const double human_following_pose_offset = 1;
+    static const double human_pose_delta_threshold = 1.0;
+
+    geometry_msgs::PoseStamped human_pose;
+    geometry_msgs::PoseStamped human_following_pose;
+    geometry_msgs::Pose current_pose;
+    int human_detected;
+    ros::Time detected_time;
+    ros::Publisher cmd_vel_pub;
+    MoveBaseClient ac;
+
+};
 }
 #endif
