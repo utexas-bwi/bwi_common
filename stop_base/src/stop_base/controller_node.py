@@ -89,7 +89,7 @@ class ControllerNode(object):
         :type msg: `geometry_msgs/Twist`_
         """
         with self.lock:
-            #rospy.logdebug('cmd_vel callback: ' + str(msg))
+            # rospy.logdebug('cmd_vel callback: ' + str(msg))
             self.last_command = msg
             if self.state.status == StopBaseStatus.RUNNING:
                 self.pub_vel.publish(msg)

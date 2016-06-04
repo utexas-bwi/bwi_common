@@ -68,8 +68,8 @@ class RequesterNode(object):
             status=status,
             requester=rospy.get_name())
 
-        rospy.loginfo('Stop base is now '
-                      + STATE_NAME[result.status.status])
+        rospy.loginfo('Stop base is now ' +
+                      STATE_NAME[result.status.status])
 
 
 STATUS_OPTIONS = {
