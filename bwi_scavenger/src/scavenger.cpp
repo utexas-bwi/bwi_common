@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
         TaskWithStatus *task_status; 
         task_status = task_manager->selectNextTask();
         task_manager->updateStatusGui(); 
+        task_manager->publishStatus(); 
         task_manager->executeNextTask(TIMEOUT, task_status); 
-        task_manager->updateStatusGui(); 
     }
 
     return 0; 

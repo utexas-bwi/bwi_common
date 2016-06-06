@@ -9,6 +9,9 @@
 TaskManager::TaskManager (ros::NodeHandle *nh) {
     this->nh = nh; 
     gui_client = nh->serviceClient <bwi_msgs::QuestionDialog> ("question_dialog");
+
+    pub = this->nh->advertise<bwi_msgs::ScavStatus>("/scav_hunt_status", 1000); 
+    ros::Rate loop_rate(10); 
 }
 
 void TaskManager::addTask(TaskWithStatus *task_with_status) {
@@ -77,3 +80,23 @@ bool TaskManager::allFinished() {
     return true; 
 }
 
+void TaskManager::publishStatus() {
+
+    msg.names.clear();
+    msg.statuses.clear();
+
+    for (int i=0; i<tasks.size(); i++) {
+        msg.names.push_back(tasks[i].task->task_name);
+        ROS_INFO_STREAM("name pushed: " << tasks[i].task->task_name); 
+
+        if (tasks[i].status == ONGOING)
+            msg.statuses.push_back(bwi_msgs::ScavStatus::ONGOING);
+        else if (tasks[i].status == FINISHED)
+            msg.statuses.push_back(bwi_msgs::ScavStatus::FINISHED);
+        else if (tasks[i].status == TODO)
+            msg.statuses.push_back(bwi_msgs::ScavStatus::TODO); 
+    }
+
+    pub.publish(msg); 
+    ros::spinOnce(); 
+}

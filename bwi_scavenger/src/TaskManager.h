@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 
+#include "bwi_msgs/ScavStatus.h"
 #include "ScavTask.h"
 
 enum TaskStatus { ONGOING, FINISHED, TODO }; 
@@ -38,8 +39,14 @@ public:
     void executeNextTask(int timeout, TaskWithStatus *task); 
     TaskWithStatus *selectNextTask(); 
     void updateStatusGui(); 
+
+    void publishStatus(); 
     bool allFinished(); 
 
+private:
+    
+    ros::Publisher pub; 
+    bwi_msgs::ScavStatus msg; 
 }; 
 
 

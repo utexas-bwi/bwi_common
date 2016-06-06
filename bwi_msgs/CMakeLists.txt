@@ -16,6 +16,7 @@ add_message_files(
     AvailableRobot.msg
     AvailableRobotArray.msg
     StopBaseStatus.msg
+    ScavStatus.msg
 )
 
 add_service_files(
