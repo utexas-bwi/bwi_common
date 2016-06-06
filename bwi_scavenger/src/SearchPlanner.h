@@ -1,6 +1,9 @@
 #ifndef SEARCHPLANNER_H
 #define SEARCHPLANNER_H
 
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+
 #include <ros/ros.h>
 #include <yaml-cpp/yaml.h>
 #include <vector>
@@ -28,6 +31,7 @@ private:
     KrClient *client; 
     ros::NodeHandle *nh;
     std::vector<std::string> doors; 
+    int goal_door; 
 
 }; 
 

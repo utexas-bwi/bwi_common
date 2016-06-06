@@ -37,11 +37,13 @@ SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
 
     client = new KrClient("/action_executor/execute_plan", true);
     client->waitForServer(); 
+    goal_door = 0; 
+    srand(time(NULL)); 
 }
 
 bool SearchPlannerSimple::moveToNextDoor() {
     
-    int goal_door = 0; 
+    goal_door = (goal_door + rand()) % doors.size(); 
 
     ROS_INFO_STREAM("going to " << doors.at(goal_door));
     bwi_kr_execution::ExecutePlanGoal goal; 
