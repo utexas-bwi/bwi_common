@@ -8,11 +8,7 @@
 #include <tf/LinearMath/Transform.h>
 #include <tf/transform_datatypes.h>
 
-#include <move_base_msgs/MoveBaseAction.h>
-#include <actionlib/client/simple_action_client.h>
-#include <actionlib/client/terminal_state.h>
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
 #include "SearchPlanner.h"
 
 #include <fstream>
@@ -39,8 +35,8 @@ SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
     doors.push_back("d3_414a1");
     doors.push_back("d3_414a2");
 
-    client = KrClinet("/action_executor/execute_plan", true);
-    client.waitForServer(); 
+    client = new KrClient("/action_executor/execute_plan", true);
+    client->waitForServer(); 
 }
 
 bool SearchPlannerSimple::moveToNextDoor() {
@@ -57,15 +53,15 @@ bool SearchPlannerSimple::moveToNextDoor() {
     goal.aspGoal.push_back(rule);
 
     ROS_INFO("sending goal"); 
-    client.sendGoalAndWait(goal); 
+    client->sendGoalAndWait(goal); 
 
-    if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
+    if (client->getState() == actionlib::SimpleClientGoalState::ABORTED) {
         ROS_INFO("Aborted");
-    } else if (client.getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
+    } else if (client->getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
         ROS_INFO("Preempted");
     }
 
-    else if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+    else if (client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
         ROS_INFO("Succeeded!");
     } else
         ROS_INFO("Terminated");

@@ -7,6 +7,11 @@
 #include <string>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+
+#include "bwi_kr_execution/ExecutePlanAction.h"
 
 #define PI (3.1415926)
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> KrClient;
@@ -20,7 +25,7 @@ public:
 
 private: 
 
-    KrClient client; 
+    KrClient *client; 
     ros::NodeHandle *nh;
     std::vector<std::string> doors; 
 
