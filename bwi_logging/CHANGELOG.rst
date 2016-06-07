@@ -2,6 +2,28 @@
 Changelog for package bwi_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add some ROS progress logging (`#46
+  <https://github.com/utexas-bwi/bwi_common/issues/46>`_)
+* do not wait for bags upload to finish (`#46
+  <https://github.com/utexas-bwi/bwi_common/issues/46>`_)
+* automatically upload any bag with "bwi" prefix (`#46
+  <https://github.com/utexas-bwi/bwi_common/issues/46>`_)
+* always run rosbag record with -j option (`#46
+  <https://github.com/utexas-bwi/bwi_common/issues/46>`_)
+* rewrite launch file to conditionally run the node to record extra
+  topics
+* compute time and distance totals (`#41
+  <https://github.com/utexas-bwi/bwi_common/issues/41>`_)
+* compress bag data on upload (`#41
+  <https://github.com/utexas-bwi/bwi_common/issues/41>`_)
+* Drop 99 out of 100 odometry message (`#41
+  <https://github.com/utexas-bwi/bwi_common/issues/41>`_)
+* create target upload directory, if needed (`#40
+  <https://github.com/utexas-bwi/bwi_common/issues/40>`_)
+* Contributors: Jack O'Quin, Pato
+
 0.3.7 (2015-09-22)
 ------------------
 * make logging work, even when installed as a binary package (`#32 <https://github.com/jack-oquin/bwi_common/issues/32>`_)

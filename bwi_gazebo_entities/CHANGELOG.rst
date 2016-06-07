@@ -2,6 +2,11 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* merged with yuqian's branch.
+* Contributors: Piyush Khandelwal
+
 0.3.7 (2015-09-22)
 ------------------
 

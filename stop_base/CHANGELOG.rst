@@ -1,6 +1,12 @@
 Change history
 ==============
 
+Forthcoming
+-----------
+* stop_base: fix unit tests (`#53 <https://github.com/utexas-bwi/bwi_common/issues/53>`_)
+* fixed file permissions for nodes.
+* Contributors: Jack O'Quin, Piyush Khandelwal
+
 0.3.7 (2015-09-22)
 ------------------
 * install stop_base nodes (`#37 <https://github.com/jack-oquin/bwi_common/issues/37>`_)
