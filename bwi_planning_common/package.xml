@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_planning_common</name>
-  <version>0.3.7</version>
+  <version>0.3.8</version>
   <description>
     Common data structures, messages and service defintions used for
     deterministic planning work in the BWI project at the University of Texas
