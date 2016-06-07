@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.8 (2016-06-06)
+------------------
 * fix broken clingo dependency (`#52 <https://github.com/utexas-bwi/bwi_common/issues/52>`_)
 * moved disabling static map from bwi_kr_execution to
   segbot_logical_translator, where it should have been in the first

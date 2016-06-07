@@ -2,8 +2,8 @@
 Changelog for package bwi_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.8 (2016-06-06)
+------------------
 * add some ROS progress logging (`#46
   <https://github.com/utexas-bwi/bwi_common/issues/46>`_)
 * do not wait for bags upload to finish (`#46

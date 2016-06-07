@@ -2,8 +2,8 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.8 (2016-06-06)
+------------------
 * fixed problems with sketchup model.
 * updated multimap.
 * made more progress in migrating locations from the old map.

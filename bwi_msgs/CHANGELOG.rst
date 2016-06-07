@@ -2,8 +2,8 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.8 (2016-06-06)
+------------------
 * updated simulated calls that open the elevator doors to
   automatically close those doors.
 * added a service interface to allow teleporting a robot.
