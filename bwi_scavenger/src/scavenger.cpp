@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
         task_manager->publishStatus(); 
 
         ROS_INFO_STREAM("executing next task"); 
-        // task_manager->executeNextTask(TIMEOUT, task_status); 
+        task_manager->executeNextTask(TIMEOUT, task_status); 
     }
 
     return 0; 

@@ -100,6 +100,8 @@ void TaskManager::publishStatus() {
         ROS_INFO_STREAM("   status added.. "); 
     }
 
+    ros::spinOnce(); 
+    ros::spinOnce(); 
     pub.publish(msg); 
     ros::spinOnce(); 
     ros::spinOnce(); 
