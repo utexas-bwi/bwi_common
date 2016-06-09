@@ -59,10 +59,18 @@ int main(int argc, char **argv) {
 
     while (task_manager->allFinished() == false) {
         TaskWithStatus *task_status; 
+
+        ROS_INFO_STREAM("selecting next task"); 
         task_status = task_manager->selectNextTask();
+
+        ROS_INFO_STREAM("updating GUI"); 
         task_manager->updateStatusGui(); 
+
+        ROS_INFO_STREAM("publishing scavenger hunt status"); 
         task_manager->publishStatus(); 
-        task_manager->executeNextTask(TIMEOUT, task_status); 
+
+        ROS_INFO_STREAM("executing next task"); 
+        // task_manager->executeNextTask(TIMEOUT, task_status); 
     }
 
     return 0; 

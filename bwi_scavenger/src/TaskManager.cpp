@@ -82,12 +82,13 @@ bool TaskManager::allFinished() {
 
 void TaskManager::publishStatus() {
 
+    ROS_INFO("preparing to publish to /scav_hunt_status.."); 
     msg.names.clear();
     msg.statuses.clear();
 
     for (int i=0; i<tasks.size(); i++) {
         msg.names.push_back(tasks[i].task->task_name);
-        ROS_INFO_STREAM("name pushed: " << tasks[i].task->task_name); 
+        ROS_INFO_STREAM("   name addedd: " << tasks[i].task->task_name); 
 
         if (tasks[i].status == ONGOING)
             msg.statuses.push_back(bwi_msgs::ScavStatus::ONGOING);
@@ -95,8 +96,11 @@ void TaskManager::publishStatus() {
             msg.statuses.push_back(bwi_msgs::ScavStatus::FINISHED);
         else if (tasks[i].status == TODO)
             msg.statuses.push_back(bwi_msgs::ScavStatus::TODO); 
+
+        ROS_INFO_STREAM("   status added.. "); 
     }
 
     pub.publish(msg); 
+    ros::spinOnce(); 
     ros::spinOnce(); 
 }
