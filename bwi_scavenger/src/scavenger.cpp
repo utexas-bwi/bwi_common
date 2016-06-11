@@ -4,6 +4,7 @@
 
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <boost/thread.hpp>
 
 #include "ScavTask.h"
 #include "TaskManager.h"
@@ -19,12 +20,13 @@
 #define NUM_OF_TASK_TYPES (4)
 
 using namespace scav_task_human_following; 
+TaskManager* task_manager; 
 
 int main(int argc, char **argv) {
 
     ros::init(argc, argv, "scavenger");
     ros::NodeHandle *nh = new ros::NodeHandle();
-    TaskManager* task_manager = new TaskManager(nh); 
+    task_manager = new TaskManager(nh); 
 
     std::string dir(ros::package::getPath("bwi_logging") + "/log_files/"); 
     
@@ -56,8 +58,12 @@ int main(int argc, char **argv) {
     }
 
     task_manager->updateStatusGui(); 
+    boost::thread p_thread( &publish_thread, this); 
+    if (p_thread.joinable()) {
+        p_thread.join(); 
+    }
 
-    while (task_manager->allFinished() == false) {
+    while (ros::ok() && task_manager->allFinished() == false) {
         TaskWithStatus *task_status; 
 
         ROS_INFO_STREAM("selecting next task"); 
@@ -66,13 +72,19 @@ int main(int argc, char **argv) {
         ROS_INFO_STREAM("updating GUI"); 
         task_manager->updateStatusGui(); 
 
-        ROS_INFO_STREAM("publishing scavenger hunt status"); 
-        task_manager->publishStatus(); 
-
         ROS_INFO_STREAM("executing next task"); 
         task_manager->executeNextTask(TIMEOUT, task_status); 
     }
 
     return 0; 
 }
+
+void publishThread() {
+    while (ros::ok() && false == task_manager->allFinished()) {
+        ros::Duration(0.1).sleep() 
+        ROS_INFO_STREAM("publishing scavenger hunt status"); 
+        task_manager->publishStatus(); 
+    }
+}
+
 
