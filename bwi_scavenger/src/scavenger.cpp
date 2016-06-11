@@ -22,6 +22,15 @@
 using namespace scav_task_human_following; 
 TaskManager* task_manager; 
 
+void publishThread() {
+    while (ros::ok() && false == task_manager->allFinished()) {
+        ros::Duration(0.1).sleep(); 
+        ROS_INFO_STREAM("publishing scavenger hunt status"); 
+        task_manager->publishStatus(); 
+    }
+}
+
+
 int main(int argc, char **argv) {
 
     ros::init(argc, argv, "scavenger");
@@ -58,7 +67,7 @@ int main(int argc, char **argv) {
     }
 
     task_manager->updateStatusGui(); 
-    boost::thread p_thread( &publish_thread, this); 
+    boost::thread p_thread( &publishThread); 
     if (p_thread.joinable()) {
         p_thread.join(); 
     }
@@ -76,15 +85,9 @@ int main(int argc, char **argv) {
         task_manager->executeNextTask(TIMEOUT, task_status); 
     }
 
-    return 0; 
-}
+    p_thread.detach(); 
 
-void publishThread() {
-    while (ros::ok() && false == task_manager->allFinished()) {
-        ros::Duration(0.1).sleep() 
-        ROS_INFO_STREAM("publishing scavenger hunt status"); 
-        task_manager->publishStatus(); 
-    }
+    return 0; 
 }
 
 
