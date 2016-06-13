@@ -4,6 +4,6 @@ maps:
     origin: [0, 0, 0, 0, 0, 0]
     data_directory: package://utexas_gdc/maps/real/2
   3rdFloor:
-    yaml: package://utexas_gdc/maps/real/3ne/3ne.yaml
+    yaml: package://utexas_gdc/maps/real/3/3.yaml
     origin: [0, 0, 5, 0, 0, 0]
-    data_directory: package://utexas_gdc/maps/real/3ne
+    data_directory: package://utexas_gdc/maps/real/3
