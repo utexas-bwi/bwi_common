@@ -37,6 +37,28 @@ room(l3_434).
 room(l3_432). 
 room(l3_408).
 
+%3rd Floor South
+room(l3_828).
+room(l3_824).
+room(l3_818).
+room(l3_816).
+room(l3_814).
+room(l3_830).
+room(l3_728).
+room(l3_724).
+room(l3_722).
+room(l3_710b).
+room(l3_710a).
+room(l3_710).
+room(l3_804).
+room(l3_802).
+room(l3_718).
+room(l3_702).
+room(l3_700).
+room(l3_800).
+room(l3_600).
+
+
 room(l2_302).
 room(l2_300).
 room(l2_702).
@@ -72,6 +94,20 @@ door(d3_414b2).
 door(d3_414b1). 
 door(d3_432). 
 door(d3_436).
+
+%3rd Floor South
+door(d3_824).
+door(d3_816a).
+door(d3_816b).
+door(d3_710b1).
+door(d3_710b2).
+door(d3_710b3).
+door(d3_710a1).
+door(d3_710a2).
+door(d3_710a3).
+door(d3_600).
+door(d3_303).
+
 
 door(d2_302_south).
 door(d2_302_east).
@@ -151,6 +187,40 @@ hasdoor(l3_400,d3_432).
 hasdoor(l3_436,d3_436). 
 hasdoor(l3_400,d3_436). 
 
+%3rd Floor South
+hasdoor(l3_824,d3_824).
+hasdoor(l3_800,d3_824).
+
+hasdoor(l3_816,d3_816a).
+hasdoor(l3_814,d3_816a).
+
+hasdoor(l3_816,d3_816b).
+hasdoor(l3_800,d3_816b).
+
+hasdoor(l3_710b,d3_710b1).
+hasdoor(l3_800,d3_710b1).
+
+hasdoor(l3_710b,d3_710b2).
+hasdoor(l3_700,d3_710b2).
+
+hasdoor(l3_710b,d3_710b3).
+hasdoor(l3_710,d3_710b3).
+
+hasdoor(l3_710a,d3_710a1).
+hasdoor(l3_700,d3_710a1).
+
+hasdoor(l3_710a,d3_710a2).
+hasdoor(l3_800,d3_710a2).
+
+hasdoor(l3_710a,d3_710a3).
+hasdoor(l3_710,d3_710a3).
+
+hasdoor(l3_600,d3_600).
+hasdoor(l3_100,d3_600).
+
+hasdoor(l3_600,d3_303).
+hasdoor(l3_100,d3_303).
+
 
 hasdoor(l2_302, d2_302_south).
 hasdoor(l2_100, d2_302_south).
@@ -192,6 +262,24 @@ acc(l3_302, l3_303).
 acc(l3_302, l3_300). 
 acc(l3_250, l3_300). 
 acc(l3_250, l3_303). 
+
+%3rd Floor South
+acc(l3_828, l3_800).
+acc(l3_818, l3_800).
+acc(l3_814, l3_800).
+acc(l3_830, l3_800).
+acc(l3_728, l3_800).
+acc(l3_728, l3_700).
+acc(l3_724, l3_800).
+acc(l3_724, l3_700).
+acc(l3_722, l3_700).
+acc(l3_718, l3_700).
+acc(l3_600, l3_700).
+acc(l3_702, l3_700).
+acc(l3_804, l3_800).
+acc(l3_804, l3_700).
+acc(l3_802, l3_800).
+acc(l3_802, l3_700).
 
 
 acc(l2_302, l2_300).
