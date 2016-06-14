@@ -57,6 +57,7 @@ room(l3_702).
 room(l3_700).
 room(l3_800).
 room(l3_600).
+room(l3_100).
 
 
 room(l2_302).
@@ -218,7 +219,7 @@ hasdoor(l3_710,d3_710a3).
 hasdoor(l3_600,d3_600).
 hasdoor(l3_100,d3_600).
 
-hasdoor(l3_600,d3_303).
+hasdoor(l3_303,d3_303).
 hasdoor(l3_100,d3_303).
 
 
