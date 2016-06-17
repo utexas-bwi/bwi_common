@@ -2,6 +2,11 @@
 Changelog for package bwi_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* merged with yuqian's branch.
+* Contributors: Piyush Khandelwal
+
 0.3.7 (2015-09-22)
 ------------------
 

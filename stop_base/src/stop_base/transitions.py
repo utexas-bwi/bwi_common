@@ -54,7 +54,7 @@ from . import TransitionError
 # Printable name for each state, indexed by number.
 STATE_NAME = ['RUNNING', 'PAUSED', 'STOPPED']
 
-## State transition table.
+# State transition table.
 #
 #  An immutable set of (old, new) status pairs.  All pairs in the
 #  table are considered valid state transitions.  Any others are not.
@@ -104,9 +104,9 @@ class StopBaseState(object):
         :raises: :exc:`.TransitionError` if not a valid transition.
         """
         if not self.valid(msg.status.status):
-            raise TransitionError('invalid ' + STATE_NAME[msg.status.status]
-                                  + ' request in state '
-                                  + STATE_NAME[self.status])
+            raise TransitionError('invalid ' + STATE_NAME[msg.status.status] +
+                                  ' request in state ' +
+                                  STATE_NAME[self.status])
 
         if msg.status.status == StopBaseStatus.PAUSED:
             if self.status != StopBaseStatus.STOPPED:

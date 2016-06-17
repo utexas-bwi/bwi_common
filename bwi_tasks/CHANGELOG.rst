@@ -2,6 +2,14 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* merged with yuqian's branch `#51
+  <https://github.com/utexas-bwi/bwi_common/issues/51>`_
+* added example of using gui to direct the robot
+* added example task that uses the gui in C++
+* Contributors: Jivko Sinapov, Piyush Khandelwal
+
 0.3.2 (2015-03-24)
 ------------------
 

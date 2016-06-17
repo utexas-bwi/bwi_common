@@ -2,6 +2,12 @@
 Changelog for package bwi_scavenger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* use GlobalPlanner instead of navfn
+* door map for corpp experiments
+* Contributors: Piyush Khandelwal, Shiqi Zhang
+
 0.3.7 (2015-09-22)
 ------------------
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_tasks</name>
-  <version>0.3.2</version>
+  <version>0.3.8</version>
   <description>
     High-level tasks for the UTexas Building-Wide Intelligence project. 
   </description>
@@ -21,6 +21,7 @@
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
   <depend>bwi_kr_execution</depend>
+  <depend>bwi_msgs</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
