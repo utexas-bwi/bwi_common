@@ -37,7 +37,6 @@ room(l3_434).
 room(l3_432). 
 room(l3_408).
 
-%3rd Floor South
 room(l3_828).
 room(l3_824).
 room(l3_818).
@@ -96,10 +95,8 @@ door(d3_414b1).
 door(d3_432). 
 door(d3_436).
 
-%3rd Floor South
 door(d3_824).
 door(d3_816a).
-door(d3_816b).
 door(d3_710b1).
 door(d3_710b2).
 door(d3_710b3).
@@ -188,15 +185,14 @@ hasdoor(l3_400,d3_432).
 hasdoor(l3_436,d3_436). 
 hasdoor(l3_400,d3_436). 
 
-%3rd Floor South
 hasdoor(l3_824,d3_824).
 hasdoor(l3_800,d3_824).
 
-hasdoor(l3_816,d3_816a).
-hasdoor(l3_814,d3_816a).
+%hasdoor(l3_816,d3_816a).
+%hasdoor(l3_814,d3_816a).
 
-hasdoor(l3_816,d3_816b).
-hasdoor(l3_800,d3_816b).
+hasdoor(l3_816,d3_816a).
+hasdoor(l3_800,d3_816a).
 
 hasdoor(l3_710b,d3_710b1).
 hasdoor(l3_800,d3_710b1).
@@ -264,7 +260,6 @@ acc(l3_302, l3_300).
 acc(l3_250, l3_300). 
 acc(l3_250, l3_303). 
 
-%3rd Floor South
 acc(l3_828, l3_800).
 acc(l3_818, l3_800).
 acc(l3_814, l3_800).
@@ -301,6 +296,36 @@ acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 
 object(coffee_counter).                                                         
 inside(coffee_counter, l2_302).
+
+object(o3_828).
+inside(l3_828, o3_828).
+
+object(o3_728).
+inside(l3_728, o3_728).
+
+object(o3_724).
+inside(l3_724, o3_724).
+
+object(o3_718).
+inside(l3_718, o3_718).
+
+object(o3_818).
+inside(l3_818, o3_818).
+
+object(o3_814).
+inside(l3_814, o3_814).
+
+object(o3_830).
+inside(l3_830, o3_830).
+
+object(o3_834).
+inside(l3_834, o3_834).
+
+object(o3_802).
+inside(l3_802, o3_802).
+
+object(o3_702).
+inside(l3_702, o3_702).
 
 badDoor(d3_418).
 badDoor(d3_414b1).
