@@ -12,6 +12,7 @@ TaskManager::TaskManager (ros::NodeHandle *nh) {
 
     pub = this->nh->advertise<bwi_msgs::ScavStatus>("/scav_hunt_status", 1000); 
     ros::Rate loop_rate(10); 
+    paused = false; 
 }
 
 void TaskManager::addTask(TaskWithStatus *task_with_status) {
@@ -106,3 +107,4 @@ void TaskManager::publishStatus() {
     ros::spinOnce(); 
     ros::spinOnce(); 
 }
+

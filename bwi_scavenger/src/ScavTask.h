@@ -19,6 +19,9 @@ public:
 
     virtual void executeTask(int timeout, TaskResult &result, std::string &record) {}
 
+    virtual void stopEarly() {}
+
+
 }; 
 
 #endif

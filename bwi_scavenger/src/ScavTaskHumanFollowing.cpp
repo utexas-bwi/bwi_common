@@ -225,4 +225,7 @@ void ScavTaskHumanFollowing::executeTask(int timeout, TaskResult &result, std::s
 }
 
 
+void ScavTaskHumanFollowing::stopEarly() {
+    task_completed = true; 
+}
 }

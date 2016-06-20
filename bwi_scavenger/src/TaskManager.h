@@ -37,16 +37,23 @@ public:
     void addTask(TaskWithStatus* task); 
 
     void executeNextTask(int timeout, TaskWithStatus *task); 
-    TaskWithStatus *selectNextTask(); 
+
     void updateStatusGui(); 
 
     void publishStatus(); 
+
     bool allFinished(); 
 
+    TaskWithStatus *selectNextTask(); 
+
+    bool paused; 
 private:
     
     ros::Publisher pub; 
     bwi_msgs::ScavStatus msg; 
+
+
+
 }; 
 
 

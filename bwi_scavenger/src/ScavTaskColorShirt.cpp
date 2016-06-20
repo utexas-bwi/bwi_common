@@ -144,3 +144,6 @@ void ScavTaskColorShirt::executeTask(int timeout, TaskResult &result, std::strin
     result = SUCCEEDED; 
 }
 
+void ScavTaskColorShirt::stopEarly() {
+    task_completed = true; 
+}

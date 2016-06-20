@@ -124,3 +124,6 @@ void ScavTaskWhiteBoard::executeTask(int timeout, TaskResult &result, std::strin
     result = SUCCEEDED; 
 }
 
+void ScavTaskWhiteBoard::stopEarly() {
+    task_completed = true; 
+}

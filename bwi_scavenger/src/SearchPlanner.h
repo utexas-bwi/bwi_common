@@ -20,25 +20,33 @@
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> KrClient;
 
 class SearchPlannerSimple {
+
 public:
 
+    SearchPlannerSimple() {}; 
     SearchPlannerSimple(ros::NodeHandle *nh); 
 
     bool moveToNextDoor(); 
 
+
+protected: 
+
+    ros::NodeHandle *nh;
+    KrClient *client; 
+
+    bool cancelCurrentGoal(); 
+
 private: 
 
-    KrClient *client; 
-    ros::NodeHandle *nh;
     std::vector<std::string> doors; 
     int goal_door; 
 
 }; 
 
-class SearchPlanner {
+class SearchPlanner : SearchPlannerSimple {
 public: 
 
-    SearchPlanner() {}
+    SearchPlanner() {}; 
     SearchPlanner(ros::NodeHandle *nh, std::string path_to_yaml, float goal_tolerance); 
 
     std::vector<geometry_msgs::PoseStamped> positions; 
@@ -48,7 +56,7 @@ public:
     ros::Publisher pub_simple_goal; 
     ros::Subscriber sub_amcl_pose; 
 
-    ros::NodeHandle *nh;
+    // ros::NodeHandle *nh;
 
     geometry_msgs::PoseStamped next_goal; 
 

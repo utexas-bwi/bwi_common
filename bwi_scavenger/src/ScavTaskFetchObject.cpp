@@ -158,4 +158,3 @@ void ScavTaskFetchObject::hriThread() {
     ROS_INFO("fetch_object_service task done"); 
 }
 
-

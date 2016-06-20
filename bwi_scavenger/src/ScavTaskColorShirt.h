@@ -37,6 +37,7 @@ public:
     ScavTaskColorShirt(ros::NodeHandle *node_handle, std::string path_of_dir, Color shirt_color); 
 
     void executeTask(int timeout, TaskResult &result, std::string &record); 
+    void stopEarly(); 
     void visionThread();
     void motionThread(); 
 

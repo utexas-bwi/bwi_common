@@ -24,6 +24,7 @@ public:
     void executeTask(int timeout, TaskResult &result, std::string &record); 
     void hriThread();
     void motionThread(); 
+    void stopEarly() {}
 
     bool random_walk_flag; 
     bool target_detected; 

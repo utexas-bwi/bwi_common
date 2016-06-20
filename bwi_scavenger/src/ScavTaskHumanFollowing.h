@@ -27,6 +27,7 @@ public:
     void executeTask(int timeout, TaskResult &result, std::string &record);
     void visionThread();
     void motionThread();
+    void stopEarly(); 
 
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void callback_image(const sensor_msgs::ImageConstPtr& msg);
@@ -47,6 +48,7 @@ public:
     std::string directory;
 
     bool task_completed;
+
 private:
     static const double human_following_pose_offset = 1;
     static const double human_pose_delta_threshold = 1.0;

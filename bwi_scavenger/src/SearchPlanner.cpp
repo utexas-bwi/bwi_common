@@ -41,6 +41,24 @@ SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
     srand(time(NULL)); 
 }
 
+bool SearchPlannerSimple::cancelCurrentGoal() {
+
+    ros::Publisher pub1 = nh->advertise<actionlib_msgs::GoalID>
+            ("/move_base/cancel", 1000); 
+    actionlib_msgs::GoalID msg; 
+
+    ros::spinOnce(); 
+    ros::spinOnce(); 
+
+    pub1.publish(msg); 
+
+    ros::spinOnce(); 
+    ros::spinOnce(); 
+
+    client->cancelAllGoals(); 
+
+}
+
 bool SearchPlannerSimple::moveToNextDoor() {
     
     goal_door = (goal_door + rand()) % doors.size(); 

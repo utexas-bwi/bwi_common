@@ -25,6 +25,7 @@ public:
     void executeTask(int timeout, TaskResult &result, std::string &record); 
     void visionThread();
     void motionThread(); 
+    void stopEarly(); 
 
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg); 
     void callback_image(const sensor_msgs::ImageConstPtr& msg); 
