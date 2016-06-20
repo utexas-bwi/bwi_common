@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
     task_manager = new TaskManager(nh); 
 
     std::string dir(ros::package::getPath("bwi_logging") + "/log_files/"); 
+
+    ros::ServiceServer scav_srv = nh->advertiseService("/scav_control", callback_srv_scav);
+    ROS_INFO("Ready to provide scav task pause/resume service"); 
+    ros:spin(); 
     
     int cnt = 0; 
     srand(time(NULL)); 
