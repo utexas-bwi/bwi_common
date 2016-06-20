@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
     ros::ServiceServer scav_srv = nh->advertiseService("/scav_control", callback_srv_scav);
     ROS_INFO("Ready to provide scav task pause/resume service"); 
-    ros:spin(); 
+    ros::spin(); 
     
     int cnt = 0; 
     srand(time(NULL)); 
