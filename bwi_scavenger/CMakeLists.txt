@@ -15,16 +15,17 @@ add_definitions(${PCL_DEFINITIONS})
 
 find_package(catkin REQUIRED 
     COMPONENTS
-        roscpp
-        std_msgs
         actionlib
         actionlib_msgs
         bwi_kr_execution
+        bwi_msgs
         cv_bridge
         image_transport
         message_generation
         move_base_msgs
         pcl_ros
+        roscpp
+        std_msgs
         std_msgs
 )
 
@@ -33,8 +34,9 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 
 catkin_package(
     CATKIN_DEPENDS 
-        actionlib_msgs 
-        message_runtime 
+        actionlib_msgs
+        bwi_msgs
+        message_runtime
         move_base_msgs
         roscpp
         std_msgs

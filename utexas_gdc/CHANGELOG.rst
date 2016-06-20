@@ -2,6 +2,21 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* fixed problems with sketchup model.
+* updated multimap.
+* made more progress in migrating locations from the old map.
+* added the updated simulation multimap
+* door map for corpp experiments
+* Contributors: Piyush Khandelwal, Shiqi Zhang
+
+0.3.7 (2015-09-22)
+------------------
+
+0.3.6 (2015-08-25)
+------------------
+
 0.3.5 (2015-08-22)
 ------------------
 

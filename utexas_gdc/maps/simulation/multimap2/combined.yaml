@@ -1,0 +1,9 @@
+maps:
+  2ndFloor:
+    yaml: package://utexas_gdc/maps/simulation/multimap2/2/2.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/simulation/multimap2/2
+  3rdFloor:
+    yaml: package://utexas_gdc/maps/simulation/multimap2/3ne/3ne.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/simulation/multimap2/3ne

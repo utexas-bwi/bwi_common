@@ -10,6 +10,10 @@
 
 #include <ros/time.h>
 
+namespace actasp {
+  class PartialPolicy;
+}
+
 namespace bwi_krexec {
 
 template <typename State>
@@ -40,6 +44,11 @@ public:
   void actionTerminated(const actasp::AspFluent& action) throw() {
     
   }
+  
+  void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() {}
+  
+  void policyChanged(actasp::PartialPolicy* policy) throw() {}
+
   
   virtual ~TimeReward() {}  
 private:

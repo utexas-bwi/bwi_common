@@ -1,0 +1,10 @@
+This package is designed for use with the "joy" public package. It accepts input from the "joy" topic
+and publishes to the "cmd_vel" topic. This has been tested only with a wired xbox 360 controller, but
+should work for most controller types (according to the joy package). Controls are as follows:
+-"Tank Drive" The left stick forward and back provides positive and negative linear.x movement while
+    the right stick right and left provide positive and negative angular.z movement.
+-Using the directional pad allows the user to change the speed multipliers. Up on the D-pad increases
+    the linear multiplier, while down decreases it. Right on the D-pad increases the angular (turning)
+    multiplier, while left decreases it.
+-Pressing/Holding the "B" button (the red button on the right side of xbox 360 controllers) will send
+    a constant stream of 0 velocity commands until released. This is used as an emergency stop.

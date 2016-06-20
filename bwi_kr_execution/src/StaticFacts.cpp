@@ -26,8 +26,8 @@ void StaticFacts::retrieveStaticFacts(AspKR *reasoner, const std::string& domain
         std::ifstream infile(itr->path().string().c_str());
         std::string line;
         while (std::getline(infile, line)) {
-          if (boost::algorithm::contains(line, "#hide")) {
-            boost::replace_all(line, "#hide", "#show");
+          if (boost::algorithm::contains(line, "%#show")) {
+            boost::replace_all(line, "%", "");
             query_string_list.push_back(line);
           }
         }
@@ -38,7 +38,7 @@ void StaticFacts::retrieveStaticFacts(AspKR *reasoner, const std::string& domain
 
   /* std::cout << "out" << std::endl; */
   std::string query = boost::algorithm::join(query_string_list, "\n");
-  static_facts = (reasoner->query(query, 0, 0)).front();
+  static_facts = (reasoner->query(query, 0)).front();
 }
 
 std::list<actasp::AspAtom> StaticFacts::staticFacts() {

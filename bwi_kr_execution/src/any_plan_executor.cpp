@@ -9,6 +9,7 @@
 #include "actasp/ExecutionObserver.h"
 #include "actasp/PlanningObserver.h"
 #include "actasp/AnswerSet.h"
+#include <actasp/reasoners/Clingo4_2.h>
 
 
 #include "bwi_kr_execution/ExecutePlanAction.h"
@@ -71,6 +72,10 @@ struct Observer : public ExecutionObserver, public PlanningObserver {
    
    ROS_INFO_STREAM(planStream.str());
   }
+  
+  void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() {}
+  
+  void policyChanged(PartialPolicy* policy) throw() {}
   
   
 };
@@ -138,7 +143,8 @@ int main(int argc, char**argv) {
   
   boost::filesystem::create_directories(queryDirectory);
 
-  AspKR *reasoner = new RemoteReasoner(MAX_N,queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  FilteringQueryGenerator *generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  AspKR *reasoner = new RemoteReasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
   Planner *planner = new AnyPlan(reasoner,1.);
   

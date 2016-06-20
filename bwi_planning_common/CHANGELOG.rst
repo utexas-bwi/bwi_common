@@ -2,6 +2,19 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* fixed permissions of the logical_marker script.
+* merged with yuqian's branch.
+* made more progress in migrating locations from the old map.
+* Contributors: Piyush Khandelwal
+
+0.3.7 (2015-09-22)
+------------------
+
+0.3.6 (2015-08-25)
+------------------
+
 0.3.5 (2015-08-22)
 ------------------
 

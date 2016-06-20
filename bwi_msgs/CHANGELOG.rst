@@ -2,6 +2,22 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* updated simulated calls that open the elevator doors to
+  automatically close those doors.
+* added a service interface to allow teleporting a robot.
+* added service for resolving a change floor request.
+* Contributors: Piyush Khandelwal
+
+0.3.7 (2015-09-22)
+------------------
+
+0.3.6 (2015-08-25)
+------------------
+* add SemanticParser.srv to bwi_msgs (`#30 <https://github.com/utexas-bwi/bwi_common/issues/30>`_)
+* Contributors: Jack O'Quin
+
 0.3.5 (2015-08-22)
 ------------------
 * bwi_msgs: fix catkin lint problems (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)

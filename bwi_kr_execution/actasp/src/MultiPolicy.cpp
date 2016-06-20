@@ -22,34 +22,43 @@ ActionSet MultiPolicy::actions(const std::set<AspFluent>& state) const throw() {
 	return ActionSet();
 }
 
+void MultiPolicy::merge(const PartialPolicy* otherPolicy) {
+    const MultiPolicy *other = dynamic_cast<const MultiPolicy*>(otherPolicy);
+    if(other != NULL)
+      merge(other);
+    else 
+      throw runtime_error("method not implemented for a partial policy other than MultiPolicy");
+}
+
 void MultiPolicy::merge(const AnswerSet& plan) throw(logic_error) {
 
 
   //ignore the last time step becuase it's the final state and has no actions
   unsigned int planLength = plan.maxTimeStep();
 
-  set<AspFluent> fluents = plan.getFluentsAtTime(0);
-
-	for (int timeStep = 1; timeStep <= planLength; ++timeStep) {
+  set<AspFluent> state = plan.getFluentsAtTime(0);
+  
+	for (int timeStep = 1; timeStep <=planLength; ++timeStep) {
 		
-		set<AspFluent> fluentsWithAction = plan.getFluentsAtTime(timeStep);
+		set<AspFluent> stateWithAction = plan.getFluentsAtTime(timeStep);
     
     //find the action
-    set<AspFluent>::iterator actionIt = find_if(fluentsWithAction.begin(),fluentsWithAction.end(),IsAnAction(allActions));
+    set<AspFluent>::iterator actionIt = find_if(stateWithAction.begin(),stateWithAction.end(),IsAnAction(allActions));
     
-    if(actionIt == fluentsWithAction.end())
+    if(actionIt == stateWithAction.end())
       throw logic_error("MultiPolicy: no action for some state");
     
     AspFluent action = *actionIt;
 		
 		//remove the action from there
-		fluentsWithAction.erase(actionIt);
+		stateWithAction.erase(actionIt);
 		
-		ActionSet &stateActions = policy[fluents]; //creates an empty vector if not present
+		ActionSet &stateActions = policy[state]; //creates an empty vector if not present
 
 		stateActions.insert(action);
-
-    fluents = fluentsWithAction;
+    
+    //TODO check this
+    state = stateWithAction;
     
 	}
 
@@ -74,13 +83,13 @@ struct MergeActions {
   std::map<std::set<AspFluent>, ActionSet, StateComparator<AspFluent> > &policy;
 };
 
-void MultiPolicy::merge(const MultiPolicy& otherPolicy) {
+void MultiPolicy::merge(const MultiPolicy* otherPolicy) {
   
-  set_union(otherPolicy.allActions.begin(),otherPolicy.allActions.end(),
+  set_union(otherPolicy->allActions.begin(),otherPolicy->allActions.end(),
                  allActions.begin(),allActions.end(),
                  inserter(allActions,allActions.begin()));
   
-  for_each(otherPolicy.policy.begin(),otherPolicy.policy.end(),MergeActions(policy));
+  for_each(otherPolicy->policy.begin(),otherPolicy->policy.end(),MergeActions(policy));
 }
 
 bool MultiPolicy::empty() const throw() {

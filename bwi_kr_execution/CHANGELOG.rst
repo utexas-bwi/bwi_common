@@ -2,26 +2,33 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.3.5 (2015-08-22)
+0.3.8 (2016-06-06)
 ------------------
-* bwi_kr_execution: fix catkin lint warning (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)
-* Contributors: Jack O'Quin
-
-0.3.4 (2015-08-19)
-------------------
-
-0.3.3 (2015-08-05)
-------------------
-* Indigo: change clingo dependency to gringo
-* add a new node in bwi_kr_execution to keep updating states
-* made current state query only return fluents at 0, perhaps safer for the learning executor
-* upgrade to clingo 4.2.1 interface
-* changed actasp to use clingo 4 syntax
-* allowing AskPerson to work without the sound node
-* adding a task for learning experiment, and a flag to the action theory to prevent the use of questions in tasks that don't need them
-* adding time to the logging of actions and reward.
-* Delete bwi_kr_execution_simulation.launch, closed issue `#20 <https://github.com/utexas-bwi/bwi_common/issues/20>`_
-* Contributors: Jack O'Quin, Matteo Leonetti, Shiqi Zhang, yuqian
+* fix broken clingo dependency (`#52 <https://github.com/utexas-bwi/bwi_common/issues/52>`_)
+* moved disabling static map from bwi_kr_execution to
+  segbot_logical_translator, where it should have been in the first
+  place.
+* the gothrough action disables the global costmap. the callelevator
+  action only expects the door in front of it to open.
+* added simulated change floor action. added hack to make plan shorter
+  when using the elevator, and the other door opens.
+* updated simulated calls that open the elevator doors to
+  automatically close those doors.
+* added a simulation change floor action. Should be ready for real
+  robot testing now.
+* added missing actions that won't be displayed in clingo output
+* fixing planning issues with elevators
+* some more updates to bwi_kr_execution. fixing some merge issues.
+* merged with yuqian's branch.
+* updated navigation facts for simulation.
+* Added additional facts for 2nd floor to navigation facts.
+* Changed location of elavator doors on 2nd floor to l2_200 from
+  l2_302.
+* Fixed static facts bug, by adding ``%#show hasdoor`` to
+  elavator_facts. Fixed navigation bug on 2nd floor, by adding 2nd
+  floor locations to navigation_facts.
+* Clingo4 code fixes for current robot elevator code
+* Contributors: Rolando Fernandez, Jack O'Quin, Piyush Khandelwal, Yuqian Jiang
 
 0.3.2 (2015-03-24)
 ------------------

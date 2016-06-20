@@ -2,6 +2,17 @@
 Changelog for package bwi_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.8 (2016-06-06)
+------------------
+* merged with yuqian's branch.
+* Contributors: Piyush Khandelwal
+
+0.3.7 (2015-09-22)
+------------------
+
+0.3.6 (2015-08-25)
+------------------
+
 0.3.5 (2015-08-22)
 ------------------
 * bwi_tools: fix catkin lint problems (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)

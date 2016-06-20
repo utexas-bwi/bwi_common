@@ -11,6 +11,7 @@
 #include <actasp/PlanningObserver.h>
 #include <actasp/execution_observer_utils.h>
 
+#include <iostream>
 #include <list>
 #include <algorithm>
 #include <iterator>
@@ -47,15 +48,15 @@ ReplanningActionExecutor::~ReplanningActionExecutor() {
 }
 
 struct NotifyNewPlan {
-  
+
   NotifyNewPlan(const AnswerSet& plan) : plan(plan) {}
-  
+
   void operator()(PlanningObserver* observer) {
     observer->planChanged(plan);
   }
-  
+
   AnswerSet plan;
-  
+
 };
 
 void ReplanningActionExecutor::computePlan() {
@@ -67,10 +68,10 @@ void ReplanningActionExecutor::computePlan() {
   }
 
   hasFailed = plan.empty();
-  
+
   if(!hasFailed)
     for_each(planningObservers.begin(),planningObservers.end(),NotifyNewPlan(planToAnswerSet(plan)));
-  
+
 }
 
 void ReplanningActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) throw() {
@@ -94,22 +95,26 @@ void ReplanningActionExecutor::executeActionStep() {
       for_each(executionObservers.begin(),executionObservers.end(),NotifyActionStart(current->toFluent(actionCounter)));
       newAction = false;
   }
- 
+
 
   current->run();
 
   if (current->hasFinished()) {
     //destroy the action and pop a new one
-    
+
     for_each(executionObservers.begin(),executionObservers.end(),NotifyActionTermination(current->toFluent(actionCounter++)));
-    
+
     delete current;
     plan.pop_front();
-    
+
     newAction = true;
 
+    std::cout << "STARTING PLAN VERIFICATION. Remaining plan size: " << plan.size() << std::endl;
+
     if (plan.empty() || !kr->isPlanValid(planToAnswerSet(plan),goalRules)) {
-      
+
+      std::cout << "PLAN VERIFICATION FAILED. Starting plan recomputation." << std::endl;
+
       //if not valid, replan
       for_each(plan.begin(),plan.end(),ActionDeleter());
       plan.clear();
@@ -119,9 +124,9 @@ void ReplanningActionExecutor::executeActionStep() {
     }
 
   }
-  
-  
-  
+
+
+
 }
 
 void ReplanningActionExecutor::addExecutionObserver(ExecutionObserver *observer) throw() {

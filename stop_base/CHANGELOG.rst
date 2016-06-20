@@ -1,6 +1,21 @@
 Change history
 ==============
 
+0.3.8 (2016-06-06)
+------------------
+* stop_base: fix unit tests (`#53 <https://github.com/utexas-bwi/bwi_common/issues/53>`_)
+* fixed file permissions for nodes.
+* Contributors: Jack O'Quin, Piyush Khandelwal
+
+0.3.7 (2015-09-22)
+------------------
+* install stop_base nodes (`#37 <https://github.com/jack-oquin/bwi_common/issues/37>`_)
+* stop_base: fix broken links in README
+* Contributors: Jack O'Quin
+
+0.3.6 (2015-08-25)
+------------------
+
 0.3.5 (2015-08-22)
 ------------------
 * stop_base: eliminate catkin lint errors (`#31 <https://github.com/utexas-bwi/bwi_common/issues/31>`_)

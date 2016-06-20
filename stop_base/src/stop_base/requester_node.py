@@ -68,14 +68,15 @@ class RequesterNode(object):
             status=status,
             requester=rospy.get_name())
 
-        rospy.loginfo('Stop base is now '
-                      + STATE_NAME[result.status.status])
+        rospy.loginfo('Stop base is now ' +
+                      STATE_NAME[result.status.status])
 
 
 STATUS_OPTIONS = {
-        'RUNNING': 0, 'running': 0, 'r': 0,
-        'PAUSED': 1, 'paused': 1, 'p': 1,
-        'STOPPED': 2, 'stopped': 2, 's': 2}
+    'RUNNING': 0, 'running': 0, 'r': 0,
+    'PAUSED': 1, 'paused': 1, 'p': 1,
+    'STOPPED': 2, 'stopped': 2, 's': 2}
+
 
 def main():
     """ Requester node main entry point. """

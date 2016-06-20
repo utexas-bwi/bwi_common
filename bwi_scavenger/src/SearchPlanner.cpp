@@ -47,14 +47,15 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
 
     belief = std::vector<float> (yaml_positions.size(), 1.0/yaml_positions.size()); 
 
-    client_make_plan = nh->serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan"); 
+    client_make_plan = nh->serviceClient <nav_msgs::GetPlan> ("move_base/GlobalPlanner/make_plan"); 
 
     pub_simple_goal = nh->advertise<geometry_msgs::PoseStamped>("/move_base_interruptable_simple/goal", 100);
 
     sub_amcl_pose = nh->subscribe("amcl_pose", 100, callbackCurrPos); 
     ros::Duration(1.0).sleep(); 
-    
+
     for (int i=0; i<yaml_positions.size(); i++) {
+#ifdef HAVE_NEW_YAMLCPP
         geometry_msgs::PoseStamped tmp_pose; 
         tmp_pose.header.frame_id = "level_mux/map";
         tmp_pose.pose.position.x = yaml_positions[i][0].as<double>(); 
@@ -62,11 +63,16 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
         tmp_pose.pose.orientation.z = yaml_positions[i][2].as<double>(); 
         tmp_pose.pose.orientation.w = yaml_positions[i][3].as<double>(); 
         positions.push_back(tmp_pose); 
+#else
+#warning "yaml-cpp version < 0.5.0 does not work"
+        // For Ubuntu Saucy to work, this would require a yaml-cpp
+        // 0.3.0 compatible implementation.  Since we don't use Saucy,
+        // we just let it fail.
+#endif
     }        
 
     setTargetDetection(false); 
     ros::spinOnce(); 
-
 }
 
 geometry_msgs::PoseStamped SearchPlanner::selectNextScene(const std::vector<float> &belief, int &next_goal_index) {
