@@ -293,39 +293,82 @@ acc(R1,R1) :- room(R1).
 acc(R1,R2) :- acc(R2,R1), room(R1), room(R2).                                   
 acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).             
 
+%Not on the map
+%object(coffee_counter).                                                         
+%inside(coffee_counter, l2_302).
 
-object(coffee_counter).                                                         
-inside(coffee_counter, l2_302).
+object(o2_coffee_shop).
+inside(o2_coffee_shop,l2_102).
+
+object(o2_auditorium_entrance).
+inside(o2_auditorium_entrance,l2_200).
+
+object(o2_200_entrance).
+inside(o2_200_entrance,l2_100).
+
+object(o2_600_entrance).
+inside(o2_600_entrance,l2_100).
+
+object(o2_100_center).
+inside(o2_100_center,l2_100).
+
+
+
+object(o3_434_soccer).
+inside(o3_434_soccer,l3_434).
+
+object(o3_500_printer).
+inside(o3_500_printer,l3_500).
+
+object(o3_406_table).
+inside(o3_406_table,l3_406).
+
+object(o3_200_elearea).
+inside(o3_200_elearea,l3_200).
+
+object(o3_300_wics).
+inside(o3_300_wics,l3_300).
+
+object(o3_302_shelf).
+inside(o3_302_shelf,l3_302).
+
+object(o3_302_couch).
+inside(o3_302_couch,l3_302).
+
+object(o3_302_printer).
+inside(o3_302_printer,l3_302).
+
 
 object(o3_828).
-inside(l3_828, o3_828).
+inside(o3_828,l3_828).
 
 object(o3_728).
-inside(l3_728, o3_728).
+inside(o3_728,l3_728).
 
 object(o3_724).
-inside(l3_724, o3_724).
+inside(o3_724,l3_724).
 
 object(o3_718).
-inside(l3_718, o3_718).
+inside(o3_718,l3_718).
 
 object(o3_818).
-inside(l3_818, o3_818).
+inside(o3_818,l3_818).
 
 object(o3_814).
-inside(l3_814, o3_814).
+inside(o3_814,l3_814).
 
 object(o3_830).
-inside(l3_830, o3_830).
+inside(o3_830,l3_830).
 
 object(o3_834).
-inside(l3_834, o3_834).
+inside(o3_834,l3_834).
 
 object(o3_802).
-inside(l3_802, o3_802).
+inside(o3_802,l3_802).
 
 object(o3_702).
-inside(l3_702, o3_702).
+inside(o3_702,l3_702).
+
 
 badDoor(d3_418).
 badDoor(d3_414b1).
