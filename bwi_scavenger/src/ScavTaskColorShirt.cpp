@@ -91,7 +91,15 @@ ScavTaskColorShirt::ScavTaskColorShirt(ros::NodeHandle *nh, std::string dir, Col
     directory = dir; 
     color = shirt_color; 
     task_description = "find a person wearing a color shirt: "; 
-    task_name = "Color shirt: "; 
+
+    std::string str; 
+    if (color == BLUE) str = "Blue"; 
+    else if (color == YELLOW) str = "Yellow"; 
+    else if (color == RED) str = "Red"; 
+    else if (color == GREEN) str = "Green"; 
+    else if (color == ORANGE) str = "Orange"; 
+
+    task_name = "Color shirt: " + str; 
 
     task_completed = false;     
     std::ostringstream stream; 
