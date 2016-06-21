@@ -26,7 +26,6 @@ find_package(catkin REQUIRED
         pcl_ros
         roscpp
         std_msgs
-        std_msgs
 )
 
 
@@ -40,6 +39,7 @@ catkin_package(
         move_base_msgs
         roscpp
         std_msgs
+        bwi_kr_execution
 )
 
 ###########

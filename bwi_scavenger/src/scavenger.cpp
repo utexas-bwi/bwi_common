@@ -1,6 +1,9 @@
 
 #include <ros/ros.h>
 #include <ros/package.h>
+#include "std_msgs/String.h"
+#include "bwi_kr_execution/ExecutePlanAction.h"
+#include <actionlib/client/simple_action_client.h>
 
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
@@ -23,6 +26,7 @@
 using namespace scav_task_human_following; 
 TaskManager* task_manager; 
 TaskWithStatus *curr_task; 
+ros::NodeHandle *nh;
 
 void publishThread() {
     while (ros::ok() && false == task_manager->allFinished()) {
@@ -35,10 +39,28 @@ void publishThread() {
 bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req, 
                        bwi_msgs::ScavHunt::Response &res) {
  
+    ROS_INFO_STREAM("callback_srv_scav is called (0 pause, 1 resume): " << curr_task->status);
     if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_PAUSE) {
         curr_task->status = TODO; 
         curr_task->task->stopEarly(); 
         task_manager->paused = true; 
+
+        actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> client("/action_executor/execute_plan", true);
+        ros::spinOnce(); 
+        ros::spinOnce(); 
+        client.cancelAllGoals (); 
+
+        ros::Publisher pub = nh->advertise<actionlib_msgs::GoalID>("/move_base/cancel", 10);
+        actionlib_msgs::GoalID msg; 
+        msg.id = ""; 
+        // msg.stamp = ros::Time::now();
+        
+        ros::spinOnce(); 
+        pub.publish(msg);
+        ros::spinOnce(); 
+        pub.publish(msg);
+        ros::spinOnce(); 
+
     } else if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_RESUME) {
         task_manager->paused  = false; 
     }
@@ -48,14 +70,16 @@ bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req,
 int main(int argc, char **argv) {
 
     ros::init(argc, argv, "scavenger");
-    ros::NodeHandle *nh = new ros::NodeHandle();
+    nh = new ros::NodeHandle();
     task_manager = new TaskManager(nh); 
 
     std::string dir(ros::package::getPath("bwi_logging") + "/log_files/"); 
 
     ros::ServiceServer scav_srv = nh->advertiseService("/scav_control", callback_srv_scav);
     ROS_INFO("Ready to provide scav task pause/resume service"); 
-    ros::spin(); 
+    ros::AsyncSpinner spinner(2); 
+    spinner.start(); 
+    // ros::spin(); 
     
     int cnt = 0; 
     srand(time(NULL)); 
@@ -84,7 +108,8 @@ int main(int argc, char **argv) {
     boost::thread p_thread( &publishThread); 
 
     while (ros::ok() && task_manager->allFinished() == false) {
-
+ 
+        ROS_INFO_STREAM("paused? " << task_manager->paused);
         if (task_manager->paused) {
             ros::Duration(2).sleep(); 
             continue; 
