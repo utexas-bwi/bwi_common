@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
         int r = rand() % NUM_OF_TASK_TYPES; 
 
         // to initialize a task and label its status as Todo
+
         if (r == 0) {
             Color color = static_cast<Color>(rand() % COLOR_LENGTH);
             task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, color), TODO)); 

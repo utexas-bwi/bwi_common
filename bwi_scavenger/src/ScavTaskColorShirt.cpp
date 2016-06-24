@@ -11,10 +11,12 @@
 
 #define INTMAX (32767)
 #define INTMIN (-32767)
-#define COLOR_RATIO (0.35)
+#define COLOR_RATIO (0.25)
 #define DISTANCE_TO_COLOR (200)
-#define SHIRT_HEIGHT_TOP (-0.1)
-#define SHIRT_HEIGHT_BOTTOM (-0.9)
+// #define SHIRT_HEIGHT_TOP (-0.1)
+// #define SHIRT_HEIGHT_BOTTOM (-0.9)
+#define SHIRT_HEIGHT_TOP (0.5)
+#define SHIRT_HEIGHT_BOTTOM (-0.5)
 
 sensor_msgs::ImageConstPtr image; 
 
@@ -52,10 +54,16 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
         case ORANGE:    baseline = Rgb(191.0, 87.0, 0.0);   break;
     }
 
+    float highest = -10000.0;
+    float lowest = 10000.0; 
+
     BOOST_FOREACH (const pcl::PointXYZRGB& pt, msg->points) {
 
         // here we assume the waist height is 90cm, and neck height is 160cm; 
         // the robot sensor's height is 60cm
+        
+        highest = (highest > pt.y) ? highest : pt.y; 
+        lowest = (lowest < pt.y) ? lowest : pt.y;
         if (pt.y > SHIRT_HEIGHT_BOTTOM 
                 and pt.y < SHIRT_HEIGHT_TOP 
                 and this->getColorDistance( &pt, &baseline) < DISTANCE_TO_COLOR) 
@@ -63,6 +71,7 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
             color_cnt++;
         }
     }
+    ROS_INFO_STREAM("highest: " << highest << " lowest: " << lowest); 
 
     float ratio = (float) color_cnt / (float) msg->points.size();
 
@@ -148,7 +157,7 @@ void ScavTaskColorShirt::executeTask(int timeout, TaskResult &result, std::strin
     boost::thread motion( &ScavTaskColorShirt::motionThread, this); 
     boost::thread vision( &ScavTaskColorShirt::visionThread, this);
 
-    motion.join();
+    // motion.join();
     vision.join();
 
     record = path_to_image; 
