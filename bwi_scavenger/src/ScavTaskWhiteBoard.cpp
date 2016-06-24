@@ -21,6 +21,7 @@ ScavTaskWhiteBoard::ScavTaskWhiteBoard(ros::NodeHandle *nh, std::string dir) {
     directory = dir;
     task_description = "find a person standing near a whiteboard"; 
     task_name = "White board"; 
+    certificate = ""; 
 
     task_completed = false; 
 }

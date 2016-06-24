@@ -14,6 +14,7 @@ ScavTaskFetchObject::ScavTaskFetchObject(ros::NodeHandle *nh, std::string dir) {
     directory = dir; 
     task_description = "fetch an object from a place to another"; 
     task_name = "Fetch object"; 
+    certificate = ""; 
     targetDetected = false; 
 }
 

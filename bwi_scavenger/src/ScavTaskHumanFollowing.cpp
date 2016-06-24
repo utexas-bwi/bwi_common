@@ -27,6 +27,7 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
     directory = dir;
     task_description = "following a human for a distance";
     task_name = "Human following";
+    certificate = ""; 
 
     while (!ac.waitForServer(ros::Duration(5.0)))
     {

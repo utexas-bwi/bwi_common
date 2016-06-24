@@ -56,8 +56,10 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
 
         // here we assume the waist height is 90cm, and neck height is 160cm; 
         // the robot sensor's height is 60cm
-        if (pt.y > SHIRT_HEIGHT_BOTTOM and pt.y < SHIRT_HEIGHT_TOP 
-                and this->getColorDistance( &pt, &baseline) < DISTANCE_TO_COLOR) {            
+        if (pt.y > SHIRT_HEIGHT_BOTTOM 
+                and pt.y < SHIRT_HEIGHT_TOP 
+                and this->getColorDistance( &pt, &baseline) < DISTANCE_TO_COLOR) 
+        {            
             color_cnt++;
         }
     }
@@ -91,6 +93,7 @@ ScavTaskColorShirt::ScavTaskColorShirt(ros::NodeHandle *nh, std::string dir, Col
     directory = dir; 
     color = shirt_color; 
     task_description = "find a person wearing a color shirt: "; 
+    certificate = ""; 
 
     std::string str; 
     if (color == BLUE) str = "Blue"; 
