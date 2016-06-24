@@ -2,6 +2,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 #include <boost/lexical_cast.hpp>
+#include <cstddef>
 
 #include "bwi_msgs/QuestionDialog.h"
 #include "TaskManager.h"
@@ -102,7 +103,12 @@ void TaskManager::publishStatus() {
         else if (tasks[i].status == TODO)
             msg.statuses.push_back(bwi_msgs::ScavStatus::TODO); 
 
-        msg.certificates.push_back(tasks[i].task->certificate); 
+        // full path to certificiate
+        std::string certificate = tasks[i].task->certificate; 
+        std::size_t found = certificate.find_last_of("/"); 
+        // only the file name
+        certificate = certificate.substr(found+1); 
+        msg.certificates.push_back(certificate); 
         // ROS_INFO_STREAM("   status added.. "); 
     }
 
