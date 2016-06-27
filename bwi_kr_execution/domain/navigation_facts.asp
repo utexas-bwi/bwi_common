@@ -117,6 +117,19 @@ door(d2_702_east).
 door(d2_700).
 
 
+door(d1_416).
+door(d1_412).
+door(d1_408).
+door(d1_406).
+door(d1_404).
+door(d1_402).
+door(d1_210a).
+door(d1_210b).
+door(d1_304a).
+door(d1_304b).
+door(d1_728).
+
+
 hasdoor(l3_404,d3_404). 
 hasdoor(l3_400,d3_404). 
 
@@ -244,6 +257,40 @@ hasdoor(l2_700, d2_700).
 hasdoor(l2_600, d2_700).
 
 
+hasdoor(l1_416, d1_416).
+hasdoor(l1_400, d1_416).
+
+hasdoor(l1_412, d1_412).
+hasdoor(l1_400, d1_412).
+
+hasdoor(l1_408, d1_408).
+hasdoor(l1_400, d1_408).
+
+hasdoor(l1_406, d1_406).
+hasdoor(l1_400, d1_406).
+
+hasdoor(l1_404, d1_404).
+hasdoor(l1_400, d1_404).
+
+hasdoor(l1_402, d1_402).
+hasdoor(l1_400, d1_402).
+
+hasdoor(l1_210, d1_210a).
+hasdoor(l1_200, d1_210a).
+
+hasdoor(l1_210, d1_210b).
+hasdoor(l1_200, d1_210b).
+
+hasdoor(l1_304, d1_304a).
+hasdoor(l1_300, d1_304a).
+
+hasdoor(l1_304, d1_304b).
+hasdoor(l1_302, d1_304b).
+
+hasdoor(l1_728, d1_728).
+hasdoor(l1_700, d1_728).
+
+
 acc(l3_434, l3_400). 
 acc(l3_434, l3_500). 
 acc(l3_518, l3_500). 
@@ -286,6 +333,17 @@ acc(l2_100, l2_600).
 acc(l2_702, l2_700).
 
 
+acc(l1_400, l1_200).
+acc(l1_200, l1_302).
+acc(l1_200, l1_310).
+acc(l1_200, l1_300).
+acc(l1_300, l1_302).
+acc(l1_300, l1_310).
+acc(l1_300, l1_308).
+acc(l1_600, l1_700).
+acc(l1_700, l1_800).
+
+
 dooracc(R1,D,R2) :- hasdoor(R1,D), hasdoor(R2,D), R1 != R2, door(D), room(R1), room(R2).
 dooracc(R1,D,R2) :- dooracc(R2,D,R1).
 
@@ -294,8 +352,13 @@ acc(R1,R2) :- acc(R2,R1), room(R1), room(R2).
 acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).             
 
 %Not on the map
-%object(coffee_counter).                                                         
-%inside(coffee_counter, l2_302).
+object(coffee_counter).                                                         
+inside(coffee_counter, l2_302).
+
+
+object(o1_800).
+inside(o1_800,l1_800).
+
 
 object(o2_coffee_shop).
 inside(o2_coffee_shop,l2_102).
