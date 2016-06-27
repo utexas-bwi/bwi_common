@@ -14,6 +14,7 @@ enum TaskStatus { ONGOING, FINISHED, TODO };
 struct TaskWithStatus {
     ScavTask *task; 
     TaskStatus status; 
+    std::string certificate; 
 
     TaskWithStatus() : task(NULL), status(TODO) {}
 

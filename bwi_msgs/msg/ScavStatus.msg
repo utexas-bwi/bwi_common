@@ -4,3 +4,4 @@ int32 TODO = 3
 
 string[] names
 int32[] statuses
+string[] certificates

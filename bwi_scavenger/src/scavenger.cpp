@@ -40,17 +40,22 @@ bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req,
                        bwi_msgs::ScavHunt::Response &res) {
  
     ROS_INFO_STREAM("callback_srv_scav is called (0 pause, 1 resume): " << curr_task->status);
+
     if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_PAUSE) {
         curr_task->status = TODO; 
         curr_task->task->stopEarly(); 
         task_manager->paused = true; 
 
-        actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> client("/action_executor/execute_plan", true);
+        actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> 
+            client("/action_executor/execute_plan", true);
+
         ros::spinOnce(); 
         ros::spinOnce(); 
         client.cancelAllGoals (); 
 
-        ros::Publisher pub = nh->advertise<actionlib_msgs::GoalID>("/move_base/cancel", 10);
+        ros::Publisher pub = nh->advertise<actionlib_msgs::GoalID>
+            ("/move_base/cancel", 10);
+
         actionlib_msgs::GoalID msg; 
         msg.id = ""; 
         // msg.stamp = ros::Time::now();
@@ -59,7 +64,6 @@ bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req,
         pub.publish(msg);
         ros::spinOnce(); 
         pub.publish(msg);
-        ros::spinOnce(); 
 
     } else if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_RESUME) {
         task_manager->paused  = false; 
@@ -90,6 +94,7 @@ int main(int argc, char **argv) {
         int r = rand() % NUM_OF_TASK_TYPES; 
 
         // to initialize a task and label its status as Todo
+
         if (r == 0) {
             Color color = static_cast<Color>(rand() % COLOR_LENGTH);
             task_manager->addTask(new TaskWithStatus(new ScavTaskColorShirt(nh, dir, color), TODO)); 

@@ -2,6 +2,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 #include <boost/lexical_cast.hpp>
+#include <cstddef>
 
 #include "bwi_msgs/QuestionDialog.h"
 #include "TaskManager.h"
@@ -37,11 +38,14 @@ TaskWithStatus* TaskManager::selectNextTask() {
     }
 }
 
-void TaskManager::executeNextTask(int timeout, TaskWithStatus *task_with_status) {
-    TaskResult result;
-    std::string record(""); 
+void TaskManager::executeNextTask(int timeout, TaskWithStatus *task_with_status) 
+{
 
-    task_with_status->task->executeTask(timeout, result, record); 
+    TaskResult result;
+    std::string certificate; 
+
+    task_with_status->task->executeTask(timeout, result, certificate); 
+    task_with_status->task->certificate = certificate; 
     task_with_status->status = FINISHED; 
 }
 
@@ -83,13 +87,14 @@ bool TaskManager::allFinished() {
 
 void TaskManager::publishStatus() {
 
-    ROS_INFO("preparing to publish to /scav_hunt_status.."); 
+    // ROS_INFO("publishing scavenger hunt status"); 
     msg.names.clear();
     msg.statuses.clear();
+    msg.certificates.clear(); 
 
     for (int i=0; i<tasks.size(); i++) {
         msg.names.push_back(tasks[i].task->task_name);
-        ROS_INFO_STREAM("   name addedd: " << tasks[i].task->task_name); 
+        // ROS_INFO_STREAM("   name addedd: " << tasks[i].task->task_name); 
 
         if (tasks[i].status == ONGOING)
             msg.statuses.push_back(bwi_msgs::ScavStatus::ONGOING);
@@ -98,7 +103,13 @@ void TaskManager::publishStatus() {
         else if (tasks[i].status == TODO)
             msg.statuses.push_back(bwi_msgs::ScavStatus::TODO); 
 
-        ROS_INFO_STREAM("   status added.. "); 
+        // full path to certificiate
+        std::string certificate = tasks[i].task->certificate; 
+        std::size_t found = certificate.find_last_of("/"); 
+        // only the file name
+        certificate = certificate.substr(found+1); 
+        msg.certificates.push_back(certificate); 
+        // ROS_INFO_STREAM("   status added.. "); 
     }
 
     ros::spinOnce(); 
