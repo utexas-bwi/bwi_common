@@ -193,7 +193,7 @@ void ScavTaskHumanFollowing::motionThread() {
             }
             // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
-            // task_completed = true;
+            task_completed = true;
         }
     }
 }
@@ -208,7 +208,7 @@ void ScavTaskHumanFollowing::visionThread() {
         1, &ScavTaskHumanFollowing::callback_image, this);
 
     ros::Rate r(10);
-    while (ros::ok() and r.sleep()) {
+    while (ros::ok() and r.sleep() and !task_completed) {
         ros::spinOnce();
     }
 }
