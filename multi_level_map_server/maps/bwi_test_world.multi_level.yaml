@@ -1,0 +1,16 @@
+maps:
+  level1:
+    yaml: package://multi_level_map_server/maps/bwi_test_world.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://multi_level_map_server/maps/
+  level2:
+    yaml: package://multi_level_map_server/maps/bwi_test_world.yaml
+    origin: [0, 0, 5, 0, 0, 0]
+    data_directory: package://multi_level_map_server/maps/
+links:
+  - from_point:
+      level_id: level1
+      point: [6.4,5.2,0]
+    to_point:
+      level_id: level2
+      point: [6.4,5.2,0]
