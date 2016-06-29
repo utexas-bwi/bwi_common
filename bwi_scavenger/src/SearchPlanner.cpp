@@ -39,6 +39,7 @@ SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
     client->waitForServer(); 
     goal_door = 0; 
     srand(time(NULL)); 
+   busy = false; 
 }
 
 bool SearchPlannerSimple::cancelCurrentGoal() {
@@ -74,6 +75,7 @@ bool SearchPlannerSimple::moveToNextDoor() {
 
     ROS_INFO("sending goal"); 
     client->sendGoalAndWait(goal); 
+    busy = true; 
 
     if (client->getState() == actionlib::SimpleClientGoalState::ABORTED) {
         ROS_INFO("Aborted");
@@ -86,6 +88,7 @@ bool SearchPlannerSimple::moveToNextDoor() {
     } else
         ROS_INFO("Terminated");
 
+    busy = false; 
     return 0; 
 }
 
@@ -131,8 +134,10 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
         // 0.3.0 compatible implementation.  Since we don't use Saucy,
         // we just let it fail.
 #endif
+
     }        
 
+    busy = false; 
     setTargetDetection(false); 
     ros::spinOnce(); 
 }
@@ -187,6 +192,7 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
     bool hasArrived = false; 
     ROS_INFO("Moving to next scene"); 
 
+    busy = true; 
     while (ros::ok() and !hasArrived and false == getTargetDetection()) {
 
         ros::spinOnce(); 
@@ -204,6 +210,7 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
         ros::Duration(1.0).sleep();
     }
     ROS_INFO("Arrived"); 
+    busy = false; 
 }
 
 void SearchPlanner::analyzeScene(float angle, float angular_vel) {
@@ -213,6 +220,7 @@ void SearchPlanner::analyzeScene(float angle, float angular_vel) {
     vel.linear.x = 0;
     vel.linear.y = 0;
 
+    busy = true; 
     for (int i=0; i<170; i++) {
         if (i<10 or i>160) {
             vel.angular.z = 0;
@@ -230,6 +238,7 @@ void SearchPlanner::analyzeScene(float angle, float angular_vel) {
         if (getTargetDetection())
             break; 
     }
+    busy = false; 
 }
 
 void SearchPlanner::updateBelief(int next_goal_index) {

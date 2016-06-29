@@ -30,6 +30,7 @@ public:
 
     bool cancelCurrentGoal(); 
 
+    bool busy; 
 
 protected: 
 

@@ -41,12 +41,14 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
     search_planner_simple = new SearchPlannerSimple(nh); 
 
     task_completed = false;
-    human_detected = 0;
+    human_detected = -1;
 }
 
 
 void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
+    search_planner_simple->cancelCurrentGoal();
+
     detected_time = ros::Time::now();
 
     ROS_INFO("Person detected");
@@ -140,12 +142,6 @@ void ScavTaskHumanFollowing::motionThread() {
 
     ros::Rate r(2);
 
-    // random visit door until a human's detected
-    while (ros::ok() and r.sleep() and human_detected != 1) {
-        search_planner_simple->moveToNextDoor();   
-    }
-    search_planner_simple->cancelCurrentGoal();
-
     // Keep track of the robot's current pose
     ros::Subscriber amcl_pose_sub;
     amcl_pose_sub = nh->subscribe("amcl_pose", 100, &ScavTaskHumanFollowing::amclPoseCallback, this);
@@ -156,9 +152,21 @@ void ScavTaskHumanFollowing::motionThread() {
     // Loop to send action requests
     while (ros::ok() and r.sleep() and task_completed == false) {
         ros::spinOnce();
+        ROS_INFO_STREAM("human_detected: " << human_detected); 
+
+        // random visit door until a human's detected
+        if (human_detected == -1) {
+            if (search_planner_simple->busy) 
+                continue; 
+            else
+                search_planner_simple->moveToNextDoor();   
+        }
+
+
 
         // Set new waypoint if new human is detected
         if (human_detected == 1) {
+ 
             human_detected = 0;
             goal.target_pose = human_following_pose;
             ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_followed, this,  _1, _2));

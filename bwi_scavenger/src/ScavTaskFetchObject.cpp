@@ -16,6 +16,7 @@ ScavTaskFetchObject::ScavTaskFetchObject(ros::NodeHandle *nh, std::string dir) {
     task_name = "Fetch object"; 
     certificate = ""; 
     _target_detected = false; 
+    task_completed = false; 
 }
 
 
@@ -42,13 +43,13 @@ void ScavTaskFetchObject::motionThread() {
         ROS_ERROR("path to yaml file of search points not set"); 
     ros::param::get("path_to_search_points", path_to_yaml); 
 
-    search_planner_simple = new SearchPlannerSimple(nh);           
+    search_planner_simple = new SearchPlannerSimple(nh);
+    ros::Rate r(2);           
 
-    int next_goal_index;                                                        
-    while (ros::ok()) {
+    while (ros::ok() and false == task_completed and r.sleep()) {
         if (_target_detected)
             search_planner_simple->cancelCurrentGoal(); 
-        else
+        else 
             search_planner_simple->moveToNextDoor();
     }
 }
@@ -162,3 +163,6 @@ void ScavTaskFetchObject::hriThread() {
     ROS_INFO("fetch_object_service task done"); 
 }
 
+void ScavTaskFetchObject::stopEarly() {
+    task_completed = true; 
+}
