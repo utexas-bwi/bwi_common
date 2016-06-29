@@ -28,6 +28,10 @@ add_executable(filtering_tasks src/test_filter_task.cpp)
 add_dependencies(filtering_tasks ${catkin_EXPORTED_TARGETS})
 target_link_libraries(filtering_tasks ${catkin_LIBRARIES})
 
+add_executable(go_to_door_node src/go_to_door.cpp)
+add_dependencies(go_to_door_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(go_to_door_node ${catkin_LIBRARIES})
+
 add_executable(go_to_location_node src/go_to_location.cpp)
 add_dependencies(go_to_location_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(go_to_location_node ${catkin_LIBRARIES})
