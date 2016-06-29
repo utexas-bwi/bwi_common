@@ -28,13 +28,13 @@ public:
 
     bool moveToNextDoor(); 
 
+    bool cancelCurrentGoal(); 
+
 
 protected: 
 
     ros::NodeHandle *nh;
     KrClient *client; 
-
-    bool cancelCurrentGoal(); 
 
 private: 
 

@@ -38,7 +38,7 @@ public:
     ros::ServiceClient *gui_service_client; 
 
 private:
-    bool targetDetected; 
+    bool _target_detected; 
 
 }; 
 

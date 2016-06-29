@@ -15,7 +15,7 @@ ScavTaskFetchObject::ScavTaskFetchObject(ros::NodeHandle *nh, std::string dir) {
     task_description = "fetch an object from a place to another"; 
     task_name = "Fetch object"; 
     certificate = ""; 
-    targetDetected = false; 
+    _target_detected = false; 
 }
 
 
@@ -24,7 +24,7 @@ void ScavTaskFetchObject::executeTask(int timeout, TaskResult &result, std::stri
     boost::thread motion( &ScavTaskFetchObject::motionThread, this);
     boost::thread hri( &ScavTaskFetchObject::hriThread, this);
 
-    target_detected = false; 
+    _target_detected = false; 
 
     motion.join();
     hri.join();
@@ -45,8 +45,11 @@ void ScavTaskFetchObject::motionThread() {
     search_planner_simple = new SearchPlannerSimple(nh);           
 
     int next_goal_index;                                                        
-    while (ros::ok() && false == target_detected) {
-        search_planner_simple->moveToNextDoor();
+    while (ros::ok()) {
+        if (_target_detected)
+            search_planner_simple->cancelCurrentGoal(); 
+        else
+            search_planner_simple->moveToNextDoor();
     }
 }
 
@@ -65,7 +68,7 @@ void ScavTaskFetchObject::hriThread() {
     gui_service_client->waitForExistence(); 
     gui_service_client->call(srv); 
 
-    targetDetected = true; 
+    _target_detected = true; 
 
     // what's the object's name? saved to room_from
     srv.request.type = 2;
