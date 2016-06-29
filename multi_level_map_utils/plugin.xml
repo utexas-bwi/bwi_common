@@ -1,0 +1,15 @@
+<library path="src">
+  <class name="LevelSelectorPlugin"
+    type="multi_level_map_utils.plugins.LevelSelectorPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A button widget that reads the currently available levels in the multimap, and allows choosing one of them as
+      the current level on which the robot resides.
+    </description>
+    <qtgui>
+      <label>Level Selector Plugin</label>
+      <icon type="theme">dialog-question</icon>
+      <statustip>Choose the level on which the robot currently is.</statustip>
+    </qtgui>
+  </class>
+</library>

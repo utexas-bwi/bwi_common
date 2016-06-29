@@ -1,0 +1,6 @@
+<launch>
+  <!-- Start the bwi map server with 2 floors of the same test world map -->
+  <node name="multi_level_map_server" pkg="multi_level_map_server" type="multi_level_map_server">
+    <param name="map_file" value="$(find multi_level_map_server)/maps/bwi_test_world.multi_level.yaml" />
+  </node>
+</launch>

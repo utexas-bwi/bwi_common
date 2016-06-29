@@ -1,0 +1,164 @@
+#!/usr/bin/env python
+
+import rospy
+
+from bwi_tools import loadMapFromFile, resolveResource
+from tf.transformations import quaternion_from_euler
+from tf import TransformBroadcaster
+from nav_msgs.srv import GetMap
+from nav_msgs.msg import OccupancyGrid
+from nav_msgs.msg import MapMetaData
+from multi_level_map_msgs.msg import LevelMetaData
+from multi_level_map_msgs.msg import MultiLevelMapLink
+from multi_level_map_msgs.msg import MultiLevelMapData
+import multi_level_map_utils.utils
+import yaml
+
+utils = multi_level_map_utils.utils
+
+class MapServer:
+    def __init__(self):
+        rospy.init_node('multi_level_map_server')
+
+        # Resolve the prefix of the map metadata topic.
+        multimap_topic_name = rospy.resolve_name("map_metadata")
+        if '/' in multimap_topic_name:
+            self.multimap_topic_prefix = multimap_topic_name[0:multimap_topic_name.rfind('/') + 1]
+        else:
+            self.multimap_topic_prefix = ""
+
+        #get parameters
+        self.global_frame_id = rospy.get_param('~global_frame_id', '/map')
+        self.publish_rate = rospy.get_param('~publish_rate', 5)
+        try:
+
+            map_file = rospy.get_param('~map_file')
+            resolved_map_file = resolveResource(map_file)
+            if resolved_map_file is None:
+                rospy.logfatal("Unable to resolved map file: " + map_file)
+                return
+            map_data = yaml.load(open(resolved_map_file, "r"))
+            self.map_list = map_data["maps"]
+            if "links" in map_data:
+                self.map_links = map_data["links"]
+            else:
+                self.map_links = []
+        except KeyError as e:
+            rospy.logfatal("Please provide multimap file (~map_file): " + str(e))
+            return
+
+        # process maps
+        self.map_response = dict()
+        self.service_server = dict()
+        self.metadata_publisher = dict()
+        self.map_publisher = dict()
+        self.map_origin_position = dict()
+        self.map_origin_orientation = dict()
+
+        out_meta_data_msg = MultiLevelMapData()
+
+        for map_name, map_info in self.map_list.items():
+
+            origin = map_info['origin']
+            if len(origin) == 3:
+                self.map_origin_position[map_name] = (origin[0], origin[1], 0)
+                self.map_origin_orientation[map_name] = quaternion_from_euler(0,0,origin[2])
+            elif len(origin) == 6:
+                self.map_origin_position[map_name] = (origin[0], origin[1], origin[2])
+                self.map_origin_orientation[map_name] = quaternion_from_euler(origin[3], origin[4], origin[5])
+            elif len(origin) == 7:
+                self.map_origin_position[map_name] = (origin[0], origin[1], origin[2])
+                self.map_origin_orientation[map_name] = (origin[3], origin[4], origin[5], origin[6])
+            else:
+                raise TypeError("Unable to parse origin tag")
+
+            data_directory = map_info['data_directory']
+            resolved_data_directory = resolveResource(data_directory)
+            if resolved_data_directory is None:
+                return
+
+            yaml_file = map_info['yaml'];
+            resolved_yaml_file = resolveResource(yaml_file) 
+            if resolved_yaml_file is None:
+                return
+
+            self.map_response[map_name] = loadMapFromFile(resolved_yaml_file)
+            if self.map_response[map_name] is None:
+                rospy.logfatal("Unable to load yaml file for map: %s" %resolved_yaml_file)
+                return
+
+            self.map_response[map_name].map.info.map_load_time = rospy.Time.now()
+            self.map_response[map_name].map.header.frame_id = utils.frameIdFromLevelId(map_name)
+            self.map_response[map_name].map.header.stamp = rospy.Time.now()
+
+            # Publish map service
+            self.service_server[map_name] = rospy.Service(self.multimap_topic_prefix + utils.mapServiceFromLevelId(map_name),
+                                                          GetMap, 
+                                                          self.levelCallback)
+
+            # Publish latched map messages
+            self.metadata_publisher[map_name] = rospy.Publisher(self.multimap_topic_prefix + utils.metadataTopicFromLevelId(map_name), 
+                                                                MapMetaData,
+                                                                latch=True, queue_size=1)
+            self.metadata_publisher[map_name].publish(self.map_response[map_name].map.info)
+            self.map_publisher[map_name] = rospy.Publisher(self.multimap_topic_prefix + utils.mapTopicFromLevelId(map_name),
+                                                           OccupancyGrid, 
+                                                           latch=True, queue_size=1)
+            self.map_publisher[map_name].publish(self.map_response[map_name].map)
+
+            leveldata = LevelMetaData()
+            leveldata.level_id = map_name
+            leveldata.data_directory = data_directory
+            leveldata.map_file = yaml_file
+            leveldata.info = self.map_response[map_name].map.info
+            out_meta_data_msg.levels.append(leveldata)
+
+        #process links
+        for map_link in self.map_links:
+            link = MultiLevelMapLink()
+
+            from_point = map_link['from_point']
+            link.from_point.level_id = from_point['level_id']
+            link.from_point.point.x = from_point['point'][0]
+            link.from_point.point.y = from_point['point'][1]
+            link.from_point.point.z = from_point['point'][2]
+      
+            to_point = map_link['to_point']
+            link.to_point.level_id = to_point['level_id']
+            link.to_point.point.x = to_point['point'][0]
+            link.to_point.point.y = to_point['point'][1]
+            link.to_point.point.z = to_point['point'][2]
+      
+            out_meta_data_msg.links.append(link)
+
+        # publish MultiLevelMapData
+        out_meta_data_msg.header.frame_id = self.global_frame_id
+        out_meta_data_msg.header.stamp = rospy.Time.now()
+        # Note that this name should get resolved automatically, and we should not have to do anything.
+        self.metadata_pub = rospy.Publisher("map_metadata", MultiLevelMapData, latch=True, queue_size=1)
+        self.metadata_pub.publish(out_meta_data_msg)
+
+        # publish tf tree from global frame of reference
+        rate = rospy.Rate(self.publish_rate)
+        while not rospy.is_shutdown():
+            for map_name, map_response in self.map_response.items():
+                br = TransformBroadcaster()
+                br.sendTransform(self.map_origin_position[map_name],
+                                 self.map_origin_orientation[map_name],
+                                 rospy.Time.now(),
+                                 map_response.map.header.frame_id,
+                                 self.global_frame_id)
+
+            rate.sleep();
+
+    def levelCallback(self, req):
+        service = req._connection_header['service']
+        for map_name, map_response in self.map_response.items():
+            if service == rospy.resolve_name(map_name + '/static_map'):
+                return map_response
+
+if __name__ == '__main__':
+    try:
+        MapServer()
+    except rospy.exceptions.ROSInterruptException:
+        pass
