@@ -25,6 +25,7 @@ find_package(catkin REQUIRED
         move_base_msgs
         pcl_ros
         roscpp
+        sound_play
         std_msgs
 )
 
@@ -34,12 +35,13 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 catkin_package(
     CATKIN_DEPENDS 
         actionlib_msgs
+        bwi_kr_execution
         bwi_msgs
         message_runtime
         move_base_msgs
         roscpp
+        sound_play
         std_msgs
-        bwi_kr_execution
 )
 
 ###########

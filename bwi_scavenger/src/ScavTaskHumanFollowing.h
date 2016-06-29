@@ -13,6 +13,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseActionResult.h>
 #include <actionlib/client/simple_action_client.h>
+#include <sound_play/SoundRequest.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -59,6 +60,7 @@ private:
     int human_detected;
     ros::Time detected_time;
     ros::Publisher cmd_vel_pub;
+    ros::Publisher sound_pub; 
     MoveBaseClient ac;
 
 };

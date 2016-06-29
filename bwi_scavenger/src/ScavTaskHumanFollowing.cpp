@@ -36,6 +36,10 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
 
     cmd_vel_pub = nh->advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
+    sound_pub = nh->advertise<sound_play::SoundRequest>("robotsound", 1); 
+
+    search_planner_simple = new SearchPlannerSimple(nh); 
+
     task_completed = false;
     human_detected = 0;
 }
@@ -133,13 +137,22 @@ void ScavTaskHumanFollowing::amclPoseCallback(
 }
 
 void ScavTaskHumanFollowing::motionThread() {
+
+    ros::Rate r(2);
+
+    // random visit door until a human's detected
+    while (ros::ok() and r.sleep() and human_detected != 1) {
+        search_planner_simple->moveToNextDoor();   
+    }
+    search_planner_simple->cancelCurrentGoal();
+
     // Keep track of the robot's current pose
     ros::Subscriber amcl_pose_sub;
     amcl_pose_sub = nh->subscribe("amcl_pose", 100, &ScavTaskHumanFollowing::amclPoseCallback, this);
 
     move_base_msgs::MoveBaseGoal goal;
+    sound_play::SoundRequest sound_msg; 
 
-    ros::Rate r(2);
     // Loop to send action requests
     while (ros::ok() and r.sleep() and task_completed == false) {
         ros::spinOnce();
@@ -150,6 +163,11 @@ void ScavTaskHumanFollowing::motionThread() {
             goal.target_pose = human_following_pose;
             ac.sendGoal(goal, boost::bind(&ScavTaskHumanFollowing::callback_ac_followed, this,  _1, _2));
 
+            sound_msg.command = sound_play::SoundRequest::PLAY_ONCE; 
+            sound_msg.arg = "following"; 
+            sound_msg.arg2 = "voice_kal_diphone"; 
+
+            sound_pub.publish(sound_msg); 
         }
         // callback_ac_followed should set the condition to go to human's last seen location
         if (human_detected == 2) {

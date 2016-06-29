@@ -27,6 +27,7 @@
   <depend>move_base_msgs</depend>
   <depend>pcl_ros</depend>
   <depend>roscpp</depend>
+  <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>yaml-cpp</depend>
 
