@@ -1,9 +1,18 @@
 #program base.
 
-elevroom(l4_elev_east; l4_elev_west; l3_elev_east; l3_elev_west).
-elevroom(l2_elev_east; l2_elev_west; l1_elev_east; l1_elev_west).
+elevroom(l4_elev_east).
+elevroom(l4_elev_west).
+elevroom(l3_elev_east).
+elevroom(l3_elev_west).
+elevroom(l2_elev_east).
+elevroom(l2_elev_west). 
+elevroom(l1_elev_east).
+elevroom(l1_elev_west).
 
-elevroom(l4_elev_south;l3_elev_south;l2_elev_south;l1_elev_south).
+elevroom(l4_elev_south).
+elevroom(l3_elev_south).
+elevroom(l2_elev_south).
+elevroom(l1_elev_south).
 
 room(R) :- elevroom(R). 
 

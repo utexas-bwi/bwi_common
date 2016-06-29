@@ -72,6 +72,26 @@ room(l2_500).
 room(l2_400).
 
 
+room(l1_400).
+room(l1_200).
+room(l1_300).
+room(l1_302).
+room(l1_310).
+room(l1_308).
+room(l1_416).
+room(l1_412).
+room(l1_408).
+room(l1_406).
+room(l1_404).
+room(l1_402).
+room(l1_210).
+room(l1_304).
+room(l1_728).
+room(l1_700).
+room(l1_600).
+room(l1_800).
+
+
 door(d3_404). 
 door(d3_400). 
 door(d3_508). 
