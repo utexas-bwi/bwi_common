@@ -47,7 +47,8 @@ ScavTaskHumanFollowing::ScavTaskHumanFollowing(ros::NodeHandle *nh, std::string 
 
 void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
-    search_planner_simple->cancelCurrentGoal();
+    if (human_detected == -1)
+        search_planner_simple->cancelCurrentGoal();
 
     detected_time = ros::Time::now();
 
@@ -156,9 +157,7 @@ void ScavTaskHumanFollowing::motionThread() {
 
         // random visit door until a human's detected
         if (human_detected == -1) {
-            if (search_planner_simple->busy) 
-                continue; 
-            else
+            if (false == search_planner_simple->busy) 
                 search_planner_simple->moveToNextDoor();   
         }
 
