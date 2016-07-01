@@ -129,7 +129,7 @@ void ScavTaskColorShirt::motionThread() {
 
     search_planner_simple = new SearchPlannerSimple(nh);           
 
-    int next_goal_index;                                                        
+    int next_goal_index;
     while (ros::ok() and task_completed == false) {
         search_planner_simple->moveToNextDoor();
     }
@@ -157,8 +157,16 @@ void ScavTaskColorShirt::executeTask(int timeout, TaskResult &result, std::strin
     boost::thread motion( &ScavTaskColorShirt::motionThread, this); 
     boost::thread vision( &ScavTaskColorShirt::visionThread, this);
 
-    // motion.join();
-    vision.join();
+    ros::Rate r(2);
+    while (ros::ok() and r.sleep()) {
+        if (task_completed) {
+            search_planner_simple->cancelCurrentGoal();
+            break; 
+        }
+    }
+
+    motion.detach();
+    vision.detach();
 
     record = path_to_image; 
     result = SUCCEEDED; 

@@ -29,9 +29,9 @@ TaskWithStatus *curr_task;
 ros::NodeHandle *nh;
 
 void publishThread() {
-    while (ros::ok() && false == task_manager->allFinished()) {
-        ros::Duration(5).sleep(); 
-        ROS_INFO_STREAM("publishing scavenger hunt status"); 
+    ros::Rate r(5); 
+    while (ros::ok() and r.sleep() and false == task_manager->allFinished()) {
+        // ROS_INFO_STREAM("publishing scavenger hunt status"); 
         task_manager->publishStatus(); 
     }
 }
@@ -39,19 +39,23 @@ void publishThread() {
 bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req, 
                        bwi_msgs::ScavHunt::Response &res) {
  
-    ROS_INFO_STREAM("callback_srv_scav is called (0 pause, 1 resume): " << curr_task->status);
+    ROS_INFO("callback_srv_scav called"); 
+    ROS_INFO_STREAM("current task status: 0 ongoing, 1 finished, 2 todo): " 
+        << curr_task->status);
 
     if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_PAUSE) {
         curr_task->status = TODO; 
+        ROS_INFO("calling curr_task->task->stopEarly()");
         curr_task->task->stopEarly(); 
         task_manager->paused = true; 
 
+        ROS_INFO("stopping movements at kr and motion levels"); 
         actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> 
             client("/action_executor/execute_plan", true);
 
         ros::spinOnce(); 
-        ros::spinOnce(); 
         client.cancelAllGoals (); 
+        ros::spinOnce(); 
 
         ros::Publisher pub = nh->advertise<actionlib_msgs::GoalID>
             ("/move_base/cancel", 10);
@@ -63,7 +67,7 @@ bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req,
         ros::spinOnce(); 
         pub.publish(msg);
         ros::spinOnce(); 
-        pub.publish(msg);
+        ROS_INFO("the robot is supposed to stop moving now"); 
 
     } else if ((int) req.type == bwi_msgs::ScavHuntRequest::SCAV_RESUME) {
         task_manager->paused  = false; 
@@ -112,11 +116,11 @@ int main(int argc, char **argv) {
     task_manager->updateStatusGui(); 
     boost::thread p_thread( &publishThread); 
 
-    while (ros::ok() && task_manager->allFinished() == false) {
+    ros::Rate r(2); 
+    while (ros::ok() and r.sleep() and task_manager->allFinished() == false) {
  
         ROS_INFO_STREAM("paused? " << task_manager->paused);
         if (task_manager->paused) {
-            ros::Duration(2).sleep(); 
             continue; 
         }
 

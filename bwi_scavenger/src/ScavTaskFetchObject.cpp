@@ -28,7 +28,7 @@ void ScavTaskFetchObject::executeTask(int timeout, TaskResult &result, std::stri
     _target_detected = false; 
 
     motion.join();
-    hri.join();
+    // hri.join();
     record = path_to_text;
     result = SUCCEEDED; 
 

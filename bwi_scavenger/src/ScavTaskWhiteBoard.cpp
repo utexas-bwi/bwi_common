@@ -91,8 +91,9 @@ void ScavTaskWhiteBoard::motionThread() {
 
     search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
 
-    int next_goal_index;                                                        
-    while (ros::ok() and task_completed == false) {
+    int next_goal_index;   
+    ros::Rate r(2);                                                     
+    while (ros::ok() and r.sleep() and task_completed == false) {
         search_planner->moveToNextScene(search_planner->selectNextScene(search_planner->belief, next_goal_index));
         search_planner->analyzeScene(0.25*PI, PI/10.0);
         search_planner->updateBelief(next_goal_index);
@@ -119,8 +120,16 @@ void ScavTaskWhiteBoard::executeTask(int timeout, TaskResult &result, std::strin
     boost::thread motion( &ScavTaskWhiteBoard::motionThread, this);
     boost::thread vision( &ScavTaskWhiteBoard::visionThread, this); 
 
-    motion.join();
-    vision.join(); 
+    ros::Rate r(2);
+    while (ros::ok() and r.sleep()) {
+        if (task_completed) {
+            search_planner->cancelCurrentGoal(); 
+            break; 
+        }
+    }
+
+    motion.detach();
+    vision.detach(); 
     record = wb_path_to_image; 
     result = SUCCEEDED; 
 }

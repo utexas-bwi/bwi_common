@@ -44,7 +44,7 @@ private:
 
 }; 
 
-class SearchPlanner : SearchPlannerSimple {
+class SearchPlanner : public SearchPlannerSimple {
 public: 
 
     SearchPlanner() {}; 

@@ -44,16 +44,18 @@ SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
 
 bool SearchPlannerSimple::cancelCurrentGoal() {
 
-    ros::Publisher pub1 = nh->advertise<actionlib_msgs::GoalID>
-            ("/move_base/cancel", 1000); 
+    ros::Publisher pub1 = nh->advertise<actionlib_msgs::GoalID> 
+        ("/move_base/cancel", 1000); 
+    ros::Publisher pub2 = nh->advertise<actionlib_msgs::GoalID> 
+        ("/move_base_interruptable/cancel", 1000); 
     actionlib_msgs::GoalID msg; 
 
     ros::spinOnce(); 
-    ros::spinOnce(); 
-
     pub1.publish(msg); 
 
     ros::spinOnce(); 
+    pub2.publish(msg); 
+
     ros::spinOnce(); 
 
     client->cancelAllGoals(); 
@@ -97,6 +99,8 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
         tolerance(goal_tolerance) {
 
     nh = node_handle; 
+    client = new KrClient("/action_executor/execute_plan", true);
+    client->waitForServer(); 
 
     YAML::Node yaml_positions; 
     std::ifstream fin(path_to_yaml.c_str()); 
@@ -193,7 +197,8 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
     ROS_INFO("Moving to next scene"); 
 
     busy = true; 
-    while (ros::ok() and !hasArrived and false == getTargetDetection()) {
+    ros::Rate r(2);
+    while (ros::ok() and r.sleep() and !hasArrived and false == getTargetDetection()) {
 
         ros::spinOnce(); 
         float x = msg_goal.pose.position.x - curr_position.pose.pose.position.x;
@@ -207,7 +212,6 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
         // sometimes motion plannerg gets aborted for unknown reasons, so here 
         // we periodically re-send the goal
         pub_simple_goal.publish(msg_goal); 
-        ros::Duration(1.0).sleep();
     }
     ROS_INFO("Arrived"); 
     busy = false; 
