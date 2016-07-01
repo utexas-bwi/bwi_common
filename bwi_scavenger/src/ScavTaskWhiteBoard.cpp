@@ -136,4 +136,5 @@ void ScavTaskWhiteBoard::executeTask(int timeout, TaskResult &result, std::strin
 
 void ScavTaskWhiteBoard::stopEarly() {
     task_completed = true; 
+    search_planner->setTargetDetection(true); 
 }
