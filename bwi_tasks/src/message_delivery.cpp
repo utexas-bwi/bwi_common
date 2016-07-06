@@ -14,12 +14,16 @@ std::string recipient;
 void goToLocation() {  
 	Client client("action_executor/execute_plan", true);
 	client.waitForServer();
+	
+	ROS_INFO("Finished waiting for server");
 	  
 	bwi_kr_execution::ExecutePlanGoal goal;
 	  
 	bwi_kr_execution::AspRule rule;
 	bwi_kr_execution::AspFluent fluent;
 	fluent.name = "not at";
+	
+	ROS_INFO("Before push_back s");
 	  
 	fluent.variables.push_back(recipient);
 	 
@@ -54,6 +58,7 @@ void goToLocation() {
 }
 
 void deliverMessage() {
+	ROS_INFO("Delivering message");
     ros::NodeHandle n;
     ros::Publisher message_pub = n.advertise<sound_play::SoundRequest>("robotsound", 1);
     sound_play::SoundRequest sound_req;
@@ -74,7 +79,11 @@ int main(int argc, char** argv) {
 
 	privateNode.param<std::string>("recipient",recipient, /*default*/ "l3_414b"); 
 	privateNode.param<std::string>("message",message,"Empty");
-
-	goToLocation();
+	
+	ROS_INFO("%s/n", recipient.c_str());
+	ROS_INFO("%s/n", message.c_str());
+	
+	//goToLocation();
+	
 	deliverMessage();
 }
