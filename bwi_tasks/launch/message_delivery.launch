@@ -1,4 +1,4 @@
 <launch>
-        <node pkg = "bwi_tasks" name = "messenger" type = "office_messenger" args = "$(arg recipient) $(arg message)"/>
-        <node pkg = "sound_play" name = "backgroundsound" type = "soundplay_node"/>
+        <node pkg = "bwi_tasks" name = "messenger" type = "message_delivery" args = "$(arg recipient) $(arg message)"/>
+        <node pkg = "sound_play" name = "backgroundsound" type = "soundplay_node.py"/>
 </launch>
