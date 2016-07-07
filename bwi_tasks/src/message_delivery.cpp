@@ -1,89 +1,68 @@
-#include "bwi_kr_execution/ExecutePlanAction.h"
-
-#include <actionlib/client/simple_action_client.h>
-
 #include <sound_play/sound_play.h>
+#include <unistd.h>
 
-#include <ros/ros.h>
+void sleepok(int t, ros::NodeHandle &nh)
+{
+	   if (nh.ok())
+                 sleep(t);
+ }
+ 
+ int main(int argc, char **argv)
+ {
+   ros::init(argc, argv, "sound_play_test");
+ 
+   ros::NodeHandle nh;
+   sound_play::SoundClient sc;
+ 
+   sleepok(1, nh);
+   
+   while(nh.ok())
+   {
+     sc.say("Hello world!");
+     sleepok(2, nh);
+ 
+     const char *str1 = "I am annoying.";
+     sc.repeat(str1);
+     sleepok(4, nh);
+     sc.stopSaying(str1);
+ 
+     sc.playWave("/usr/share/xemacs21/xemacs-packages/etc/sounds/boing.wav");
+     sleepok(2, nh);
+ 
+     const char *str2 = "/usr/share/xemacs21/xemacs-packages/etc/sounds/piano-beep.wav";
+     sc.startWave(str2);
+     sleepok(4, nh);
+     sc.stopWave(str2);
+ 
+     sc.play(sound_play::SoundRequest::NEEDS_UNPLUGGING);
+     sleepok(2, nh);
+ 
+     sc.start(sound_play::SoundRequest::BACKINGUP);
+     sleepok(4, nh);
+     sc.stop(sound_play::SoundRequest::BACKINGUP);
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
-
-std::string message;
-std::string recipient;
-
-void goToLocation() {  
-	Client client("action_executor/execute_plan", true);
-	client.waitForServer();
-	
-	ROS_INFO("Finished waiting for server");
-	  
-	bwi_kr_execution::ExecutePlanGoal goal;
-	  
-	bwi_kr_execution::AspRule rule;
-	bwi_kr_execution::AspFluent fluent;
-	fluent.name = "not at";
-	
-	ROS_INFO("Before push_back s");
-	  
-	fluent.variables.push_back(recipient);
-	 
-	rule.body.push_back(fluent);
-	goal.aspGoal.push_back(rule);
-	  
-	ROS_INFO("sending goal");
-	client.sendGoal(goal);
-	  
-	ros::Rate wait_rate(10);
-	while(ros::ok() && !client.getState().isDone())
-	  wait_rate.sleep();
-	    
-	if (!client.getState().isDone()) {
-		ROS_INFO("Canceling goal");
-		client.cancelGoal();
-	    //and wait for canceling confirmation
-		for(int i = 0; !client.getState().isDone() && i < 50; ++i)
-			wait_rate.sleep();
-	}
-	if (client.getState() == actionlib::SimpleClientGoalState::ABORTED) {
-		ROS_INFO("Aborted");
-	}
-	else if (client.getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
-		ROS_INFO("Preempted");
-	}
-	else if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-		ROS_INFO("Succeeded!");
-	}
-	else
-		ROS_INFO("Terminated");
-}
-
-void deliverMessage() {
-	ROS_INFO("Delivering message");
-    ros::NodeHandle n;
-    ros::Publisher message_pub = n.advertise<sound_play::SoundRequest>("robotsound", 1);
-    sound_play::SoundRequest sound_req;
-    sound_req.sound = sound_play::SoundRequest::SAY;
-    sound_req.command = sound_play::SoundRequest::PLAY_ONCE;
-    std::stringstream ss;
-    ss << "Message for " << recipient << ". " << message;
-    sound_req.arg = ss.str();
-    
-    message_pub.publish(sound_req);
-}
-
-int main(int argc, char** argv) {
-	//initialize the node
-	ros::init(argc, argv, "message_delivery");
-
-	ros::NodeHandle privateNode("~");
-
-	privateNode.param<std::string>("recipient",recipient, /*default*/ "l3_414b"); 
-	privateNode.param<std::string>("message",message,"Empty");
-	
-	ROS_INFO("%s/n", recipient.c_str());
-	ROS_INFO("%s/n", message.c_str());
-	
-	//goToLocation();
-	
-	deliverMessage();
-}
+                 sleepok(2, nh);
+                 sound_play::Sound s1 = sc.waveSound("/usr/share/xemacs21/xemacs-packages/etc/sounds/boing.wav");
+                 s1.repeat();
+                 sleepok(1, nh);
+                 s1.stop();
+                 
+                 sleepok(2, nh);
+                 sound_play::Sound s2 = sc.voiceSound("This is a really long sentence that will get cut off.");
+                 s2.play();
+                 sleepok(1, nh);
+                 s2.stop();
+ 
+                 sleepok(2, nh);
+                 sound_play::Sound s3 = sc.builtinSound(sound_play::SoundRequest::NEEDS_UNPLUGGING_BADLY);
+                 s3.play();
+                 sleepok(1, nh);
+                 s3.stop();
+ 
+                 sleepok(2, nh);
+                 sound_play::Sound s4 = sc.waveSoundFromPkg("sound_play", "sounds/BACKINGUP.ogg");
+                 s4.play();
+                 sleepok(1, nh);
+                 s4.stop();
+   }
+ }
