@@ -80,6 +80,6 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nh;
     sound_play::SoundClient sc;
 
-	//goToLocation();
+	goToLocation();
 	deliverMessage(sc, nh);
 }
