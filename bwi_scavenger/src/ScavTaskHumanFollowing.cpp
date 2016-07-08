@@ -223,7 +223,7 @@ void ScavTaskHumanFollowing::motionThread() {
             //     ROS_WARN("Problem transferring log image file to remote machine. Please ssh permission and remote machine");
             // }
 
-            search_planner->setTargetDetection(true); // change status to terminate the motion thread
+            // search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
             ROS_INFO_STREAM("Finished saving image: " << wb_path_to_image); 
 
