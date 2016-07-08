@@ -27,8 +27,19 @@ void ScavTaskFetchObject::executeTask(int timeout, TaskResult &result, std::stri
 
     _target_detected = false; 
 
-    motion.join();
-    // hri.join();
+    ros::Rate r(2); 
+    while (ros::ok() and r.sleep()) {
+        if (task_completed) {
+            search_planner_simple->cancelCurrentGoal(); 
+            break; 
+        }
+    }
+
+    motion.detach();
+    hri.detach();
+
+    search_planner_simple->cancelCurrentGoal(); 
+
     record = path_to_text;
     result = SUCCEEDED; 
 
@@ -46,11 +57,8 @@ void ScavTaskFetchObject::motionThread() {
     search_planner_simple = new SearchPlannerSimple(nh);
     ros::Rate r(2);           
 
-    while (ros::ok() and false == task_completed and r.sleep()) {
-        if (_target_detected)
-            search_planner_simple->cancelCurrentGoal(); 
-        else 
-            search_planner_simple->moveToNextDoor();
+    while (ros::ok() and !_target_detected and r.sleep()) {
+        search_planner_simple->moveToNextDoor();
     }
 }
 
