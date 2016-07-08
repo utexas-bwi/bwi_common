@@ -77,9 +77,12 @@ int main(int argc, char** argv) {
 	privateNode.param<std::string>("recipient",recipient, /*default*/ "l3_414b"); 
 	privateNode.param<std::string>("message",message,"Empty");
 	
-	ros::NodeHandle nh;
+	ROS_INFO("%s", recipient.c_str());
+	ROS_INFO("%s", message.c_str());
+	
+	//ros::NodeHandle nh;
     sound_play::SoundClient sc;
 
 	goToLocation();
-	deliverMessage(sc, nh);
+	deliverMessage(sc, privateNode);
 }
