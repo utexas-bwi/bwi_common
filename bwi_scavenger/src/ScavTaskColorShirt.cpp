@@ -145,7 +145,7 @@ void ScavTaskColorShirt::visionThread() {
         &ScavTaskColorShirt::callback_human_detection, this);
 
     image_transport::ImageTransport it(*nh);
-    image_transport::Subscriber sub = it.subscribe("/nav_kinect/rgb/image_color", 1, 
+    image_transport::Subscriber sub = it.subscribe("/nav_kinect/rgb/image_raw", 1, 
         &ScavTaskColorShirt::callback_image_saver, this);
 
     ros::Rate rate(10); 

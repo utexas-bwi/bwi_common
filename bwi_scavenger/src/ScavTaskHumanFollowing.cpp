@@ -236,7 +236,7 @@ void ScavTaskHumanFollowing::visionThread() {
         100, &ScavTaskHumanFollowing::callback_human_detected, this);
 
     image_transport::ImageTransport it(*nh);
-    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_color",
+    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_raw",
         1, &ScavTaskHumanFollowing::callback_image, this);
 
     ros::Rate r(10);

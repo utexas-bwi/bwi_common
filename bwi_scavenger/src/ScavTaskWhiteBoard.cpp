@@ -113,7 +113,7 @@ void ScavTaskWhiteBoard::visionThread() {
         &ScavTaskWhiteBoard::callback_human_detected, this); 
 
     image_transport::ImageTransport it(*nh);
-    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_color", 1, 
+    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_raw", 1, 
         &ScavTaskWhiteBoard::callback_image, this);
 
     ros::Rate r(10); 
