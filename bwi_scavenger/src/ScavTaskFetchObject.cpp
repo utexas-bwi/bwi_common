@@ -169,6 +169,7 @@ void ScavTaskFetchObject::hriThread() {
     }
 
     ROS_INFO("fetch_object_service task done"); 
+    task_completed = true; 
 }
 
 void ScavTaskFetchObject::stopEarly() {
