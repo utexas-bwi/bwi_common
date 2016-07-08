@@ -58,10 +58,14 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
     // Check if the new human pose is far enough from the previous one the justify sending a new waypoint
     double human_pose_delta = sqrt(pow(msg->pose.position.x - human_pose.pose.position.x, 2) +
                                    pow(msg->pose.position.y - human_pose.pose.position.y, 2));
+
     if (human_pose_delta > human_pose_delta_threshold) {
+
         // Filename formatting
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();
-        wb_path_to_image = directory + "human_following_" + boost::posix_time::to_iso_extended_string(curr_time) + ".PNG";
+        std::string time_str = boost::posix_time::to_iso_extended_string(curr_time);
+
+        wb_path_to_image = directory + "human_following_" + time_str + ".PNG";
         wb_image = wb_image_candidate;
 
         // // Noise protection
@@ -218,6 +222,8 @@ void ScavTaskHumanFollowing::motionThread() {
                 ROS_WARN("Problem transferring log image file to remote machine. Please ssh permission and remote machine");
             }
             // search_planner->setTargetDetection(true); // change status to terminate the motion thread
+
+            ROS_INFO_STREAM("Finished saving image: " << wb_path_to_image); 
 
             task_completed = true;
         }

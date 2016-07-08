@@ -82,9 +82,11 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
         ROS_INFO_STREAM("person wearing " << color << " shirt detected"); 
         
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time();  
-        std::string time_str = boost::posix_time::to_simple_string(curr_time); 
+        //std::string time_str = boost::posix_time::to_simple_string(curr_time); 
+        std::string time_str = boost::posix_time::to_iso_extended_string(curr_time);
 
-        cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(image, sensor_msgs::image_encodings::BGR8);
+        cv_bridge::CvImageConstPtr cv_ptr;
+        cv_ptr = cv_bridge::toCvShare(image, sensor_msgs::image_encodings::BGR8);
         
         if (false == boost::filesystem::is_directory(directory)) {
             boost::filesystem::path tmp_path(directory);
@@ -92,6 +94,8 @@ void ScavTaskColorShirt::callback_human_detection(const PointCloud::ConstPtr& ms
         }
         path_to_image = directory + "color_shirt_" + time_str + ".PNG"; 
         cv::imwrite(path_to_image, cv_ptr->image);
+
+        ROS_INFO_STREAM("Finished saving picture: " << path_to_image);
 
         task_completed = true; 
     }

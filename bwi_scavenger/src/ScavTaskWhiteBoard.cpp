@@ -59,21 +59,28 @@ void ScavTaskWhiteBoard::callback_human_detected(const geometry_msgs::PoseStampe
 
     if (inRectangle(pose, a1, b1, c1) or inRectangle(pose, a2, b2, c2)) {
 
-        ROS_INFO("People detected near a white board, picture saved.");
+        ROS_INFO("People detected near a white board, saving picture...");
 
         cv_bridge::CvImageConstPtr cv_ptr;
         cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
 
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time(); 
-        wb_path_to_image = directory + "white_board_" + boost::posix_time::to_simple_string(curr_time) + ".JPG"; 
+        // std::string time_str = boost::posix_time::to_simple_string(curr_time);
+        std::string time_str = boost::posix_time::to_iso_extended_string(curr_time);
 
         if (false == boost::filesystem::is_directory(directory)) {
             boost::filesystem::path tmp_path(directory);
             boost::filesystem::create_directory(tmp_path);
-        } 
+        }
+ 
+        wb_path_to_image = directory + "white_board_" + time_str + ".PNG"; 
         cv::imwrite(wb_path_to_image, cv_ptr->image);
         search_planner->setTargetDetection(true); // change status to terminate the motion thread
+
+        ROS_INFO_STREAM("Finished saving picture: " << wb_path_to_image);
+
         task_completed = true; 
+
     }
 }
 
