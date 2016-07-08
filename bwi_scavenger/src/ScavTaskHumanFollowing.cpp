@@ -215,13 +215,15 @@ void ScavTaskHumanFollowing::motionThread() {
             cv::imwrite(wb_path_to_image, cv_ptr->image);
 
             // Scp the log file to remote machine
-            std::string scp_remote_path = "wxie@hypnotoad.csres.utexas.edu:~/bwi_scavenger_log_files/";
-            std::string system_string = "scp -P 40 " + wb_path_to_image + " " + scp_remote_path;
-            ROS_INFO("%s", system_string.c_str());
-            if (system(system_string.c_str()) == -1) {
-                ROS_WARN("Problem transferring log image file to remote machine. Please ssh permission and remote machine");
-            }
-            // search_planner->setTargetDetection(true); // change status to terminate the motion thread
+
+            // std::string scp_remote_path = "wxie@hypnotoad.csres.utexas.edu:~/bwi_scavenger_log_files/";
+            // std::string system_string = "scp -P 40 " + wb_path_to_image + " " + scp_remote_path;
+            // ROS_INFO("%s", system_string.c_str());
+            // if (system(system_string.c_str()) == -1) {
+            //     ROS_WARN("Problem transferring log image file to remote machine. Please ssh permission and remote machine");
+            // }
+
+            search_planner->setTargetDetection(true); // change status to terminate the motion thread
 
             ROS_INFO_STREAM("Finished saving image: " << wb_path_to_image); 
 
