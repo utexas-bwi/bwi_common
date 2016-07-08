@@ -73,7 +73,7 @@ void ScavTaskFetchObject::hriThread() {
 
     // what's the object's name? saved to room_from
     srv.request.type = 2;
-    srv.request.message = "What is the object's name?"; 
+    srv.request.message = "Please follow me until I stop.\nWhat is the object's name?"; 
     gui_service_client->call(srv);
     object_name = srv.response.text;
 
