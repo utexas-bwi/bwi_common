@@ -11,8 +11,6 @@
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
-std::string sender;
-std::string recipient;
 std::string location;
 std::string message;
 
@@ -27,7 +25,7 @@ void goToLocation() {
 	bwi_kr_execution::AspFluent fluent;
 	fluent.name = "not at";
 	  
-	fluent.variables.push_back(recipient);
+	fluent.variables.push_back(location);
 	 
 	rule.body.push_back(fluent);
 	goal.aspGoal.push_back(rule);
@@ -68,7 +66,7 @@ void sleepok(int t, ros::NodeHandle &nh)
 void deliverMessage(ros::NodeHandle &nh) {
 	sound_play::SoundClient sc;
 	sleepok(2, nh);
-	sc.say("Message delivery." + message);
+	sc.say(message);
 	sleepok(2, nh);	
 }
 
@@ -80,7 +78,9 @@ int main(int argc, char** argv) {
 
 	privateNode.param<std::string>("location",location, /*default*/ ""); 
 	privateNode.param<std::string>("message",message,"");
-
-	goToLocation();
-	deliverMessage(privateNode);
+	
+	if(location.compare("") != 0) {
+		goToLocation();
+		deliverMessage(privateNode);
+	}
 }
