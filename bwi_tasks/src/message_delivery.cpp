@@ -11,10 +11,13 @@
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
-std::string message;
+std::string sender;
 std::string recipient;
+std::string location;
+std::string message;
 
 void goToLocation() {  
+	/*from go_to_location*/
 	Client client("action_executor/execute_plan", true);
 	client.waitForServer();
 	  
@@ -62,10 +65,13 @@ void sleepok(int t, ros::NodeHandle &nh)
 		sleep(t);
 }
 
-void deliverMessage(sound_play::SoundClient &sc, ros::NodeHandle &nh) {
+void deliverMessage(ros::NodeHandle &nh) {
+	sound_play::SoundClient sc;
 	sleepok(2, nh);
-	sc.say("Message for " + recipient + ". " + message);
+	sc.say("Message from " + sender + " for " + recipient);
 	sleepok(2, nh);
+	sc.say("Message content: " + message);
+	sleepok(2, nh);	
 }
 
 int main(int argc, char** argv) {
@@ -74,15 +80,11 @@ int main(int argc, char** argv) {
 
 	ros::NodeHandle privateNode("~");
 
-	privateNode.param<std::string>("recipient",recipient, /*default*/ "l3_414b"); 
-	privateNode.param<std::string>("message",message,"Empty");
-	
-	ROS_INFO("%s", recipient.c_str());
-	ROS_INFO("%s", message.c_str());
-	
-	//ros::NodeHandle nh;
-    sound_play::SoundClient sc;
+	privateNode.param<std::string>("sender",sender, /*default*/ ""); 
+	privateNode.param<std::string>("recipient",recipient,"");
+	privateNode.param<std::string>("location",location, /*default*/ ""); 
+	privateNode.param<std::string>("message",message,"");
 
 	goToLocation();
-	deliverMessage(sc, privateNode);
+	deliverMessage(privateNode);
 }

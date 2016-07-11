@@ -1,10 +1,14 @@
 <launch>
-		<arg name="recipient"	default="l3_414b" />
-		<arg name="message"		default="Empty" />
+		<arg name="sender"		default="Anonymous" />
+		<arg name="recipient"	default="All" 		/>
+		<arg name="location"	default="" 			/>
+		<arg name="message"		default="" 			/>
 		
         <node name="messenger" pkg="bwi_tasks" type="message_delivery" output="screen">
-			<param name="recipient"	value="$(arg recipient)"	/>
-			<param name="message"	value="$(arg message)"		/>    
+			<param name="sender"	value="$(arg sender)"		/>
+			<param name="recipient"	value="$(arg recipient)"	/>    
+			<param name="location"	value="$(arg location)"		/>
+			<param name="message"	value="$(arg message)"		/> 
         </node>
         
         <node name="backgroundsound" pkg="sound_play" type= "soundplay_node.py"/>
