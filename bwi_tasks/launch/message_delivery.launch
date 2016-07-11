@@ -1,12 +1,8 @@
 <launch>
-		<arg name="sender"		default="Anonymous" />
-		<arg name="recipient"	default="All" 		/>
 		<arg name="location"	default="" 			/>
 		<arg name="message"		default="" 			/>
 		
-        <node name="messenger" pkg="bwi_tasks" type="message_delivery" output="screen">
-			<param name="sender"	value="$(arg sender)"		/>
-			<param name="recipient"	value="$(arg recipient)"	/>    
+        <node name="messenger" pkg="bwi_tasks" type="message_delivery" output="screen">  
 			<param name="location"	value="$(arg location)"		/>
 			<param name="message"	value="$(arg message)"		/> 
         </node>

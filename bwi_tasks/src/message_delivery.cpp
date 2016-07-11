@@ -68,9 +68,7 @@ void sleepok(int t, ros::NodeHandle &nh)
 void deliverMessage(ros::NodeHandle &nh) {
 	sound_play::SoundClient sc;
 	sleepok(2, nh);
-	sc.say("Message from " + sender + " for " + recipient);
-	sleepok(2, nh);
-	sc.say("Message content: " + message);
+	sc.say("Message delivery." + message);
 	sleepok(2, nh);	
 }
 
@@ -80,8 +78,6 @@ int main(int argc, char** argv) {
 
 	ros::NodeHandle privateNode("~");
 
-	privateNode.param<std::string>("sender",sender, /*default*/ ""); 
-	privateNode.param<std::string>("recipient",recipient,"");
 	privateNode.param<std::string>("location",location, /*default*/ ""); 
 	privateNode.param<std::string>("message",message,"");
 
