@@ -68,7 +68,9 @@ install(TARGETS
           learning_tasks_node
           look_for_person_node
           meeting_experiment
-          simulator_learning_tasks_node
+          message_delivery
+	  simulator_learning_tasks_node
           visit_door_list
           visit_door_list_gui
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
