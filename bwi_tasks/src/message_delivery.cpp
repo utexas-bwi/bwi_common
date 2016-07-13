@@ -66,8 +66,8 @@ void sleepok(int t, ros::NodeHandle &nh)
 void deliverMessage(ros::NodeHandle &nh) {
 	sound_play::SoundClient sc;
 	sleepok(2, nh);
-	std::string voice = "voice_rab_diphone";
-	sc.say(message, voice);
+	//std::string voice = "voice_rab_diphone";
+	sc.say(message/*, voice*/);
 	sleepok(2, nh);	
 }
 
