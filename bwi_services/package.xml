@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_services</name>
+  <version>0.0.1</version>
+  <description>
+    High-level services for the UTexas Building-Wide Intelligence project.
+  </description>
+
+  <maintainer email="benjamin.z.singer@gmail.com">Benjamin Singer</maintainer>
+  <author>Benjamin Singer</author>
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/bwi_services</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+   
+  <build_depend>roscpp</build_depend> 
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend> 
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend> 
+  <run_depend>message_runtime</run_depend>  
+  <run_depend>bwi_kr_execution</run_depend>
+
+</package>
