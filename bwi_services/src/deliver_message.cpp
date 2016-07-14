@@ -1,9 +1,8 @@
-
 #include "bwi_kr_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
 
-#include "bwi_tasks/DeliverMessage.h"
+#include "bwi_services/DeliverMessage.h"
 
 #include <sound_play/sound_play.h>
 
@@ -67,12 +66,15 @@ void deliverMessage(std::string message) {
 	sleepok(2);	
 }
 
-void run_delivery(bwi_tasks::DeliverMessage::Request &req,
-					bwi_tasks::DeliverMessage::Request &res) {
+bool run_delivery(bwi_services::DeliverMessage::Request &req,
+					bwi_services::DeliverMessage::Request &res) {
 	if ((req.location).compare("") != 0) {
 		goToLocation(req.location);
 		deliverMessage(req.message);
+		return true;
 	}
+	
+	return false;
 }
 
 int main(int argc, char** argv) {
