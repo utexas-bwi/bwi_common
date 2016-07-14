@@ -28,3 +28,6 @@ add_executable(deliver_message src/deliver_message.cpp)
 add_dependencies(deliver_message ${catkin_EXPORTED_TARGETS})
 target_link_libraries(deliver_message ${catkin_LIBRARIES})
 
+add_executable(deliver_message_client src/deliver_message_client.cpp)
+add_dependencies(deliver_message_client ${catkin_EXPORTED_TARGETS})
+target_link_libraries(deliver_message_client ${catkin_LIBRARIES})
