@@ -37,6 +37,28 @@ room(l3_434).
 room(l3_432). 
 room(l3_408).
 
+room(l3_828).
+room(l3_824).
+room(l3_818).
+room(l3_816).
+room(l3_814).
+room(l3_830).
+room(l3_728).
+room(l3_724).
+room(l3_722).
+room(l3_710b).
+room(l3_710a).
+room(l3_710).
+room(l3_804).
+room(l3_802).
+room(l3_718).
+room(l3_702).
+room(l3_700).
+room(l3_800).
+room(l3_600).
+room(l3_100).
+
+
 room(l2_302).
 room(l2_300).
 room(l2_702).
@@ -48,6 +70,26 @@ room(l2_100).
 room(l2_102).
 room(l2_500).
 room(l2_400).
+
+
+room(l1_400).
+room(l1_200).
+room(l1_300).
+room(l1_302).
+room(l1_310).
+room(l1_308).
+room(l1_416).
+room(l1_412).
+room(l1_408).
+room(l1_406).
+room(l1_404).
+room(l1_402).
+room(l1_210).
+room(l1_304).
+room(l1_728).
+room(l1_700).
+room(l1_600).
+room(l1_800).
 
 
 door(d3_404). 
@@ -73,6 +115,18 @@ door(d3_414b1).
 door(d3_432). 
 door(d3_436).
 
+door(d3_824).
+door(d3_816a).
+door(d3_710b1).
+door(d3_710b2).
+door(d3_710b3).
+door(d3_710a1).
+door(d3_710a2).
+door(d3_710a3).
+door(d3_600).
+door(d3_303).
+
+
 door(d2_302_south).
 door(d2_302_east).
 door(d2_300).
@@ -81,6 +135,19 @@ door(d2_102_east).
 door(d2_702_north).
 door(d2_702_east).
 door(d2_700).
+
+
+door(d1_416).
+door(d1_412).
+door(d1_408).
+door(d1_406).
+door(d1_404).
+door(d1_402).
+door(d1_210a).
+door(d1_210b).
+door(d1_304a).
+door(d1_304b).
+door(d1_728).
 
 
 hasdoor(l3_404,d3_404). 
@@ -151,6 +218,39 @@ hasdoor(l3_400,d3_432).
 hasdoor(l3_436,d3_436). 
 hasdoor(l3_400,d3_436). 
 
+hasdoor(l3_824,d3_824).
+hasdoor(l3_800,d3_824).
+
+%hasdoor(l3_816,d3_816a).
+%hasdoor(l3_814,d3_816a).
+
+hasdoor(l3_816,d3_816a).
+hasdoor(l3_800,d3_816a).
+
+hasdoor(l3_710b,d3_710b1).
+hasdoor(l3_800,d3_710b1).
+
+hasdoor(l3_710b,d3_710b2).
+hasdoor(l3_700,d3_710b2).
+
+hasdoor(l3_710b,d3_710b3).
+hasdoor(l3_710,d3_710b3).
+
+hasdoor(l3_710a,d3_710a1).
+hasdoor(l3_700,d3_710a1).
+
+hasdoor(l3_710a,d3_710a2).
+hasdoor(l3_800,d3_710a2).
+
+hasdoor(l3_710a,d3_710a3).
+hasdoor(l3_710,d3_710a3).
+
+hasdoor(l3_600,d3_600).
+hasdoor(l3_100,d3_600).
+
+hasdoor(l3_303,d3_303).
+hasdoor(l3_100,d3_303).
+
 
 hasdoor(l2_302, d2_302_south).
 hasdoor(l2_100, d2_302_south).
@@ -177,6 +277,40 @@ hasdoor(l2_700, d2_700).
 hasdoor(l2_600, d2_700).
 
 
+hasdoor(l1_416, d1_416).
+hasdoor(l1_400, d1_416).
+
+hasdoor(l1_412, d1_412).
+hasdoor(l1_400, d1_412).
+
+hasdoor(l1_408, d1_408).
+hasdoor(l1_400, d1_408).
+
+hasdoor(l1_406, d1_406).
+hasdoor(l1_400, d1_406).
+
+hasdoor(l1_404, d1_404).
+hasdoor(l1_400, d1_404).
+
+hasdoor(l1_402, d1_402).
+hasdoor(l1_400, d1_402).
+
+hasdoor(l1_210, d1_210a).
+hasdoor(l1_200, d1_210a).
+
+hasdoor(l1_210, d1_210b).
+hasdoor(l1_200, d1_210b).
+
+hasdoor(l1_304, d1_304a).
+hasdoor(l1_300, d1_304a).
+
+hasdoor(l1_304, d1_304b).
+hasdoor(l1_302, d1_304b).
+
+hasdoor(l1_728, d1_728).
+hasdoor(l1_700, d1_728).
+
+
 acc(l3_434, l3_400). 
 acc(l3_434, l3_500). 
 acc(l3_518, l3_500). 
@@ -193,6 +327,23 @@ acc(l3_302, l3_300).
 acc(l3_250, l3_300). 
 acc(l3_250, l3_303). 
 
+acc(l3_828, l3_800).
+acc(l3_818, l3_800).
+acc(l3_814, l3_800).
+acc(l3_830, l3_800).
+acc(l3_728, l3_800).
+acc(l3_728, l3_700).
+acc(l3_724, l3_800).
+acc(l3_724, l3_700).
+acc(l3_722, l3_700).
+acc(l3_718, l3_700).
+acc(l3_600, l3_700).
+acc(l3_702, l3_700).
+acc(l3_804, l3_800).
+acc(l3_804, l3_700).
+acc(l3_802, l3_800).
+acc(l3_802, l3_700).
+
 
 acc(l2_302, l2_300).
 acc(l2_200, l2_100).
@@ -202,6 +353,17 @@ acc(l2_100, l2_600).
 acc(l2_702, l2_700).
 
 
+acc(l1_400, l1_200).
+acc(l1_200, l1_302).
+acc(l1_200, l1_310).
+acc(l1_200, l1_300).
+acc(l1_300, l1_302).
+acc(l1_300, l1_310).
+acc(l1_300, l1_308).
+acc(l1_600, l1_700).
+acc(l1_700, l1_800).
+
+
 dooracc(R1,D,R2) :- hasdoor(R1,D), hasdoor(R2,D), R1 != R2, door(D), room(R1), room(R2).
 dooracc(R1,D,R2) :- dooracc(R2,D,R1).
 
@@ -209,9 +371,87 @@ acc(R1,R1) :- room(R1).
 acc(R1,R2) :- acc(R2,R1), room(R1), room(R2).                                   
 acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).             
 
-
+%Not on the map
 object(coffee_counter).                                                         
 inside(coffee_counter, l2_302).
+
+
+object(o1_800).
+inside(o1_800,l1_800).
+
+
+object(o2_coffee_shop).
+inside(o2_coffee_shop,l2_102).
+
+object(o2_auditorium_entrance).
+inside(o2_auditorium_entrance,l2_200).
+
+object(o2_200_entrance).
+inside(o2_200_entrance,l2_100).
+
+object(o2_600_entrance).
+inside(o2_600_entrance,l2_100).
+
+object(o2_100_center).
+inside(o2_100_center,l2_100).
+
+
+
+object(o3_434_soccer).
+inside(o3_434_soccer,l3_434).
+
+object(o3_500_printer).
+inside(o3_500_printer,l3_500).
+
+object(o3_406_table).
+inside(o3_406_table,l3_406).
+
+object(o3_200_elearea).
+inside(o3_200_elearea,l3_200).
+
+object(o3_300_wics).
+inside(o3_300_wics,l3_300).
+
+object(o3_302_shelf).
+inside(o3_302_shelf,l3_302).
+
+object(o3_302_couch).
+inside(o3_302_couch,l3_302).
+
+object(o3_302_printer).
+inside(o3_302_printer,l3_302).
+
+
+object(o3_828).
+inside(o3_828,l3_828).
+
+object(o3_728).
+inside(o3_728,l3_728).
+
+object(o3_724).
+inside(o3_724,l3_724).
+
+object(o3_718).
+inside(o3_718,l3_718).
+
+object(o3_818).
+inside(o3_818,l3_818).
+
+object(o3_814).
+inside(o3_814,l3_814).
+
+object(o3_830).
+inside(o3_830,l3_830).
+
+object(o3_834).
+inside(o3_834,l3_834).
+
+object(o3_802).
+inside(o3_802,l3_802).
+
+object(o3_702).
+inside(o3_702,l3_702).
+
 
 badDoor(d3_418).
 badDoor(d3_414b1).

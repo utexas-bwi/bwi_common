@@ -26,7 +26,7 @@
 #include <string>
 
 const int MAX_N = 30;
-const int PLANNER_TIMEOUT = 20; //seconds
+const int PLANNER_TIMEOUT = 40; //seconds
 const std::string queryDirectory("/tmp/bwi_action_execution/");
 
 
