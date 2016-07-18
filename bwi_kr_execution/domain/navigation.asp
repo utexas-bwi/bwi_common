@@ -47,10 +47,10 @@ at(R,I) :- goto(O,I), inside(O,R), I>0, I=n-1.
 %you can't be at two places at the some time
 -at(L2,I):- at(L1,I), room(L2), L1 != L2, I>0, I=n-1.
 %you can be facing only one door at a time
--facing(D2,I):- facing(D1,I), door(D2), D1 != D2, I>0, I=n-1.
+-facing(D2,I):- facing(D1,I), door(D1), door(D2), D1 != D2, I>0, I=n-1.
 %you can only be beside a door at any given time (if you delete this,
 %the observations must also return -beside which doesn't happen at the moment.
--beside(D2,I):- beside(D1,I), door(D2), D1 != D2, I>0, I=n-1.
+-beside(D2,I):- beside(D1,I), door(D1), door(D2), D1 != D2, I>0, I=n-1.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Inertia

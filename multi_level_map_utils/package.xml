@@ -1,0 +1,37 @@
+<package>
+  <name>multi_level_map_utils</name>
+  <version>0.1.2</version>
+  <description>
+    Contains utilities like a level multiplexer, a level selector and other utility functions.
+  </description>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/multi_level_map_utils</url>
+  <url type="repository">https://github.com/utexas-bwi/multi_level_map</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/multi_level_map/issues</url>
+
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+  <author>Piyush Khandelwal</author>
+  <author>Jake Menashe</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>boost</build_depend>
+
+  <run_depend>bwi_tools</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>multi_level_map_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>python_qt_binding</run_depend>
+  <run_depend>qt_gui</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml" />
+  </export>
+
+</package>
