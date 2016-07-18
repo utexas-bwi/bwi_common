@@ -12,6 +12,8 @@
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
+ros::NodeHandle nh;
+
 void goToLocation(std::string location) {  
 	/*from go_to_location*/
 	Client client("action_executor/execute_plan", true);
@@ -56,7 +58,8 @@ void goToLocation(std::string location) {
 }
 
 void sleepok(int t) {
-	sleep(t);
+	if (nh.ok())
+		sleep(t);
 }
 
 void deliverMessage(std::string message) {
@@ -67,7 +70,7 @@ void deliverMessage(std::string message) {
 }
 
 bool run_delivery(bwi_services::DeliverMessage::Request &req,
-					bwi_services::DeliverMessage::Request &res) {
+		  bwi_services::DeliverMessage::Request &res) {
 	if ((req.location).compare("") != 0) {
 		goToLocation(req.location);
 		deliverMessage(req.message);
@@ -80,9 +83,8 @@ bool run_delivery(bwi_services::DeliverMessage::Request &req,
 int main(int argc, char** argv) {
 	//initialize the node
 	ros::init(argc, argv, "deliver_message");
-	ros::NodeHandle n;
-	
-	ros::ServiceServer service = n.advertiseService("deliver_message", run_delivery);
+
+	ros::ServiceServer service = nh.advertiseService("deliver_message", run_delivery);
 	ros::spin();
 	
 	return 0;
