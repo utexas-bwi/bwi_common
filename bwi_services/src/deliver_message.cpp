@@ -12,7 +12,7 @@
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
 
-ros::NodeHandle nh;
+ros::NodeHandle *nh;
 
 void goToLocation(std::string location) {  
 	/*from go_to_location*/
@@ -58,7 +58,7 @@ void goToLocation(std::string location) {
 }
 
 void sleepok(int t) {
-	if (nh.ok())
+	if ((*nh).ok())
 		sleep(t);
 }
 
@@ -83,8 +83,10 @@ bool run_delivery(bwi_services::DeliverMessage::Request &req,
 int main(int argc, char** argv) {
 	//initialize the node
 	ros::init(argc, argv, "deliver_message");
-
-	ros::ServiceServer service = nh.advertiseService("deliver_message", run_delivery);
+	ros::NodeHandle n;
+	nh = &n;
+	
+	ros::ServiceServer service = n.advertiseService("deliver_message", run_delivery);
 	ros::spin();
 	
 	return 0;
