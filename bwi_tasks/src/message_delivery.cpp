@@ -1,4 +1,3 @@
-
 #include "bwi_kr_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
@@ -57,18 +56,18 @@ void goToLocation() {
 		ROS_INFO("Terminated");
 }
 
-void sleepok(int t, ros::NodeHandle &nh)
+/*void sleepok(int t, ros::NodeHandle &nh)
 {
 	if (nh.ok())
 		sleep(t);
-}
+}*/
 
-void deliverMessage(ros::NodeHandle &nh) {
-	sound_play::SoundClient sc;
-	sleepok(2, nh);
+void deliverMessage() {
+	std::string command = "espeak \"" + message + "\"";
+	system(command.c_str());
 	//std::string voice = "voice_rab_diphone";
-	sc.say(message/*, voice*/);
-	sleepok(2, nh);	
+	//sc.say(message*, voice*//*);
+	//sleepok(2, nh);*/
 }
 
 int main(int argc, char** argv) {
@@ -82,6 +81,6 @@ int main(int argc, char** argv) {
 	
 	if(location.compare("") != 0) {
 		goToLocation();
-		deliverMessage(privateNode);
+		deliverMessage();
 	}
 }

@@ -57,16 +57,19 @@ void goToLocation(std::string location) {
 		ROS_INFO("Terminated");
 }
 
-void sleepok(int t) {
+/*void sleepok(int t) {
 	if ((*nh).ok())
 		sleep(t);
-}
+}*/
 
 void deliverMessage(std::string message) {
-	sound_play::SoundClient sc;
+	ROS_INFO("%s", message.c_str());
+	std::string command = "espeak \"" + message + "\"";
+	system(command.c_str());
+	/*sound_play::SoundClient sc;
 	sleepok(2);
 	sc.say(message);
-	sleepok(2);	
+	sleepok(2);*/
 }
 
 bool run_delivery(bwi_services::DeliverMessage::Request &req,

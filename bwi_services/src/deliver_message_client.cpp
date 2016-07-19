@@ -7,6 +7,8 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "deliver_message_client");
 	if (argc != 2) {
 		ROS_INFO("usage: deliver_message_client location message");
+		ROS_INFO("%i", argc);
+		ROS_INFO("%s", argv[3]);
 	}
 
  	ros::NodeHandle n;
