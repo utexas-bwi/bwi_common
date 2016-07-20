@@ -5,17 +5,12 @@
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "deliver_message_client");
-	if (argc != 2) {
-		ROS_INFO("usage: deliver_message_client location message");
-		ROS_INFO("%i", argc);
-		ROS_INFO("%s", argv[3]);
-	}
 
  	ros::NodeHandle n;
 	ros::ServiceClient client = n.serviceClient<bwi_services::DeliverMessage>("deliver_message");
 	bwi_services::DeliverMessage srv;
 	srv.request.location = argv[1];
-	srv.request.message = argv[2];
+	srv.request.message = "::::::::::\"\"\"%!@#$%^&*()Hello W-orld\';;;;\'\'\\";
 
 	if (client.call(srv)) {
 		ROS_INFO("Travelling to %s to deliver message: %s", argv[1], argv[2]);

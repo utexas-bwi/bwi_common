@@ -2,7 +2,7 @@
 
 #include <actionlib/client/simple_action_client.h>
 
-#include <sound_play/sound_play.h>
+#include <boost/regex.hpp>
 
 #include <ros/ros.h>
 
@@ -62,12 +62,12 @@ void goToLocation() {
 		sleep(t);
 }*/
 
-void deliverMessage() {
-	std::string command = "espeak \"" + message + "\"";
-	system(command.c_str());
-	//std::string voice = "voice_rab_diphone";
-	//sc.say(message*, voice*//*);
-	//sleepok(2, nh);*/
+void deliverMessage() {	
+	boost::regex sanitize("[^a-zA-Z\?!0-9-.,]");
+        std::string replacement = " ";
+        std::string clean_message = boost::regex_replace(message, sanitize, replacement);
+        std::string command = "espeak \"" + clean_message + "\"";
+        system(command.c_str());
 }
 
 int main(int argc, char** argv) {
