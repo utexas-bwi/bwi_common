@@ -5,7 +5,7 @@
 
 bool speak_message(bwi_services::SpeakMessage::Request &req,
 		  bwi_services::SpeakMessage::Request &res) {
-	boost::regex sanitize("[^a-zA-Z\?!0-9-.,]");
+	boost::regex sanitize("[^a-zA-Z\?!0-9-]");
 	std::string replacement = " ";
 	std::string clean_message = boost::regex_replace(req.message, sanitize, replacement);
 	std::string command = "espeak \"" + clean_message + "\"";
