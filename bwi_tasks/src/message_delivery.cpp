@@ -4,6 +4,8 @@
 
 #include <boost/regex.hpp>
 
+#include <boost/lexical_cast.hpp>
+
 #include <ros/ros.h>
 
 #include <string>
@@ -60,30 +62,27 @@ void goToLocation() {
 		ROS_INFO("Terminated");
 }
 
-/*void sleepok(int t, ros::NodeHandle &nh)
-{
-	if (nh.ok())
-		sleep(t);
-}*/
-
 void deliverMessage() {	
 	
-	boost::regex sanitizeNumber("[^0-9]");
+	boost::regex sanitizeNumber("[^0-9]");  
         std::string numberReplacement = "";
-        std::string clean_speed = boost::regex_replace(speed, sanitizeNumber, numberReplacement);
-        std::string clean_pitch = boost::regex_replace(pitch, sanitizeNumber, numberReplacement);
+        std::string clean_speed = 
+		boost::regex_replace(boost::lexical_cast<std::string>(speed), sanitizeNumber, numberReplacement); 
+        std::string clean_pitch = 
+		boost::regex_replace(boost::lexical_cast<std::string>(pitch), sanitizeNumber, numberReplacement);
 
         boost::regex sanitizeVoice("[^a-z-]");
         std::string voiceReplacement = "";
-        std::string clean_message = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
+        std::string clean_voice = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
 	
-	boost::regex sanitizeMessage("[^a-zA-Z\?!0-9-]");
+	boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
         std::string messageReplacement = " ";
-        std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
+        std::string clean_message = boost::regex_replace(message, sanitizeMessage, messageReplacement);
 
+	std::string command = "espeak -v " + clean_voice + " -s "                            
+                + clean_speed + " -p " + clean_pitch + " \"" + clean_message + "\"";
 
-        std::string command = "espeak -v " + voice + " -s " + speed + " -p " + pitch + " \"" + clean_message + "\"";
-        system(command.c_str());
+	system(command.c_str());
 }
 
 int main(int argc, char** argv) {
@@ -94,9 +93,9 @@ int main(int argc, char** argv) {
 
 	privateNode.param<std::string>("location",location, /*default*/ ""); 
 	privateNode.param<std::string>("message",message,"");
-	privateNode.param<int64>("speed",speed, "160");
+	privateNode.param<int>("speed",speed,160);
         privateNode.param<std::string>("voice",voice,"default");
-        privateNode.param<int64>("pitch",pitch,"50");
+        privateNode.param<int>("pitch",pitch,50);
 
 	if (location.compare("") != 0) {
 		goToLocation();
