@@ -1,5 +1,13 @@
 <launch>
-        <node name="go_to_location_service" pkg="bwi_services" type="go_to_location_service" output="screen" />
-	<node name="speak_message_service" pkg="bwi_services" type="speak_message_service" output="screen" />
+        <arg name="speed" default=160 />
+	<arg name="voice" default="default" />
+	<arg name="pitch" default=50 />
+
+	<node name="go_to_location_service" pkg="bwi_services" type="go_to_location_service" output="screen" />
+	<node name="speak_message_service" pkg="bwi_services" type="speak_message_service" output="screen" >
+		<param name="speed" value="$(arg speed)"/>	
+		<param name="voice" value="$(arg voice)"/>
+		<param name="pitch" value="$(arg pitch)"/>
+	</node>
 	<node name="deliver_message_service" pkg="bwi_services" type="deliver_message_service" output="screen" />
 </launch>

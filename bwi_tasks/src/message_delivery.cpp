@@ -13,6 +13,10 @@ typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Clien
 std::string location;
 std::string message;
 
+int speed;
+std::string voice;
+int pitch;
+
 void goToLocation() {  
 	/*from go_to_location*/
 	Client client("action_executor/execute_plan", true);
@@ -63,10 +67,22 @@ void goToLocation() {
 }*/
 
 void deliverMessage() {	
-	boost::regex sanitize("[^a-zA-Z\?!0-9-.,]");
-        std::string replacement = " ";
-        std::string clean_message = boost::regex_replace(message, sanitize, replacement);
-        std::string command = "espeak \"" + clean_message + "\"";
+	
+	boost::regex sanitizeNumber("[^0-9]");
+        std::string numberReplacement = "";
+        std::string clean_speed = boost::regex_replace(speed, sanitizeNumber, numberReplacement);
+        std::string clean_pitch = boost::regex_replace(pitch, sanitizeNumber, numberReplacement);
+
+        boost::regex sanitizeVoice("[^a-z-]");
+        std::string voiceReplacement = "";
+        std::string clean_message = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
+	
+	boost::regex sanitizeMessage("[^a-zA-Z\?!0-9-]");
+        std::string messageReplacement = " ";
+        std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
+
+
+        std::string command = "espeak -v " + voice + " -s " + speed + " -p " + pitch + " \"" + clean_message + "\"";
         system(command.c_str());
 }
 
@@ -78,8 +94,11 @@ int main(int argc, char** argv) {
 
 	privateNode.param<std::string>("location",location, /*default*/ ""); 
 	privateNode.param<std::string>("message",message,"");
-	
-	if(location.compare("") != 0) {
+	privateNode.param<int64>("speed",speed, "160");
+        privateNode.param<std::string>("voice",voice,"default");
+        privateNode.param<int64>("pitch",pitch,"50");
+
+	if (location.compare("") != 0) {
 		goToLocation();
 		deliverMessage();
 	}

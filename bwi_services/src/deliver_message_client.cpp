@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	ros::ServiceClient client = n.serviceClient<bwi_services::DeliverMessage>("deliver_message");
 	bwi_services::DeliverMessage srv;
 	srv.request.location = argv[1];
-	srv.request.message = "::::::::::\"\"\"%!@#$%^&*()Hello W-orld\';;;;\'\'\\";
+	srv.request.message = argv[2]/*"::::::::::\"\"\"%!@#$%^&*()Hello W-orld\';;;;\'\'\\"*/;
 
 	if (client.call(srv)) {
 		ROS_INFO("Travelling to %s to deliver message: %s", argv[1], argv[2]);
