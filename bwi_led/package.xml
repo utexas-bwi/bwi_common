@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_led</name>
+  <version>0.3.8</version>
+  <description>
+    LED package that provides drivers for communicating with Polulu WS2812B-Based LED Strips
+    utilizing an Arduino microcontroller. Also action and service calls for standard applications.
+  </description>
+
+  <maintainer email="plankenau@gmail.com">Pato Lankenau</maintainer>
+  <maintainer email="rolando.fernandez.jr@gmail.com">Rolando Fernandez</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>serial</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>serial</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+
+
+</package>
