@@ -1,3 +1,4 @@
 string location
 string message
 ---
+int32 result

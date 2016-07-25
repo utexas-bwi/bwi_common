@@ -9,7 +9,7 @@
 ros::NodeHandle *n;
 
 bool deliver_message(bwi_services::DeliverMessage::Request &req,
-		  bwi_services::DeliverMessage::Request &res) {
+		  bwi_services::DeliverMessage::Response &res) {
 	ros::ServiceClient goToLocationClient = (*n).serviceClient<bwi_services::GoToLocation>("go_to_location");	
 	bwi_services::GoToLocation goToSrv;
         goToSrv.request.location = req.location;
@@ -19,6 +19,7 @@ bool deliver_message(bwi_services::DeliverMessage::Request &req,
 	bwi_services::SpeakMessage speakSrv;
 	speakSrv.request.message = req.message;
 	speakMessageClient.call(speakSrv);	
+	res.result = 1;
 	
 	return true;
 }

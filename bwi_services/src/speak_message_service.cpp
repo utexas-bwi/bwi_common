@@ -9,7 +9,7 @@ std::string voice;
 int pitch;
 
 bool speak_message(bwi_services::SpeakMessage::Request &req,
-		  bwi_services::SpeakMessage::Request &res) {
+		  bwi_services::SpeakMessage::Response &res) {
 		
 	boost::regex sanitizeNumber("[^0-9]");	
 	std::string numberReplacement = "";
