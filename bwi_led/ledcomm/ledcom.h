@@ -41,7 +41,7 @@ void LedCOM::connect(const std::string port, const unsigned long baud) {
       cerr << "EXCEPTION CAUGHT: serial::Serial could not open a connection." << endl;
       cerr << endl << "Original exception: " << e.what() << endl;
       cerr << endl << "Ensure device is connected and using port, " << port << ", with baud setting, " << baud << "." << endl;
-      cerr << endl << "Retrying to open connection after waiting 30 seconds." << endl;
+      cerr << endl << "Retrying to open connection after waiting 2 seconds." << endl;
       sleep(2);
       LedCOM::connect(port, baud);
   }
