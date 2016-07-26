@@ -1,6 +1,6 @@
 #goal definition
 int8 type
-int32 timeout
+int16 timeout
 ---
 #result definition
 ---

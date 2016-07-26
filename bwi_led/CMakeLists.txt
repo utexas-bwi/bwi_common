@@ -15,11 +15,12 @@ add_service_files(FILES
 				  led_clear.srv
 				  test_strip.srv
 				  set_first_five.srv
-				  set_every_fifth.srv)
+				  set_every_fifth.srv
+          set_camera_on.srv
+          set_camera_off.srv)
 
 add_action_files(DIRECTORY action
                  FILES LED.action)
-
 
 add_message_files(DIRECTORY msg 
                   FILES led_animations.msg)
