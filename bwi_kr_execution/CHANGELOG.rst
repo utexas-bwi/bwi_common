@@ -2,6 +2,20 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Increased planner timeout from 20 seconds to 40 seconds to account
+  for longer planning times for traveling between floors.
+* Modifed elevator domain fact file and added rooms for 1st Floor GDC to navigation fact file..
+* Added first floor map information to navigation_facts and elevator_facts.
+* Fixed static law for facing and beside door, D1 was not defined as a door.
+* Fixed errors in 3rd floor objects. Added 2nd floor objects and rest of 3rd floor objects.
+* Created action files for goto action and added goto action to asp_fomatter.
+* Updated door approach points for 3rd floor map
+* Added missing locations and fixed doors in navigation_facts
+* Updated ASP fact files with addtional locations from updated 3rd floor map.
+* Contributors: FernandezR
+
 0.3.8 (2016-06-06)
 ------------------
 * fix broken clingo dependency (`#52 <https://github.com/utexas-bwi/bwi_common/issues/52>`_)

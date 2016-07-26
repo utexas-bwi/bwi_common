@@ -2,6 +2,9 @@
 Changelog for package bwi_gazebo_entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.8 (2016-06-06)
 ------------------
 * merged with yuqian's branch.

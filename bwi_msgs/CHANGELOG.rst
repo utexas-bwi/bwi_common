@@ -2,6 +2,13 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added a path to certificate messages from scav to virtour
+* added a new scavenger hunt service that can pause/resume current task
+* bwi_msgs: added a ScavStatus msg
+* Contributors: Shiqi Zhang
+
 0.3.8 (2016-06-06)
 ------------------
 * updated simulated calls that open the elevator doors to

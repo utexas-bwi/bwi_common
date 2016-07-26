@@ -2,6 +2,9 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.8 (2016-06-06)
 ------------------
 * fixed permissions of the logical_marker script.

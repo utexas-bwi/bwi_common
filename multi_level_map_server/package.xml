@@ -1,6 +1,6 @@
 <package>
   <name>multi_level_map_server</name>
-  <version>0.1.2</version>
+  <version>0.3.8</version>
   <description>Launches a map server for various floors inside a building.</description>
   <license>BSD</license>
 

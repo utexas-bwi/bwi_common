@@ -2,6 +2,9 @@
 Changelog for package bwi_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.8 (2016-06-06)
 ------------------
 * add some ROS progress logging (`#46

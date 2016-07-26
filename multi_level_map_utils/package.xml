@@ -1,6 +1,6 @@
 <package>
   <name>multi_level_map_utils</name>
-  <version>0.1.2</version>
+  <version>0.3.8</version>
   <description>
     Contains utilities like a level multiplexer, a level selector and other utility functions.
   </description>

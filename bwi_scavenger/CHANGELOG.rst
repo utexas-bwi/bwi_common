@@ -2,6 +2,48 @@
 Changelog for package bwi_scavenger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bwi_scavenger: add missing visualization_msgs dependency (`#61 <https://github.com/utexas-bwi/bwi_common/issues/61>`_)
+* commented out image uploading in human following
+* final change before demo, hopefully
+* changed image topic name from image_color to image_raw
+* uniformed naming strategy of certificate images
+* fixed white-board not stopping problem
+* fixed bugs; todo: 'stop' button sometimes doesn't stop moving in whiteboard task
+* fixed human following 'no passive moving' problem
+* enabled robot to say 'following' while following a person
+* fixed fetch-object problem: robot doesn't stop after user presses the button
+* Merge branch 'shiqi/scavenger' of https://github.com/utexas-bwi/bwi_common into shiqi/scavenger
+* human following ends when task completed
+* fixed color shirt detection, shirt height problem
+* removed directory, leaving only file name of certificate
+* added a path to certificate messages from scav to virtour
+* added color into color shirt printout on virtour
+* fixed bugs, and demo worked well
+* added scav_srv into scavenger.cpp
+* added a new scavenger hunt service that can pause/resume current task
+* Merge remote-tracking branch 'origin/master' into shiqi/scavenger
+* scavenger: removed the blocking thread.join() line
+* enabled scavenger to keep publishing task status to bwi_virtour
+* fixed bug of scavenger status not publishing
+* bwi_msgs: added a ScavStatus msg
+* activated all four tasks
+* Added scp log files to remote (hypnotoad) location
+* Took out spin. It's too easy to be stuck in a loop with false detections
+* Finished implemented more fluid human following given the person's last seen location
+* Changed human following motion to actionlib version. 
+* scavenger added image saver to human following
+* Added stop in front of person code for human following
+* added traveled distance into rviz
+* enabled robot to draw two trajectories: robot and human
+* added a tool for drawing robot trajectories
+* ScavTaskHumanFollowing: simply approaching where human was first detected
+* added a new task ScavTaskHumanFollowing; to be tested on robots
+* configuration used for scavenger hunt demo
+* fixed a problem about parameter passing
+* Contributors: Jack O'Quin, Shih-Yun Lo, Shiqi Zhang, William Xie
+
 0.3.8 (2016-06-06)
 ------------------
 * use GlobalPlanner instead of navfn

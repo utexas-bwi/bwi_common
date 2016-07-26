@@ -2,6 +2,22 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adjusted 1st floor door approach points.
+* Changed Z position for second floor map to raise it above the first floor map.
+* Created map for GDC 1st Floor and added new map to multimap.yaml
+* Updated 3rd floor north approach points.
+* Adjusted object o3_406_table to be inside area l3_406.
+* Added south elevator to 2nd floor map
+* Updated door approach points for 3rd floor map
+* Updated door approach points and added objects to locations without doors.
+* Removed annotations for doors without complete locations.
+* Modified multimap.yaml to utilize to updated 3rd floor map.
+* Added new complete map of 3rd floor, with additional doors and
+  locations from south side of the building.
+* Contributors: FernandezR
+
 0.3.8 (2016-06-06)
 ------------------
 * fixed problems with sketchup model.
