@@ -24,16 +24,22 @@ public:
     void executeTask(int timeout, TaskResult &result, std::string &record); 
     void hriThread();
     void motionThread(); 
+    void stopEarly(); 
 
     bool random_walk_flag; 
+    bool target_detected; 
+    bool task_completed; 
 
-    SearchPlanner *search_planner; 
+    SearchPlannerSimple *search_planner_simple; 
 
     std::string object_name, room_name_from, room_name_to; 
 
     std::string directory; 
 
     ros::ServiceClient *gui_service_client; 
+
+private:
+    bool _target_detected; 
 
 }; 
 

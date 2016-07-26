@@ -8,9 +8,6 @@
 #include <tf/LinearMath/Transform.h>
 #include <tf/transform_datatypes.h>
 
-#include <move_base_msgs/MoveBaseAction.h>
-#include <actionlib/client/simple_action_client.h>
-#include <actionlib/client/terminal_state.h>
 
 #include "SearchPlanner.h"
 
@@ -28,10 +25,82 @@ void callbackCurrPos(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
     curr_position = *msg;
 }
 
+
+SearchPlannerSimple::SearchPlannerSimple(ros::NodeHandle *node_handle) {
+
+    nh = node_handle;
+
+    doors.push_back("d3_414b1");
+    doors.push_back("d3_414b2");
+    doors.push_back("d3_414a1");
+    doors.push_back("d3_414a2");
+
+    client = new KrClient("/action_executor/execute_plan", true);
+    client->waitForServer(); 
+    goal_door = 0; 
+    srand(time(NULL)); 
+   busy = false; 
+}
+
+bool SearchPlannerSimple::cancelCurrentGoal() {
+
+    ros::Publisher pub1 = nh->advertise<actionlib_msgs::GoalID> 
+        ("/move_base/cancel", 1000); 
+    ros::Publisher pub2 = nh->advertise<actionlib_msgs::GoalID> 
+        ("/move_base_interruptable/cancel", 1000); 
+    actionlib_msgs::GoalID msg; 
+
+    ros::spinOnce(); 
+    pub1.publish(msg); 
+
+    ros::spinOnce(); 
+    pub2.publish(msg); 
+
+    ros::spinOnce(); 
+
+    client->cancelAllGoals(); 
+
+}
+
+bool SearchPlannerSimple::moveToNextDoor() {
+    
+    goal_door = (goal_door + rand()) % doors.size(); 
+
+    ROS_INFO_STREAM("going to " << doors.at(goal_door));
+    bwi_kr_execution::ExecutePlanGoal goal; 
+    bwi_kr_execution::AspRule rule;
+    bwi_kr_execution::AspFluent fluent;
+    fluent.name = "not beside";
+    fluent.variables.push_back(doors.at(goal_door));
+    rule.body.push_back(fluent);
+    goal.aspGoal.push_back(rule);
+
+    ROS_INFO("sending goal"); 
+    client->sendGoalAndWait(goal); 
+    busy = true; 
+
+    if (client->getState() == actionlib::SimpleClientGoalState::ABORTED) {
+        ROS_INFO("Aborted");
+    } else if (client->getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
+        ROS_INFO("Preempted");
+    }
+
+    else if (client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+        ROS_INFO("Succeeded!");
+    } else
+        ROS_INFO("Terminated");
+
+    busy = false; 
+    return 0; 
+}
+
+
 SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_yaml, float goal_tolerance) : 
         tolerance(goal_tolerance) {
 
     nh = node_handle; 
+    client = new KrClient("/action_executor/execute_plan", true);
+    client->waitForServer(); 
 
     YAML::Node yaml_positions; 
     std::ifstream fin(path_to_yaml.c_str()); 
@@ -69,8 +138,10 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
         // 0.3.0 compatible implementation.  Since we don't use Saucy,
         // we just let it fail.
 #endif
+
     }        
 
+    busy = false; 
     setTargetDetection(false); 
     ros::spinOnce(); 
 }
@@ -125,7 +196,9 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
     bool hasArrived = false; 
     ROS_INFO("Moving to next scene"); 
 
-    while (ros::ok() and !hasArrived and false == getTargetDetection()) {
+    busy = true; 
+    ros::Rate r(2);
+    while (ros::ok() and r.sleep() and !hasArrived and false == getTargetDetection()) {
 
         ros::spinOnce(); 
         float x = msg_goal.pose.position.x - curr_position.pose.pose.position.x;
@@ -139,9 +212,9 @@ void SearchPlanner::moveToNextScene(const geometry_msgs::PoseStamped &msg_goal) 
         // sometimes motion plannerg gets aborted for unknown reasons, so here 
         // we periodically re-send the goal
         pub_simple_goal.publish(msg_goal); 
-        ros::Duration(1.0).sleep();
     }
     ROS_INFO("Arrived"); 
+    busy = false; 
 }
 
 void SearchPlanner::analyzeScene(float angle, float angular_vel) {
@@ -151,6 +224,7 @@ void SearchPlanner::analyzeScene(float angle, float angular_vel) {
     vel.linear.x = 0;
     vel.linear.y = 0;
 
+    busy = true; 
     for (int i=0; i<170; i++) {
         if (i<10 or i>160) {
             vel.angular.z = 0;
@@ -168,6 +242,7 @@ void SearchPlanner::analyzeScene(float angle, float angular_vel) {
         if (getTargetDetection())
             break; 
     }
+    busy = false; 
 }
 
 void SearchPlanner::updateBelief(int next_goal_index) {

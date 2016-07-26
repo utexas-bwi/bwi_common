@@ -25,12 +25,15 @@ public:
     void executeTask(int timeout, TaskResult &result, std::string &record); 
     void visionThread();
     void motionThread(); 
+    void stopEarly(); 
 
     void callback_human_detected(const geometry_msgs::PoseStamped::ConstPtr& msg); 
     void callback_image(const sensor_msgs::ImageConstPtr& msg); 
 
     SearchPlanner *search_planner; 
     std::string directory;
+
+    bool task_completed; 
 
     bool inRectangle(Pose p, Pose top_left, Pose top_right, Pose bottom_left); 
 }; 

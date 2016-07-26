@@ -16,6 +16,7 @@ add_message_files(
     AvailableRobot.msg
     AvailableRobotArray.msg
     StopBaseStatus.msg
+    ScavStatus.msg
 )
 
 add_service_files(
@@ -27,6 +28,7 @@ add_service_files(
     RobotTeleporterInterface.srv
     SemanticParser.srv
     StopBase.srv
+    ScavHunt.srv
 )
 
 add_action_files(

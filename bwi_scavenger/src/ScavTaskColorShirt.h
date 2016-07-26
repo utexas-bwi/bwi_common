@@ -37,13 +37,15 @@ public:
     ScavTaskColorShirt(ros::NodeHandle *node_handle, std::string path_of_dir, Color shirt_color); 
 
     void executeTask(int timeout, TaskResult &result, std::string &record); 
+    void stopEarly(); 
     void visionThread();
     void motionThread(); 
 
-    SearchPlanner *search_planner; 
+    SearchPlannerSimple *search_planner_simple; 
 
     Color color; 
     std::string directory; 
+    bool task_completed; 
 
     void callback_image_saver(const sensor_msgs::ImageConstPtr& msg); 
     void callback_human_detection(const PointCloud::ConstPtr& msg); 

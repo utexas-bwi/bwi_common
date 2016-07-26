@@ -14,6 +14,9 @@ ScavTaskFetchObject::ScavTaskFetchObject(ros::NodeHandle *nh, std::string dir) {
     directory = dir; 
     task_description = "fetch an object from a place to another"; 
     task_name = "Fetch object"; 
+    certificate = ""; 
+    _target_detected = false; 
+    task_completed = false; 
 }
 
 
@@ -22,8 +25,21 @@ void ScavTaskFetchObject::executeTask(int timeout, TaskResult &result, std::stri
     boost::thread motion( &ScavTaskFetchObject::motionThread, this);
     boost::thread hri( &ScavTaskFetchObject::hriThread, this);
 
-    motion.join();
-    hri.join();
+    _target_detected = false; 
+
+    ros::Rate r(2); 
+    while (ros::ok() and r.sleep()) {
+        if (task_completed) {
+            search_planner_simple->cancelCurrentGoal(); 
+            break; 
+        }
+    }
+
+    motion.detach();
+    hri.detach();
+
+    search_planner_simple->cancelCurrentGoal(); 
+
     record = path_to_text;
     result = SUCCEEDED; 
 
@@ -38,13 +54,11 @@ void ScavTaskFetchObject::motionThread() {
         ROS_ERROR("path to yaml file of search points not set"); 
     ros::param::get("path_to_search_points", path_to_yaml); 
 
-    search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
+    search_planner_simple = new SearchPlannerSimple(nh);
+    ros::Rate r(2);           
 
-    int next_goal_index;                                                        
-    while (ros::ok() and false == search_planner->getTargetDetection()) {
-        search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
-        search_planner->analyzeScene(0.25*PI, PI/10.0);
-        search_planner->updateBelief(next_goal_index);
+    while (ros::ok() and !_target_detected and r.sleep()) {
+        search_planner_simple->moveToNextDoor();
     }
 }
 
@@ -62,11 +76,12 @@ void ScavTaskFetchObject::hriThread() {
     srv.request.timeout = bwi_msgs::QuestionDialogRequest::NO_TIMEOUT; 
     gui_service_client->waitForExistence(); 
     gui_service_client->call(srv); 
-    search_planner->setTargetDetection(true); 
+
+    _target_detected = true; 
 
     // what's the object's name? saved to room_from
     srv.request.type = 2;
-    srv.request.message = "What is the object's name?"; 
+    srv.request.message = "Please follow me until I stop.\nWhat is the object's name?"; 
     gui_service_client->call(srv);
     object_name = srv.response.text;
 
@@ -154,6 +169,9 @@ void ScavTaskFetchObject::hriThread() {
     }
 
     ROS_INFO("fetch_object_service task done"); 
+    task_completed = true; 
 }
 
-
+void ScavTaskFetchObject::stopEarly() {
+    task_completed = true; 
+}

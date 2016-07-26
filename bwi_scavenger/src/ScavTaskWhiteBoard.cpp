@@ -21,6 +21,9 @@ ScavTaskWhiteBoard::ScavTaskWhiteBoard(ros::NodeHandle *nh, std::string dir) {
     directory = dir;
     task_description = "find a person standing near a whiteboard"; 
     task_name = "White board"; 
+    certificate = ""; 
+
+    task_completed = false; 
 }
 
 
@@ -56,20 +59,28 @@ void ScavTaskWhiteBoard::callback_human_detected(const geometry_msgs::PoseStampe
 
     if (inRectangle(pose, a1, b1, c1) or inRectangle(pose, a2, b2, c2)) {
 
-        ROS_INFO("People detected near a white board, picture saved.");
+        ROS_INFO("People detected near a white board, saving picture...");
 
         cv_bridge::CvImageConstPtr cv_ptr;
         cv_ptr = cv_bridge::toCvShare(wb_image, sensor_msgs::image_encodings::BGR8);
 
         boost::posix_time::ptime curr_time = boost::posix_time::second_clock::local_time(); 
-        wb_path_to_image = directory + "white_board_" + boost::posix_time::to_simple_string(curr_time); 
+        // std::string time_str = boost::posix_time::to_simple_string(curr_time);
+        std::string time_str = boost::posix_time::to_iso_extended_string(curr_time);
 
         if (false == boost::filesystem::is_directory(directory)) {
             boost::filesystem::path tmp_path(directory);
             boost::filesystem::create_directory(tmp_path);
-        } 
+        }
+ 
+        wb_path_to_image = directory + "white_board_" + time_str + ".PNG"; 
         cv::imwrite(wb_path_to_image, cv_ptr->image);
         search_planner->setTargetDetection(true); // change status to terminate the motion thread
+
+        ROS_INFO_STREAM("Finished saving picture: " << wb_path_to_image);
+
+        task_completed = true; 
+
     }
 }
 
@@ -87,9 +98,10 @@ void ScavTaskWhiteBoard::motionThread() {
 
     search_planner = new SearchPlanner(nh, path_to_yaml, tolerance);           
 
-    int next_goal_index;                                                        
-    while (ros::ok()) {
-        search_planner->moveToNextScene( search_planner->selectNextScene(search_planner->belief, next_goal_index) );
+    int next_goal_index;   
+    ros::Rate r(2);                                                     
+    while (ros::ok() and r.sleep() and task_completed == false) {
+        search_planner->moveToNextScene(search_planner->selectNextScene(search_planner->belief, next_goal_index));
         search_planner->analyzeScene(0.25*PI, PI/10.0);
         search_planner->updateBelief(next_goal_index);
     }
@@ -101,11 +113,11 @@ void ScavTaskWhiteBoard::visionThread() {
         &ScavTaskWhiteBoard::callback_human_detected, this); 
 
     image_transport::ImageTransport it(*nh);
-    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_color", 1, 
+    image_transport::Subscriber sub_image = it.subscribe("/nav_kinect/rgb/image_raw", 1, 
         &ScavTaskWhiteBoard::callback_image, this);
 
     ros::Rate r(10); 
-    while (ros::ok() and r.sleep()) {
+    while (ros::ok() and r.sleep() and task_completed == false) {
         ros::spinOnce(); 
     }
 }
@@ -115,9 +127,21 @@ void ScavTaskWhiteBoard::executeTask(int timeout, TaskResult &result, std::strin
     boost::thread motion( &ScavTaskWhiteBoard::motionThread, this);
     boost::thread vision( &ScavTaskWhiteBoard::visionThread, this); 
 
-    motion.join();
-    vision.join(); 
+    ros::Rate r(2);
+    while (ros::ok() and r.sleep()) {
+        if (task_completed) {
+            search_planner->cancelCurrentGoal(); 
+            break; 
+        }
+    }
+
+    motion.detach();
+    vision.detach(); 
     record = wb_path_to_image; 
     result = SUCCEEDED; 
 }
 
+void ScavTaskWhiteBoard::stopEarly() {
+    task_completed = true; 
+    search_planner->setTargetDetection(true); 
+}

@@ -1,0 +1,5 @@
+int32 SCAV_PAUSE = 0
+int32 SCAV_RESUME = 1
+
+int32 type
+---
