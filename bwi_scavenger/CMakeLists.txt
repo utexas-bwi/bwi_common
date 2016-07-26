@@ -27,6 +27,7 @@ find_package(catkin REQUIRED
         roscpp
         sound_play
         std_msgs
+        visualization_msgs
 )
 
 
@@ -42,6 +43,7 @@ catkin_package(
         roscpp
         sound_play
         std_msgs
+        visualization_msgs
 )
 
 ###########
@@ -58,7 +60,7 @@ add_executable(scavenger src/scavenger.cpp src/ScavTaskColorShirt.cpp
     src/ScavTaskHumanFollowing.cpp
     src/ScavTaskFetchObject.cpp src/ScavTaskWhiteBoard.cpp src/TaskManager.cpp
     src/SearchPlanner.cpp)
-
+add_dependencies(scavenger ${catkin_EXPORTED_TARGETS})
 target_link_libraries(scavenger
     ${catkin_LIBRARIES}
     ${PCL_LIBRARY_DIRS}

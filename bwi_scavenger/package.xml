@@ -29,6 +29,7 @@
   <depend>roscpp</depend>
   <depend>sound_play</depend>
   <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>yaml-cpp</depend>
 
   <exec_depend>message_runtime</exec_depend>
