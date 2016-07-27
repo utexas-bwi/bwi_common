@@ -15,9 +15,9 @@ typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Clien
 std::string location;
 std::string message;
 
-int speed;
+int32_t speed;
 std::string voice;
-int pitch;
+int32_t pitch;
 
 void goToLocation() {  
 	/*from go_to_location*/
@@ -63,26 +63,21 @@ void goToLocation() {
 }
 
 void deliverMessage() {	
-	
-	boost::regex sanitizeNumber("[^0-9]");  
-        std::string numberReplacement = "";
-        std::string clean_speed = 
-		boost::regex_replace(boost::lexical_cast<std::string>(speed), sanitizeNumber, numberReplacement); 
-        std::string clean_pitch = 
-		boost::regex_replace(boost::lexical_cast<std::string>(pitch), sanitizeNumber, numberReplacement);
+  std::string string_speed = boost::lexical_cast<std::string>(speed);
+  std::string string_pitch = boost::lexical_cast<std::string>(pitch);
 
-        boost::regex sanitizeVoice("[^a-z-]");
-        std::string voiceReplacement = "";
-        std::string clean_voice = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
-	
-	boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
-        std::string messageReplacement = " ";
-        std::string clean_message = boost::regex_replace(message, sanitizeMessage, messageReplacement);
+  boost::regex sanitizeVoice("[^a-z-]");
+  std::string voiceReplacement = "";
+  std::string clean_voice = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
 
-	std::string command = "espeak -v " + clean_voice + " -s "                            
-                + clean_speed + " -p " + clean_pitch + " \"" + clean_message + "\"";
+  boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
+  std::string messageReplacement = " ";
+  std::string clean_message = boost::regex_replace(message, sanitizeMessage, messageReplacement);
 
-	system(command.c_str());
+  std::string command = "espeak -v " + clean_voice + " -s " 
+      + string_speed + " -p " + string_pitch + " \"" + clean_message + "\"";
+  
+  system(command.c_str());
 }
 
 int main(int argc, char** argv) {
@@ -93,9 +88,9 @@ int main(int argc, char** argv) {
 
 	privateNode.param<std::string>("location",location, /*default*/ ""); 
 	privateNode.param<std::string>("message",message,"");
-	privateNode.param<int>("speed",speed,160);
-        privateNode.param<std::string>("voice",voice,"default");
-        privateNode.param<int>("pitch",pitch,50);
+	privateNode.param<int32_t>("speed",speed,160);
+  privateNode.param<std::string>("voice",voice,"default");
+  privateNode.param<int32_t>("pitch",pitch,50);
 
 	if (location.compare("") != 0) {
 		goToLocation();

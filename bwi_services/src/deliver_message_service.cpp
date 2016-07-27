@@ -12,12 +12,18 @@ bool deliver_message(bwi_services::DeliverMessage::Request &req,
 		  bwi_services::DeliverMessage::Response &res) {
 	ros::ServiceClient goToLocationClient = (*n).serviceClient<bwi_services::GoToLocation>("go_to_location");	
 	bwi_services::GoToLocation goToSrv;
-        goToSrv.request.location = req.location;
+  goToSrv.request.location = req.location;
 	goToLocationClient.call(goToSrv);
 	
-	ros::ServiceClient speakMessageClient = (*n).serviceClient<bwi_services::SpeakMessage>("speak_message");  
+  ROS_INFO("Location:%s", req.location.c_str());
+
+  //called with header because node is private
+	ros::ServiceClient speakMessageClient = (*n).serviceClient<bwi_services::SpeakMessage>("/speak_message_service/speak_message");  
 	bwi_services::SpeakMessage speakSrv;
 	speakSrv.request.message = req.message;
+
+  ROS_INFO("Message:%s", req.message.c_str());
+
 	speakMessageClient.call(speakSrv);	
 	res.result = 1;
 	
@@ -31,10 +37,10 @@ int main(int argc, char** argv) {
 	n = &nh;	
 
 	ros::ServiceServer service = (*n).advertiseService("deliver_message", deliver_message);	
-        ROS_INFO("DeliverMessage Service started");
+  ROS_INFO("DeliverMessage Service started");
 
 	ros::spin();	
-        ROS_INFO("Done spinning");
+  ROS_INFO("Done spinning");
 	return 0;
 }
 
