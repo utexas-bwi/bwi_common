@@ -143,7 +143,7 @@ public:
     if (goal->timeout > 0) 
     {
       timeout = false;
-      ROS_INFO("Creating timeout thread with timeout: %d seconds.", goal->timeout);
+      ROS_INFO("Creating timeout for: %d seconds.", goal->timeout);
       timeout_timer.setPeriod(ros::Duration(goal->timeout));
       timeout_timer.start();
     }
@@ -163,6 +163,7 @@ public:
           ROS_INFO("Cleared LED Strip");
           success = false;
           timeout = false;
+          check_camera_status();
           break;
         }
 
@@ -174,6 +175,7 @@ public:
           timeout_timer.stop();
           success = false;
           timeout = false;
+          check_camera_status();
           break;
         }
 
@@ -311,7 +313,7 @@ public:
                       // Decreases Brightness
                       for (float b = 0.5; b >= 0.0; b -= 0.02) 
                       {
-                        if(timeout) { break; }
+                        if(as_.isPreemptRequested() || timeout || !ros::ok()) { break; }
 
                         for (int i = right_front_end; i > right_front_start; i--) 
                         {
@@ -396,12 +398,215 @@ public:
                     break;
                   }
           // Up
-          case 5:
-                  break;
-          // Down
-          case 6:
-                  break;
+          case 5: {
+                    // Executes as long as timeout has not been reached, Goal is not Preempted, and ROS is OK 
+                    while(!as_.isPreemptRequested() && !timeout && ros::ok())
+                    {
+                      // Creates a set of 3 leds which travels up along the strip
 
+                      int front_left_start = 60;
+                      int front_left_end = 73;
+
+                      int front_right_start = 119;
+                      int front_right_end = 106;
+
+                      int back_left_start = 59;
+                      int back_left_end = 46;
+
+                      int back_right_start = 0;
+                      int back_right_end = 13;
+
+                      for (int i = back_right_start; i <= back_right_end;)
+                      {
+                        if(as_.isPreemptRequested() || timeout || !ros::ok()) { break; }
+
+                        if (i == back_right_start)
+                        {
+                          leds.setHSV(i, 22, 1, .1);
+                          leds.setHSV(i+1, 22, 1, .1);
+                          leds.setHSV(i+2, 22, 1, .1);
+                          leds.setHSV(i+3, 22, 1, .1);
+
+                          leds.setHSV(front_left_start, 22, 1, .1);
+                          leds.setHSV(front_left_start+1, 22, 1, .1);
+                          leds.setHSV(front_left_start+2, 22, 1, .1);
+                          leds.setHSV(front_left_start+3, 22, 1, .1);
+
+                          leds.setHSV(front_right_start, 22, 1, .1);
+                          leds.setHSV(front_right_start-1, 22, 1, .1);
+                          leds.setHSV(front_right_start-2, 22, 1, .1);
+                          leds.setHSV(front_right_start-3, 22, 1, .1);
+
+                          leds.setHSV(back_left_start, 22, 1, .1);
+                          leds.setHSV(back_left_start-1, 22, 1, .1);
+                          leds.setHSV(back_left_start-2, 22, 1, .1);
+                          leds.setHSV(back_left_start-3, 22, 1, .1);
+
+                          i+=4;
+                        }
+                        else
+                        {
+                          leds.setHSV(i, 22, 1, .1);
+                          leds.setHSV(i+front_left_start, 22, 1, .1);
+                          leds.setHSV(front_right_start-i, 22, 1, .1);
+                          leds.setHSV(back_left_start-i, 22, 1, .1);
+                          i+=1;
+                        }
+
+                        if (i > back_right_start)
+                        {
+                          leds.setRGB(i-4, 0, 0, 0);
+                          leds.setRGB(i+front_left_start-4, 0, 0, 0);
+                          leds.setRGB(front_right_start-i-4, 0, 0, 0);
+                          leds.setRGB(back_left_start-i-4, 0, 0, 0);
+                        }
+
+                        leds.flush();
+                        // Microseconds
+                        usleep(100000);
+
+                        if (i == back_right_end)
+                        {
+                          leds.setRGB(i, 0, 0, 0);
+                          leds.setRGB(i-1, 0, 0, 0);
+                          leds.setRGB(i-2, 0, 0, 0);
+                          leds.setRGB(i-3, 0, 0, 0);
+
+                          leds.setRGB(i+front_left_start, 0, 0, 0);
+                          leds.setRGB(i+front_left_start-1, 0, 0, 0);
+                          leds.setRGB(i+front_left_start-2, 0, 0, 0);
+                          leds.setRGB(i+front_left_start-3, 0, 0, 0);
+
+                          leds.setRGB(front_right_start-i, 0, 0, 0);
+                          leds.setRGB(front_right_start-i-1, 0, 0, 0);
+                          leds.setRGB(front_right_start-i-2, 0, 0, 0);
+                          leds.setRGB(front_right_start-i-3, 0, 0, 0);
+
+                          leds.setRGB(back_left_start-i, 0, 0, 0);
+                          leds.setRGB(back_left_start-i-1, 0, 0, 0);
+                          leds.setRGB(back_left_start-i-2, 0, 0, 0);
+                          leds.setRGB(back_left_start-i-3, 0, 0, 0);
+
+                          i+=1;
+
+                          leds.flush();
+                          // Microseconds
+                          usleep(100000);
+                        }
+                      }
+                    }
+                    break;
+                  }
+          // Down
+          case 6: {
+                    // Executes as long as timeout has not been reached, Goal is not Preempted, and ROS is OK 
+                    while(!as_.isPreemptRequested() && !timeout && ros::ok())
+                    {
+                      // Creates a set of 3 leds which travels down along the strip
+
+                      int front_left_start = 60;
+                      int front_left_end = 73;
+
+                      int front_right_start = 119;
+                      int front_right_end = 106;
+
+                      int back_left_start = 59;
+                      int back_left_end = 46;
+
+                      int back_right_start = 0;
+                      int back_right_end = 13;
+
+                      for (int i = back_right_end; i >= back_right_start;)
+                      {
+                        if(as_.isPreemptRequested() || timeout || !ros::ok()) { break; }
+
+                        if (i == back_right_end)
+                        {
+                          leds.setHSV(i, 22, 1, .1);
+                          leds.setHSV(i-1, 22, 1, .1);
+                          leds.setHSV(i-2, 22, 1, .1);
+                          leds.setHSV(i-3, 22, 1, .1);
+
+                          leds.setHSV(front_left_end, 22, 1, .1);
+                          leds.setHSV(front_left_end-1, 22, 1, .1);
+                          leds.setHSV(front_left_end-2, 22, 1, .1);
+                          leds.setHSV(front_left_end-3, 22, 1, .1);
+
+                          leds.setHSV(front_right_end, 22, 1, .1);
+                          leds.setHSV(front_right_end+1, 22, 1, .1);
+                          leds.setHSV(front_right_end+2, 22, 1, .1);
+                          leds.setHSV(front_right_end+3, 22, 1, .1);
+
+                          leds.setHSV(back_left_end, 22, 1, .1);
+                          leds.setHSV(back_left_end+1, 22, 1, .1);
+                          leds.setHSV(back_left_end+2, 22, 1, .1);
+                          leds.setHSV(back_left_end+3, 22, 1, .1);
+
+                          i-=4;
+                          front_left_end-=4;
+                          front_right_end-=4;
+                          back_left_end-=4;
+
+                        }
+                        else
+                        {
+                          leds.setHSV(i, 22, 1, .1);
+                          leds.setHSV(front_left_start, 22, 1, .1);
+                          leds.setHSV(front_right_start, 22, 1, .1);
+                          leds.setHSV(back_left_start, 22, 1, .1);
+                          i-=1;
+                          front_left_end-=1;
+                          front_right_end-=1;
+                          back_left_end-=1;
+                        }
+
+                        if (i < back_right_end)
+                        {
+                          leds.setRGB(i+4, 0, 0, 0);
+                          leds.setRGB(front_left_start+4, 0, 0, 0);
+                          leds.setRGB(front_right_start+4, 0, 0, 0);
+                          leds.setRGB(back_left_start+4, 0, 0, 0);
+                        }
+
+                        leds.flush();
+                        // Microseconds
+                        usleep(100000);
+
+                        if (i == back_right_start)
+                        {
+                          leds.setRGB(i, 0, 0, 0);
+                          leds.setRGB(i+1, 0, 0, 0);
+                          leds.setRGB(i+2, 0, 0, 0);
+                          leds.setRGB(i+3, 0, 0, 0);
+
+                          leds.setRGB(front_left_start, 0, 0, 0);
+                          leds.setRGB(front_left_start+1, 0, 0, 0);
+                          leds.setRGB(front_left_start+2, 0, 0, 0);
+                          leds.setRGB(front_left_start+3, 0, 0, 0);
+
+                          leds.setRGB(front_right_start, 0, 0, 0);
+                          leds.setRGB(front_right_start+1, 0, 0, 0);
+                          leds.setRGB(front_right_start+2, 0, 0, 0);
+                          leds.setRGB(front_right_start+3, 0, 0, 0);
+
+                          leds.setRGB(back_left_start, 0, 0, 0);
+                          leds.setRGB(back_left_start+1, 0, 0, 0);
+                          leds.setRGB(back_left_start+2, 0, 0, 0);
+                          leds.setRGB(back_left_start+3, 0, 0, 0);
+
+                          i-=1;
+                          front_left_end-=1;
+                          front_right_end-=1;
+                          back_left_end-=1;
+
+                          leds.flush();
+                          // Microseconds
+                          usleep(100000);
+                        }
+                      }
+                    }
+                    break;
+                  }
         }
 
         // Successful Execution Logic
@@ -412,6 +617,7 @@ public:
           timeout_timer.stop();
           leds.clear();
           ROS_INFO("Cleared LED Strip");
+          check_camera_status();
           timeout = false;
         }
       }
@@ -453,6 +659,7 @@ bool clear_strip(bwi_led::led_clear::Request  &req,
   {
     leds.clear();
     ROS_INFO("Cleared LED Strip");
+    check_camera_status();
     return true;
   }
   catch(const serial::SerialException &e)
