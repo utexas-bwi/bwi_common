@@ -1,0 +1,2 @@
+* Make sure the website message is "tours are not allowed" when tours are disabled
+* Make the active launch files set the tour to enabled

@@ -1,0 +1,4 @@
+string location
+string user
+---
+int32 result
