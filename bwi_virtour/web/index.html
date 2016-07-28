@@ -51,15 +51,15 @@
                   <span class="glyphicon glyphicon-chevron-down"></span>
                 </button>
               </div> <!-- .servoControl -->
-              <div class="rotateControl">
-                <p>Rotation Control</p>
-                <button class="btn btn-primary rotateRight">
-                  <span class="glyphicon glyphicon glyphicon-forward"></span> 
+              <div class="messageControl">
+                <p>Messages</p>
+                <button class="btn btn-primary speakBtn" title="Speak Message">
+                  Speak message
                 </button>
-                <button class="btn btn-primary rotateLeft">
-                  <span class="glyphicon glyphicon glyphicon-backward"></span> 
+                <button class="btn btn-primary deliverBtn" title="Deliver Message">
+                  Deliver message
                 </button>
-              </div> <!-- .rotateControl -->
+              </div> <!-- .pauseControl -->
               <div class="pauseControl">
                 <p>Robot Control</p>
                 <button class="btn btn-primary pauseBtn" title="Stop Operations">
@@ -69,6 +69,15 @@
                   <span class="glyphicon glyphicon glyphicon-play"></span> 
                 </button>
               </div> <!-- .pauseControl -->
+              <div class="rotateControl">
+                <p>Rotation Control</p>
+                <button class="btn btn-primary rotateRight">
+                  <span class="glyphicon glyphicon glyphicon-forward"></span> 
+                </button>
+                <button class="btn btn-primary rotateLeft">
+                  <span class="glyphicon glyphicon glyphicon-backward"></span> 
+                </button>
+              </div> <!-- .rotateControl -->
               <div class="scavengerHunt">
                 <button class="btn btn-info viewScavengerHunt">
                   <span class="glyphicon glyphicon glyphicon-search"></span> 
@@ -173,6 +182,32 @@
           </div> <!-- modal-dialog -->
         </div> <!-- modal -->
       </div> <!-- .scavengerHuntPage-->
+
+      <div class="modal message-modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Message System</h4>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="message_body">Message</label>
+                <input type="text" class="form-control" id="message_body" placeholder="Hello from the internet">
+              </div>
+              <div class="form-group message_destination">
+                <label for="message_room">Destination</label>
+                <input type="text" class="form-control" id="message_room" placeholder="d3_432">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary message_say">Send Message</button>
+              <button type="button" class="btn btn-primary message_deliver">Deliver Message</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.message-modal -->
 
       <div class="errorModal">
         <div class="modal fade error-modal" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">

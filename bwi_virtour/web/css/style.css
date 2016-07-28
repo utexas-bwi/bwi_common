@@ -70,6 +70,29 @@ body {
 .controllingIframe{
   position:relative;
 }
+.messageControl{
+  width: 140px;
+  height: 110px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background-color: rgba(55,55,55,0.5);
+}
+.messageControl p{
+  text-align: center;
+}
+.messageControl .speakBtn{
+  position: absolute;
+  top: 25px;
+  left: 5px;
+  width: 130px;
+}
+.messageControl .deliverBtn{
+  position: absolute;
+  top: 65px;
+  left: 5px;
+  width: 130px;
+}
 .pauseControl{
   width: 140px;
   height: 60px;
@@ -198,7 +221,7 @@ body {
   */
 }
 
-.map-modal, .error-modal, .scavengerhunt-modal {
+.map-modal, .error-modal, .scavengerhunt-modal, .message-modal {
   color: black;
 }
 

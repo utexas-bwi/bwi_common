@@ -127,7 +127,7 @@ function createIdentity() {
 }
 
 function createSegbots() {
-  //segbots["localhost"] = createSegbot("localhost", "127.0.0.1", ROSBRIDGEPORT, MJPEGSERVERPORT);
+  segbots["localhost"] = createSegbot("localhost", "127.0.0.1", ROSBRIDGEPORT, MJPEGSERVERPORT);
   //segbots["hypnotoad"] = createSegbot("hypnotoad", "hypnotoad.csres.utexas.edu", ROSBRIDGEPORT, MJPEGSERVERPORT);
 
   var server = "http://nixons-head.csres.utexas.edu:7979/hostsalivejson";
@@ -240,6 +240,7 @@ function subscribeScavengerHuntListener(ros) {
 function viewScavengerHunt() {
   $(".scavengerhunt-modal").modal();
 }
+
 
 function updateScavengerHuntStatus(msg) {
   $(".scavengerhunt-table tbody").html("");
@@ -562,6 +563,7 @@ function showControls() {
   $(".pauseControl").fadeIn();
   $(".locationForm").fadeIn();
   $(".navigateBtn").fadeIn();
+  $(".messageControl").fadeIn();
 }
 
 function hideControls() {
@@ -570,6 +572,7 @@ function hideControls() {
   $(".pauseControl").hide();
   $(".locationForm").hide();
   $(".navigateBtn").hide();
+  $(".messageControl").hide();
 }
 
 // Page Handlers
@@ -771,6 +774,24 @@ $(".leaveTour").click(function() {
   getTourState();
   leaveTour();
   getTourState();
+});
+
+$(".speakBtn").click(function() {
+  log("Speak btn pressed");
+  $(".message_destination").hide();
+  $(".message_say").show();
+  $(".message_deliver").hide();
+  $(".message-modal").modal();
+  log("Speak btn done");
+});
+
+$(".deliverBtn").click(function() {
+  log("Deliver btn pressed");
+  $(".message_destination").show();
+  $(".message_say").hide();
+  $(".message_deliver").show();
+  $(".message-modal").modal();
+  log("Deliver btn done");
 });
 
 $(".viewScavengerHunt").click(function() {
