@@ -452,6 +452,9 @@ inside(o3_802,l3_802).
 object(o3_702).
 inside(o3_702,l3_702).
 
+object(o3_200_elevator_panel1).
+inside(o3_200_elevator_panel1,l3_200).
+
 
 badDoor(d3_418).
 badDoor(d3_414b1).
