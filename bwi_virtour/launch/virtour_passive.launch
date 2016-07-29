@@ -1,0 +1,10 @@
+<launch>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"></include>
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server">
+    <param name="__image_transport" value="compressed" />
+  </node>
+  <node name="tour_manager" pkg="bwi_virtour" type="tour_manager">
+     <param name="tour_enabled" value="false" />
+  </node>
+  <node name="serveCertificates" pkg="bwi_virtour" type="serveCertificates.sh" />
+</launch>

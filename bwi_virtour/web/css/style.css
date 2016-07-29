@@ -1,0 +1,299 @@
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background: url("../image/gdc_blur.jpg") no-repeat center center fixed; 
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    color: white;
+}
+.intro {
+  color: white;
+  text-shadow: 1px 1px 0px #000;
+  padding-top:10%;
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+}
+.intro h1{
+  font-size: 5em;
+}
+
+.locationForm {
+  display: block;
+  padding-bottom: 60px;
+}
+
+.robots {
+  color: white;
+  text-shadow: 1px 1px 0px #000;
+}
+.robots .robot h2 {
+  font-size: 1.5em;
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom:10px;
+}
+.robots h2 {
+  font-size: 2em;
+  text-align: center;
+}
+.info {
+  position: absolute;
+  bottom: 0px;
+}
+.info textarea{
+  /* width set by js/virtour.js */
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: black;
+}
+.robot {
+  padding-top: 10%;
+}
+.robot img{
+  height: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.module{
+  text-align: center;
+  padding-left: 15px;
+  margin-top: 20px;
+  height:240px;
+}
+
+/** Robot control **/
+.controllingIframe{
+  position:relative;
+}
+.messageControl{
+  width: 140px;
+  height: 110px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background-color: rgba(55,55,55,0.5);
+}
+.messageControl p{
+  text-align: center;
+}
+.messageControl .speakBtn{
+  position: absolute;
+  top: 25px;
+  left: 5px;
+  width: 130px;
+}
+.messageControl .deliverBtn{
+  position: absolute;
+  top: 65px;
+  left: 5px;
+  width: 130px;
+}
+.pauseControl{
+  width: 140px;
+  height: 60px;
+  position: absolute;
+  left: 0px;
+  top: 555px;
+  background-color: rgba(55,55,55,0.5);
+}
+.pauseControl p{
+  text-align: center;
+}
+.pauseControl .pauseBtn{
+  position: absolute;
+  top: 20px;
+  left: 17px;
+}
+.pauseControl .resumeBtn{
+  position: absolute;
+  top: 20px;
+  right: 17px;
+}
+.rotateControl{
+  width: 140px;
+  height: 60px;
+  position: absolute;
+  left: 0px;
+  top: 625px;
+  background-color: rgba(55,55,55,0.5);
+}
+.rotateControl p{
+  text-align: center;
+}
+.rotateControl .rotateLeft{
+  position: absolute;
+  top: 20px;
+  left: 17px;
+}
+.rotateControl .rotateRight{
+  position: absolute;
+  top: 20px;
+  right: 17px;
+}
+.servoControl{
+  width: 140px;
+  height: 130px;
+  position: absolute;
+  left: 0px;
+  top: 670px;
+  background-color: rgba(55,55,55,0.5);
+}
+.servoControl .turnUp{
+  position: absolute;
+  top: 16px;
+  left: 50px;
+}
+.servoControl .turnLeft{
+  position: absolute;
+  top: 50px;
+  left: 10px;
+}
+.servoControl .turnCenter{
+  position: absolute;
+  top: 50px;
+  left: 50px;
+}
+.servoControl .turnRight{
+  position: absolute;
+  top: 50px;
+  left: 90px;
+}
+.servoControl .turnDown{
+  position: absolute;
+  top: 84px;
+  left: 50px;
+}
+.viewScavengerHunt{
+  position: absolute;
+  right: 0px;
+}
+.leaderControl{
+  width: 40%;
+  height: 50px;
+  position: absolute;
+  left: 30%;
+  top: 750px;
+  background-color: rgba(55,55,55,0.5);
+  text-align: center;
+  padding: 15px;
+}
+.leaderControl .getTourStatus{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+.labmap{
+  min-width: 250px;
+  position: absolute;
+  right: -15px;
+  bottom: 110px;
+}
+.labmap .labimage {
+  position: absolute;
+  height: auto;
+  width: 100%;
+  right: 15px;
+  opacity: 0.5;
+}
+.labmap .labimage:hover {
+  cursor: pointer;
+}
+
+.map-image{
+  position:relative;
+}
+
+.pos-map{
+  position:relative;
+}
+
+.pos-marker{
+  position: absolute;
+  height: 30px;
+  /*
+  margin-left: -30px;
+  margin-top: -15px;
+  */
+}
+
+.map-modal, .error-modal, .scavengerhunt-modal, .message-modal {
+  color: black;
+}
+
+.map-modal .modal-img {
+  width: 100%;
+}
+
+.cert-img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+/*** COLORS ***/
+
+.green{
+  color:white;
+  background-color: #006D4F;
+  -moz-box-shadow: 5px 5px 0px 0px #004D37;
+  -webkit-box-shadow: 5px 5px 0px 0px #004D37;
+  box-shadow: 5px 5px 0px 0px #004D37;
+}
+.orange{
+  color:white;
+  background-color: #A66500;
+  -moz-box-shadow: 5px 5px 0px 0px #804D00;
+  -webkit-box-shadow: 5px 5px 0px 0px #804D00;
+  box-shadow: 5px 5px 0px 0px #804D00;
+}
+.red{
+  color:white;
+  background-color: #9A001E;
+  -moz-box-shadow: 5px 5px 0px 0px #680015;
+  -webkit-box-shadow: 5px 5px 0px 0px #680015;
+  box-shadow: 5px 5px 0px 0px #680015;
+}
+.yellow{
+  color:white;
+  background-color: #FFFF00;
+  -moz-box-shadow: 5px 5px 0px 0px #D6D600;
+  -webkit-box-shadow: 5px 5px 0px 0px #D6D600;
+  box-shadow: 5px 5px 0px 0px #D6D600;
+}
+.green:hover{
+  color:white;
+  cursor:pointer;
+  background-color: #1F7D63;
+  -moz-box-shadow: 5px 5px 0px 0px #006D4F;
+  -webkit-box-shadow: 5px 5px 0px 0px #006D4F;
+  box-shadow: 5px 5px 0px 0px #006D4F;
+}
+.orange:hover{
+  color:white;
+  cursor: pointer;
+  background-color: #BF8830;
+  -moz-box-shadow: 5px 5px 0px 0px #A66500;
+  -webkit-box-shadow: 5px 5px 0px 0px #A66500;
+  box-shadow: 5px 5px 0px 0px #A66500;
+}
+.red:hover{
+  color:white;
+  cursor:pointer;
+  background-color: #B02C4B;
+  -moz-box-shadow: 5px 5px 0px 0px #9A001E;
+  -webkit-box-shadow: 5px 5px 0px 0px #9A001E;
+  box-shadow: 5px 5px 0px 0px #9A001E;
+}
+.yellow:hover{
+  color:white;
+  cursor:pointer;
+  background-color: #A4A400;
+  -moz-box-shadow: 5px 5px 0px 0px #A4A400;
+  -webkit-box-shadow: 5px 5px 0px 0px #A4A400;
+  box-shadow: 5px 5px 0px 0px #A4A400;
+}

@@ -1,0 +1,7 @@
+---
+bool tourAllowed
+bool tourInProgress
+uint64 tourDuration
+uint64 tourStartTime
+uint64 lastPingTime
+string tourLeader

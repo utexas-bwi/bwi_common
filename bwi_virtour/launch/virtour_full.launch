@@ -1,0 +1,21 @@
+<launch>
+  <include file="$(find bwi_kr_execution)/launch/bwi_kr_execution.launch"></include>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"></include>
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server">
+    <param name="__image_transport" value="compressed" />
+  </node>
+  <node name="tour_manager" pkg="bwi_virtour" type="tour_manager">
+     <param name="tour_enabled" value="true" />
+  </node>
+  <node name="go_to_location_service_node" pkg="bwi_virtour" type="go_to_location_service_node" />
+  <node name="rotate_service_node" pkg="bwi_virtour" type="rotate_service_node" />
+  <node name="serveCertificates" pkg="bwi_virtour" type="serveCertificates.sh" />
+</launch>
+<!-- for pointgrey and servo camera -->
+
+<!-- <include file="$(find pointgrey_camera_driver)/launch/camera.launch"></include> -->
+<!-- <include file="$(find segbot_sensors)/launch/ptgrey/usbcam.launch"></include> -->
+<!-- <node name="polulu_maestro_node" pkg="pololu_maestro" type="polulu_maestro_node"> -->
+<!--   <param name="~num_servos" value="2" /> -->
+<!-- </node> -->
+<!-- <node name="broadcastTour" pkg="bwi_virtour" type="broadcastTour.sh" /> -->

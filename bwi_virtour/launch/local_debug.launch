@@ -1,0 +1,9 @@
+<launch>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"></include>
+  <node name="tour_manager" pkg="bwi_virtour" type="tour_manager">
+     <param name="tour_enabled" value="true" />
+  </node>
+  <node name="go_to_location_service_node" pkg="bwi_virtour" type="go_to_location_service_node" />
+  <node name="rotate_service_node" pkg="bwi_virtour" type="rotate_service_node" />
+  <!-- <node name="serveCertificates" pkg="bwi_virtour" type="serveCertificates.sh" /> -->
+</launch>

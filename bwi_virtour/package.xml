@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_virtour</name>
+  <version>0.9.0</version>
+  <description>
+    This package provides the local launch files for the robots, as well as the web interface for the BWI GDC virtual tour project
+  </description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
+  <maintainer email="plankenau@gmail.com">Pato Lankenau</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <license>BSD</license>
+
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <url type="repository">https://github.com/utexas-bwi/bwi_experimental/bwi_virtour</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_experimental/issues</url>
+
+  <!-- The *_depend tags are used to specify dependencies -->
+  <build_depend>message_generation</build_depend>
+  <build_depend>bwi_kr_execution</build_depend>
+  <run_depend>bwi_kr_execution</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>rosbridge_server</run_depend>
+  <run_depend>web_video_server</run_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export></export>
+</package>
