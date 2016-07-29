@@ -43,3 +43,7 @@ target_link_libraries(led_control_server ${catkin_LIBRARIES})
 add_executable(test_ledcom_server src/test.cpp)
 target_link_libraries(test_ledcom_server ${catkin_LIBRARIES})
 add_dependencies(test_ledcom_server ${bwi_led_EXPORTED_TARGETS})
+
+install(TARGETS
+          led_control_server
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
