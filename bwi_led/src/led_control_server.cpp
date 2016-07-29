@@ -925,15 +925,17 @@ int main(int argc, char **argv)
   sleep(1);
 
   // Service Server advertisers
-  ros::ServiceServer clear_service = n.advertiseService("led_clear", clear_strip);
-  ros::ServiceServer test_strip_service = n.advertiseService("test_strip", test_strip);
-  ros::ServiceServer set_first_five_service = n.advertiseService("set_first_five", set_first_five);
-  ros::ServiceServer set_every_fifth_service = n.advertiseService("set_every_fifth", set_every_fifth);
-  ros::ServiceServer set_camera_on_service = n.advertiseService("set_camera_on", set_camera_on);
-  ros::ServiceServer set_camera_off_service = n.advertiseService("set_camera_off", set_camera_off);
+  ros::ServiceServer clear_service = n.advertiseService(ros::this_node::getName() + "/led_clear", clear_strip);
+  ros::ServiceServer test_strip_service = n.advertiseService(ros::this_node::getName() + "/test_strip", test_strip);
+  ros::ServiceServer set_first_five_service = n.advertiseService(ros::this_node::getName() + "/set_first_five", set_first_five);
+  ros::ServiceServer set_every_fifth_service = n.advertiseService(ros::this_node::getName() + "/set_every_fifth", set_every_fifth);
+  ros::ServiceServer set_camera_on_service = n.advertiseService(ros::this_node::getName() + "/set_camera_on", set_camera_on);
+  ros::ServiceServer set_camera_off_service = n.advertiseService(ros::this_node::getName() + "/set_camera_off", set_camera_off);
 
   // Action Server advertisers
   LEDAction led_control_server(ros::this_node::getName());
+
+  std::cout << ros::this_node::getName() << endl;
 
   ROS_INFO("Ready to control LED strip with %d leds.", led_count);
   ros::spin();
