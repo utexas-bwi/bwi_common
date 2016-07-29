@@ -498,7 +498,11 @@ function getTourState() {
       $(".leaderControl").height(60);
       $(".leaderControl").css("top", "710px");
     } else {
-      $(".leaderText").text("Someone is controlling the tour, enjoy!");
+      if (!tourState.tourAllowed) {
+        $(".leaderText").text("Sorry, tour leaders are not enabled at this time.");
+      } else {
+        $(".leaderText").text("Someone is controlling the tour, enjoy!");
+      }
       $(".requestTour").hide();
       $(".leaveTour").hide();
       $(".leaderControl").height(20);
