@@ -38,6 +38,10 @@ udevadm info --attribute-walk --name=/dev/?????
 
 ### Setting Up BWI LED Configuration
 
+To utilize the BWI LED package you must configure the led segments of the robot in the launch file.
+The package led animations are configured for use on the Segbots part of the BWI Project, but could 
+be modified for other robot designs.
+
 LED Strips must be set up in a similar style as shown below.
 
 <img src="/bwi_led/images/front.JPG" alt="Front" width="300">
@@ -45,6 +49,3 @@ LED Strips must be set up in a similar style as shown below.
 <img src="/bwi_led/images/left.JPG" alt="Left" width="300">
 <img src="/bwi_led/images/right.JPG" alt="Right" width="300">
 
-To utilize the BWI LED package you must configure the led segments of the robot in the launch file.
-The package led animations are configured for use on the Segbots part of the BWI Project, but could 
-be modified for other robot designs.
