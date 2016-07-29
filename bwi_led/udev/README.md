@@ -1,17 +1,23 @@
-Creating udev Rule
+### Configuring udev Rules
 
-To retrieve the attributes of the microcontroller to create the proper udev rule for it you first will need to monitor udev events to dtermine the serial port name for the device. 
+Retrieve the attributes of the microcontroller to create the proper udev rule for the specific device. 
 
-Excute the command: udevadm monitor
+* You will need to monitor udev events to determine the serial port name for the device. Execute the command: 
 
-Then plug in the device and annotate what /dev/ name it was assigned.
+```
+udevadm monitor
+```
 
-Then excute the command: udevadm info --attribute-walk --name=/dev/?????
+* Plug in the device and annotate what /dev/ name it was assigned.
 
-and replace the question marks with the name it was assigned by the system.
+* Execute the command below and replace the question marks with the name given to your device.
 
-Retrive the follwing attribute values, for use in the udev rule.
+```
+udevadm info --attribute-walk --name=/dev/?????
+```
 
-ATTRS{idVendor}
-ATTRS{idProduct}
-ATTRS{serial}
+* Retrive the follwing attribute values and replace the values in 99-metromini.rules.
+
+	* ATTRS{idVendor}
+	* ATTRS{idProduct}
+	* ATTRS{serial}
