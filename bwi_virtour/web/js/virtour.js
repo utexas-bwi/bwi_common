@@ -829,11 +829,11 @@ $(".deliverBtn").click(function() {
 
 $(".message_say").click(function() {
   msg = $("#message_body").val();
-  log("Speaking message: "+msg);
   if (msg == "") {
     alert("Message is required");
     return;
   }
+  log("Speaking message: "+msg);
   sayMessage(msg);
   $("#message_body").val("");
   $("#message_room").val("");
@@ -843,11 +843,17 @@ $(".message_say").click(function() {
 $(".message_deliver").click(function() {
   msg = $("#message_body").val();
   loc = $("#message_room").val();
-  log("Delivering message: " + msg + " to room: " + loc);
-  if (msg == "" || loc == "") {
+  if (msg == "" && loc == "") {
     alert("Message and location are required");
     return;
+  } else if (msg == "") {
+    alert("Message is required");
+    return;
+  } else if (loc == "") {
+    alert("Location is required");
+    return;
   }
+  log("Delivering message: " + msg + " to room: " + loc);
   deliverMessage(msg, loc);
   $("#message_body").val("");
   $("#message_room").val("");
