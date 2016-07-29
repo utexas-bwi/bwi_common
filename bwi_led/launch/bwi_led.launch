@@ -1,39 +1,39 @@
 <launch>
   <node name="led_control_server" pkg="bwi_led" type="led_control_server">
-    <param name="_led_count" value="120" />
-    <param name="_serial_port" value="/dev/metromini" />
+    <param name="led_count" value="120" />
+    <param name="serial_port" value="/dev/metromini" />
 
-    <param name="_camera_indicator_start" value="29" />
-    <param name="_camera_indicator_end" value="30" />
+    <param name="camera_indicator_start" value="29" />
+    <param name="camera_indicator_end" value="30" />
 
-    <param name="_back_center_start" value="85" />
-    <param name="_back_center_end" value="94" />
+    <param name="back_center_start" value="85" />
+    <param name="back_center_end" value="94" />
 
     <!-- For center segments, start is in the center and end is the left/right most led of the segment -->
-    <param name="_ront_center_left_start" value="29" />
-    <param name="_front_center_left_end" value="34" />
+    <param name="front_center_left_start" value="29" />
+    <param name="front_center_left_end" value="34" />
 
-    <param name="_front_center_right_start" value="30" />
-    <param name="_front_center_right_end" value="25" />
+    <param name="front_center_right_start" value="30" />
+    <param name="front_center_right_end" value="25" />
 
-    <param name="_back_center_left_start" value="90" />
-    <param name="_back_center_left_end" value="85" />
+    <param name="back_center_left_start" value="90" />
+    <param name="back_center_left_end" value="85" />
 
-    <param name="_back_center_right_start" value="89" />
-    <param name="_back_center_right_end" value="94" />
+    <param name="back_center_right_start" value="89" />
+    <param name="back_center_right_end" value="94" />
 
     <!-- For beam segments, start is bottom most led and end is top most led of the segment -->
-    <param name="_front_left_beam_start" value="60" />
-    <param name="_front_left_beam_end" value="73" />
+    <param name="front_left_beam_start" value="60" />
+    <param name="front_left_beam_end" value="73" />
 
-    <param name="_front_right_beam_start" value="119" />
-    <param name="_front_right_beam_end" value="106" />
+    <param name="front_right_beam_start" value="119" />
+    <param name="front_right_beam_end" value="106" />
 
-    <param name="_back_left_beam_start" value="59" />
-    <param name="_back_left_beam_end" value="46" />
+    <param name="back_left_beam_start" value="59" />
+    <param name="back_left_beam_end" value="46" />
 
-    <param name="_back_right_beam_start" value="0" />
-    <param name="_back_right_beam_end" value="13" />
+    <param name="back_right_beam_start" value="0" />
+    <param name="back_right_beam_end" value="13" />
 
   </node>
 </launch>

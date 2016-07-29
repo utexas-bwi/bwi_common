@@ -868,7 +868,7 @@ bool set_camera_off(bwi_led::set_camera_off::Request  &req,
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "ledcom_server");
+  ros::init(argc, argv, "led_control_server");
   ros::NodeHandle n;
 
   // Override the default ros sigint handler.
@@ -933,7 +933,7 @@ int main(int argc, char **argv)
   ros::ServiceServer set_camera_off_service = n.advertiseService("set_camera_off", set_camera_off);
 
   // Action Server advertisers
-  LEDAction ledcom_server(ros::this_node::getName());
+  LEDAction led_control_server(ros::this_node::getName());
 
   ROS_INFO("Ready to control LED strip with %d leds.", led_count);
   ros::spin();

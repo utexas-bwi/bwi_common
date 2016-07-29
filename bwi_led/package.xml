@@ -18,11 +18,11 @@
 
   <build_depend>message_generation</build_depend>
 
+  <depend>std_msgs</depend>
+  <depend>actionlib_msgs</depend>
   <depend>roscpp</depend>
   <depend>serial</depend>
   <depend>actionlib</depend>
-  <depend>std_msgs</depend>
-  <depend>actionlib_msgs</depend>
 
 
 </package>
