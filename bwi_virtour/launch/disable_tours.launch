@@ -1,0 +1,5 @@
+<launch>
+  <node name="tour_manager" pkg="bwi_virtour" type="tour_manager">
+     <param name="tour_enabled" value="false" />
+  </node>
+</launch>
