@@ -131,6 +131,8 @@ int main(int argc, char **argv){
   n.param("/tour_manager/tour_enabled", tour_enabled, false);
   tm = new TourManager(tour_enabled);
 
+  ROS_INFO("Starting tour manager. Tours enabled: %s", tour_enabled ? "true" : "false");
+
   /* Advertise services */
   ros::ServiceServer request_service = n.advertiseService("tour_manager/request_tour", requestTour);
   ros::ServiceServer ping_service = n.advertiseService("tour_manager/ping_tour", pingTour);
