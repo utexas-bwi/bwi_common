@@ -24,5 +24,7 @@
   <depend>serial</depend>
   <depend>actionlib</depend>
 
+  <exec_depend>message_runtime</exec_depend>
+
 
 </package>

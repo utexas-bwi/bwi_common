@@ -29,7 +29,7 @@ generate_messages(DEPENDENCIES actionlib_msgs std_msgs)
 
 catkin_package(
   INCLUDE_DIRS ledcomm
-  CATKIN_DEPENDS roscpp serial std_msgs actionlib_msgs
+  # CATKIN_DEPENDS roscpp serial std_msgs actionlib_msgs
 )
 
 include_directories(
@@ -37,7 +37,7 @@ include_directories(
 )
 
 add_executable(led_control_server src/led_control_server.cpp)
-add_dependencies(led_control_server roscpp)
+add_dependencies(led_control_server ${catkin_EXPORTED_TARGETS})
 target_link_libraries(led_control_server ${catkin_LIBRARIES})
 
 install(TARGETS
