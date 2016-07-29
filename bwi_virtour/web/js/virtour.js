@@ -31,6 +31,8 @@ var requestTourClient = null;
 var getTourStateClient = null;
 var pingTourClient = null;
 var leaveTourClient = null;
+var speakClient = null;
+var deliverClient = null;
 var tourState = { tourAllowed: false, tourInProgress: false, tourDuration: 0,
   tourStartTime: 0, lastPingTime: 0};
 var tourStateFresh = false;
@@ -524,6 +526,20 @@ function requestTour() {
   });
 }
 
+function sayMessage(message) {
+  var request = new ROSLIB.ServiceRequest({ message: message });
+  speakClient.callService(request, function(result) {
+    // TODO handle result
+  });
+}
+
+function deliverMessage(message, loc) {
+  var request = new ROSLIB.ServiceRequest({ message: message, location: loc });
+  deliverClient.callService(request, function(result) {
+    // TODO handle result
+  });
+}
+
 function pingTour() {
   var request = new ROSLIB.ServiceRequest({ user: identity });
   pingTourClient.callService(request, function(result) {
@@ -612,7 +628,6 @@ function clearBeforeUnload() {
 $(".robots").on("click", ".robot", function() {
   var botname = $(this).attr("robot");
   segbot = segbots[botname];
-  //segbot = segbots['localhost']; /* TODO: DEBUG ONLY */
 
   log("Selected: " + botname); 
   segbot.connect();
@@ -716,6 +731,20 @@ $(".robots").on("click", ".robot", function() {
     serviceType : 'bwi_virtour/LeaveTour'
   });
 
+  // set up service client for speaking a message
+  speakClient = new ROSLIB.Service({
+    ros : segbot.ros,
+    name : '/TODO_speak_message/',
+    serviceType : 'TODO/message_type'
+  });
+
+  // set up service client for delivering a message
+  deliverClient = new ROSLIB.Service({
+    ros : segbot.ros,
+    name : '/TODO_deliver_message/',
+    serviceType : 'TODO/message_type'
+  });
+
   // reset the servo
   turnCenter();
 
@@ -777,21 +806,36 @@ $(".leaveTour").click(function() {
 });
 
 $(".speakBtn").click(function() {
-  log("Speak btn pressed");
   $(".message_destination").hide();
   $(".message_say").show();
   $(".message_deliver").hide();
   $(".message-modal").modal();
-  log("Speak btn done");
 });
 
 $(".deliverBtn").click(function() {
-  log("Deliver btn pressed");
   $(".message_destination").show();
   $(".message_say").hide();
   $(".message_deliver").show();
   $(".message-modal").modal();
-  log("Deliver btn done");
+});
+
+$(".message_say").click(function() {
+  msg = $("#message_body").val();
+  log("Speaking message: "+msg);
+  sayMessage(msg);
+  $("#message_body").val("");
+  $("#message_room").val("");
+  $(".message-modal").modal("hide");
+});
+
+$(".message_deliver").click(function() {
+  msg = $("#message_body").val();
+  loc = $("#message_room").val();
+  log("Delivering message: " + msg + " to room: " + loc);
+  deliverMessage(msg, loc);
+  $("#message_body").val("");
+  $("#message_room").val("");
+  $(".message-modal").modal("hide");
 });
 
 $(".viewScavengerHunt").click(function() {
