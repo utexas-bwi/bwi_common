@@ -537,14 +537,14 @@ function requestTour() {
 function sayMessage(message) {
   var request = new ROSLIB.ServiceRequest({ message: message });
   speakClient.callService(request, function(result) {
-    // TODO handle result
+    log("Spoke message");
   });
 }
 
 function deliverMessage(message, loc) {
   var request = new ROSLIB.ServiceRequest({ message: message, location: loc });
   deliverClient.callService(request, function(result) {
-    // TODO handle result
+    log("Delivered message");
   });
 }
 
@@ -742,15 +742,15 @@ $(".robots").on("click", ".robot", function() {
   // set up service client for speaking a message
   speakClient = new ROSLIB.Service({
     ros : segbot.ros,
-    name : '/TODO_speak_message/',
-    serviceType : 'TODO/message_type'
+    name : '/speak_message_service/speak_message',
+    serviceType : 'bwi_services/SpeakMessage'
   });
 
   // set up service client for delivering a message
   deliverClient = new ROSLIB.Service({
     ros : segbot.ros,
-    name : '/TODO_deliver_message/',
-    serviceType : 'TODO/message_type'
+    name : '/deliver_message',
+    serviceType : 'bwi_services/DeliverMessage'
   });
 
   // reset the servo
