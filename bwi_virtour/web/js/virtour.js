@@ -187,6 +187,10 @@ function populateLocations() {
       value: val.value,
       text: val.name
     }));
+    $('#message_room').append($('<option>', {
+      value: val.value,
+      text: val.name
+    }));
   });
   $(doors).each(function(i, val) {
     $('#doorSelect').append($('<option>', {
@@ -826,6 +830,10 @@ $(".deliverBtn").click(function() {
 $(".message_say").click(function() {
   msg = $("#message_body").val();
   log("Speaking message: "+msg);
+  if (msg == "") {
+    alert("Message is required");
+    return;
+  }
   sayMessage(msg);
   $("#message_body").val("");
   $("#message_room").val("");
@@ -836,6 +844,10 @@ $(".message_deliver").click(function() {
   msg = $("#message_body").val();
   loc = $("#message_room").val();
   log("Delivering message: " + msg + " to room: " + loc);
+  if (msg == "" || loc == "") {
+    alert("Message and location are required");
+    return;
+  }
   deliverMessage(msg, loc);
   $("#message_body").val("");
   $("#message_room").val("");
