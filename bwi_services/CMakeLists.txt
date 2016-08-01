@@ -47,3 +47,7 @@ target_link_libraries(speak_message_service ${catkin_LIBRARIES})
 add_executable(deliver_message_client src/deliver_message_client.cpp)
 add_dependencies(deliver_message_client ${catkin_EXPORTED_TARGETS})
 target_link_libraries(deliver_message_client ${catkin_LIBRARIES})
+
+add_executable(speak_message_client src/speak_message_client.cpp)
+add_dependencies(speak_message_client ${catkin_EXPORTED_TARGETS})
+target_link_libraries(speak_message_client ${catkin_LIBRARIES})
