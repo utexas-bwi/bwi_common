@@ -1,23 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_led)
 find_package(catkin REQUIRED COMPONENTS
+  actionlib
+  actionlib_msgs
+  genmsg
+  message_generation
   roscpp
   serial
   std_msgs
-  actionlib
-  actionlib_msgs
-  message_generation
 )
 
 add_definitions(-std=c++11)
 
 add_service_files(FILES 
-				  led_clear.srv
-				  test_strip.srv
-				  set_first_five.srv
-				  set_every_fifth.srv
-          set_camera_on.srv
-          set_camera_off.srv)
+                  led_clear.srv
+                  set_camera_off.srv
+                  set_camera_on.srv
+                  set_every_fifth.srv
+                  set_first_five.srv
+                  test_strip.srv)
 
 add_action_files(DIRECTORY action
                  FILES LED.action)
@@ -29,7 +30,7 @@ generate_messages(DEPENDENCIES actionlib_msgs std_msgs)
 
 catkin_package(
   INCLUDE_DIRS ledcomm
-  # CATKIN_DEPENDS roscpp serial std_msgs actionlib_msgs
+  # CATKIN_DEPENDS actionlib_msgs roscpp serial std_msgs
 )
 
 include_directories(
@@ -37,7 +38,7 @@ include_directories(
 )
 
 add_executable(led_control_server src/led_control_server.cpp)
-add_dependencies(led_control_server ${catkin_EXPORTED_TARGETS})
+add_dependencies(led_control_server ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(led_control_server ${catkin_LIBRARIES})
 
 install(TARGETS
