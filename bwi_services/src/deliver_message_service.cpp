@@ -10,7 +10,7 @@ ros::NodeHandle *n;
 
 bool deliver_message(bwi_services::DeliverMessage::Request &req,
 		  bwi_services::DeliverMessage::Response &res) {
-	ros::ServiceClient goToLocationClient = (*n).serviceClient<bwi_services::GoToLocation>("go_to_location");	
+	ros::ServiceClient goToLocationClient = (*n).serviceClient<bwi_services::GoToLocation>("/bwi_services/go_to_location");	
 	bwi_services::GoToLocation goToSrv;
   goToSrv.request.location = req.location;
 	goToLocationClient.call(goToSrv);
@@ -32,11 +32,11 @@ bool deliver_message(bwi_services::DeliverMessage::Request &req,
 
 int main(int argc, char** argv) {
 	//initialize the node
-	ros::init(argc, argv, "deliver_message_service");
+	ros::init(argc, argv, "deliver_message_service_node");
 	ros::NodeHandle nh;
 	n = &nh;	
 
-	ros::ServiceServer service = (*n).advertiseService("deliver_message", deliver_message);	
+	ros::ServiceServer service = (*n).advertiseService("/bwi_services/deliver_message", deliver_message);	
   ROS_INFO("DeliverMessage Service started");
 
 	ros::spin();	

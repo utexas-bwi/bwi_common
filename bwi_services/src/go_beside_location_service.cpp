@@ -55,7 +55,7 @@ int main(int argc, char**argv) {
 
   client = new Client("/action_executor/execute_plan", true);
 
-  ros::ServiceServer service = n.advertiseService("go_beside_location", go_beside_location);
+  ros::ServiceServer service = n.advertiseService("/bwi_services/go_beside_location", go_beside_location);
   ROS_INFO("GoBesideLocation Service Started");
 
   ros::spin();

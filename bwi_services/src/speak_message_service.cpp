@@ -21,6 +21,8 @@ bool speak_message(bwi_services::SpeakMessage::Request &req,
 	boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
 	std::string messageReplacement = " ";
 	std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
+  
+  ROS_INFO("Saying:%s", clean_message.c_str());
 
 	std::string command = "espeak -v " + clean_voice + " -s " 
 		+ string_speed + " -p " + string_pitch + " \"" + clean_message + "\"";
@@ -32,7 +34,7 @@ bool speak_message(bwi_services::SpeakMessage::Request &req,
 
 int main(int argc, char** argv) {
 	//initialize the node
-	ros::init(argc, argv, "speak_message_service");
+	ros::init(argc, argv, "speak_message_service_node");
   //private so that it can take params
 	ros::NodeHandle nh("~");
 

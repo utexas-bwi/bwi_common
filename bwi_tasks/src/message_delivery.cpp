@@ -1,13 +1,8 @@
 #include "bwi_kr_execution/ExecutePlanAction.h"
-
 #include <actionlib/client/simple_action_client.h>
-
 #include <boost/regex.hpp>
-
 #include <boost/lexical_cast.hpp>
-
 #include <ros/ros.h>
-
 #include <string>
 
 typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
