@@ -407,15 +407,14 @@ function requestLocation(locationStr) {
   goToLocationClient.callService(request, function(result) {
     log('Result for requestLocation service call on '
       + goToLocationClient.name + ': ' + result.result);
-    if (result.result == 1) { //success
-      alert("success");
+    if (result.result == 1) { // success
+      alert("Done going to location!");
     } else if (result.result == -1) { // terminated
-      alert("terminated");
+      log("requestLocation terminated");
     } else if (result.result == -2) { // preempted
-      alert("preempted");
+      log("requestLocation preempted");
     } else if (result.result == -3) { // aborted
-      alert("aborted");
-    } else {
+      log("requestLocation aborted");
     }
   });
 }
@@ -426,15 +425,14 @@ function requestBesideLocation(locationStr) {
   goBesideLocationClient.callService(request, function(result) {
     log('Result for requesBesidetLocation service call on '
       + goToLocationClient.name + ': ' + result.result);
-    if (result.result == 1) { //success
-      alert("success");
+    if (result.result == 1) { // success
+      alert("Done going beside location!");
     } else if (result.result == -1) { // terminated
-      alert("terminated");
+      log("goBesideLocation terminated");
     } else if (result.result == -2) { // preempted
-      alert("preempted");
+      log("goBesideLocation preempted");
     } else if (result.result == -3) { // aborted
-      alert("aborted");
-    } else {
+      log("goBesideLocation aborted");
     }
   });
 }
