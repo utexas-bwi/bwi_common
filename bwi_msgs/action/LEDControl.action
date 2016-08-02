@@ -1,0 +1,10 @@
+#goal definition
+bwi_msgs/LEDAnimations type
+duration timeout
+---
+#result definition
+uint8 result
+string status
+---
+#feedback
+duration time_running

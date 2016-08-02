@@ -1,0 +1,4 @@
+bwi_msgs/LEDCameraStatus type
+---
+bool success
+string status
