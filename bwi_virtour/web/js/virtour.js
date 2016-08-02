@@ -66,6 +66,9 @@ var locations = [{
 },{
   name: "Lab",
   value: "l3_414b"
+},{
+  name: "Conference room",
+  value: "l3_516"
 }];
 
 var doors = [{
