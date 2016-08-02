@@ -50,7 +50,7 @@ bool go_beside_location(bwi_services::GoBesideLocation::Request &req,
 }
 
 int main(int argc, char**argv) {
-  ros::init(argc, argv, "go_beside_location_service");
+  ros::init(argc, argv, "go_beside_location_service_node");
   ros::NodeHandle n;
 
   client = new Client("/action_executor/execute_plan", true);
