@@ -49,9 +49,6 @@ int main(int argc, char**argv) {
   ros::init(argc, argv, "rotate_service_node");
   ros::NodeHandle n;
 
-  //client = new Client("/action_executor/execute_plan", true);
-
-  //ros::Publisher cmd_vel_pub = n.advertise<std_msgs::String>("/cmd_vel", 1000);
   cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
   ros::ServiceServer service = n.advertiseService("rotate", rotateRequest);
   ROS_INFO("Rotate Service Started");
