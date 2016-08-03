@@ -15,6 +15,10 @@ add_message_files(
   FILES
     AvailableRobot.msg
     AvailableRobotArray.msg
+    LEDActionResult.msg
+    LEDAnimations.msg
+    LEDCameraStatus.msg
+    LEDTestType.msg
     StopBaseStatus.msg
     ScavStatus.msg
 )
@@ -23,6 +27,9 @@ add_service_files(
   DIRECTORY srv
   FILES
     DoorHandlerInterface.srv
+    LEDClear.srv
+    LEDSetCamera.srv
+    LEDTestStrip.srv
     QuestionDialog.srv
     ResolveChangeFloor.srv
     RobotTeleporterInterface.srv
@@ -33,7 +40,9 @@ add_service_files(
 
 add_action_files(
   DIRECTORY action
-  FILES LogicalNavigation.action
+  FILES
+    LEDControl.action
+    LogicalNavigation.action
 )
 
 generate_messages(
