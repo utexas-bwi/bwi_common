@@ -9,46 +9,46 @@ int32_t pitch;
 std::string voice;
 
 bool speak_message(bwi_services::SpeakMessage::Request &req,
-		  bwi_services::SpeakMessage::Response &res) {
+      bwi_services::SpeakMessage::Response &res) {
   
   std::string string_speed = boost::lexical_cast<std::string>(speed);
   std::string string_pitch = boost::lexical_cast<std::string>(pitch);
 
-	boost::regex sanitizeVoice("[^a-z-]");
-	std::string voiceReplacement = "";
-	std::string clean_voice = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
+  boost::regex sanitizeVoice("[^a-z-]");
+  std::string voiceReplacement = "";
+  std::string clean_voice = boost::regex_replace(voice, sanitizeVoice, voiceReplacement);
 
-	boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
-	std::string messageReplacement = " ";
-	std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
+  boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
+  std::string messageReplacement = " ";
+  std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
   
   ROS_INFO("Saying:%s", clean_message.c_str());
 
-	std::string command = "espeak -v " + clean_voice + " -s " 
-		+ string_speed + " -p " + string_pitch + " \"" + clean_message + "\"";
+  std::string command = "espeak -v " + clean_voice + " -s " 
+    + string_speed + " -p " + string_pitch + " \"" + clean_message + "\"";
   
   system(command.c_str());
 
-	return true;
+  return true;
 }
 
 int main(int argc, char** argv) {
-	//initialize the node
-	ros::init(argc, argv, "speak_message_service_node");
+  //initialize the node
+  ros::init(argc, argv, "speak_message_service_node");
   //private so that it can take params
-	ros::NodeHandle nh("~");
+  ros::NodeHandle nh("~");
 
-	nh.param<int32_t>("speed", speed, 160);
-	nh.param<int32_t>("pitch", pitch, 50);	
+  nh.param<int32_t>("speed", speed, 160);
+  nh.param<int32_t>("pitch", pitch, 50);  
   nh.param<std::string>("voice", voice, "default");
 
-	ros::ServiceServer service = nh.advertiseService("speak_message", speak_message);
-	ROS_INFO("SpeakMessage Service started");
+  ros::ServiceServer service = nh.advertiseService("speak_message", speak_message);
+  ROS_INFO("SpeakMessage Service started");
   ROS_INFO("Speed:%s",(boost::lexical_cast<std::string>(speed)).c_str());
   ROS_INFO("Pitch:%s",(boost::lexical_cast<std::string>(pitch)).c_str());
   ROS_INFO("Voice:%s",voice.c_str());
 
-	ros::spin();
-	ROS_INFO("Done spinning");
-	return 0;
+  ros::spin();
+  ROS_INFO("Done spinning");
+  return 0;
 }
