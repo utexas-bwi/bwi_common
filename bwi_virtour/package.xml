@@ -15,16 +15,22 @@
 
 
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
-  <url type="repository">https://github.com/utexas-bwi/bwi_experimental/bwi_virtour</url>
-  <url type="bugtracker">https://github.com/utexas-bwi/bwi_experimental/issues</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common/bwi_virtour</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
 
   <!-- The *_depend tags are used to specify dependencies -->
   <build_depend>message_generation</build_depend>
   <build_depend>bwi_kr_execution</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>actionlib</build_depend>
+
   <run_depend>bwi_kr_execution</run_depend>
   <run_depend>message_runtime</run_depend>
+  <run_depend>message_generation</run_depend>
   <run_depend>rosbridge_server</run_depend>
   <run_depend>web_video_server</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>actionlib</run_depend>
   <buildtool_depend>catkin</buildtool_depend>
 
 
