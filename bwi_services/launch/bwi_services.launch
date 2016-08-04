@@ -4,7 +4,6 @@
   <arg name="pitch" default="50" />
 
   <node name="go_to_location_service" pkg="bwi_services" type="go_to_location_service" output="screen" />
-  <node name="go_beside_location_service" pkg="bwi_services" type="go_beside_location_service" output="screen" />
   <node name="speak_message_service" pkg="bwi_services" type="speak_message_service" output="screen" >
     <param name="speed" value="$(arg speed)" type="int" />  
     <param name="voice" value="$(arg voice)" type="str" />

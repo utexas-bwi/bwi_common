@@ -8,6 +8,8 @@ int32_t speed;
 int32_t pitch;
 std::string voice;
 
+//text-to-speech service
+
 bool speak_message(bwi_services::SpeakMessage::Request &req,
       bwi_services::SpeakMessage::Response &res) {
   
@@ -21,14 +23,22 @@ bool speak_message(bwi_services::SpeakMessage::Request &req,
   boost::regex sanitizeMessage("[^a-zA-Z\?!.,0-9-]");
   std::string messageReplacement = " ";
   std::string clean_message = boost::regex_replace(req.message, sanitizeMessage, messageReplacement);
-  
+ 
   ROS_INFO("Saying:%s", clean_message.c_str());
 
   std::string command = "espeak -v " + clean_voice + " -s " 
     + string_speed + " -p " + string_pitch + " \"" + clean_message + "\"";
   
-  system(command.c_str());
+  int i = system(command.c_str());
+ 
+  res.result = i;
 
+  if (i != 0)
+  {
+    ROS_INFO("An error occured while calling espeak. Make sure espeak is installed and the voice is valid.");
+    return false;
+  }
+  
   return true;
 }
 

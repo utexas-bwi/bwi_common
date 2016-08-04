@@ -1,33 +1,33 @@
 #include "bwi_services/DeliverMessage.h"
 #include "bwi_services/GoToLocation.h"
 #include "bwi_services/SpeakMessage.h"
-
 #include <ros/ros.h>
-
 #include <string>
 
 ros::NodeHandle *n;
 
+//travels to location and delivers message
+
 bool deliver_message(bwi_services::DeliverMessage::Request &req,
       bwi_services::DeliverMessage::Response &res) {
+  
   ros::ServiceClient goToLocationClient = (*n).serviceClient<bwi_services::GoToLocation>("/bwi_services/go_to_location"); 
   bwi_services::GoToLocation goToSrv;
   goToSrv.request.location = req.location;
   goToLocationClient.call(goToSrv);
-  
   ROS_INFO("Location:%s", req.location.c_str());
-
+  
   //called with header because node is private
   ros::ServiceClient speakMessageClient = (*n).serviceClient<bwi_services::SpeakMessage>("/speak_message_service/speak_message");  
   bwi_services::SpeakMessage speakSrv;
   speakSrv.request.message = req.message;
-
-  ROS_INFO("Message:%s", req.message.c_str());
-
   speakMessageClient.call(speakSrv);  
-  res.result = 1;
+  ROS_INFO("Message:%s", req.message.c_str());
   
-  return true;
+  res.go_to_result = goToSrv.response.result;
+  res.speak_result = speakSrv.response.result;
+  
+  return res.go_to_result == 1 && res.speak_result == 0;
 }
 
 int main(int argc, char** argv) {
