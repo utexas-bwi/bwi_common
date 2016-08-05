@@ -2,9 +2,9 @@
 Changelog for package bwi_services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
-* New ``bwi_common`` package, reconcile version number (`#67
+0.3.9 (2016-08-05)
+------------------
+* New bwi_common package, reconcile version number (`#67
  <https://github.com/utexas-bwi/bwi_common/issues/67>`_).
 * Fixed service responses, indentation, dependencies
 * Changed go_to, deliver_message service names, other minor changes
