@@ -1,6 +1,6 @@
 <package>
   <name>bwi_common</name>
-  <version>0.3.8</version>
+  <version>0.3.9</version>
   <description>
     Common packages and data for the Building-Wide Intelligence
     project of the University of Texas at Austin.
