@@ -11,3 +11,7 @@ maps:
     yaml: package://utexas_gdc/maps/real/3/3.yaml
     origin: [0, 0, 5, 0, 0, 0]
     data_directory: package://utexas_gdc/maps/real/3
+  4thFloor:
+    yaml: package://utexas_gdc/maps/real/4/4.yaml
+    origin: [0, 0, 7, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/real/4

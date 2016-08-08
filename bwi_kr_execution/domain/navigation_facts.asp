@@ -1,4 +1,43 @@
 #program base.
+room(l4_728).
+room(l4_828).
+room(l4_700).
+room(l4_800).
+room(l4_724).
+room(l4_818).
+room(l4_722).
+room(l4_718).
+room(l4_830).
+room(l4_814).
+room(l4_710a).
+room(l4_804).
+room(l4_802).
+room(l4_702).
+room(l4_718).
+room(l4_600).
+room(l4_102).
+room(l4_200).
+room(l4_406).
+room(l4_300).
+room(l4_500).
+room(l4_504).
+room(l4_506).
+room(l4_400).
+room(l4_410).
+room(l4_408).
+room(l4_414a).
+room(l4_414b).
+room(l4_520).
+room(l4_514).
+room(l4_516).
+room(l4_518).
+room(l4_438).
+room(l4_440).
+room(l4_434).
+room(l4_424).
+
+
+
 room(l3_414b). 
 room(l3_414a). 
 room(l3_402). 
@@ -91,6 +130,24 @@ room(l1_700).
 room(l1_600).
 room(l1_800).
 
+door(d4_828).
+door(d4_710a2).
+door(d4_710a1).
+door(d4_elev_south).
+door(d4_600).
+door(d4_102).
+door(d4_elev_west).
+door(d4_elev_east).
+door(d4_500).
+door(d4_414a2).
+door(d4_400).
+door(d4_414a1).
+door(d4_414b3).
+door(d4_414b1).
+door(d4_516a).
+door(d4_414b2).
+door(d4_516b).
+door(d4_440).
 
 door(d3_404). 
 door(d3_400). 
@@ -149,6 +206,50 @@ door(d1_304a).
 door(d1_304b).
 door(d1_728).
 
+hasdoor(l4_440,d4_440). 
+hasdoor(l4_438,d4_440). 
+
+hasdoor(l4_400,d4_414b2). 
+hasdoor(l4_414b,d4_414b2). 
+
+hasdoor(l4_414a,d4_414b3). 
+hasdoor(l4_414b,d4_414b3). 
+
+hasdoor(l4_500,d4_414b1). 
+hasdoor(l4_414b,d4_414b1). 
+
+hasdoor(l4_500,d4_516b). 
+hasdoor(l4_516,d4_516b). 
+
+hasdoor(l4_514,d4_516a). 
+hasdoor(l4_516,d4_516a). 
+
+hasdoor(l4_414a,d4_414a2). 
+hasdoor(l4_500,d4_414a2). 
+
+hasdoor(l4_414,d4_414a1). 
+hasdoor(l4_400,d4_414a1). 
+
+hasdoor(l4_500,d4_500). 
+hasdoor(l4_200,d4_500). 
+
+hasdoor(l4_400,d4_400). 
+hasdoor(l4_300,d4_400). 
+
+hasdoor(l4_200,d4_102). 
+hasdoor(l4_102,d4_102). 
+
+hasdoor(l4_600,d4_600). 
+hasdoor(l4_102,d4_600).
+
+hasdoor(l4_700,d4_710a1). 
+hasdoor(l4_710a,d4_710a1).
+
+hasdoor(l4_800,d4_710a2). 
+hasdoor(l4_710a,d4_710a2).
+
+hasdoor(l4_828,d4_828). 
+hasdoor(l4_728,d4_828).
 
 hasdoor(l3_404,d3_404). 
 hasdoor(l3_400,d3_404). 
@@ -310,6 +411,34 @@ hasdoor(l1_302, d1_304b).
 hasdoor(l1_728, d1_728).
 hasdoor(l1_700, d1_728).
 
+acc(l4_300, l4_200). 
+acc(l4_400, l4_406). 
+acc(l4_406, l4_500). 
+acc(l4_500, l4_504). 
+acc(l4_504, l4_500). 
+acc(l4_500, l4_514). 
+acc(l4_500, l4_520). 
+acc(l4_500, l4_518). 
+acc(l4_500, l4_434). 
+acc(l4_500, l4_438). 
+acc(l4_438, l4_400). 
+acc(l4_400, l4_424). 
+acc(l4_400, l4_408). 
+acc(l4_400, l4_410). 
+
+acc(l4_600, l4_700). 
+acc(l4_700, l4_718). 
+acc(l4_700, l4_722). 
+acc(l4_700, l4_724). 
+acc(l4_700, l4_728). 
+acc(l4_728, l4_800). 
+acc(l4_800, l4_818). 
+acc(l4_800, l4_814). 
+acc(l4_800, l4_802). 
+acc(l4_800, l4_804). 
+acc(l4_700, l4_804). 
+acc(l4_802, l4_700). 
+acc(l4_802, l4_702).  
 
 acc(l3_434, l3_400). 
 acc(l3_434, l3_500). 
@@ -451,6 +580,13 @@ inside(o3_802,l3_802).
 
 object(o3_702).
 inside(o3_702,l3_702).
+
+object(o3_200_elevator_panel1).
+inside(o3_200_elevator_panel1,l3_200).
+
+object(o4_500_printer).
+inside(o4_500_printer,l4_500).
+
 
 
 badDoor(d3_418).
