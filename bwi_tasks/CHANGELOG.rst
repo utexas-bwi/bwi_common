@@ -2,8 +2,8 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.9 (2016-08-05)
+------------------
 * Created new task for sending the robot to a specific door.
 * Created go_to_object bwi_tasks, which allows the robot to go to objects annotated on the map.
 * Contributors: FernandezR

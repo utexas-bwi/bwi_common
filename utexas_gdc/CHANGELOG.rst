@@ -2,8 +2,8 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.9 (2016-08-05)
+------------------
 * Adjusted 1st floor door approach points.
 * Changed Z position for second floor map to raise it above the first floor map.
 * Created map for GDC 1st Floor and added new map to multimap.yaml
