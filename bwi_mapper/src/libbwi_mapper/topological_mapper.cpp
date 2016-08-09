@@ -43,6 +43,15 @@
 #include <boost/foreach.hpp>
 
 #include <opencv/highgui.h>
+#include <opencv2/opencv_modules.hpp>
+#ifdef HAVE_OPENCV_IMGCODECS
+// this is OpenCV 3 and we need extra includes
+#include <opencv2/imgcodecs.hpp>
+#endif
+#ifdef HAVE_OPENCV_IMGPROC
+// this is OpenCV 3 and we need extra includes
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
 
 namespace bwi_mapper {
 

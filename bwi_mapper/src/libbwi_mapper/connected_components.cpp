@@ -38,6 +38,12 @@
 #include <bwi_mapper/connected_components.h>
 #include <bwi_mapper/map_utils.h>
 
+#include <opencv2/opencv_modules.hpp>
+#ifdef HAVE_OPENCV_IMGPROC
+// this is OpenCV 3 and we need extra includes
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
+
 namespace bwi_mapper {
 
   /**
@@ -52,8 +58,8 @@ namespace bwi_mapper {
 
     cv::Mat src = image.clone();
     cv::Mat dst = cv::Mat::zeros(src.rows, src.cols, CV_32S);
-    cv::vector<cv::vector<cv::Point> > contours;
-    cv::vector<cv::Vec4i> hierarchy;
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
 
     cv::findContours(src, contours, hierarchy, 
         CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
