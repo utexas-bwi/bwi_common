@@ -1,0 +1,5 @@
+string location
+string message
+---
+int32 go_to_result
+int32 speak_result

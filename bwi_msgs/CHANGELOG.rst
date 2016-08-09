@@ -2,12 +2,13 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.9 (2016-08-05)
+------------------
+* added LED control messages, services and actions
 * added a path to certificate messages from scav to virtour
 * added a new scavenger hunt service that can pause/resume current task
 * bwi_msgs: added a ScavStatus msg
-* Contributors: Shiqi Zhang
+* Contributors: Shiqi Zhang, Rolando Fernandez, Jack O'Quin
 
 0.3.8 (2016-06-06)
 ------------------

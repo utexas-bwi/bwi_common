@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.9 (2016-08-05)
+------------------
 * Increased planner timeout from 20 seconds to 40 seconds to account
   for longer planning times for traveling between floors.
 * Modifed elevator domain fact file and added rooms for 1st Floor GDC to navigation fact file..

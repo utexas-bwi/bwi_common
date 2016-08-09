@@ -52,6 +52,10 @@ add_executable(meeting_experiment src/meeting_experiment.cpp)
 add_dependencies(meeting_experiment ${catkin_EXPORTED_TARGETS})
 target_link_libraries(meeting_experiment ${catkin_LIBRARIES})
 
+add_executable(message_delivery src/message_delivery.cpp)
+add_dependencies(message_delivery ${catkin_EXPORTED_TARGETS})
+target_link_libraries(message_delivery ${catkin_LIBRARIES})
+
 add_executable(simulator_learning_tasks_node src/simulator_learning_tasks.cpp)
 add_dependencies(simulator_learning_tasks_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(simulator_learning_tasks_node ${catkin_LIBRARIES})
@@ -72,7 +76,9 @@ install(TARGETS
           learning_tasks_node
           look_for_person_node
           meeting_experiment
+          message_delivery
           simulator_learning_tasks_node
           visit_door_list
           visit_door_list_gui
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+

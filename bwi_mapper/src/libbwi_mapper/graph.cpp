@@ -44,6 +44,17 @@
 #include <bwi_mapper/map_utils.h>
 #include <bwi_mapper/point_utils.h>
 
+#include <opencv2/opencv_modules.hpp>
+#ifdef HAVE_OPENCV_IMGCODECS
+// this is OpenCV 3 and we need extra includes
+#include <opencv2/imgcodecs.hpp>
+#endif
+#ifdef HAVE_OPENCV_IMGPROC
+// this is OpenCV 3 and we need extra includes
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
+
+
 #ifdef HAVE_NEW_YAMLCPP
 namespace YAML {
   // The >> operator disappeared in yaml-cpp 0.5, so this function is
