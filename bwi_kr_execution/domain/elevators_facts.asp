@@ -53,10 +53,13 @@ orientation(down).
 thing(D) :- door(D). 
 thing(E) :- elevator(E).
 
+elevator(l4_elev).
 elevator(l3_elev). 
 elevator(l2_elev). 
 elevator(l1_elev).
 
+elevhasdoor(l4_elev, d4_elev_east).
+elevhasdoor(l4_elev, d4_elev_west).
 elevhasdoor(l3_elev, d3_elev_east).
 elevhasdoor(l3_elev, d3_elev_west).
 elevhasdoor(l2_elev, d2_elev_east).
@@ -65,10 +68,13 @@ elevhasdoor(l1_elev, d1_elev_east).
 elevhasdoor(l1_elev, d1_elev_west).
 
 %3rd Floor South Additions
+elevhasdoor(l4_elev, d4_elev_south).
 elevhasdoor(l3_elev, d3_elev_south).
 elevhasdoor(l2_elev, d2_elev_south).
 elevhasdoor(l1_elev, d1_elev_south).
 
+elevdoor(d4_elev_east).
+elevdoor(d4_elev_west).
 elevdoor(d3_elev_east).
 elevdoor(d3_elev_west).
 elevdoor(d2_elev_east).
@@ -76,6 +82,7 @@ elevdoor(d2_elev_west).
 elevdoor(d1_elev_east).
 elevdoor(d1_elev_west).
 
+elevdoor(d4_elev_south).
 elevdoor(d3_elev_south).
 elevdoor(d2_elev_south).
 elevdoor(d1_elev_south).
@@ -97,6 +104,11 @@ hasdoor(l3_elev_west, d3_elev_west).
 hasdoor(l3_200, d3_elev_east).
 hasdoor(l3_200, d3_elev_west).
 
+hasdoor(l4_elev_east, d4_elev_east).
+hasdoor(l4_elev_west, d4_elev_west).
+hasdoor(l4_200, d4_elev_east).
+hasdoor(l4_200, d4_elev_west).
+
 hasdoor(l1_elev_south, d1_elev_south).
 hasdoor(l1_600, d1_elev_south).
 
@@ -105,6 +117,10 @@ hasdoor(l2_600, d2_elev_south).
 
 hasdoor(l3_elev_south, d3_elev_south).
 hasdoor(l3_600, d3_elev_south).
+
+hasdoor(l4_elev_south, d4_elev_south).
+hasdoor(l4_600, d4_elev_south).
+
 
 %#show hasdoor/2.
 %#show elevhasdoor/2.

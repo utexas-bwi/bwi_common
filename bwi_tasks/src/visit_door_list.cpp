@@ -19,11 +19,11 @@ int main(int argc, char**argv) {
   /*string locationA;
   privateNode.param<string>("a",locationA,"d3_414b1");
 
-  string locationB;
+  string locationB
   privateNode.param<string>("b",locationB,"d3_414b2");*/
   
   std::vector<string> doors;
-
+  
   doors.push_back("d3_414b1");
   doors.push_back("d3_414b2");
   doors.push_back("d3_414a1");
@@ -42,7 +42,7 @@ int main(int argc, char**argv) {
     string location = doors.at(current_door);
     current_door++;
     if (current_door >= (int)doors.size())
-		current_door = 0;
+        current_door = 0;
 
    
 
