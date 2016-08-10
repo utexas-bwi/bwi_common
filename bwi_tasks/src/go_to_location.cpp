@@ -15,7 +15,7 @@ int main(int argc, char**argv) {
   
   ros::NodeHandle privateNode("~");
   string location;
-  privateNode.param<string>("location",location,"l3_414b");
+  privateNode.param<string>("location",location,"l4_200");
   
   ROS_INFO_STREAM("going to " << location);
   

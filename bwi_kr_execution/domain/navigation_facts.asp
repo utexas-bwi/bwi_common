@@ -15,7 +15,7 @@ room(l4_802).
 room(l4_702).
 room(l4_718).
 room(l4_600).
-room(l4_102).
+room(l4_100).
 room(l4_200).
 room(l4_406).
 room(l4_300).
@@ -135,7 +135,7 @@ door(d4_710a2).
 door(d4_710a1).
 door(d4_elev_south).
 door(d4_600).
-door(d4_102).
+door(d4_100).
 door(d4_elev_west).
 door(d4_elev_east).
 door(d4_500).
@@ -236,11 +236,11 @@ hasdoor(l4_200,d4_500).
 hasdoor(l4_400,d4_400). 
 hasdoor(l4_300,d4_400). 
 
-hasdoor(l4_200,d4_102). 
-hasdoor(l4_102,d4_102). 
+hasdoor(l4_200,d4_100). 
+hasdoor(l4_100,d4_100). 
 
 hasdoor(l4_600,d4_600). 
-hasdoor(l4_102,d4_600).
+hasdoor(l4_100,d4_600).
 
 hasdoor(l4_700,d4_710a1). 
 hasdoor(l4_710a,d4_710a1).
