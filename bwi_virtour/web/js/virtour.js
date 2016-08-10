@@ -146,6 +146,10 @@ function createSegbots() {
       segbots[key] = createSegbot(key, val, ROSBRIDGEPORT, MJPEGSERVERPORT);
     });
   }).error(function(err) { error("Failed to ping DNS server"); });
+
+  if (Object.keys(segbots).length == 0) { // no robots available
+    $(".available_robots").html("<h3>No robots available at this time</h3>");
+  };
 }
 
 function createSegbot(name, ipaddr, rosbridgeport, mjpegserverport) {
