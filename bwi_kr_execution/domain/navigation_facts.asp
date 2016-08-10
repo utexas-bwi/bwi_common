@@ -581,9 +581,6 @@ inside(o3_802,l3_802).
 object(o3_702).
 inside(o3_702,l3_702).
 
-object(o3_200_elevator_panel1).
-inside(o3_200_elevator_panel1,l3_200).
-
 object(o4_500_printer).
 inside(o4_500_printer,l4_500).
 
