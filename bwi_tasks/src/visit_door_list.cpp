@@ -23,23 +23,13 @@ int main(int argc, char**argv) {
   privateNode.param<string>("b",locationB,"d3_414b2");*/
   
   std::vector<string> doors;
+  
+  doors.push_back("d3_414b1");
+  doors.push_back("d3_414b2");
+  doors.push_back("d3_414a1");
+  doors.push_back("d3_414a2");
 
-  //doors.push_back("d4_828");
-  //doors.push_back("d4_710a2")
-  //doors.push_back("d4_710a1");
-  //doors.push_back("d4_102");
-  //doors.push_back("d4_600");
-  //doors.push_back("d4_500");
-  //doors.push_back("d4_414a2");
- // doors.push_back("d4_400");
-  //doors.push_back("d4_414a1");
-  //doors.push_back("d4_414b3");
-  //doors.push_back("d4_414b2");
-  //doors.push_back("d4_414b1");
-  //doors.push_back("d4_516a");
-  doors.push_back("d4_516b");
- // doors.push_back("d4_440");
-
+  doors.push_back("d3_418");
   int current_door = 0;
 
   Client client("/action_executor/execute_plan", true);
@@ -52,7 +42,7 @@ int main(int argc, char**argv) {
     string location = doors.at(current_door);
     current_door++;
     if (current_door >= (int)doors.size())
-		current_door = 0;
+        current_door = 0;
 
    
 
