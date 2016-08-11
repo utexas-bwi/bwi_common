@@ -43,3 +43,12 @@ target_link_libraries(rotate_service_node ${catkin_LIBRARIES})
 add_executable(tour_manager src/tour_manager.cpp)
 add_dependencies(tour_manager ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(tour_manager ${catkin_LIBRARIES})
+
+install(TARGETS go_to_location_service_node rotate_service_node tour_manager
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(DIRECTORY launch/
+          DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
+install(DIRECTORY scripts/
+          DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts)
