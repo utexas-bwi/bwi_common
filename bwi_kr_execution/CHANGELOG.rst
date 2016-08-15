@@ -2,8 +2,8 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.10 (2016-08-15)
+-------------------
 * added elevators
 * added 4th floor map
 * Contributors: Nathan John

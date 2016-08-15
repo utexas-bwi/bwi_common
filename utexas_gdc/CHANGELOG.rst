@@ -2,8 +2,8 @@
 Changelog for package utexas_gdc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.10 (2016-08-15)
+-------------------
 * fixed misnomer, changed default locations in go to location and visit door for testing, working
 * changed approach points of the door
 * added elevators
