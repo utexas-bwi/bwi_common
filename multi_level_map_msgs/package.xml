@@ -1,6 +1,6 @@
 <package>
   <name>multi_level_map_msgs</name>
-  <version>0.3.9</version>
+  <version>0.3.10</version>
   <description>Messages used by the multi floor map server and navigation code.</description>
 
   <license>BSD</license>

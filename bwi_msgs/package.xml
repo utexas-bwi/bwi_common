@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_msgs</name>
-  <version>0.3.9</version>
+  <version>0.3.10</version>
   <description>
     Contails messages used in the utexas-bwi codebase.
   </description>

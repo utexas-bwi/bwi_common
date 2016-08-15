@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_virtour</name>
-  <version>0.3.9</version>
+  <version>0.3.10</version>
   <description>
     Web interface providing a virtual tour of the Gates/Dell Complex
     of the University of Texas at Austin using the Building-Wide
