@@ -2,6 +2,12 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added elevators
+* added 4th floor map
+* Contributors: Nathan John
+
 0.3.9 (2016-08-05)
 ------------------
 * Increased planner timeout from 20 seconds to 40 seconds to account

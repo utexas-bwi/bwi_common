@@ -2,6 +2,11 @@
 Changelog for package bwi_mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix missing includes in OpenCV 3
+* Contributors: Nicu Stiurca
+
 0.3.9 (2016-08-05)
 ------------------
 
