@@ -2,6 +2,9 @@
 Changelog for package bwi_scavenger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.9 (2016-08-05)
 ------------------
 * bwi_scavenger: add missing visualization_msgs dependency (`#61 <https://github.com/utexas-bwi/bwi_common/issues/61>`_)

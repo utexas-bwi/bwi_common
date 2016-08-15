@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  bwi_msgs
 )
 
 catkin_package(CATKIN_DEPENDS actionlib_msgs bwi_msgs std_msgs)
@@ -72,7 +71,9 @@ install(TARGETS
           back_and_forth_node
           between_doors
           filtering_tasks
+          go_to_door_node
           go_to_location_node
+          go_to_object_node
           learning_tasks_node
           look_for_person_node
           meeting_experiment
