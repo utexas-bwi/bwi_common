@@ -32,6 +32,6 @@ install(TARGETS joystick_teleop_node
 # Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
   launch/joystick_teleop.launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
