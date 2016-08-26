@@ -46,6 +46,13 @@ bool publishAnyway = false;
 int lastButtons[11];
 float lastAxes[8];
 
+// Default axis/button mappings for Xbox controller
+int SPEED_AXIS = 1;
+int TURN_AXIS = 3;
+int MAX_TURN_AXIS = 6;
+int MAX_SPEED_AXIS = 7;
+int BRAKE_BUTTON = 1;
+
 //Updates the current values
 void joystickCallback(const sensor_msgs::Joy::ConstPtr& msg)
 {
@@ -59,39 +66,39 @@ void joystickCallback(const sensor_msgs::Joy::ConstPtr& msg)
   for(y = 0; y < 8; y++)
     lastAxes[y] = msg->axes[y];
   
-  if(lastAxes[1] < 0.2 && lastAxes[1] > -0.2) //Dead zone for 0
-    lastAxes[1] = 0;
+  if(lastAxes[SPEED_AXIS] < 0.2 && lastAxes[SPEED_AXIS] > -0.2) //Dead zone for 0
+    lastAxes[SPEED_AXIS] = 0;
   
-  if(lastAxes[3] < 0.2 && lastAxes[3] > -0.2) //Dead zone for 0
-     lastAxes[3] = 0;
+  if(lastAxes[TURN_AXIS] < 0.2 && lastAxes[TURN_AXIS] > -0.2) //Dead zone for 0
+     lastAxes[TURN_AXIS] = 0;
   
   //Make sure we accept the 0 vel commands
-  if(lastAxes[1] == 0 && lastAxes[3] == 0 && lastAxes[6] == 0 && lastAxes[7] == 0)
+  if(lastAxes[SPEED_AXIS] == 0 && lastAxes[TURN_AXIS] == 0 && lastAxes[MAX_TURN_AXIS] == 0 && lastAxes[MAX_SPEED_AXIS] == 0)
     firstZeroVel = true;
   
   //Up on D pad
-  if(lastAxes[6] == -1)
+  if(lastAxes[MAX_TURN_AXIS] == -1)
   {
     MAX_TURN_MULT += .05;
     ROS_INFO("Turn Multiplier Changed: %f -> %f\n", MAX_TURN_MULT - .05, MAX_TURN_MULT);
   }
   
   //Down on D pad
-  if(lastAxes[6] == 1)
+  if(lastAxes[MAX_TURN_AXIS] == 1)
   {
     MAX_TURN_MULT -= .05;
     ROS_INFO("Turn Multiplier Changed: %f -> %f\n", MAX_TURN_MULT + .05, MAX_TURN_MULT);
   }
   
   //Left on D pad
-  if(lastAxes[7] == -1)
+  if(lastAxes[MAX_SPEED_AXIS] == -1)
   {
     MAX_SPEED_MULT -= .1;
     ROS_INFO("Speed Multiplier Changed: %f -> %f\n", MAX_SPEED_MULT + .1, MAX_SPEED_MULT);
   }
   
   //Right on D pad
-  if(lastAxes[7] == 1)
+  if(lastAxes[MAX_SPEED_AXIS] == 1)
   {
     MAX_SPEED_MULT += .1;
     ROS_INFO("Speed Multiplier Changed: %f -> %f\n", MAX_SPEED_MULT - .1, MAX_SPEED_MULT);
@@ -99,10 +106,10 @@ void joystickCallback(const sensor_msgs::Joy::ConstPtr& msg)
   
   //Emergency stop, sets the system to spam 0 vel commands until let go.
   //Red "B" button on xbox controllers
-  if(lastButtons[1] == 1)
+  if(lastButtons[BRAKE_BUTTON] == 1)
   {
-    lastAxes[1] = 0;
-    lastAxes[3] = 0;
+    lastAxes[SPEED_AXIS] = 0;
+    lastAxes[TURN_AXIS] = 0;
     publishAnyway = true;
   }
   else
@@ -142,6 +149,27 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "joystick_teleop");
 
   ros::NodeHandle n;
+  ros::NodeHandle pn("~");
+
+  std::string mapping;
+  pn.param<std::string>("mapping", mapping, "xbox");
+  ROS_INFO_STREAM("Using mappings for " << mapping);
+  if("xbox" == mapping)
+  {
+    // no-op: defaults already set
+  }
+  else if("ps4" == mapping)
+  {
+    SPEED_AXIS = 1;        // left stick up/down
+    TURN_AXIS = 0;         // left stick left/right
+    MAX_TURN_AXIS = 6;     // Dpad left/right
+    MAX_SPEED_AXIS = 7;    // Dpad up/down
+    BRAKE_BUTTON = 2;      // O (circle) button
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Unknown ~mapping \"" << mapping << "\". Keeping default.");
+  }
 
   ros::Publisher pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1000);
   
@@ -154,10 +182,10 @@ int main(int argc, char **argv)
     geometry_msgs::Twist msg;
     
     //Set forward/back based on left joystick up/down
-    msg.linear.x = lastAxes[1] * MAX_SPEED_MULT;
+    msg.linear.x = lastAxes[SPEED_AXIS] * MAX_SPEED_MULT;
     
     //Set left/right based on right joystick left/right
-    msg.angular.z = lastAxes[3] * MAX_TURN_MULT;
+    msg.angular.z = lastAxes[TURN_AXIS] * MAX_TURN_MULT;
     
     //Lets not spam 0 cmd vel messages
     if(msg.linear.x == 0 && msg.angular.z == 0)
