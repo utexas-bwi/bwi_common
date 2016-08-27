@@ -2,6 +2,9 @@
 Changelog for package bwi_kr_execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.10 (2016-08-15)
 -------------------
 * added elevators
@@ -39,7 +42,7 @@ Changelog for package bwi_kr_execution
 * added missing actions that won't be displayed in clingo output
 * fixing planning issues with elevators
 * some more updates to bwi_kr_execution. fixing some merge issues.
-* merged with yuqian's branch.
+* merged with yuqian branch.
 * updated navigation facts for simulation.
 * Added additional facts for 2nd floor to navigation facts.
 * Changed location of elavator doors on 2nd floor to l2_200 from

@@ -2,6 +2,9 @@
 Changelog for package bwi_tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.10 (2016-08-15)
 -------------------
 * bwi_tasks: fix catkin_lint errors, missing installs (`#70 <https://github.com/utexas-bwi/bwi_common/issues/70>`_)

@@ -1,6 +1,11 @@
 Change history
 ==============
 
+Forthcoming
+-----------
+* Add parameter to select Xbox or PS4 mappings
+* Contributors: Nicu Stiurca
+
 0.3.10 (2016-08-15)
 -------------------
 

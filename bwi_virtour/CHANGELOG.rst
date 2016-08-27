@@ -2,6 +2,9 @@
 Changelog for package bwi_virtour
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.10 (2016-08-15)
 -------------------
 * bwi_virtour: install scripts in catkin bin destination (`#70 <https://github.com/utexas-bwi/bwi_common/issues/70>`_)
