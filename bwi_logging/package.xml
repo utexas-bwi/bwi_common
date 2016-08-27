@@ -2,7 +2,7 @@
 <package format="2">
 
   <name>bwi_logging</name>
-  <version>0.3.10</version>
+  <version>0.3.11</version>
   <description>Logging package that creates ROS bag files</description>
 
   <author email="shiqi.zhang6@gmail.com">Shiqi Zhang</author>

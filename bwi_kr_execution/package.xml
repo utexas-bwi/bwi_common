@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_kr_execution</name>
-  <version>0.3.10</version>
+  <version>0.3.11</version>
   <description>
     Execution nodes for using the BWI Knowledge Representation.
   </description>
