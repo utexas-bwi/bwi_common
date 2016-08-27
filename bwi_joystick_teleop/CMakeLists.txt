@@ -29,3 +29,9 @@ target_link_libraries(joystick_teleop_node ${catkin_LIBRARIES})
 
 install(TARGETS joystick_teleop_node
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+# Mark other files for installation (e.g. launch and bag files, etc.)
+install(FILES
+  launch/joystick_teleop.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
