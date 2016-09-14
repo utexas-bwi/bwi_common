@@ -2,8 +2,8 @@
 Changelog for package bwi_virtour
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.12 (2016-09-14)
+-------------------
 * set execute permissions when installing scripts (`utexas-bwi/bwi#46
   <https://github.com/utexas-bwi/bwi/issues/46>`_)
 * document link to web page (`#78
