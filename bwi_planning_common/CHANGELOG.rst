@@ -2,6 +2,9 @@
 Changelog for package bwi_planning_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.11 (2016-08-27)
 -------------------
 

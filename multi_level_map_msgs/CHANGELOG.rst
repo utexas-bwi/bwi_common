@@ -2,6 +2,9 @@
 Changelog for package multi_level_map_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.11 (2016-08-27)
 -------------------
 

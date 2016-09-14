@@ -2,6 +2,11 @@
 Changelog for package bwi_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add missing metapackage dependencies (`#74
+  <https://github.com/utexas-bwi/bwi_common/issues/74>`_)
+
 0.3.11 (2016-08-27)
 -------------------
 

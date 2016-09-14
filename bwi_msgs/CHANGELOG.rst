@@ -2,6 +2,9 @@
 Changelog for package bwi_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.11 (2016-08-27)
 -------------------
 * Added need_assist animation to LEDAnimations.msg in bwi_msgs (`#79
