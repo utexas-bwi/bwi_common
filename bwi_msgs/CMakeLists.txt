@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
     geometry_msgs
     message_generation
     std_msgs
+    sensor_msgs
 )
 
 add_message_files(
@@ -36,6 +37,7 @@ add_service_files(
     SemanticParser.srv
     StopBase.srv
     ScavHunt.srv
+    ImageQuestion.srv
 )
 
 add_action_files(
@@ -46,7 +48,7 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs bwi_planning_common geometry_msgs std_msgs
+  DEPENDENCIES actionlib_msgs bwi_planning_common geometry_msgs std_msgs sensor_msgs
 )
 
 catkin_package(
@@ -56,4 +58,5 @@ catkin_package(
     geometry_msgs
     message_runtime
     std_msgs
+    sensor_msgs
 )
