@@ -38,6 +38,7 @@ add_service_files(
     StopBase.srv
     ScavHunt.srv
     ImageQuestion.srv
+    NextLocation.srv
 )
 
 add_action_files(
