@@ -1,0 +1,3 @@
+# Runs IPUpdater every five minutes to check if the IP has changed.
+# If it has, let the server know.
+*/5 * * * * /home/bwilab/IPUpdater.py

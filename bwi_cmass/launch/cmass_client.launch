@@ -1,0 +1,3 @@
+<launch>
+  <node name="cmass_client" pkg="cmass" type="cmass_client" output="screen"></node>
+</launch>

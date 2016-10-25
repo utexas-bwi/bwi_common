@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <name>cmass</name>
+  <version>0.0.0</version>
+  <description>The cmass client package</description>
+  <maintainer email="walter19@utexas.edu">walter</maintainer>
+  <license>BSD</license>
+
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>curl</build_depend>
+  <build_depend>ssl</build_depend>
+  <build_depend>crypto</build_depend>
+
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>curl</run_depend>
+  <run_depend>ssl</run_depend>
+  <run_depend>crypto</run_depend>
+
+</package>
