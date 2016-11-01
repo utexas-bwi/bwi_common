@@ -1,5 +1,6 @@
 sensor_msgs/Image image
 sensor_msgs/PointCloud point_cloud
 geometry_msgs/Pose pose
+int64 timeout
 ---
 string[] answers
