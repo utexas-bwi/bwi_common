@@ -1,0 +1,6 @@
+bwi_msgs::Image img
+geometry_msgs::Pose pose
+sensor_msgs::PointCloud2 pc
+---
+bool success
+string base_name

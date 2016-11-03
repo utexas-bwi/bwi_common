@@ -1,0 +1,5 @@
+---
+sensor_msgs::Image img
+string base_name
+geometry_msgs::Pose pose
+sensor_msgs::PointCloud2 pc
