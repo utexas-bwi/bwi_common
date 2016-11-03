@@ -4,7 +4,7 @@
   <description>
     Common packages and data for the Building-Wide Intelligence
     project of the University of Texas at Austin.
-  </description> 
+  </description>
   <license>BSD</license>
 
   <author email="piyushk@gmail.com">Piyush Khandelwal</author>
@@ -13,6 +13,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <exec_depend>bwi_cmass</exec_depend>
   <exec_depend>bwi_gazebo_entities</exec_depend>
   <exec_depend>bwi_interruptable_action_server</exec_depend>
   <exec_depend>bwi_joystick_teleop</exec_depend>
