@@ -2,6 +2,15 @@
 Changelog for package bwi_virtour
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.12 (2016-09-14)
+-------------------
+* set execute permissions when installing scripts (`utexas-bwi/bwi#46
+  <https://github.com/utexas-bwi/bwi/issues/46>`_)
+* document link to web page (`#78
+  <https://github.com/utexas-bwi/bwi_common/issues/78>`_)
+* add roslaunch check (`#73 <https://github.com/utexas-bwi/bwi_common/issues/73>`_)
+* Contributors: Jack O'Quin
+
 0.3.11 (2016-08-27)
 -------------------
 

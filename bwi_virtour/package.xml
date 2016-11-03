@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>bwi_virtour</name>
-  <version>0.3.11</version>
+  <version>0.3.12</version>
   <description>
     Web interface providing a virtual tour of the Gates/Dell Complex
     of the University of Texas at Austin using the Building-Wide
@@ -25,6 +25,7 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
 
+  <exec_depend>bwi_services</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>web_video_server</exec_depend>

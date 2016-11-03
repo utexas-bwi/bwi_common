@@ -2,8 +2,10 @@ BWI Virtour
 ===========
 
 Virtour is a public facing system for teleoperated building tours.
-On the robot: uses ROS to manage tour, stream video, and take commands.
-On the website: uses rosjs to pipe commands to the robot
+
+* Web address: http://www.cs.utexas.edu/~larg/bwi_virtour/
+* On the robot: uses ROS to manage tour, stream video, and take commands.
+* On the website: uses rosjs to pipe commands to the robot
 
 ## Features
 
