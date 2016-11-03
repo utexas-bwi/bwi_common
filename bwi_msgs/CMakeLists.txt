@@ -39,6 +39,9 @@ add_service_files(
     ScavHunt.srv
     ImageQuestion.srv
     NextLocation.srv
+    GetNextImage.srv
+    SaveImageResponse.srv
+    UploadImage.srv
 )
 
 add_action_files(
