@@ -230,6 +230,8 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 			//added the < 0 to prevent attackers from using arbitrary numbers greater than time.Now
 			// to find a collision with the hash that would be valid and not expired
 			pdebug("expired token from " + query.Get("name"))
+			pdebug("system time: " + time.Now().Unix() + ", robot time: " + robotTime)
+
 			return "expired token", false
 		} else {
 			pdebug("valid token from " + query.Get("name"))

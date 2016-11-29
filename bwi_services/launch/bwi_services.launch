@@ -5,9 +5,11 @@
 
   <node name="go_to_location_service" pkg="bwi_services" type="go_to_location_service" output="screen" />
   <node name="speak_message_service" pkg="bwi_services" type="speak_message_service" output="screen" >
-    <param name="speed" value="$(arg speed)" type="int" />  
+    <param name="speed" value="$(arg speed)" type="int" />
     <param name="voice" value="$(arg voice)" type="str" />
     <param name="pitch" value="$(arg pitch)" type="int" />
   </node>
   <node name="deliver_message_service" pkg="bwi_services" type="deliver_message_service" output="screen" />
+
+  <node name="cmass_client" pkg="cmass" type="cmass_client" output="screen"></node>
 </launch>
