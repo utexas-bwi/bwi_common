@@ -1,0 +1,10 @@
+<launch>
+
+<node pkg="person_detector" type="calibrate_floor" name="calibrate_floor" output="screen">
+
+	<param name="ground_coef_file" value="$(find person_detector)/data/segbot_v2_coef.txt" />
+	<param name="data_topic" value="nav_kinect/depth_registered/points" />
+
+</node>
+
+</launch>
