@@ -27,8 +27,6 @@ nav\_kinect/depth\_registered/points
 
 Run `python scripts/visualization.py` to obtain a 2d heatmap using data from `data/record.txt`.
 
-![](/figure/figure_1.png)
-
 ## Customization
 
 Topic names, calibration file and log file can be changed in launch file.
