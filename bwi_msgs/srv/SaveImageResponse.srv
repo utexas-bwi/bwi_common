@@ -1,5 +1,4 @@
 string response
-string question
 string base_name
 string location
 time timestamp
