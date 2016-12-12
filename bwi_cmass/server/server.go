@@ -226,11 +226,11 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 		if !checkValidity(token, query.Encode()) { //query.Encode reorders (alphabetically)
 			pdebug("invalid token from " + query.Get("name"))
 			return "invalid token", false
-		} else if time.Now().Unix()-robotTime > tokenTimeout || time.Now().Unix()-robotTime < 0 {
-			//added the < 0 to prevent attackers from using arbitrary numbers greater than time.Now
+		} else if time.Now().Unix()-robotTime > tokenTimeout || time.Now().Unix()-robotTime < -5 {
+			//added the < -5 to prevent attackers from using arbitrary numbers greater than time.Now
 			// to find a collision with the hash that would be valid and not expired
 			pdebug("expired token from " + query.Get("name"))
-			pdebug("system time: " + time.Now().Unix() + ", robot time: " + robotTime)
+			pdebug("system time: " + strconv.Itoa(time.Now().Unix()) + ", robot time: " + robotTime)
 
 			return "expired token", false
 		} else {
@@ -304,6 +304,7 @@ func main() {
 	http.HandleFunc("/hostsalive", serveBasicHTML(hostsalive))
 	http.HandleFunc("/hostsjson", serveBasicHTML(hostsJSON))
 	http.HandleFunc("/hostsalivejson", serveBasicHTML(hostsAliveJSON))
+	http.HandleFunc("/demo", serveBasicHTML(hostsAliveJSON))
 
 	fmt.Println("starting server on port " + strconv.Itoa(portNumber))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(portNumber), nil))
