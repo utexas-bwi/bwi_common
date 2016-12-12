@@ -1,7 +1,7 @@
 body {
     padding-top: 40px;
     padding-bottom: 40px;
-    background: url("../image/gdc_blur.jpg") no-repeat center center fixed; 
+    background: url("../image/gdc_blur.jpg") no-repeat center center fixed;
       -webkit-background-size: cover;
       -moz-background-size: cover;
       -o-background-size: cover;
@@ -16,9 +16,6 @@ body {
   margin-left:auto;
   margin-right:auto;
 }
-.intro h1{
-  font-size: 5em;
-}
 
 .locationForm {
   display: block;
@@ -29,14 +26,13 @@ body {
   color: white;
   text-shadow: 1px 1px 0px #000;
 }
-.robots .robot h2 {
+.robots .robot h4 {
   font-size: 1.5em;
   text-align: center;
   padding-bottom: 20px;
   margin-bottom:10px;
 }
-.robots h2 {
-  font-size: 2em;
+.robots h4 {
   text-align: center;
 }
 .info {
@@ -207,6 +203,15 @@ body {
 .map-image{
   position:relative;
 }
+
+.large-map-image{
+  position: relative;
+}
+
+.multi-pos-map{
+  width: 100%;
+}
+
 
 .pos-map{
   position:relative;

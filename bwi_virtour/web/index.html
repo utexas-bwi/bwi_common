@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/flat-ui.min.css" rel="stylesheet">
     <link href="css/lightbox.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <title>BWI - Virtour</title>
@@ -22,8 +23,16 @@
         <h1>Welcome to the GDC Virtual Tour</h1>
       </div>
       <div class="robots">
-        <h2 class="available_robots">Available robots</h2>
+        <h4 class="available_robots">Available robots</h4>
         <div class="row-fluid robot_links">
+        </div>
+      </div>
+      <div class="multimap">
+        <div class="large-map-image">
+          <img class="img-rounded multi-pos-map" src="./image/3.png">
+          <div class="robot-markers">
+            <img class="pos-marker" src="./image/marker.png">
+          </div>
         </div>
       </div>
       <div class="control">
@@ -33,19 +42,19 @@
             <div class="controllingIframe">
               <div class="labmap">
                 <!-- <img class="labimage" src="./image/labmap.jpg"> -->
-                <img class="labimage" src="./image/3ne.png">
+                <img class="labimage" src="./image/3.png">
               </div> <!-- .labmap -->
               <div class="servoControl">
                 <button class="btn btn-primary turnUp">
-                  <span class="glyphicon glyphicon-chevron-up"></span> 
+                  <span class="glyphicon glyphicon-chevron-up"></span>
                 </button>
                 <button class="btn btn-primary turnLeft">
-                  <span class="glyphicon glyphicon-chevron-left"></span> 
+                  <span class="glyphicon glyphicon-chevron-left"></span>
                 </button>
                 <button class="btn btn-primary turnCenter">
                   <span class="glyphicon glyphicon-screenshot"></span> </button>
                 <button class="btn btn-primary turnRight">
-                  <span class="glyphicon glyphicon-chevron-right"></span> 
+                  <span class="glyphicon glyphicon-chevron-right"></span>
                 </button>
                 <button class="btn btn-primary turnDown">
                   <span class="glyphicon glyphicon-chevron-down"></span>
@@ -63,24 +72,24 @@
               <div class="pauseControl">
                 <p>Robot Control</p>
                 <button class="btn btn-primary pauseBtn" title="Stop Operations">
-                  <span class="glyphicon glyphicon glyphicon-stop"></span> 
+                  <span class="glyphicon glyphicon glyphicon-stop"></span>
                 </button>
                 <button class="btn btn-primary resumeBtn" title="Resume Operations">
-                  <span class="glyphicon glyphicon glyphicon-play"></span> 
+                  <span class="glyphicon glyphicon glyphicon-play"></span>
                 </button>
               </div> <!-- .pauseControl -->
               <div class="rotateControl">
                 <p>Rotation Control</p>
                 <button class="btn btn-primary rotateRight">
-                  <span class="glyphicon glyphicon glyphicon-forward"></span> 
+                  <span class="glyphicon glyphicon glyphicon-forward"></span>
                 </button>
                 <button class="btn btn-primary rotateLeft">
-                  <span class="glyphicon glyphicon glyphicon-backward"></span> 
+                  <span class="glyphicon glyphicon glyphicon-backward"></span>
                 </button>
               </div> <!-- .rotateControl -->
               <div class="scavengerHunt">
                 <button class="btn btn-info viewScavengerHunt">
-                  <span class="glyphicon glyphicon glyphicon-search"></span> 
+                  <span class="glyphicon glyphicon glyphicon-search"></span>
                   ScavengerHunt
                 </button>
               </div> <!-- .scavengerHunt -->
@@ -90,10 +99,10 @@
                   Become leader
                 </button>
                 <button class="btn btn-primary btn-sm leaveTour">
-                  Leave tour 
+                  Leave tour
                 </button>
                 <button class="btn btn-primary btn-sm getTourStatus">
-                  <span class="glyphicon glyphicon glyphicon-refresh"></span> 
+                  <span class="glyphicon glyphicon glyphicon-refresh"></span>
                 </button>
               </div> <!-- .rotateControl -->
             </div> <!-- .controllingIframe -->

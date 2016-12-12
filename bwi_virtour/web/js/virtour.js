@@ -259,7 +259,7 @@ function viewScavengerHunt() {
 function updateScavengerHuntStatus(msg) {
   $(".scavengerhunt-table tbody").html("");
   $(".certificates-table tbody").html("");
-  
+
   for (var i = 0; i < msg.names.length; i++) {
     name = msg.names[i];
     switch (msg.statuses[i]) {
@@ -643,7 +643,7 @@ $(".robots").on("click", ".robot", function() {
   var botname = $(this).attr("robot");
   segbot = segbots[botname];
 
-  log("Selected: " + botname); 
+  log("Selected: " + botname);
   segbot.connect();
 
   log("Subscribing listeners");
@@ -662,7 +662,7 @@ $(".robots").on("click", ".robot", function() {
   // set up title
   $(".controllingText").text("Viewing " + botname);
 
-  // set up service client for getting list of topics 
+  // set up service client for getting list of topics
   topicsClient = new ROSLIB.Service({
     ros : segbot.ros,
     name : '/rosapi/topics',
@@ -889,7 +889,7 @@ $(".navigateBtn").click(function() {
   } else if (place == "") { // if a door is selected
     requestBesideLocation(door);
   } else { // a place is selected
-    requestLocation(place); 
+    requestLocation(place);
   }
 
   $(".map-modal").modal("hide");
