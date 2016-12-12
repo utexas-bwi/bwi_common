@@ -1,5 +1,5 @@
 .robot_statuses
-.secretkey
+.cmasskey
 bin
 .pyc
 .oldIP
