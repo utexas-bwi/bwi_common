@@ -141,7 +141,10 @@ func textFull() string {
 }
 
 func demo() string {
-	return "something"
+	return `{"robots":[
+		{"name":"sample1", "timestamp":"12345678", "user":"walter", "x":"60", "y":"60"},
+		{"name":"sample2", "timestamp":"31415926", "user":"jivko", "x":"20", "y":"80"}
+	]}`
 }
 
 ///////////////////////
@@ -308,7 +311,7 @@ func main() {
 	http.HandleFunc("/hostsalive", serveBasicHTML(hostsalive))
 	http.HandleFunc("/hostsjson", serveBasicHTML(hostsJSON))
 	http.HandleFunc("/hostsalivejson", serveBasicHTML(hostsAliveJSON))
-	http.HandleFunc("/demo", serveBasicHTML(hostsAliveJSON))
+	http.HandleFunc("/demo", serveBasicHTML(demo))
 
 	fmt.Println("starting server on port " + strconv.Itoa(portNumber))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(portNumber), nil))
