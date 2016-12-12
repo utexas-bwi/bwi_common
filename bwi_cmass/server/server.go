@@ -62,6 +62,7 @@ var timeLastSaved int64
 // converts a string-returning function to a function that writes to
 func serveBasicHTML(f func() string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		fmt.Fprintf(w, f())
 	}
 }
