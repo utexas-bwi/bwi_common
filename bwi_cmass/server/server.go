@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -48,7 +49,7 @@ var insecure bool
 
 var aliveTicker = time.NewTicker(10 * time.Second) // controls time between updates to who is alive
 var aliveTimeout = int64(10)                       // (in seconds) if a robot isn't heard from in this time, it's not alive
-var tokenTimeout = int64(10)                       // (in seconds) tokens expire after this amount of time
+var tokenTimeout = int64(300)                       // (in seconds) tokens expire after this amount of time
 var password string                                // the password that .cmasskey stores
 var hasher = sha256.New()                          // used to hash
 var hashIterations = 1000                          // must be agreed upon by client and server
@@ -141,10 +142,9 @@ func textFull() string {
 }
 
 func demo() string {
-	return `{"robots":[
-		{"name":"sample1", "timestamp":"12345678", "user":"walter", "x":"60", "y":"60"},
-		{"name":"sample2", "timestamp":"31415926", "user":"jivko", "x":"20", "y":"80"}
-	]}`
+	return `[{"Name":"leela","User":"legolas","IP":"10.147.158.134","X":"0.0080970386","Y":"-0.0129547603","Alive":"true","LastAlive":"1481563792"},
+		{"Name":"bender","User":"jivko","IP":"10.147.158.135","X":"0.4080970386","Y":"-0.2129547603","Alive":"true","LastAlive":"1481563792"}
+	]`
 }
 
 ///////////////////////
@@ -233,8 +233,8 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 		if !checkValidity(token, query.Encode()) { //query.Encode reorders (alphabetically)
 			pdebug("invalid token from " + query.Get("name"))
 			return "invalid token", false
-		} else if time.Now().Unix()-robotTime > tokenTimeout || time.Now().Unix()-robotTime < -5 {
-			//added the < -5 to prevent attackers from using arbitrary numbers greater than time.Now
+		} else if time.Now().Unix()-robotTime > tokenTimeout || time.Now().Unix()-robotTime < -300 {
+			//added the < -300 to prevent attackers from using arbitrary numbers greater than time.Now
 			// to find a collision with the hash that would be valid and not expired
 			pdebug("expired token from " + query.Get("name"))
 			pdebug("system time: " + strconv.Itoa(int(time.Now().Unix())) + ", robot time: " + strconv.Itoa(int(robotTime)))
@@ -269,8 +269,10 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 func checkValidity(check string, stringURL string) bool {
 	if password == "" {
 		pdebug("reading from .cmasskey")
-		bytes, err := ioutil.ReadFile(".cmasskey")
-		checkErr(err, "couldn't read from .cmasskey")
+		path, err := filepath.Abs("./.cmasskey")
+		checkErr(err, "couldn't create abs path from relative")
+		bytes, err := ioutil.ReadFile(path)
+		checkErr(err, "couldn't read from .cmasskey located at " + path)
 		password = strings.TrimSpace(string(bytes[:])) // TrimSpace removes trailing \n or \r
 	}
 
