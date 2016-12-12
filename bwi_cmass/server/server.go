@@ -140,6 +140,10 @@ func textFull() string {
 	return ret
 }
 
+func demo() string {
+	return "something"
+}
+
 ///////////////////////
 // utility functions //
 ///////////////////////
@@ -230,7 +234,7 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 			//added the < -5 to prevent attackers from using arbitrary numbers greater than time.Now
 			// to find a collision with the hash that would be valid and not expired
 			pdebug("expired token from " + query.Get("name"))
-			pdebug("system time: " + strconv.Itoa(time.Now().Unix()) + ", robot time: " + robotTime)
+			pdebug("system time: " + strconv.Itoa(int(time.Now().Unix())) + ", robot time: " + robotTime)
 
 			return "expired token", false
 		} else {
