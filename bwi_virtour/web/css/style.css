@@ -7,11 +7,11 @@ body {
       -o-background-size: cover;
       background-size: cover;
     color: white;
+
 }
 .intro {
-  color: white;
-  text-shadow: 1px 1px 0px #000;
-  padding-top:10%;
+  padding-top:2%;
+  padding-bottom:2%;
   text-align:center;
   margin-left:auto;
   margin-right:auto;
@@ -22,10 +22,24 @@ body {
   padding-bottom: 60px;
 }
 
-.robots {
-  color: white;
-  text-shadow: 1px 1px 0px #000;
+.multimap-wrapper {
 }
+
+.multi-map-img {
+  position: relative;
+  width: 100%;
+}
+
+.live-pin {
+  height: 40px;
+  position: absolute;
+}
+
+.robot-tag-over-pin {
+  text-align: center;
+  font-size: 12px;
+}
+
 .robots .robot h4 {
   font-size: 1.5em;
   text-align: center;
@@ -35,6 +49,51 @@ body {
 .robots h4 {
   text-align: center;
 }
+
+.robot-details {
+
+  color: #222;
+}
+
+h5 {
+  padding-left: 10px;
+  margin-bottom: 2px;
+}
+
+.icon-img {
+  width:  50px;
+  height: 50px;
+  border-radius: 25px;
+  border-color: #555;
+  border-width: 1px;
+  border-style: solid;
+  float: left;
+}
+
+.deet-title {
+  padding-left: 15px;
+}
+
+.ip-detail {
+  font-size: 12px;
+  margin: 0px;
+  padding: 0px;
+  padding-left: 17px;
+  float: left;
+}
+
+.viewlink {
+  width: 100%;
+  text-align: center;
+  padding-left: 30px;
+  color: #3498db;
+
+}
+
+.inner-robot-details {
+  font-size: 15px;
+}
+
 .info {
   position: absolute;
   bottom: 0px;
@@ -173,7 +232,7 @@ body {
   height: 50px;
   position: absolute;
   left: 30%;
-  top: 750px;
+  top: 783px;
   background-color: rgba(55,55,55,0.5);
   text-align: center;
   padding: 15px;
@@ -187,7 +246,7 @@ body {
   min-width: 250px;
   position: absolute;
   right: -15px;
-  bottom: 110px;
+  bottom: 169px;
 }
 .labmap .labimage {
   position: absolute;

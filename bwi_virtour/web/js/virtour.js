@@ -99,7 +99,12 @@ var doors = [{
 // objects
 var Segbot = {
   name : "noname",
+  user : "nouser",
   ipaddr : "0.0.0.0",
+  x : "0",
+  y : "0",
+  alive : "true",
+  lastAlive : "0",
   rosbridgeport : 9090,
   mjpegserverport : 0,
   ros : null,
@@ -131,50 +136,86 @@ function createIdentity() {
   identity = getUUID();
 }
 
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
 function createSegbots() {
   //segbots["localhost"] = createSegbot("localhost", "127.0.0.1", ROSBRIDGEPORT, MJPEGSERVERPORT);
   //segbots["hypnotoad"] = createSegbot("hypnotoad", "hypnotoad.csres.utexas.edu", ROSBRIDGEPORT, MJPEGSERVERPORT);
 
-  var server = "http://nixons-head.csres.utexas.edu:7979/hostsalivejson";
+  var server = "http://nixons-head.csres.utexas.edu:7978/json";
   if (server == "") {
     error("Will not be able to dynamically load robot's IP addresses","Error: No DNS server set");
     return;
   }
-  log("Pinging dns server");
+  log("Updating list of segbots");
   $.getJSON(server, function(data) {
     var available = false;
-    $.each(data, function(key, val) {
-      segbots[key] = createSegbot(key, val, ROSBRIDGEPORT, MJPEGSERVERPORT);
-      available = true;
+    $.each(data, function(i, item) {
+      if (segbots[item["Name"]] == null) {
+        segbots[item["Name"]] = createSegbot(item, ROSBRIDGEPORT, MJPEGSERVERPORT);
+        available = true;
+      }
     });
     if (!available) {
-      $(".available_robots").html("<h3>No robots available at this time</h3>");
+      $(".available_robots").html("<h4>No robots available at this time</h4>");
     }
-  }).error(function(err) { error("Failed to ping DNS server"); });
+  }).error(function(err) { error("Failed to contact server"); });
 }
 
-function createSegbot(name, ipaddr, rosbridgeport, mjpegserverport) {
+function createSegbot(data, rosbridgeport, mjpegserverport) {
+  console.log(data);
   var bot = Object.create(Segbot);
-  bot.name = name;
-  bot.ipaddr = ipaddr;
+  bot.name = encodeURI(data["Name"]);
+  bot.user = data["User"];
+  bot.ipaddr = data["IP"];
+  bot.x = data["X"];
+  bot.y = data["Y"];
+  bot.alive = data["Alive"];
+  bot.lastAlive = data["lastAlive"];
   bot.rosbridgeport = rosbridgeport;
   bot.mjpegserverport = mjpegserverport;
-  log("Created segbot: " + name + "(" + ipaddr + ":" + rosbridgeport + ")");
+  log("Created segbot: " + data["Name"] + "(" + data["IP"] + ":" + rosbridgeport + ")");
 
-  var colors = ["orange", "green", "yellow", "red"];
-  var color = colors[curr_color];
-  curr_color = (curr_color + 1) % colors.length;
 
-  var rf = '<div class="col-md-3">';
-  var rm = '<div class="robot module ' + color + '" robot="' + name + '">';
+  var pre = '<img src="./image/marker.png" id="' + data["Name"] + '-pin" type="button" class="live-pin" data-toggle="popover"  data-content="';
+
+  var imgAndHeader = '<div class=\'robot-details\'> <h5>' +
+    '<img class=\'icon-img\' src=\'./image/{0}.jpg\'><span class=\'deet-title\'>{0}</span></h5>'
+    .format(bot.name);
+
+  var ipdeets = '<div class=\'ip-detail\'>' + bot.ipaddr + '</div> ';
+
+  var vRobot = '<a href=\'javascript:viewRobot(`' + bot.name + '`)\' class=\'viewlink\'>view</a>';
+
+  var deets = '<div class=\'inner-robot-details\'>' +
+    '<div class=\'' + bot.name + '-user-detail user-detail\'> Currently being used by ' + bot.user + '</div>' +
+    '</div></div>';
+
+  var post = '"></img>';
+
   //var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
-  var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
-  var nm = '<h2>' + name + '</h2>';
-  var ed = '</div>';
 
-  var robotdiv = rf + rm + im + nm + ed + ed;
+  var newPin = pre  + imgAndHeader + ipdeets + vRobot + deets + post;
 
-  $(".robot_links").append(robotdiv);
+  var pin = document.getElementById(data["Name"] + '-pin');
+  if (pin === null) {
+    $(".multimap").append(newPin);
+  } else {
+    pin.replaceWith(newPin);
+  }
+
+  $("#" + bot.name + "-pin").popover({html: true, placement: "right"});
+  updatePinPosition("#" + bot.name + "-pin", bot.x, bot.y);
 
   return bot;
 }
@@ -296,6 +337,16 @@ function updatePosition(x, y){
   //yp = yp - 15; // offset for height of image and for css position
   $(".pos-marker").css("left", xp + "%");
   $(".pos-marker").css("top", yp + "%");
+}
+
+function updatePinPosition(pin, x, y){
+  xp = 100 * ((x - map_origin_x) / map_res - map_marker_offset) / map_width;
+  yp = 100 * ((y - map_origin_y) / map_res - map_marker_offset) / map_height;
+  yp = 100 - yp;
+  yp = yp - 10;
+  //yp = yp - 15; // offset for height of image and for css position
+  $(pin).css("left", xp + "%");
+  $(pin).css("top", yp + "%");
 }
 
 function publishTopic(ros) {
@@ -622,6 +673,21 @@ $(document).ready(function() {
   $(".leaveTour").hide();
 
   setBeforeUnload();
+
+  window.setInterval(createSegbots, 2000);
+
+  //enable popovers
+  $("[data-toggle=popover]").popover();
+
+  //make popovers more dismissable
+  $('body').on('click', function (e) {
+        if ($(e.target).data('toggle') !== 'popover'
+            && $(e.target).parents('[data-toggle="popover"]').length === 0
+            && $(e.target).parents('.popover.in').length === 0) {
+            $('[data-toggle="popover"]').popover('hide');
+        }
+    });
+
 });
 
 function setBeforeUnload() {
@@ -639,9 +705,15 @@ function clearBeforeUnload() {
   window.onbeforeunload = null;
 }
 
-$(".robots").on("click", ".robot", function() {
-  var botname = $(this).attr("robot");
+function viewRobot(botname) {
+  console.log(this);
+
   segbot = segbots[botname];
+
+  if (!segbot.alive) {
+    alert("This segbot isn't active");
+    return;
+  }
 
   log("Selected: " + botname);
   segbot.connect();
@@ -654,7 +726,10 @@ $(".robots").on("click", ".robot", function() {
 
   // hide the intro stuff
   $(".intro").fadeOut();
-  $(".robots").fadeOut();
+  $(".multimap").fadeOut();
+  $(".multimap").fadeOut();
+
+
 
   // hide the controls
   hideControls();
@@ -789,7 +864,7 @@ $(".robots").on("click", ".robot", function() {
   log("Loading video from: " + videoSource);
   $(".controllingIframe").append("<img width=\"100%\" height=\"100%\" src=\"" + videoSource + "\">");
 
-});
+}
 
 // add callback handlers for buttons
 $(".turnLeft").click(function() {turnLeft();});
