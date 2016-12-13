@@ -23,10 +23,21 @@ body {
 }
 
 .multimap-wrapper {
+  width: 80%;
+  margin: 0px;
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.multimap {
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .multi-map-img {
-  position: relative;
+
   width: 100%;
 }
 
@@ -83,11 +94,21 @@ h5 {
 }
 
 .viewlink {
+  float: right;
+  font-size: 20px;
   width: 100%;
   text-align: center;
-  padding-left: 30px;
-  color: #3498db;
 
+  color: #3498db;
+}
+
+.offline-detail {
+  float: right;
+  font-size: 16px;
+  width: 100%;
+  text-align: center;
+
+  color: lightgrey;
 }
 
 .inner-robot-details {
@@ -119,6 +140,18 @@ h5 {
   padding-left: 15px;
   margin-top: 20px;
   height:240px;
+}
+
+.back-button {
+  padding: 10px;
+  font-size: 20px;
+  background-color: lightgrey;
+  border: none;
+  border-radius: 5px;
+}
+
+.controllingText {
+  padding-left: 30px;
 }
 
 /** Robot control **/
@@ -232,7 +265,7 @@ h5 {
   height: 50px;
   position: absolute;
   left: 30%;
-  top: 783px;
+  top: 789px;
   background-color: rgba(55,55,55,0.5);
   text-align: center;
   padding: 15px;
@@ -261,14 +294,6 @@ h5 {
 
 .map-image{
   position:relative;
-}
-
-.large-map-image{
-  position: relative;
-}
-
-.multi-pos-map{
-  width: 100%;
 }
 
 

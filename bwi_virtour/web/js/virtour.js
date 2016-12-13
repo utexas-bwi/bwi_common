@@ -41,6 +41,7 @@ var servosEnabled = false;
 var robot_v3 = false;
 var curr_color = 0;
 
+
 // Scavenger Hunt Statuses
 var FINISHED = "<span class=\"glyphicon glyphicon-ok\"></span> Done";
 var ONGOING  = "<span class=\"glyphicon glyphicon-time\"></span> Ongoing ";
@@ -53,6 +54,13 @@ var map_origin_y = -23.4;
 var map_width = 1857;
 var map_height = 573;
 var map_marker_offset = 15; //half of image width
+
+//multimap
+var multimap_width = 912;
+var multimap_height = 281;
+var multimap_origin_x = -77.7;
+var multimap_origin_y = -33.0;
+var multimap_marker_offset = 20; //also half of image width
 
 var locations = [{
   name: "Shiqi's Office",
@@ -157,23 +165,31 @@ function createSegbots() {
     error("Will not be able to dynamically load robot's IP addresses","Error: No DNS server set");
     return;
   }
+
+  //log($(.'popover').remove());
+
+
   log("Updating list of segbots");
   $.getJSON(server, function(data) {
     var available = false;
     $.each(data, function(i, item) {
+      log(segbots);
       if (segbots[item["Name"]] == null) {
         segbots[item["Name"]] = createSegbot(item, ROSBRIDGEPORT, MJPEGSERVERPORT);
         available = true;
+      } else {
+        updateSegbot(segbots[item["Name"]], item);
       }
     });
+
+
     if (!available) {
-      $(".available_robots").html("<h4>No robots available at this time</h4>");
+      $(".available_robots").html("<h4>No robots available at this time</h4>"); //TODO
     }
   }).error(function(err) { error("Failed to contact server"); });
 }
 
 function createSegbot(data, rosbridgeport, mjpegserverport) {
-  console.log(data);
   var bot = Object.create(Segbot);
   bot.name = encodeURI(data["Name"]);
   bot.user = data["User"];
@@ -184,10 +200,19 @@ function createSegbot(data, rosbridgeport, mjpegserverport) {
   bot.lastAlive = data["lastAlive"];
   bot.rosbridgeport = rosbridgeport;
   bot.mjpegserverport = mjpegserverport;
-  log("Created segbot: " + data["Name"] + "(" + data["IP"] + ":" + rosbridgeport + ")");
+  //log("Created segbot: " + data["Name"] + "(" + data["IP"] + ":" + rosbridgeport + ")");
 
 
   var pre = '<img src="./image/marker.png" id="' + data["Name"] + '-pin" type="button" class="live-pin" data-toggle="popover"  data-content="';
+
+  if (bot.alive === "true") {
+    var vRobot = '<a href=\'javascript:viewRobot(`' + bot.name + '`)\' class=\'viewlink\'>view</a>';
+    var useStatement = 'Currently being used by ';
+  } else {
+    var vRobot = '<div class=\'offline-detail\'>this robot is not active</div>';
+    var useStatement = 'Last used by ';
+
+  }
 
   var imgAndHeader = '<div class=\'robot-details\'> <h5>' +
     '<img class=\'icon-img\' src=\'./image/{0}.jpg\'><span class=\'deet-title\'>{0}</span></h5>'
@@ -195,10 +220,9 @@ function createSegbot(data, rosbridgeport, mjpegserverport) {
 
   var ipdeets = '<div class=\'ip-detail\'>' + bot.ipaddr + '</div> ';
 
-  var vRobot = '<a href=\'javascript:viewRobot(`' + bot.name + '`)\' class=\'viewlink\'>view</a>';
 
-  var deets = '<div class=\'inner-robot-details\'>' +
-    '<div class=\'' + bot.name + '-user-detail user-detail\'> Currently being used by ' + bot.user + '</div>' +
+  var deets = '<br><div class=\'inner-robot-details\'>' +
+    '<div class=\'' + bot.name + '-user-detail user-detail\'>' + useStatement + bot.user + '</div>' +
     '</div></div>';
 
   var post = '"></img>';
@@ -208,16 +232,70 @@ function createSegbot(data, rosbridgeport, mjpegserverport) {
   var newPin = pre  + imgAndHeader + ipdeets + vRobot + deets + post;
 
   var pin = document.getElementById(data["Name"] + '-pin');
-  if (pin === null) {
+  if (pin == null) {
     $(".multimap").append(newPin);
   } else {
-    pin.replaceWith(newPin);
+    pin.remove();
+    $(".multimap").append(newPin);
   }
 
   $("#" + bot.name + "-pin").popover({html: true, placement: "right"});
   updatePinPosition("#" + bot.name + "-pin", bot.x, bot.y);
 
   return bot;
+}
+
+function updateSegbot(bot, data) {
+  bot.name = encodeURI(data["Name"]);
+  bot.user = data["User"];
+  bot.ipaddr = data["IP"];
+  bot.x = data["X"];
+  bot.y = data["Y"];
+  bot.alive = data["Alive"];
+  bot.lastAlive = data["lastAlive"];
+
+  //log("Created segbot: " + data["Name"] + "(" + data["IP"] + ":" + rosbridgeport + ")");
+
+
+  var pre = '<img src="./image/marker.png" id="' + data["Name"] + '-pin" type="button" class="live-pin" data-toggle="popover"  data-content="';
+
+  if (bot.alive === "true") {
+    var vRobot = '<a href=\'javascript:viewRobot(`' + bot.name + '`)\' class=\'viewlink\'>view</a>';
+    var useStatement = 'Currently being used by ';
+  } else {
+    var vRobot = '<div class=\'offline-detail\'>this robot is not active</div>';
+    var useStatement = 'Last used by ';
+
+  }
+
+  var imgAndHeader = '<div class=\'robot-details\'> <h5>' +
+    '<img class=\'icon-img\' src=\'./image/{0}.jpg\'><span class=\'deet-title\'>{0}</span></h5>'
+    .format(bot.name);
+
+  var ipdeets = '<div class=\'ip-detail\'>' + bot.ipaddr + '</div> ';
+
+
+  var deets = '<br><div class=\'inner-robot-details\'>' +
+    '<div class=\'' + bot.name + '-user-detail user-detail\'>' + useStatement + bot.user + '</div>' +
+    '</div></div>';
+
+  var post = '"></img>';
+
+  //var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
+
+  var newPin = pre  + imgAndHeader + ipdeets + vRobot + deets + post;
+
+  //var pin = document.getElementById(data["Name"] + '-pin');
+  // if (pin == null) {
+  //   $(".multimap").append(newPin);
+  // } else {
+  //   pin.remove();
+  //   $(".multimap").append(newPin);
+  // }
+
+  $("#" + bot.name + "-pin").popover({html: true, placement: "right"});
+  updatePinPosition("#" + bot.name + "-pin", bot.x, bot.y);
+
 }
 
 function SegBotConnection(ipaddr, rosbridgeport, mjpegserverport) {
@@ -340,8 +418,12 @@ function updatePosition(x, y){
 }
 
 function updatePinPosition(pin, x, y){
-  xp = 100 * ((x - map_origin_x) / map_res - map_marker_offset) / map_width;
-  yp = 100 * ((y - map_origin_y) / map_res - map_marker_offset) / map_height;
+  log("updating " + pin);
+  var x_scaling = .72;
+  var y_scaling = .47;
+
+  xp = 100 * ((x - multimap_origin_x) / map_res * x_scaling - multimap_marker_offset) / map_width;
+  yp = 100 * ((y - multimap_origin_y) / map_res * y_scaling - multimap_marker_offset) / map_height;
   yp = 100 - yp;
   yp = yp - 10;
   //yp = yp - 15; // offset for height of image and for css position
@@ -726,8 +808,7 @@ function viewRobot(botname) {
 
   // hide the intro stuff
   $(".intro").fadeOut();
-  $(".multimap").fadeOut();
-  $(".multimap").fadeOut();
+  $(".multimap-wrapper").fadeOut();
 
 
 
