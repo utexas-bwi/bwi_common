@@ -13,6 +13,7 @@ Person detection using pcl\_people module. Modified from [this example](http://p
 + person\_detection\_v3.launch: run person detection node and record person position.  
 + person\_detection\_v3\_norecord.launch: run person detection node without logging.
 
+
 ## Subscribed Topics
 
 nav\_kinect/depth\_registered/points
@@ -26,6 +27,12 @@ nav\_kinect/depth\_registered/points
 ## Visualize
 
 Run `python scripts/visualization.py` to obtain a 2d heatmap using data from `data/record.txt`.
+
+#### Usage Example
+
+1. `roslaunch person\_detector calibrate\_v2.launch` and follow the instruction to click 3 points on the ground.
+2. `roslaunch person\_detector person\_detection\_v2.launch` to run person detection node. Use `Ctrl+C` to stop.
+3. `python dir/to/package/scripts/visualization.py` to generate a heatmap from recorded data.
 
 ## Customization
 
