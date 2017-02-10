@@ -42,6 +42,7 @@ add_service_files(
     GetNextImage.srv
     SaveImageResponse.srv
     UploadImage.srv
+    Trigger.srv
 )
 
 add_action_files(
