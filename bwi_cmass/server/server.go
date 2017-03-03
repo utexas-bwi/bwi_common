@@ -24,6 +24,7 @@ type Robot struct {
 	IP        string // the ip address of the robot
 	X         string // x coordinate
 	Y         string // y coordinate
+	Level     string // floor the robot is on
 	Alive     string // if the robot is currently active
 	LastAlive string // epoch time since robot last pinged server
 }
@@ -34,6 +35,7 @@ func (bot Robot) String() string {
 	ret += "\t" + "User: " + bot.User + "\n"
 	ret += "\t" + "IP: " + bot.IP + "\n"
 	ret += "\t" + "Coordinates: (" + bot.X + ", " + bot.Y + ")\n"
+	ret += "\t" + "Level: " + bot.Level + "\n"
 	ret += "\t" + "Alive: " + bot.Alive + "\n"
 	ret += "\t" + "Time Last Alive: " + bot.LastAlive + "\n"
 	return ret
@@ -49,7 +51,7 @@ var insecure bool
 
 var aliveTicker = time.NewTicker(10 * time.Second) // controls time between updates to who is alive
 var aliveTimeout = int64(10)                       // (in seconds) if a robot isn't heard from in this time, it's not alive
-var tokenTimeout = int64(300)                       // (in seconds) tokens expire after this amount of time
+var tokenTimeout = int64(300)                      // (in seconds) tokens expire after this amount of time
 var password string                                // the password that .cmasskey stores
 var hasher = sha256.New()                          // used to hash
 var hashIterations = 1000                          // must be agreed upon by client and server
@@ -215,6 +217,7 @@ func addRobot(query url.Values, addr string) {
 		IP:        addr,
 		X:         query.Get("x"),
 		Y:         query.Get("y"),
+		Level:     query.Get("level"),
 		Alive:     "true",
 		LastAlive: strconv.FormatInt(time.Now().Unix(), 10)}
 	pdebug("Adding new robot: " + string(bot.Name))
@@ -273,7 +276,7 @@ func checkValidity(check string, stringURL string) bool {
 		path, err := filepath.Abs("./.cmasskey")
 		checkErr(err, "couldn't create abs path from relative")
 		bytes, err := ioutil.ReadFile(path)
-		checkErr(err, "couldn't read from .cmasskey located at " + path)
+		checkErr(err, "couldn't read from .cmasskey located at "+path)
 		password = strings.TrimSpace(string(bytes[:])) // TrimSpace removes trailing \n or \r
 	}
 

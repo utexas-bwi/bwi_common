@@ -69,6 +69,14 @@ void locationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& p
   y = pose->pose.pose.position.y;
 }
 
+std::string level;
+boost::shared_ptr<ros::Subscriber> level_subscriber_;
+
+void levelHandler(const multi_level_map_msgs::LevelMetaData::ConstPtr& metadata) {
+  level = metadata->level_id;
+}
+
+
 int main(int argc, char **argv){
 
   //declare our node to ROS
@@ -77,6 +85,9 @@ int main(int argc, char **argv){
 
   location_subscriber_.reset(new ros::Subscriber);
   *location_subscriber_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 1, &locationHandler);
+
+  level_subscriber_.reset(new ros::Subscriber);
+  *level_subscriber_ = n.subscribe<multi_level_map_msgs::LevelMetaData>("level_mux/current_level", 1, &levelHandler);
 
   // retrieve the computer and user names
   char hostname[HOST_NAME_MAX];
@@ -100,6 +111,7 @@ int main(int argc, char **argv){
     if(curl) {
 
       std::string name_str = "name=" + boost::lexical_cast<std::string>(hostname);
+      std::string level_str = "level=" + boost::lexical_cast<std::string>(level);
       std::string timestamp_str = "timestamp=" + boost::lexical_cast<std::string>(time(0));
       std::string user_str = "user=" + boost::lexical_cast<std::string>(username);
       std::string x_str = "x=" + boost::lexical_cast<std::string>(x);
@@ -107,7 +119,7 @@ int main(int argc, char **argv){
 
       // IMPORTANT: URL params must be in alphabetical order by key (except for token)
       // because of the way that the server decodes them.
-      std::string params = name_str + "&" + timestamp_str + "&" + user_str + "&" + x_str + "&" + y_str;
+      std::string params = name_str + "&" + level_str + "&" + timestamp_str + "&" + user_str + "&" + x_str + "&" + y_str;
 
       std::string token = hash(params, getSecretkey());
       std::string token_str = "token=" + boost::lexical_cast<std::string>(token);
