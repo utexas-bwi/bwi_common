@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -237,9 +238,8 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 		if !checkValidity(token, query.Encode()) { //query.Encode reorders (alphabetically)
 			pdebug("invalid token from " + query.Get("name"))
 			return "invalid token", false
-		} else if time.Now().Unix()-robotTime > tokenTimeout || time.Now().Unix()-robotTime < -300 {
-			//added the < -300 to prevent attackers from using arbitrary numbers greater than time.Now
-			// to find a collision with the hash that would be valid and not expired
+		} else if math.Abs(time.Now().Unix()-robotTime) > tokenTimeout {
+
 			pdebug("expired token from " + query.Get("name"))
 			pdebug("system time: " + strconv.Itoa(int(time.Now().Unix())) + ", robot time: " + strconv.Itoa(int(robotTime)))
 
