@@ -111,8 +111,8 @@ int main(int argc, char **argv){
     //send http request
     if(curl) {
 
-      std::string name_str = "name=" + boost::lexical_cast<std::string>(hostname);
       std::string level_str = "level=" + boost::lexical_cast<std::string>(level);
+      std::string name_str = "name=" + boost::lexical_cast<std::string>(hostname);
       std::string timestamp_str = "timestamp=" + boost::lexical_cast<std::string>(time(0));
       std::string user_str = "user=" + boost::lexical_cast<std::string>(username);
       std::string x_str = "x=" + boost::lexical_cast<std::string>(x);
@@ -120,7 +120,7 @@ int main(int argc, char **argv){
 
       // IMPORTANT: URL params must be in alphabetical order by key (except for token)
       // because of the way that the server decodes them.
-      std::string params = name_str + "&" + level_str + "&" + timestamp_str + "&" + user_str + "&" + x_str + "&" + y_str;
+      std::string params = level_str + "&" + name_str + "&" + timestamp_str + "&" + user_str + "&" + x_str + "&" + y_str;
 
       std::string token = hash(params, getSecretkey());
       std::string token_str = "token=" + boost::lexical_cast<std::string>(token);
