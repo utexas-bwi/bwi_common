@@ -238,7 +238,7 @@ func updateRobot(query url.Values, addr string) (string, bool) {
 		if !checkValidity(token, query.Encode()) { //query.Encode reorders (alphabetically)
 			pdebug("invalid token from " + query.Get("name"))
 			return "invalid token", false
-		} else if math.Abs(float64(time.Now().Unix()-robotTime)) > tokenTimeout {
+		} else if math.Abs(float64(int64(time.Now().Unix())-robotTime)) > float64(tokenTimeout) {
 
 			pdebug("expired token from " + query.Get("name"))
 			pdebug("system time: " + strconv.Itoa(int(time.Now().Unix())) + ", robot time: " + strconv.Itoa(int(robotTime)))
