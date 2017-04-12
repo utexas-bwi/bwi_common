@@ -456,6 +456,8 @@ acc(l3_302, l3_300).
 acc(l3_250, l3_300). 
 acc(l3_250, l3_303). 
 
+acc(l3_406, l3_400).
+
 acc(l3_828, l3_800).
 acc(l3_818, l3_800).
 acc(l3_814, l3_800).
@@ -531,6 +533,9 @@ inside(o3_434_soccer,l3_434).
 
 object(o3_500_printer).
 inside(o3_500_printer,l3_500).
+
+object(o3_414a_table).
+inside(o3_414a_table, l3_414a).
 
 object(o3_406_table).
 inside(o3_406_table,l3_406).

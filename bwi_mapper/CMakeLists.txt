@@ -72,18 +72,18 @@ target_link_libraries(bwi_mapper
 #binaries
 set(node_targets)
 foreach(node generate_graph view_graph prepare_graph) 
-  add_executable(${PROJECT_NAME}/${node} src/nodes/${node}.cpp)
-  set_target_properties(${PROJECT_NAME}/${node} PROPERTIES OUTPUT_NAME "${node}")
-  target_link_libraries(${PROJECT_NAME}/${node} bwi_mapper)
-  list(APPEND node_targets ${PROJECT_NAME}/${node})
+  add_executable(${PROJECT_NAME}_${node} src/nodes/${node}.cpp)
+  set_target_properties(${PROJECT_NAME}_${node} PROPERTIES OUTPUT_NAME "${node}")
+  target_link_libraries(${PROJECT_NAME}_${node} bwi_mapper)
+  list(APPEND node_targets ${PROJECT_NAME}_${node})
 endforeach()
 
 #test binaries
 foreach(node test_circle test_map_loader test_voronoi test_dfs test_graph)
-  add_executable(${PROJECT_NAME}/${node} test/${node}.cpp)
-  set_target_properties(${PROJECT_NAME}/${node} PROPERTIES OUTPUT_NAME "${node}")
-  target_link_libraries(${PROJECT_NAME}/${node} bwi_mapper)
-  list(APPEND node_targets ${PROJECT_NAME}/${node})
+  add_executable(${PROJECT_NAME}_${node} test/${node}.cpp)
+  set_target_properties(${PROJECT_NAME}_${node} PROPERTIES OUTPUT_NAME "${node}")
+  target_link_libraries(${PROJECT_NAME}_${node} bwi_mapper)
+  list(APPEND node_targets ${PROJECT_NAME}_${node})
 endforeach()
 
 #############
