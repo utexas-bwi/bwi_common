@@ -589,6 +589,11 @@ inside(o3_702,l3_702).
 object(o4_500_printer).
 inside(o4_500_printer,l4_500).
 
+object(o3_514_tablea).
+inside(o3_514_tablea, l3_514).
+
+object(o3_514_tableb).
+inside(o3_514_tableb, l3_514). 
 
 
 badDoor(d3_418).
