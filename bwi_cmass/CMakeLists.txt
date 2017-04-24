@@ -24,4 +24,4 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(cmass_client src/client.cpp)
-target_link_libraries(cmass_client ${catkin_LIBRARIES} curl ssl)
+target_link_libraries(cmass_client ${catkin_LIBRARIES} curl openssl)
