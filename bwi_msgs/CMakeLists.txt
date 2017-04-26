@@ -62,6 +62,6 @@ catkin_package(
     bwi_planning_common
     geometry_msgs
     message_runtime
-    std_msgs
     sensor_msgs
+    std_msgs
 )
