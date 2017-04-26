@@ -7,6 +7,7 @@ find_package(catkin REQUIRED
     bwi_planning_common 
     geometry_msgs
     message_generation
+    sensor_msgs
     std_msgs
 )
 
@@ -27,15 +28,21 @@ add_service_files(
   DIRECTORY srv
   FILES
     DoorHandlerInterface.srv
+    GetNextImage.srv
+    ImageQuestion.srv
     LEDClear.srv
     LEDSetCamera.srv
     LEDTestStrip.srv
+    NextLocation.srv
     QuestionDialog.srv
     ResolveChangeFloor.srv
     RobotTeleporterInterface.srv
+    SaveImageResponse.srv
     SemanticParser.srv
     StopBase.srv
     ScavHunt.srv
+    Trigger.srv
+    UploadImage.srv
 )
 
 add_action_files(
@@ -46,7 +53,7 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs bwi_planning_common geometry_msgs std_msgs
+  DEPENDENCIES actionlib_msgs bwi_planning_common geometry_msgs sensor_msgs std_msgs
 )
 
 catkin_package(
@@ -55,5 +62,6 @@ catkin_package(
     bwi_planning_common
     geometry_msgs
     message_runtime
+    sensor_msgs
     std_msgs
 )
