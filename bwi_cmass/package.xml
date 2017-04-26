@@ -6,7 +6,7 @@
   <maintainer email="walter19@utexas.edu">walter</maintainer>
   <license>BSD</license>
 
-
+  <depend>multi_level_map_msgs</depend>
 
   <buildtool_depend>catkin</buildtool_depend>
 

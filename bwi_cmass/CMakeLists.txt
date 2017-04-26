@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   geometry_msgs
   std_msgs
+  multi_level_map_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
