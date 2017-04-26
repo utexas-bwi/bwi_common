@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(OpenSSL REQUIRED)
 
 
 catkin_package(
@@ -21,8 +22,9 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OPENSSL_INCLUDE_DIR}
 )
 
 ## Declare a C++ executable
 add_executable(cmass_client src/client.cpp)
-target_link_libraries(cmass_client ${catkin_LIBRARIES} curl openssl)
+target_link_libraries(cmass_client ${catkin_LIBRARIES} ${OPENSSL_LIBRARIES} curl )
