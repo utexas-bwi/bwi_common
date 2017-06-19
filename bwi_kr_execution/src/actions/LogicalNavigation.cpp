@@ -68,7 +68,7 @@ void LogicalNavigation::run() {
 	//senseState takes a bit longer than 0.5f to complete, but fluents have to be updated
 	if(name == "senseState"){
 		ros::Rate wait_rate(0.5f);
-		while(!(finished_before_timeout = lnac->waitForResult(ros::Duration(0.5f))){
+		while(!(finished_before_timeout = lnac->waitForResult(ros::Duration(0.5f)))){
 			wait_rate.sleep();
 		}
 	}
