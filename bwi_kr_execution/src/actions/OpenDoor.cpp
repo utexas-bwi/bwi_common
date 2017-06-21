@@ -28,7 +28,9 @@ OpenDoor::OpenDoor() :
 
   
 void OpenDoor::run() {
+	ROS_INFO_STREAM("OpenDoor has been called..");
   if(!asked) {
+		ROS_INFO_STREAM("OpenDoor:: calling GUI");
     CallGUI askToOpen("askToOpen", CallGUI::DISPLAY,  "Can you open door " + door + ", please?");
     askToOpen.run();
     asked = true;

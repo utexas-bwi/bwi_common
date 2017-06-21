@@ -51,7 +51,7 @@ struct PlannerAtom2AspFluent {
 
 void LogicalNavigation::run() {
   
-  ROS_DEBUG_STREAM("Executing " << name);
+  ROS_INFO_STREAM("LogicalNavigation: Executing " << name);
 
   if (!request_in_progress) {
     lnac = new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
@@ -75,6 +75,8 @@ void LogicalNavigation::run() {
 
   // If the action finished, need to do some work here.
   if (finished_before_timeout) {
+		ROS_INFO_STREAM("LogicalNavigation: Updating fluents..");
+		
     bwi_msgs::LogicalNavigationResultConstPtr result = lnac->getResult();
     
     // Update fluents based on the result of the logical nav request.
@@ -94,7 +96,10 @@ void LogicalNavigation::run() {
     request_in_progress = false;
     delete lnac;
   }
-	
+	else {
+		ROS_INFO_STREAM("LogicalNavigation: Timeout occurred, not updating fluents");
+	}	
+
 }
 
 Action *LogicalNavigation::cloneAndInit(const actasp::AspFluent & fluent) const {
