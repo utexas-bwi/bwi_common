@@ -88,6 +88,15 @@ void ChangeFloor::run() {
           goal.command.value.push_back(facing_door);
           lnac->sendGoal(goal);
           lnac->waitForResult();
+	
+					if(lnac.getState() == actionlib::SimpleClientGoalState::ABORTED){
+						ROS_INFO_STREAM("ChangeFloor: changefloor aborted");
+					}	else if(lnac.getState() == actionlib::SimpleClientGoalState::PREEMPTED){
+						ROS_INFO_STREAM("ChangeFloor: changefloor preempted");
+					} else if (lnac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
+						ROS_INFO_STREAM("ChangeFloor: changefloor Succeeded!");
+					} else
+						ROS_INFO("ChangeFloor: changefloor terminated");
 
           // TODO incorporate the return of the changefloor command as well.
           ros::NodeHandle n;
