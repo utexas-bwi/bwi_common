@@ -85,6 +85,10 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 
   transform(plan->aspGoal.begin(),plan->aspGoal.end(),back_inserter(goalRules),TranslateRule());
 
+	//Update fluents before sending new goals
+	LogicalNavigation senseState("senseState");
+	senseState.run();
+
   executor->setGoal(goalRules);
 
   ros::Rate loop(10);
@@ -107,6 +111,9 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
         goalRules.clear();
         const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
         transform(newGoal->aspGoal.begin(),newGoal->aspGoal.end(),back_inserter(goalRules),TranslateRule());
+
+				//Update fluents before resending goal
+				senseState.run();
         executor->setGoal(goalRules);
       }
     }
@@ -141,7 +148,7 @@ int main(int argc, char**argv) {
     domainDirectory += '/';
 
 //  create initial state
-  LogicalNavigation setInitialState("noop");
+  LogicalNavigation setInitialState("senseState");
   setInitialState.run();
 
 
