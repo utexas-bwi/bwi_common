@@ -11,3 +11,4 @@ uint8 APPROACH_DOOR = 1
 uint8 SENSE_DOOR = 2
 uint8 APPROACH_OBJECT = 3
 uint8 CHANGE_FLOOR = 4 
+string data #extra information
