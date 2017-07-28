@@ -1,4 +1,4 @@
-#Fix recent Travis update by rolling back to previous configuration
+# Fix recent Travis update by rolling back to previous configuration
 group: deprecated-2017Q3
 sudo: required
 dist: trusty
