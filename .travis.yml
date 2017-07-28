@@ -1,7 +1,7 @@
+#Fix recent Travis update by rolling back to previous configuration
+group: deprecated-2017Q3
 sudo: required
 dist: trusty
-#Test rollback to before July 2017 Travis update
-group: deprecated-2017Q3
 # Force travis to use its minimal image with default Python settings
 language: generic
 compiler:
