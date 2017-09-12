@@ -5,7 +5,7 @@ from multi_level_map_msgs.msg import LevelMetaData, MultiLevelMapData
 from multi_level_map_msgs.srv import ChangeCurrentLevel
 import rospy
 
-from python_qt_binding.QtCore import pyqtSignal
+#from python_qt_binding.QtCore import pyqtSignal
 from python_qt_binding.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
 
@@ -32,10 +32,10 @@ class LevelSelectorPlugin(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-        self.update_buttons_signal = pyqtSignal(name="update_buttons")
-        self.connect(self._widget, self.update_buttons_signal, self.update_buttons)
-        self.update_button_status_signal = pyqtSignal(name="update_button_status")
-        self.connect(self._widget, self.update_button_status_signal, self.timeout)
+        self.buttons = QPushButton("update_buttons", self._widget)
+        self.buttons.clicked.connect(self.update_buttons)
+        self.button_status = QPushButton("update_button_status", self._widget)
+        self.button_status.clicked.connect(self.update_button_status)
 
         # Subcribe to the multi level map data to get information about all the maps.
         self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData, self.process_multimap)
