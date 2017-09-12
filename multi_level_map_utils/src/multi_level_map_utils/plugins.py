@@ -32,9 +32,9 @@ class LevelSelectorPlugin(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-        self.update_buttons_signal = pyqtSignal("update_buttons")
+        self.update_buttons_signal = pyqtSignal(name="update_buttons")
         self.connect(self._widget, self.update_buttons_signal, self.update_buttons)
-        self.update_button_status_signal = pyqtSignal("update_button_status")
+        self.update_button_status_signal = pyqtSignal(name="update_button_status")
         self.connect(self._widget, self.update_button_status_signal, self.timeout)
 
         # Subcribe to the multi level map data to get information about all the maps.
