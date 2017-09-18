@@ -29,5 +29,6 @@
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>web_video_server</exec_depend>
-
+  <exec_depend>audio_capture</exec_depend>
+  
 </package>
