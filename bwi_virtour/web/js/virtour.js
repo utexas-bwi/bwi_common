@@ -40,6 +40,10 @@ var topics = null;
 var servosEnabled = false;
 var robot_v3 = false;
 var curr_color = 0;
+var audioSourceBuffer = null;
+var audioBufferQueue = [];
+var bufferLength = 0;
+
 
 // Scavenger Hunt Statuses
 var FINISHED = "<span class=\"glyphicon glyphicon-ok\"></span> Done";
@@ -125,6 +129,14 @@ function error(errorMessage, errorTitle) {
   $("#errorBody").text(errorMessage);
   $(".error-modal").modal();
   log("error: "+errorMessage);
+}
+
+function hasTextEncoder() {
+  return !!(window.TextEncoder); 
+}
+
+function hasMediaSource() {
+  return !!(window.MediaSource || window.WebKitMediaSource);
 }
 
 function createIdentity() {
@@ -251,6 +263,20 @@ function subscribeScavengerHuntListener(ros) {
   });
 }
 
+function subscribeAudioListner(ros) {
+  var listener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/audio/audio',
+    messageType : 'audio_common_msgs/AudioData'
+  });
+  log("Added ping Audio listener");
+
+  listener.subscribe(function(audioChunck) {
+    //log('Received message on ' + listener.name + ': ' + audioChunck.data);
+    streamAudio(audioChunck);
+  });
+}
+
 function viewScavengerHunt() {
   $(".scavengerhunt-modal").modal();
 }
@@ -287,6 +313,57 @@ function updateScavengerHuntStatus(msg) {
     $(".scavengerhunt-table > tbody:last").append(a_html);
   }
 }
+
+function streamAudio(audioChunckB64) {
+  var audioChunckAsStr = atob(audioChunckB64.data);
+  var chunckUint8Array = new Uint8Array(audioChunckAsStr.length);
+
+  for (var i = 0; i < audioChunckAsStr.length; i++) {
+      chunckUint8Array[i] = audioChunckAsStr.charCodeAt(i);
+  }
+  
+  //log("audio started buffer num:" + chunckUint8Array);
+  bufferLength += chunckUint8Array.length;
+  audioBufferQueue.push(chunckUint8Array);
+  if (audioSourceBuffer && !audioSourceBuffer.updating) {
+     loadNextBuffer();
+  }
+}
+
+function onSourceOpen() {
+  // this.readyState === 'open'. Add a source buffer that expects webm chunks.
+  audioSourceBuffer = ms.addSourceBuffer('audio/mpeg');
+  audioSourceBuffer.addEventListener('updateend', loadNextBuffer, false);
+  //....
+}
+
+function loadNextBuffer (audioChunck) {
+  //log("LoadNextBuffer....");
+  if ( audioBufferQueue.length > 0) {
+    var audioBufferSize = audioBufferQueue.length;
+    var mp3Buffer = new Uint8Array(bufferLength);
+    bufferLength = 0;
+    //log("mp3BufferEmpty" + mp3Buffer);
+    buffSize = 0;
+    for ( i = 0; i < audioBufferSize; i++) {
+      currBuff = audioBufferQueue.shift();
+      mp3Buffer.set(currBuff,buffSize);
+      buffSize += currBuff.length;
+    }
+    //log("Loading next buffer....");
+    //log("audio buffer" + mp3Buffer);
+    audioSourceBuffer.appendBuffer(mp3Buffer);
+  
+    if (audio.paused) {
+      audio.play();
+    }
+  }
+}
+
+
+     
+     
+
 
 function updatePosition(x, y){
   xp = 100 * ((x - map_origin_x) / map_res - map_marker_offset) / map_width;
@@ -650,6 +727,7 @@ $(".robots").on("click", ".robot", function() {
   subscribeListener(segbot.ros);
   subscribePoseListener(segbot.ros);
   subscribeScavengerHuntListener(segbot.ros);
+  subscribeAudioListner(segbot.ros);
 
 
   // hide the intro stuff
@@ -788,6 +866,31 @@ $(".robots").on("click", ".robot", function() {
                       + "/stream?topic=" + videoTopic + "&quality=" + VIDEO_QUALITY;
   log("Loading video from: " + videoSource);
   $(".controllingIframe").append("<img width=\"100%\" height=\"100%\" src=\"" + videoSource + "\">");
+
+  // set up video streaming (mp3 format)
+  if (hasMediaSource() && hasTextEncoder()) {
+    log("has media source, start streaming audio.");
+     //$(".controllingIframe").append("<audio id=\"audio\" controls=\"controls\">");
+     //$(".controllingIframe").append("<source id=\"mp3Source\" type=\"audio/mp3\"></source>");
+     //$(".controllingIframe").append("</audio>");
+     //$(".controllingIframe").append("<audio id=\"mp3Source\" controls></audio>");
+     audio = document.querySelector('audio');
+     //var audio = document.getElementById('audio');
+     //var audio = document.getElementById('mp3Source');
+     
+     window.MediaSource = window.MediaSource || window.WebKitMediaSource;
+     mediaSource = new MediaSource();
+
+     audio.src= window.URL.createObjectURL(mediaSource);
+     
+     mediaSource.addEventListener('sourceopen', onSourceOpen, false);
+     mediaSource.addEventListener('webkitsourceopen', onSourceOpen, false);
+
+     audio.play(); //call this to play the song right away
+      
+  } else {
+    alert("Bummer. Your browser doesn't support the MediaSource API or the TextEncoder feature! Cannot stream audio.");
+  }
 
 });
 
