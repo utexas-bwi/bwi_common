@@ -43,6 +43,8 @@ var curr_color = 0;
 var audioSourceBuffer = null;
 var audioBufferQueue = [];
 var bufferLength = 0;
+var mediaSource = null;
+var audio = null;
 
 
 // Scavenger Hunt Statuses
@@ -266,7 +268,7 @@ function subscribeScavengerHuntListener(ros) {
 function subscribeAudioListner(ros) {
   var listener = new ROSLIB.Topic({
     ros : ros,
-    name : '/audio/audio',
+    name : '/audio',
     messageType : 'audio_common_msgs/AudioData'
   });
   log("Added ping Audio listener");
@@ -317,7 +319,6 @@ function updateScavengerHuntStatus(msg) {
 function streamAudio(audioChunckB64) {
   var audioChunckAsStr = atob(audioChunckB64.data);
   var chunckUint8Array = new Uint8Array(audioChunckAsStr.length);
-
   for (var i = 0; i < audioChunckAsStr.length; i++) {
       chunckUint8Array[i] = audioChunckAsStr.charCodeAt(i);
   }
@@ -332,7 +333,7 @@ function streamAudio(audioChunckB64) {
 
 function onSourceOpen() {
   // this.readyState === 'open'. Add a source buffer that expects webm chunks.
-  audioSourceBuffer = ms.addSourceBuffer('audio/mpeg');
+  audioSourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
   audioSourceBuffer.addEventListener('updateend', loadNextBuffer, false);
   //....
 }
@@ -873,10 +874,9 @@ $(".robots").on("click", ".robot", function() {
      //$(".controllingIframe").append("<audio id=\"audio\" controls=\"controls\">");
      //$(".controllingIframe").append("<source id=\"mp3Source\" type=\"audio/mp3\"></source>");
      //$(".controllingIframe").append("</audio>");
-     //$(".controllingIframe").append("<audio id=\"mp3Source\" controls></audio>");
-     audio = document.querySelector('audio');
-     //var audio = document.getElementById('audio');
-     //var audio = document.getElementById('mp3Source');
+     //audio = document.querySelector('audio');
+     $(".controllingIframe").append("<audio id=\"mp3Source\"></audio>");
+     audio = document.getElementById('mp3Source');
      
      window.MediaSource = window.MediaSource || window.WebKitMediaSource;
      mediaSource = new MediaSource();
@@ -886,8 +886,6 @@ $(".robots").on("click", ".robot", function() {
      mediaSource.addEventListener('sourceopen', onSourceOpen, false);
      mediaSource.addEventListener('webkitsourceopen', onSourceOpen, false);
 
-     audio.play(); //call this to play the song right away
-      
   } else {
     alert("Bummer. Your browser doesn't support the MediaSource API or the TextEncoder feature! Cannot stream audio.");
   }
