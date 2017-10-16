@@ -87,7 +87,9 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
 
 	//Update fluents before sending new goals
 	LogicalNavigation senseState("senseState");
-	senseState.run();
+  while (!senseState.hasFinished()) {
+    senseState.run();
+  }
 
   executor->setGoal(goalRules);
 
@@ -113,7 +115,10 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
         transform(newGoal->aspGoal.begin(),newGoal->aspGoal.end(),back_inserter(goalRules),TranslateRule());
 
 				//Update fluents before resending goal
-				senseState.run();
+				LogicalNavigation senseState("senseState");
+        while (!senseState.hasFinished()) {
+          senseState.run();
+        }
         executor->setGoal(goalRules);
       }
     }
@@ -149,7 +154,9 @@ int main(int argc, char**argv) {
 
 //  create initial state
   LogicalNavigation setInitialState("senseState");
-  setInitialState.run();
+  while (!setInitialState.hasFinished()) {
+    setInitialState.run();
+  }
 
 
   bool simulating;
