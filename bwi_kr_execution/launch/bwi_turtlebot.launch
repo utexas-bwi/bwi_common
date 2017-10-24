@@ -21,8 +21,10 @@
     <param name="data_directory" value="$(arg data_directory)" />
   </node>
 
-  <!-- launch the gui -->
-  <node name="segbot_gui" pkg="segbot_gui" type="question_dialog_plugin" />
+  <!-- launch the question dialog gui -->
+  <!--
+  <node name="gui" type="question_dialog_plugin" pkg="bwi_rqt_plugins" />
+  -->
 
   <!-- launch the sound play node -->
   <node name="soundplay" pkg="sound_play" type="soundplay_node.py" />
