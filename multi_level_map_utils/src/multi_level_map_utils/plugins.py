@@ -38,7 +38,8 @@ class LevelSelectorPlugin(Plugin):
         self.button_status.clicked.connect(self.update_button_status)
 
         # Subcribe to the multi level map data to get information about all the maps.
-        self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData, self.process_multimap)
+        self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData,
+                                                    self.process_multimap)
         self.levels = []
         self.current_level = None
 
@@ -46,12 +47,13 @@ class LevelSelectorPlugin(Plugin):
         self.status_subscriber = None
 
         # Create a service proxy to change the current level.
-        self.level_selector_proxy = rospy.ServiceProxy("level_mux/change_current_level", ChangeCurrentLevel)
+        self.level_selector_proxy = rospy.ServiceProxy("level_mux/change_current_level",
+                                                       ChangeCurrentLevel)
         self.level_selector_proxy.wait_for_service()
 
     def process_multimap(self, msg):
         self.levels = msg.levels
-        self.update_buttons_signal.emit()
+        self.update_buttons.emit()
 
     def update_buttons(self):
         self.clean()
@@ -65,7 +67,9 @@ class LevelSelectorPlugin(Plugin):
 
         # Subscribe to the current level we are on.
         if self.status_subscriber is None:
-            self.status_subscriber = rospy.Subscriber("level_mux/current_level", LevelMetaData, self.process_level_status)
+            self.status_subscriber = rospy.Subscriber("level_mux/current_level",
+                                                      LevelMetaData,
+                                                      self.process_level_status)
 
     def update_button_status(self):
         for index, level in enumerate(self.levels):
