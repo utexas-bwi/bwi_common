@@ -29,15 +29,16 @@ class LevelSelectorPlugin(Plugin):
 
         self._widget.setObjectName('LevelSelectorPluginUI')
         if context.serial_number() > 1:
-            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+            self._widget.setWindowTitle(self._widget.windowTitle()
+                                        + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-        self.buttons = QPushButton("update_buttons", self._widget)
-        self.buttons.clicked.connect(self.update_buttons)
-        self.button_status = QPushButton("update_button_status", self._widget)
-        self.button_status.clicked.connect(self.update_button_status)
+        button = QPushButton("update_buttons", self._widget)
+        button.clicked.connect(self.update_buttons)
+        button_status = QPushButton("update_button_status", self._widget)
+        button_status.clicked.connect(self.update_button_status)
 
-        # Subcribe to the multi level map data to get information about all the maps.
+        # Subscribe to the multi level map data to get information about all the maps.
         self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData,
                                                     self.process_multimap)
         self.levels = []
@@ -53,7 +54,7 @@ class LevelSelectorPlugin(Plugin):
 
     def process_multimap(self, msg):
         self.levels = msg.levels
-        self.update_buttons.emit()
+        #self.update_buttons.emit()
 
     def update_buttons(self):
         self.clean()
@@ -87,7 +88,7 @@ class LevelSelectorPlugin(Plugin):
                 break
         if not level_found:
             self.current_level = None
-        self.update_button_status_signal.emit()
+        #self.update_button_status_signal.emit()
 
     def handle_button(self):
         source = self.sender()
