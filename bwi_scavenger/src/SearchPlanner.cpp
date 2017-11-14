@@ -126,7 +126,7 @@ SearchPlanner::SearchPlanner(ros::NodeHandle *node_handle, std::string path_to_y
     for (int i=0; i<yaml_positions.size(); i++) {
 #ifdef HAVE_NEW_YAMLCPP
         geometry_msgs::PoseStamped tmp_pose; 
-        tmp_pose.header.frame_id = "level_mux/map";
+        tmp_pose.header.frame_id = "level_mux_map";
         tmp_pose.pose.position.x = yaml_positions[i][0].as<double>(); 
         tmp_pose.pose.position.y = yaml_positions[i][1].as<double>(); 
         tmp_pose.pose.orientation.z = yaml_positions[i][2].as<double>(); 
@@ -158,11 +158,11 @@ geometry_msgs::PoseStamped SearchPlanner::selectNextScene(const std::vector<floa
     for (unsigned i=0; i<positions.size(); i++) {
 
         srv.request.tolerance = tolerance; 
-        srv.request.start.header.frame_id = "level_mux/map"; 
+        srv.request.start.header.frame_id = "level_mux_map"; 
         srv.request.start.pose.position.x = curr_position.pose.pose.position.x; 
         srv.request.start.pose.position.y = curr_position.pose.pose.position.y; 
 
-        srv.request.goal.header.frame_id = "level_mux/map"; 
+        srv.request.goal.header.frame_id = "level_mux_map"; 
         srv.request.goal.pose.position.x = positions[i].pose.position.x; 
         srv.request.goal.pose.position.y = positions[i].pose.position.y; 
     
@@ -187,7 +187,7 @@ geometry_msgs::PoseStamped SearchPlanner::selectNextScene(const std::vector<floa
     }
     
     nextScene = positions[next_goal_index]; 
-    nextScene.header.frame_id = "level_mux/map";
+    nextScene.header.frame_id = "level_mux_map";
     return nextScene; 
 }
 

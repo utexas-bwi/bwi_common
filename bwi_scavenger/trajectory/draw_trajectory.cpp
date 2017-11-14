@@ -73,7 +73,7 @@ int main( int argc, char** argv )
     ros::Subscriber robot_pos_sub = nh.subscribe("/amcl_pose", 100, robot_callback); 
     ros::Subscriber human_pos_sub = nh.subscribe("/segbot_pcl_person_detector/human_poses", 100, human_callback); 
 
-    robot_line_strip.header.frame_id = human_line_strip.header.frame_id = "level_mux/map";
+    robot_line_strip.header.frame_id = human_line_strip.header.frame_id = "level_mux_map";
     robot_line_strip.header.stamp = human_line_strip.header.stamp = ros::Time::now();
     robot_line_strip.ns = human_line_strip.ns = "trajectory_namespace";
     robot_line_strip.action = human_line_strip.action = visualization_msgs::Marker::ADD;
@@ -97,7 +97,7 @@ int main( int argc, char** argv )
     // for adding text
     geometry_msgs::Vector3 vec; 
     vec.x = vec.y = vec.z = 1.0; 
-    text_view_facing.header.frame_id = "level_mux/map";
+    text_view_facing.header.frame_id = "level_mux_map";
     text_view_facing.header.stamp = ros::Time::now();
     text_view_facing.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     text_view_facing.ns = "trajectory_namespace";

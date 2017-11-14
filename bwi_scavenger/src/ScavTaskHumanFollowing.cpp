@@ -73,7 +73,7 @@ void ScavTaskHumanFollowing::callback_human_detected(const geometry_msgs::PoseSt
         // human_pose_candidate.pose.position = msg->pose.position;
 
         human_pose.pose.position = msg->pose.position;
-        human_pose.header.frame_id = "level_mux/map";
+        human_pose.header.frame_id = "level_mux_map";
         human_pose.header.stamp = msg->header.stamp;
         human_pose.pose.orientation.x = 0;
         human_pose.pose.orientation.y = 0;
