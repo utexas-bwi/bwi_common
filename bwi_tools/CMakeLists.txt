@@ -18,7 +18,7 @@ catkin_package(
     roslib
   DEPENDS 
     OpenCV
-    BOOST
+    Boost
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_json
 )
