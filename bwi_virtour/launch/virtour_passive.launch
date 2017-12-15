@@ -1,5 +1,6 @@
 <launch>
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"></include>
+  <include file="$(find audio_capture)/launch/capture.launch"></include>
   <node name="web_video_server" pkg="web_video_server" type="web_video_server">
     <param name="__image_transport" value="compressed" />
   </node>
