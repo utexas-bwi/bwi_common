@@ -351,7 +351,7 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
 
 string Clingo4_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
   stringstream goal;
-  goal << "#program volatile(" << incrementalVar << ")." << endl;
+  goal << "#program check(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
 
@@ -484,7 +484,7 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::A
 
   string cumulative_part = cumulativeString(cumulative,incrementalVar);
 
-  thequery << endl << "#program cumulative(" << incrementalVar << ")." << endl;
+  thequery << endl << "#program step(" << incrementalVar << ")." << endl;
   thequery << cumulative_part << endl;
 
   return genericQuery(thequery.str(),timeStep,timeStep,fileName,answerSetsNumber,true);
@@ -497,7 +497,7 @@ std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  monitorQuery << "#program cumulative(" << incrementalVar << ")." << endl;
+  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
 
 
   const AnswerSet::FluentSet &actionSet = plan.getFluents();

@@ -1,4 +1,4 @@
-#program cumulative(n).
+#program step(n).
 
 %action searchroom(P,R,I)  ask if person P is in room R
 inroom(P,R,I) :- searchroom(P,R,I), person(P), room(R), I>0, I=n-1.
@@ -22,7 +22,7 @@ inroom(P,R,I) :- searchroom(P,R,I), person(P), room(R), I>0, I=n-1.
 %:- searchroom(P,R,I), not findPersonTask(n), person(P), room(R), I>0, I=n-1.
 %:- askperson(P1,P2,I), not findPersonTask(n), person(P1), person(P2), I>0, I=n-1.
 
-#program cumulative(n).
+#program step(n).
 
 %inroom is inertial
 inroom(P,R,I) :- inroom(P,R,I-1), not -inroom(P,R,I), I>0, I=n-1.
