@@ -4,7 +4,9 @@
   <include file="$(find multi_level_map_server)/launch/example.launch" />
 
   <!-- Start the level mux -->
-  <node name="level_mux" pkg="multi_level_map_utils" type="level_mux" />
+  <node name="level_mux" pkg="multi_level_map_utils" type="level_mux">
+    <param name="default_current_level" value="level2"/>
+  </node>
 
   <!-- Start the level selector -->
   <node name="level_selector" pkg="multi_level_map_utils" type="level_selector" />

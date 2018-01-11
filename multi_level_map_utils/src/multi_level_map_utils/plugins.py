@@ -113,8 +113,10 @@ class LevelSelectorPlugin(Plugin):
             source.setChecked(True)
             return
 
-        # Construct a identity pose. The level selector cannot be used to choose the initialpose, as it does not have
-        # the interface for specifying the position. The position should be specified via rviz.
+        # Construct a identity pose. The level selector cannot be used
+        # to choose the initialpose, as it does not have the interface
+        # for specifying the position. The position should be
+        # specified via rviz.
         origin_pose = PoseWithCovarianceStamped()
         origin_pose.header.frame_id = frameIdFromLevelId(source.text())
         origin_pose.pose.pose.orientation.w = 1    # Makes the origin quaternion valid.
@@ -125,7 +127,8 @@ class LevelSelectorPlugin(Plugin):
         origin_pose.pose.covariance[28] = 1.0
         origin_pose.pose.covariance[35] = 1.0
 
-        # Don't actually publish the initial pose via the level selector. It doesn't know any better.
+        # Don't actually publish the initial pose via the level
+        # selector. It doesn't know any better.
         self.level_selector_proxy(source.text(), False, origin_pose)
 
     def clean(self):
@@ -138,4 +141,3 @@ class LevelSelectorPlugin(Plugin):
 
     def restore_settings(self, plugin_settings, instance_settings):
         pass
-

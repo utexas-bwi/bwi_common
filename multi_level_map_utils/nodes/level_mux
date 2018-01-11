@@ -75,21 +75,25 @@ class LevelMultiplexer:
 
         # Perform some sanity checks on the current_level
         if len(self.levels) == 1:
-            # If there is only one plevel, then change to that level without publishing initialpose.
+            # If there is only one level, then change to that level without
+            # publishing initialpose.
             req = ChangeCurrentLevelRequest()
             req.new_level_id = self.levels[0].level_id
             req.publish_initial_pose = False
             self.change_level(req)
         elif self.current_level is not None:
-            # This can only happen when the multimap changes from what it was previously. I'm not really sure if this
-            # will ever be possible, but let's perform some sanity checks here to make sure we don't get screwed.
+            # This can only happen when the multimap changes from what
+            # it was previously. I'm not really sure if this will ever
+            # be possible, but let's perform some sanity checks here
+            # to make sure we don't get screwed.
             current_level_found = False
             for level in self.levels:
                 if self.current_level == level.level_id:
                     current_level_found = True
                     break
             if not current_level_found:
-                # Of no! The multimap changed, and our current level is not longer available. Unregister everything!
+                # Oh no! The multimap changed, and our current level
+                # is not longer available. Unregister everything!
                 rospy.logerr("The multimap changed, and our selected current level " + self.current_level + " is no longer available. Navigation will probably not work properly!")
                 if self.level_publisher is not None:
                     self.level_publisher.unregister()
