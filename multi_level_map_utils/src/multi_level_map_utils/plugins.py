@@ -63,8 +63,7 @@ class LevelSelectorPlugin(Plugin):
         rospy.loginfo('level selector: map metadata received.')
         self.levels = msg.levels
         # update level buttons in the selection window
-        #self.button_signal.emit()
-        #self.update_buttons()
+        self.button_signal.click()
 
     def update_buttons(self):
         """ Update buttons in Qt window. """
@@ -108,7 +107,7 @@ class LevelSelectorPlugin(Plugin):
                 break
         if not level_found:
             self.current_level = None
-        #self.update_button_status_signal.emit()
+        self.button_status_signal.click()
 
     def handle_button(self):
         source = self.sender()
