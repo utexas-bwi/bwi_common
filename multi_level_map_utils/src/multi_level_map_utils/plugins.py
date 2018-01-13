@@ -33,17 +33,21 @@ class LevelSelectorPlugin(Plugin):
                                         + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-        button = QPushButton("update_buttons", self._widget)
-        button.clicked.connect(self.update_buttons)
-        button_status = QPushButton("update_button_status", self._widget)
-        button_status.clicked.connect(self.update_button_status)
+        self.button_signal = QPushButton("update_buttons", self._widget)
+        self.button_signal.clicked.connect(self.update_buttons)
+        self.button_signal.resize(self.button_signal.sizeHint())
+
+        self.button_status_signal = QPushButton("update_status", self._widget)
+        self.button_status_signal.clicked.connect(self.update_button_status)
+        self.button_status_signal.resize(self.button_status_signal.sizeHint())
+        self.button_status_signal.move(150, 0)
 
         # Subscribe to the multi level map data to get information about all the maps.
         self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData,
                                                     self.process_multimap)
         self.levels = []
         self.current_level = None
-        rospy.loginfo('subscribed to maps')
+        rospy.loginfo('level selector: subscribed to maps')
 
         # Subscribe to the current level we are on.
         self.status_subscriber = None
@@ -52,21 +56,21 @@ class LevelSelectorPlugin(Plugin):
         self.level_selector_proxy = rospy.ServiceProxy("level_mux/change_current_level",
                                                        ChangeCurrentLevel)
         self.level_selector_proxy.wait_for_service()
-        rospy.loginfo('found "level_mux/change_current_level" service')
+        rospy.loginfo('level selector: found "level_mux/change_current_level" service')
 
     def process_multimap(self, msg):
         """ Map metadata topic callback. """
         rospy.loginfo('level selector: map metadata received.')
         self.levels = msg.levels
         # update level buttons in the selection window
-        self.update_buttons()
+        #self.button_signal.emit()
+        #self.update_buttons()
 
     def update_buttons(self):
         """ Update buttons in Qt window. """
-        rospy.loginfo('update_buttons called')
+        rospy.loginfo('level selector: update_buttons called')
         self.clean()
         for index, level in enumerate(self.levels):
-            self.text_label.setText("Choose Level: ")
             button = QPushButton(level.level_id, self._widget)
             button.clicked[bool].connect(self.handle_button)
             button.setCheckable(True)
@@ -81,13 +85,13 @@ class LevelSelectorPlugin(Plugin):
 
     def update_button_status(self):
         """ Update button status Qt push button callback. """
-        rospy.loginfo('update_button_status called')
+        rospy.loginfo('level selector: update_button_status')
         if not self.buttons or not self.current_level:
+            rospy.logwarn('level selector: current level not available')
             return
-        rospy.loginfo('buttons: ' + str(self.buttons))
+        rospy.logdebug('buttons: ' + str(self.buttons))
         for index, level in enumerate(self.levels):
-            rospy.loginfo('current level: ' + str(self.current_level))
-            rospy.loginfo('level[' + str(index) + ']: ' + str(level))
+            rospy.logdebug('level[' + str(index) + ']: ' + str(level.level_id))
             if self.current_level == level.level_id:
                 self.buttons[index].setChecked(True)
             else:
@@ -95,7 +99,7 @@ class LevelSelectorPlugin(Plugin):
 
     def process_level_status(self, msg):
         """ level_mux/current_level topic callback. """
-        rospy.loginfo('current_level topic message received')
+        rospy.loginfo('level selector: current_level topic message received')
         level_found = False
         for level in self.levels:
             if msg.level_id == level.level_id:
