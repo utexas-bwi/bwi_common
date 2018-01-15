@@ -41,15 +41,16 @@ from bwi_msgs.srv import QuestionDialog, QuestionDialogResponse, \
                          QuestionDialogRequest
 from functools import partial
 from qt_gui.plugin import Plugin
-from python_qt_binding.QtGui import QFont, QGridLayout, QLabel, QLineEdit, \
-                                    QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
 import os
 import rospkg
 
 from geometry_msgs.msg import Twist
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, QTimer, SIGNAL, Slot
+from python_qt_binding.QtCore import Qt, QTimer, Slot
+from python_qt_binding.QtGui import QFont
+from python_qt_binding.QtWidgets import QGridLayout, QLabel, QLineEdit, QPushButton,\
+                                        QTextBrowser, QVBoxLayout, QWidget
 
 class QuestionDialogPlugin(Plugin):
 
@@ -86,8 +87,14 @@ class QuestionDialogPlugin(Plugin):
         self.text_label = None
         self.text_input = None
 
-        self.connect(self._widget, SIGNAL("update"), self.update)
-        self.connect(self._widget, SIGNAL("timeout"), self.timeout)
+        self.update_button = QPushButton("update", self._widget)
+        self.update_button.clicked.connect(self.update)
+        self.update_button.resize(self.update_button.sizeHint())
+
+        self.timeout_button = QPushButton("timeout", self._widget)
+        self.timeout_button.clicked.connect(self.timeout)
+        self.timeout_button.resize(self.timeout_button.sizeHint())
+        self.timeout_button.move(200, 0)
 
     def shutdown_plugin(self):
         self.service.shutdown()

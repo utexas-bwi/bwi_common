@@ -5,7 +5,7 @@ from multi_level_map_msgs.msg import LevelMetaData, MultiLevelMapData
 from multi_level_map_msgs.srv import ChangeCurrentLevel
 import rospy
 
-#from python_qt_binding.QtCore import pyqtSignal
+from python_qt_binding.QtGui import QFont
 from python_qt_binding.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
 
@@ -20,7 +20,7 @@ class LevelSelectorPlugin(Plugin):
 
         # Create QWidget
         self._widget = QWidget()
-        # self._widget.setFont(QFont("Times", 15, QFont.Bold))
+        self._widget.setFont(QFont("Times", 15, QFont.Bold))
         self._button_layout = QVBoxLayout(self._widget)
 
         self.buttons = []
