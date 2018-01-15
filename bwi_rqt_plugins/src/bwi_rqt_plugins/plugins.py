@@ -81,6 +81,7 @@ class QuestionDialogPlugin(Plugin):
         # Setup service provider
         self.service = rospy.Service('question_dialog', QuestionDialog,
                                      self.service_callback)
+        self.request = None
         self.response_ready = False
         self.response = None
         self.buttons = []
@@ -102,7 +103,7 @@ class QuestionDialogPlugin(Plugin):
     def service_callback(self, req):
         self.response_ready = False
         self.request = req
-        self._widget.emit(SIGNAL("update"))
+        self.update_button.click()
         # Start timer against wall clock here instead of the ros clock.
         start_time = time.time()
         while not self.response_ready:
@@ -112,7 +113,7 @@ class QuestionDialogPlugin(Plugin):
             if req.timeout != QuestionDialogRequest.NO_TIMEOUT:
                 current_time = time.time()
                 if current_time - start_time > req.timeout:
-                    self._widget.emit(SIGNAL("timeout"))
+                    self.timeout_button.click()
                     return QuestionDialogResponse(
                             QuestionDialogRequest.TIMED_OUT, "")
             time.sleep(0.2)
@@ -120,6 +121,9 @@ class QuestionDialogPlugin(Plugin):
 
     def update(self):
         self.clean()
+        if not self.request:
+            rospy.logwarn('question dialog: no request, update ignored')
+            return
         req = self.request
         self._text_browser.setText(req.message)
         if req.type == QuestionDialogRequest.DISPLAY:
