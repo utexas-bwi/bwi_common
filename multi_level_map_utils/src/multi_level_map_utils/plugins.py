@@ -5,6 +5,7 @@ from multi_level_map_msgs.msg import LevelMetaData, MultiLevelMapData
 from multi_level_map_msgs.srv import ChangeCurrentLevel
 import rospy
 
+from python_qt_binding.QtCore import pyqtSignal
 from python_qt_binding.QtGui import QFont
 from python_qt_binding.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
@@ -12,6 +13,9 @@ from qt_gui.plugin import Plugin
 from .utils import frameIdFromLevelId
 
 class LevelSelectorPlugin(Plugin):
+
+    button_signal = pyqtSignal()
+    button_status_signal = pyqtSignal()
 
     def __init__(self, context):
         super(LevelSelectorPlugin, self).__init__(context)
@@ -33,14 +37,8 @@ class LevelSelectorPlugin(Plugin):
                                         + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-        self.button_signal = QPushButton("update_buttons", self._widget)
-        self.button_signal.clicked.connect(self.update_buttons)
-        self.button_signal.resize(self.button_signal.sizeHint())
-
-        self.button_status_signal = QPushButton("update_status", self._widget)
-        self.button_status_signal.clicked.connect(self.update_button_status)
-        self.button_status_signal.resize(self.button_status_signal.sizeHint())
-        self.button_status_signal.move(150, 0)
+        self.button_signal.connect(self.update_buttons)
+        self.button_status_signal.connect(self.update_button_status)
 
         # Subscribe to the multi level map data to get information about all the maps.
         self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData,
@@ -63,7 +61,7 @@ class LevelSelectorPlugin(Plugin):
         rospy.loginfo('level selector: map metadata received.')
         self.levels = msg.levels
         # update level buttons in the selection window
-        self.button_signal.click()
+        self.button_signal.emit()
 
     def update_buttons(self):
         """ Update buttons in Qt window. """
@@ -107,7 +105,7 @@ class LevelSelectorPlugin(Plugin):
                 break
         if not level_found:
             self.current_level = None
-        self.button_status_signal.click()
+        self.button_status_signal.emit()
 
     def handle_button(self):
         source = self.sender()
