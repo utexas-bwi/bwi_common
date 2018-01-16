@@ -49,7 +49,11 @@ from geometry_msgs.msg import Twist
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import pyqtSignal, Qt, QTimer, Slot
 from python_qt_binding.QtGui import QFont
-from python_qt_binding.QtWidgets import QGridLayout, QLabel, QLineEdit, QPushButton,\
+try:
+    from python_qt_binding.QtWidgets import QGridLayout, QLabel, QLineEdit, QPushButton,\
+                                            QTextBrowser, QVBoxLayout, QWidget
+except ImportError:
+    from python_qt_binding.QtGui import QGridLayout, QLabel, QLineEdit, QPushButton,\
                                         QTextBrowser, QVBoxLayout, QWidget
 
 class QuestionDialogPlugin(Plugin):
