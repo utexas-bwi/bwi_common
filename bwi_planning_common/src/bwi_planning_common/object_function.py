@@ -3,12 +3,19 @@
 from functools import partial
 import math
 import os.path
-from python_qt_binding.QtCore import QPoint, QPointF, QRect, Qt
-from python_qt_binding.QtGui import QLabel, QLineEdit, QPainter, QPolygon, QPushButton
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight, transformPointToPixelCoordinates, transformPointToRealWorldCoordinates
+from python_qt_binding.QtCore import QPoint, QPointF, QRect, Qt
+from python_qt_binding.QtGui import QPainter, QPolygon
+try:
+    from python_qt_binding.QtGui import QLabel, QLineEdit, QPushButton
+except ImportError:
+    from python_qt_binding.QtWidgets import QLabel, QLineEdit, QPushButton
+
+from .utils import clearLayoutAndFixHeight, \
+                   transformPointToPixelCoordinates, \
+                   transformPointToRealWorldCoordinates
 
 class Object(object):
 
