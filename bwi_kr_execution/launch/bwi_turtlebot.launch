@@ -22,9 +22,7 @@
   </node>
 
   <!-- launch the question dialog gui -->
-  <!--
   <node name="gui" type="question_dialog_plugin" pkg="bwi_rqt_plugins" />
-  -->
 
   <!-- launch the sound play node -->
   <node name="soundplay" pkg="sound_play" type="soundplay_node.py" />

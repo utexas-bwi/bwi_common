@@ -33,9 +33,7 @@
   </node>
 
   <!-- launch the question dialog gui -->
-  <!--
   <node name="gui" pkg="bwi_rqt_plugins" type="question_dialog_plugin" />
-  -->
 
   <!-- launch the sound play node -->
   <node name="soundplay" pkg="sound_play" type="soundplay_node.py" />
