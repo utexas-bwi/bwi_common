@@ -18,7 +18,8 @@ add_message_files(
   FILES
     AnswerSet.msg
     AspFluent.msg
-    AspRule.msg)
+    AspRule.msg
+    HriMessage.msg)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -27,7 +28,8 @@ add_service_files(
     ComputePlan.srv
     CurrentStateQuery.srv
     IsPlanValid.srv
-    UpdateFluents.srv)
+    UpdateFluents.srv
+    GetHriMessage.srv)
 
 ## Generate actions in the 'action' folder
 add_action_files(FILES ExecutePlan.action)
@@ -73,6 +75,7 @@ target_link_libraries(kractions actasp)
 set(spexec_SRC)
 set(anyexec_SRC)
 set(lexec_SRC)
+set(xpexec_SRC)
 set(krreasoner_SRC)
 
 add_subdirectory(src)

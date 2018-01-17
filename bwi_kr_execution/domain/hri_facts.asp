@@ -2,47 +2,25 @@
 person(peter). 
 person(ray). 
 person(dana). 
-person(kazunori). 
-person(matteo). 
-person(shiqi). 
-person(jivko). 
+person(justin). 
+person(garrett).
 person(stacy).
-person(yuqian).
-person(max).
-person(pato).
-
-group(bwi).
-
-ingroup(peter,bwi).
-ingroup(matteo,bwi).
-ingroup(shiqi,bwi).
-ingroup(jivko,bwi).
-ingroup(yuqian,bwi).
-ingroup(pato,bwi).
-ingroup(max,bwi).
-
-meeting(bwi_m,bwi,l3_516).
 
 hasoffice(peter,l3_508). 
 hasoffice(ray,l3_512).
 hasoffice(dana,l3_510). 
-hasoffice(kazunori,l3_402). 
-hasoffice(matteo,l3_418).
-hasoffice(shiqi,l3_420).
-hasoffice(jivko,l3_432). 
+hasoffice(justin,l3_402). 
+hasoffice(garrett,l3_422).
 hasoffice(stacy,l3_502).
 
-%students in the lab
-hasoffice(yuqian,l3_414b).
-hasoffice(pato,l3_414b).
-hasoffice(max,l3_414b).
+object(O) :- locationmarker(P,O,0).
+inside(O,R) :- locationmarker(P,O,0), inroom(P,R,0).
+person(P) :- possiblelocation(P,R,0).
+possiblelocation(P,R) :- possiblelocation(P,R,0), room(R).
 
-canbeinroom(P,R) :- hasoffice(P,R), person(P), room(R).
-canbeinroom(P,l3_414b) :- ingroup(P,bwi).
+possiblelocation(P,R) :- hasoffice(P,R), person(P), room(R).
 
-canknow(P1,P2) :- ingroup(P1,G), ingroup(P2,G), P1 != P2, group(G).
+possiblelocation(P) :- possiblelocation(P,R).
+%:- possiblelocation(P,R,0), not room(R).
 
-canknow(P2,P1) :- canknow(P1,P2).
-
-meeting(M,G,R) :- meeting(M,G,R). %here for when not using meetings
 
