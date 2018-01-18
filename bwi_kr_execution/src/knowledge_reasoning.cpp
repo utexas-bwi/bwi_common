@@ -93,6 +93,7 @@ int main(int argc, char **argv) {
 
   delete reasoner;
   delete generator;
+  boost::filesystem::remove_all(queryDirectory);
 
   return 0;
 }

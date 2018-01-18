@@ -182,6 +182,7 @@ int main(int argc, char**argv) {
 
   ros::spin();
 
+  boost::filesystem::remove_all(queryDirectory);
   
   return 0;
 }
