@@ -78,6 +78,8 @@ void ReplanningActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalR
   this->goalRules = goalRules;
 
   computePlan();
+
+  failedActionCount = 0;
 }
 
 
@@ -103,8 +105,7 @@ void ReplanningActionExecutor::executeActionStep() {
     //destroy the action and pop a new one
 
     for_each(executionObservers.begin(),executionObservers.end(),NotifyActionTermination(current->toFluent(actionCounter++)));
-
-    delete current;
+    
     plan.pop_front();
 
     newAction = true;
@@ -113,6 +114,15 @@ void ReplanningActionExecutor::executeActionStep() {
 
     if (plan.empty() || !kr->isPlanValid(planToAnswerSet(plan),goalRules)) {
 
+      if (current->hasFailed()) {
+        failedActionCount++;
+      }
+
+      if (failedActionCount == 3) {
+        std::cout << "FAILED TOO MANY TIMES. Aborting goal." << std::endl;
+        hasFailed = true;
+      }
+
       std::cout << "PLAN VERIFICATION FAILED. Starting plan recomputation." << std::endl;
 
       //if not valid, replan
@@ -120,8 +130,13 @@ void ReplanningActionExecutor::executeActionStep() {
       plan.clear();
 
       computePlan();
-
+      
     }
+    else {
+      failedActionCount = 0;
+    }
+
+    delete current;
 
   }
 
