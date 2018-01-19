@@ -1,0 +1,5 @@
+bwi_msgs/WeekTime time
+string current_location
+---
+bool ask_question
+string location
