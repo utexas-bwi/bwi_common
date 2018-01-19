@@ -22,6 +22,7 @@ add_message_files(
     LEDTestType.msg
     StopBaseStatus.msg
     ScavStatus.msg
+    WeekTime.msg
 )
 
 add_service_files(
@@ -43,6 +44,8 @@ add_service_files(
     ScavHunt.srv
     Trigger.srv
     UploadImage.srv
+    ActionUpdate.srv
+    LocationAction.srv
 )
 
 add_action_files(
