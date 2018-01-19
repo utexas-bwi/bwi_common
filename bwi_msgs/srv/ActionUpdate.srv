@@ -1,0 +1,10 @@
+int32 QUESTION_ANSWERED = 0
+int32 QUESTION_DENIED = 1
+int32 QUESTION_TIMEOUT = 2
+int32 ARRIVED = 3
+int32 ARRIVAL_FAILURE = 4
+
+bwi_msgs/WeekTime time
+string current_location
+int32 result
+---
