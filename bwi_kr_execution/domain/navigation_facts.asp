@@ -133,11 +133,8 @@ room(l1_800).
 door(d4_828).
 door(d4_710a2).
 door(d4_710a1).
-door(d4_elev_south).
 door(d4_600).
 door(d4_100).
-door(d4_elev_west).
-door(d4_elev_east).
 door(d4_500).
 door(d4_414a2).
 door(d4_400).
@@ -227,7 +224,7 @@ hasdoor(l4_516,d4_516a).
 hasdoor(l4_414a,d4_414a2). 
 hasdoor(l4_500,d4_414a2). 
 
-hasdoor(l4_414,d4_414a1). 
+hasdoor(l4_414a,d4_414a1). 
 hasdoor(l4_400,d4_414a1). 
 
 hasdoor(l4_500,d4_500). 
@@ -595,7 +592,17 @@ inside(o3_514_tablea, l3_514).
 object(o3_514_tableb).
 inside(o3_514_tableb, l3_514). 
 
+badDoor(d3_414a3).
+badDoor(d3_414b3).
 
-badDoor(d3_418).
-badDoor(d3_414b1).
-badDoor(d3_414b2).
+object(checkpoint_1).
+inside(checkpoint_1, l3_302).
+
+object(checkpoint_2).
+inside(checkpoint_2, l3_302).
+
+object(checkpoint_3).
+inside(checkpoint_3, l3_400).
+
+object(checkpoint_4).
+inside(checkpoint_4, l3_400).

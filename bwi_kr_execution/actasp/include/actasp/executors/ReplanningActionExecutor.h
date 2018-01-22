@@ -55,6 +55,7 @@ private:
 	std::list<Action *> plan;
   unsigned int actionCounter;
   bool newAction;
+  bool failedActionCount;
 	
 	AspKR* kr;
 	Planner *planner;

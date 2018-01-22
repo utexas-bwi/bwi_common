@@ -3,7 +3,7 @@
 #define bwi_krexec_OpenDoor_h__guard
 
 #include "actasp/Action.h"
-
+#include "LogicalNavigation.h"
 #include <ros/ros.h>
 
 #include <string>
@@ -38,6 +38,8 @@ private:
  bool open;
  bool failed;
  ros::Time startTime;
+
+ LogicalNavigation* senseDoor;
  
 };
 

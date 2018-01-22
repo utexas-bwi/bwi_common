@@ -33,14 +33,14 @@ void OpenDoor::run() {
     askToOpen.run();
     asked = true;
     startTime = ros::Time::now();
+    vector<string> params;
+    params.push_back(door);
+    senseDoor = new LogicalNavigation ("sensedoor",params);
   }
   
   if(!open) {
-    vector<string> params;
-    params.push_back(door);
-    LogicalNavigation senseDoor("sensedoor",params);
-   
-    senseDoor.run();
+
+    senseDoor->run();
     
     //check if door is open
     ros::NodeHandle n;

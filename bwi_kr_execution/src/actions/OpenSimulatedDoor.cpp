@@ -34,13 +34,13 @@ void OpenSimulatedDoor::run() {
     doorClient.call(dhi);
 
     requestSent = true;
+
+    vector<string> params;
+    params.push_back(door);
+    senseDoor = new LogicalNavigation ("sensedoor",params);
   }
 
-  vector<string> params;
-  params.push_back(door);
-  LogicalNavigation senseDoor("sensedoor",params);
-
-  senseDoor.run();
+  senseDoor->run();
 
   ros::ServiceClient currentClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ("current_state_query");
   bwi_kr_execution::AspFluent openFluent;

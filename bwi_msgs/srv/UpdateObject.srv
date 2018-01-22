@@ -1,0 +1,8 @@
+int32 UPDATE = 0
+int32 REMOVE = 1
+
+string object_name
+geometry_msgs/Pose pose
+int32 type
+---
+bool success

@@ -240,9 +240,8 @@ acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 object(something).
 inside(O, R1) :- inside(O, R1).
 
-badDoor(d3_418).
-badDoor(d3_414b1).
-badDoor(d3_414b2).
+badDoor(d3_414b3).
+badDoor(d3_414b3).
 
 %hide non fluents
 

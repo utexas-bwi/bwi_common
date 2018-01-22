@@ -3,6 +3,7 @@
 #define bwi_krexec_OpenSimulatedDoor_h__guard
 
 #include "actasp/Action.h"
+#include "LogicalNavigation.h"
 
 #include <string>
 
@@ -31,6 +32,8 @@ private:
  std::string door;
  bool done;
  bool requestSent;
+
+ LogicalNavigation* senseDoor;
  
 };
 

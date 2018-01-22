@@ -1,41 +1,41 @@
-
-#ifndef bwi_krexec_SearchRoom_h__guard
-#define bwi_krexec_SearchRoom_h__guard
+#ifndef bwi_krexec_DeliverMessage_h__guard
+#define bwi_krexec_DeliverMessage_h__guard
 
 #include "actasp/Action.h"
 
 #include <ros/ros.h>
 
 #include <sound_play/SoundRequest.h>
+#include <bwi_kr_execution/HriMessage.h>
 
 #include <string>
 
 namespace bwi_krexec {
 
-class SearchRoom : public actasp::Action{
+class DeliverMessage : public actasp::Action{
 public:
-  SearchRoom();
+  DeliverMessage();
 
   int paramNumber() const {return 2;}
   
-  std::string getName() const {return "searchroom";}
+  std::string getName() const {return "delivermessage";}
   
   void run();
   
   bool hasFinished() const {return done;}
   
-  bool hasFailed() const {return failed;}
-  
   actasp::Action *cloneAndInit(const actasp::AspFluent & fluent) const;
   
-  virtual actasp::Action *clone() const {return new SearchRoom(*this);}
+  virtual actasp::Action *clone() const {return new DeliverMessage(*this);}
   
 private:
   
  std::vector<std::string> getParameters() const;
  std::string person;
- std::string room;
- bool done,failed;
+ std::string message_id;
+ bwi_kr_execution::HriMessage message;
+ 
+ bool done;
  
 };
 
