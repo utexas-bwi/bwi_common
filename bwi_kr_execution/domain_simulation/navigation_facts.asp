@@ -237,8 +237,10 @@ acc(R1,R2) :- acc(R2,R1), room(R1), room(R2).
 acc(R1,R2) :- acc(R1,R3), acc(R2,R3), room(R1), room(R2), room(R3).
 
 % Prevent warnings if not objects are present in environment.
-object(something).
-inside(O, R1) :- inside(O, R1).
+object(o3_500_printer).
+object(o3_410_desk).
+inside(o3_500_printer, l3_500).
+object(o3_410_desk, l3_410).
 
 badDoor(d3_414b3).
 badDoor(d3_414b3).

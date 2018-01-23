@@ -46,6 +46,7 @@ add_service_files(
     ScavHunt.srv
     Trigger.srv
     UploadImage.srv
+    UpdateObject.srv
 )
 
 add_action_files(

@@ -31,6 +31,7 @@ ReplanningActionExecutor::ReplanningActionExecutor(actasp::AspKR* reasoner,
   plan(),
   actionCounter(0),
   newAction(true),
+  failedActionCount(0),
   kr(reasoner),
   planner(planner),
   executionObservers(){
@@ -115,21 +116,22 @@ void ReplanningActionExecutor::executeActionStep() {
     if (plan.empty() || !kr->isPlanValid(planToAnswerSet(plan),goalRules)) {
 
       if (current->hasFailed()) {
-        failedActionCount++;
+        ++failedActionCount;
       }
 
-      if (failedActionCount == 3) {
+      if (failedActionCount >= 3) {
         std::cout << "FAILED TOO MANY TIMES. Aborting goal." << std::endl;
         hasFailed = true;
       }
+      else {
+        std::cout << "PLAN VERIFICATION FAILED. Starting plan recomputation." << std::endl;
 
-      std::cout << "PLAN VERIFICATION FAILED. Starting plan recomputation." << std::endl;
+        //if not valid, replan
+        for_each(plan.begin(),plan.end(),ActionDeleter());
+        plan.clear();
 
-      //if not valid, replan
-      for_each(plan.begin(),plan.end(),ActionDeleter());
-      plan.clear();
-
-      computePlan();
+        computePlan();
+      }
       
     }
     else {
