@@ -13,14 +13,23 @@ hasoffice(justin,l3_402).
 hasoffice(garrett,l3_422).
 hasoffice(stacy,l3_502).
 
-object(O) :- locationmarker(P,O,0).
-inside(O,R) :- locationmarker(P,O,0), inroom(P,R,0).
-person(P) :- possiblelocation(P,R,0).
-possiblelocation(P,R) :- possiblelocation(P,R,0), room(R).
+caninside(P,R) :- hasoffice(P,R), person(P), room(R).
 
-possiblelocation(P,R) :- hasoffice(P,R), person(P), room(R).
+%object(O) :- locationmarker(P,O,0).
+%inside(O,R) :- locationmarker(P,O,0), inroom(P,R,0).
+%person(P) :- possiblelocation(P,R,0).
+%possiblelocation(P,R) :- possiblelocation(P,R,0), room(R).
+%possiblelocation(P) :- possiblelocation(P,R).
 
-possiblelocation(P) :- possiblelocation(P,R).
-%:- possiblelocation(P,R,0), not room(R).
+object(O) :- object(O,0).
+inside(O,R) :- inside(O,R,0).
+person(P) :- person(P,0).
+caninside(P,R) :- caninside(P,R,0).
+canbeside(P,O) :- canbeside(P,O,0).
 
+canlookfor(P) :- caninside(P,R).
 
+%get rid of warning
+person(P,0) :- person(P,0).
+caninside(P,R,0) :- caninside(P,R,0).
+canbeside(P,O,0) :- canbeside(P,O,0).

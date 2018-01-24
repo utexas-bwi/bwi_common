@@ -237,6 +237,11 @@ bool updateLookingFor(string target) {
   lookingfor.variables.push_back(target);
   uf.request.fluents.push_back(lookingfor);
 
+  bwi_kr_execution::AspFluent person;
+  person.name = "person";
+  person.variables.push_back(target);
+  uf.request.fluents.push_back(person);
+
   updateClient.call(uf);
 
   return uf.response.consistent;
@@ -252,7 +257,7 @@ bool updateLocations(string target, string locations) {
 
   while (end != string::npos) {
     bwi_kr_execution::AspFluent location;
-    location.name = "possiblelocation";
+    location.name = "caninside";
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start, end-start));
     ROS_INFO_STREAM(locations.substr(start, end-start));
@@ -264,7 +269,7 @@ bool updateLocations(string target, string locations) {
 
   if (start != string::npos) {
     bwi_kr_execution::AspFluent location;
-    location.name = "possiblelocation";
+    location.name = "caninside";
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start));
     ROS_INFO_STREAM(locations.substr(start));
@@ -375,17 +380,27 @@ bool updateRequesterInfo(string requester, string message_id) {
 
   bwi_kr_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent inroom;
-  inroom.name = "inroom";
-  inroom.variables.push_back(requester);
-  inroom.variables.push_back(location);
-  uf.request.fluents.push_back(inroom);
+  bwi_kr_execution::AspFluent person;
+  person.name = "person";
+  person.variables.push_back(requester);
+  uf.request.fluents.push_back(person);
 
-  bwi_kr_execution::AspFluent locationmarker;
-  locationmarker.name = "locationmarker";
-  locationmarker.variables.push_back(requester);
-  locationmarker.variables.push_back("o_" + requester);
-  uf.request.fluents.push_back(locationmarker);
+  bwi_kr_execution::AspFluent caninside;
+  caninside.name = "caninside";
+  caninside.variables.push_back(requester);
+  caninside.variables.push_back(location);
+  uf.request.fluents.push_back(caninside);
+
+  bwi_kr_execution::AspFluent object;
+  object.name = "object";
+  object.variables.push_back("o_" + requester);
+  uf.request.fluents.push_back(object);
+
+  bwi_kr_execution::AspFluent canbeside;
+  canbeside.name = "canbeside";
+  canbeside.variables.push_back(requester);
+  canbeside.variables.push_back("o_" + requester);
+  uf.request.fluents.push_back(canbeside);
 
   updateClient.call(uf);
 

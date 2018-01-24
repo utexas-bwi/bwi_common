@@ -1,4 +1,4 @@
-#include "SearchRoom.h"
+#include "SearchPerson.h"
 
 #include "ActionFactory.h"
 
@@ -20,7 +20,7 @@ using namespace std;
 
 namespace bwi_krexec {
 
-SearchRoom::SearchRoom() : 
+SearchPerson::SearchPerson() : 
             person(),
             room(),
             done(false),
@@ -28,7 +28,7 @@ SearchRoom::SearchRoom() :
             }
 
   
-void SearchRoom::run() {
+void SearchPerson::run() {
 
   person[0] = toupper(person[0]);
 
@@ -69,10 +69,10 @@ void SearchRoom::run() {
   options.push_back("yes");
   options.push_back("no");
 
-  CallGUI searchRoom("searchRoom", CallGUI::CHOICE_QUESTION,  "Is " + person + " in the room " + room + "?", 60.0, options);
-  searchRoom.run();
+  CallGUI SearchPerson("searchPerson", CallGUI::CHOICE_QUESTION,  "Is " + person + " in the room " + room + "?", 60.0, options);
+  SearchPerson.run();
 
-  int response = searchRoom.getResponseIndex();
+  int response = SearchPerson.getResponseIndex();
 
   if (response >= 0) {
     CallGUI thank("thank", CallGUI::DISPLAY,  "Thank you!");
@@ -90,7 +90,7 @@ void SearchRoom::run() {
   fluent.variables.push_back(person);
   fluent.variables.push_back(room);
 
-  fluent.name = ((response == 0) ? "inroom" : "-inroom");
+  fluent.name = ((response == 0) ? "inside" : "-inside");
 
   uf.request.fluents.push_back(fluent);
   krClient.call(uf);
@@ -99,15 +99,15 @@ void SearchRoom::run() {
 
 }  
   
-actasp::Action* SearchRoom::cloneAndInit(const actasp::AspFluent& fluent) const {
-  SearchRoom *newAction = new SearchRoom();
+actasp::Action* SearchPerson::cloneAndInit(const actasp::AspFluent& fluent) const {
+  SearchPerson *newAction = new SearchPerson();
   newAction->person = fluent.getParameters().at(0);
   newAction->room = fluent.getParameters().at(1);
   
   return newAction;
 }
 
-std::vector<std::string> SearchRoom::getParameters() const {
+std::vector<std::string> SearchPerson::getParameters() const {
   vector<string> param;
   param.push_back(person);
   param.push_back(room);
@@ -115,6 +115,6 @@ std::vector<std::string> SearchRoom::getParameters() const {
 }
 
 
-ActionFactory SearchRoomFactory(new SearchRoom());
+ActionFactory SearchPersonFactory(new SearchPerson());
   
 }

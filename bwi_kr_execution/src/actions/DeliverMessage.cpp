@@ -107,7 +107,7 @@ void DeliverMessage::run() {
     }
     else {
       bwi_kr_execution::AspFluent not_inroom;
-      not_inroom.name = "-inroom";
+      not_inroom.name = "-inside";
       not_inroom.variables.push_back(person);
       not_inroom.variables.push_back(atIt->variables[0]);
       uf.request.fluents.push_back(not_inroom);
