@@ -18,6 +18,7 @@
   <exec_depend>bwi_joystick_teleop</exec_depend>
   <exec_depend>bwi_kr_execution</exec_depend>
   <exec_depend>bwi_logging</exec_depend>
+  <exec_depend>bwi_logical_translator</exec_depend>
   <exec_depend>bwi_mapper</exec_depend>
   <exec_depend>bwi_msgs</exec_depend>
   <exec_depend>bwi_planning_common</exec_depend>
