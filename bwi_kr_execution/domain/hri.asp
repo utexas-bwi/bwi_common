@@ -108,7 +108,6 @@ messagedelivered(P,M,I) :- messagedelivered(P,M,I-1), not -messagedelivered(P,M,
 #show messagedelivered/3.
 #show near/3.
 #show caninside/3.
-#show caninside/2.
 #show canbeside/3.
 #show busy/2.
 #show object/2.

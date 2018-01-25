@@ -251,25 +251,25 @@ bool updateLocations(string target, string locations) {
   transform(target.begin(), target.end(), target.begin(), ::tolower);
   bwi_kr_execution::UpdateFluents uf;
 
-  size_t start = locations.find("l");
+  size_t start = locations.find_first_of("lo");
   size_t end = locations.find(";");
   if (start == string::npos) return false;
 
   while (end != string::npos) {
     bwi_kr_execution::AspFluent location;
-    location.name = "caninside";
+    location.name = ((locations[start] == 'l') ? "caninside" : "canbeside");
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start, end-start));
     ROS_INFO_STREAM(locations.substr(start, end-start));
     uf.request.fluents.push_back(location);
 
-    start = locations.find("l", end);
+    start = locations.find("lo", end);
     end = locations.find(";", start);
   }
 
   if (start != string::npos) {
     bwi_kr_execution::AspFluent location;
-    location.name = "caninside";
+    location.name = ((locations[start] == 'l') ? "caninside" : "canbeside");
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start));
     ROS_INFO_STREAM(locations.substr(start));
@@ -321,8 +321,8 @@ bool validateTarget(string target) {
     if (!askYesNoQuestion(question, 10.0, canSuggest)) return false;
 
     while (canSuggest == 0) {
-      question = "syntax: l[floor]_[room number];\n";
-      question += "e.g. l3_414a; l3_414b";
+      question = "syntax: l[floor]_[room number]; o[floor]_[room_number]_[object_name]; ...\n";
+      question += "e.g. l3_414a; l3_414b; o3_500_printer";
 
       string locations;
       if (!askTextQuestion(question, 20.0, locations)) return false;
