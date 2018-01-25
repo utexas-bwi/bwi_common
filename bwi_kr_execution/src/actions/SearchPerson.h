@@ -16,7 +16,7 @@ class SearchPerson : public actasp::Action{
 public:
   SearchPerson();
 
-  int paramNumber() const {return 2;}
+  int paramNumber() const {return 3;}
   
   std::string getName() const {return "searchperson";}
   
@@ -35,6 +35,7 @@ private:
  std::vector<std::string> getParameters() const;
  std::string person;
  std::string room;
+ std::string object;
  bool done,failed;
  
 };

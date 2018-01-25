@@ -522,7 +522,7 @@ int main(int argc, char**argv) {
 
   while (ros::ok()) {
 
-    if (!isDialogBusy) {
+    if (!isActive) {
 
       bwi_msgs::QuestionDialog initial = getInitialPage();
       if (guiClient.call(initial)) {

@@ -23,6 +23,7 @@ namespace bwi_krexec {
 SearchPerson::SearchPerson() : 
             person(),
             room(),
+            object(),
             done(false),
             failed(false){
             }
@@ -69,7 +70,7 @@ void SearchPerson::run() {
   options.push_back("yes");
   options.push_back("no");
 
-  CallGUI SearchPerson("searchPerson", CallGUI::CHOICE_QUESTION,  "Is " + person + " in the room " + room + "?", 60.0, options);
+  CallGUI SearchPerson("searchPerson", CallGUI::CHOICE_QUESTION,  "Is " + person + " here " + "?", 60.0, options);
   SearchPerson.run();
 
   int response = SearchPerson.getResponseIndex();
@@ -83,16 +84,26 @@ void SearchPerson::run() {
   ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();
 
-  bwi_kr_execution::UpdateFluents uf;
-  bwi_kr_execution::AspFluent fluent;
-  fluent.timeStep = 0;
   person[0] = tolower(person[0]);
-  fluent.variables.push_back(person);
-  fluent.variables.push_back(room);
 
-  fluent.name = ((response == 0) ? "inside" : "-inside");
+  bwi_kr_execution::UpdateFluents uf;
 
-  uf.request.fluents.push_back(fluent);
+  bwi_kr_execution::AspFluent inside;
+  inside.timeStep = 0;
+  inside.variables.push_back(person);
+  inside.variables.push_back(room);
+  inside.name = ((response == 0) ? "inside" : "-inside");
+  uf.request.fluents.push_back(inside);
+
+  if (object[0] == 'o') {
+    bwi_kr_execution::AspFluent near;
+    near.timeStep = 0;
+    near.variables.push_back(person);
+    near.variables.push_back(object);
+    near.name = ((response == 0) ? "near" : "-near");
+    uf.request.fluents.push_back(near);
+  }
+  
   krClient.call(uf);
 
   done = true;
@@ -103,6 +114,7 @@ actasp::Action* SearchPerson::cloneAndInit(const actasp::AspFluent& fluent) cons
   SearchPerson *newAction = new SearchPerson();
   newAction->person = fluent.getParameters().at(0);
   newAction->room = fluent.getParameters().at(1);
+  newAction->object = fluent.getParameters().at(2);
   
   return newAction;
 }
@@ -111,6 +123,7 @@ std::vector<std::string> SearchPerson::getParameters() const {
   vector<string> param;
   param.push_back(person);
   param.push_back(room);
+  param.push_back(object);
   return param;
 }
 

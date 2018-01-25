@@ -13,13 +13,16 @@ accessgranted(D,I) :- knock(D,I), I>0, I=n-1.
 %:- knock(D,I), 0{hasdoor(R,D):hasoffice(P,R)}0.
 :- knock(D,I), -accessgranted(D,I-1).
 
-%action searchperson(P,R,I)  ask if person P is in room R
-inside(P,R,I) :- searchperson(P,R,I), I>0, I=n-1.
-:- searchperson(P,R,I), not at(R,I-1), I>0, I=n-1.
-:- searchperson(P,R,I), -inside(P,R,I-1), I>0, I=n-1.
-:- searchperson(P,R,I), not caninside(P,R), person(P), room(R), I>0, I=n-1.
+%action searchperson(P,R,O,I)  ask if person P is in room R
+inside(P,R,I) :- searchperson(P,R,O,I), I>0, I=n-1.
+near(P,O,I) :- searchperson(P,R,O,I), I>0, I=n-1.
+:- searchperson(P,R,O,I), not at(R,I-1), I>0, I=n-1.
+:- searchperson(P,R,O,I), -inside(P,R,I-1), I>0, I=n-1.
+:- searchperson(P,R,O,I), not caninside(P,R), person(P), room(R), I>0, I=n-1.
+:- searchperson(P,R,O,I), not canbeside(P,O), person(P), object(O), I>0, I=n-1.
+:- searchperson(P,R,O,I), not beside(O,I-1), I>0, I=n-1.
 %can only bother bwi people
-%:- searchperson(P,R,I), not ingroup(P,bwi), hasoffice(P,R), person(P), I>0, I=n-1.
+%:- searchperson(P,R,O,I), not ingroup(P,bwi), hasoffice(P,R), person(P), I>0, I=n-1.
 
 %action delivermessage(P,M,I) deliver message M to person P
 messagedelivered(P,M,I) :- delivermessage(P,M,I), I>0, I=n-1.
@@ -38,6 +41,7 @@ busy(P,I) :- inside(P,R,I), -accessgranted(D,I), hasdoor(R,D), hasoffice(P,R).
 -alldoorsclosed(R,I) :- not -open(D,I), not badDoor(D), not -accessgranted(D,I), hasdoor(R,D), I>0, I=n-1.
 -found(P,R,I) :- not -alldoorsclosed(R,I), hasdoor(R,D1), not busy(P,I), not at(R,I), caninside(P,R), I>0, I=n-1.
 -found(P,R,I) :- -inside(P,R,I), I>0, I=n-1.
+-found(P,O,I) :- -near(P,O,I), I>0, I=n-1.
 %found if inside is true for a room
 found(P,I) :- inside(P,R,I), room(R), I>0, I=n-1.
 %-found if -found in all possible rooms
@@ -104,6 +108,7 @@ messagedelivered(P,M,I) :- messagedelivered(P,M,I-1), not -messagedelivered(P,M,
 #show messagedelivered/3.
 #show near/3.
 #show caninside/3.
+#show caninside/2.
 #show canbeside/3.
 #show busy/2.
 #show object/2.

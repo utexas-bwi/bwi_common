@@ -594,15 +594,3 @@ inside(o3_514_tableb, l3_514).
 
 badDoor(d3_414a3).
 badDoor(d3_414b3).
-
-object(checkpoint_1).
-inside(checkpoint_1, l3_302).
-
-object(checkpoint_2).
-inside(checkpoint_2, l3_302).
-
-object(checkpoint_3).
-inside(checkpoint_3, l3_400).
-
-object(checkpoint_4).
-inside(checkpoint_4, l3_400).

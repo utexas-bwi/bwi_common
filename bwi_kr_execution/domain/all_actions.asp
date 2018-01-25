@@ -8,7 +8,8 @@ goto(O,I) : object(O);
 callelevator(E,U,I) : elevator(E) , orientation(U); 
 changefloor(R,I) : room(R);
 knock(D,I) : door(D);
-searchperson(P,R,I): person(P), room(R);
+searchperson(P,R,O,I): person(P), room(R), object(O);
+searchperson(P,R,D,I): person(P), room(R), door(D);
 delivermessage(P,M,I): message(P,M,I)
 }1 :- not noop(I), I>0, I=n-1.
 
@@ -21,5 +22,5 @@ noop(I) :- noop(I), I>0, I=n-1.
 #show callelevator/3.
 #show changefloor/2.
 #show knock/2.
-#show searchperson/3.
+#show searchperson/4.
 #show delivermessage/3.
