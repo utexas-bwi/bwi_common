@@ -260,7 +260,6 @@ bool updateLocations(string target, string locations) {
     location.name = ((locations[start] == 'l') ? "caninside" : "canbeside");
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start, end-start));
-    ROS_INFO_STREAM(locations.substr(start, end-start));
     uf.request.fluents.push_back(location);
 
     start = locations.find("lo", end);
@@ -296,17 +295,6 @@ bool validateTarget(string target) {
     return true;
   }
   else {
-    string question = "I do not know where " + target + " is. \n";
-    question += "Do you want me to look for " + target + " ?";
-
-    int lookFor;
-
-    if (!askYesNoQuestion(question, 10.0, lookFor)) return false;
-
-    if (lookFor == 1) {
-      displayMessage("Okay. Have a nice day!", 5.0);
-      return false;
-    }
 
     ROS_INFO_STREAM("I will look for " + target);
 
@@ -315,7 +303,8 @@ bool validateTarget(string target) {
     }
 
     // target is not modeled in the domain. ask for user help
-    question = "Can you suggest possible location(s) for " + target + "? \n";
+    string question = "I do not know where " + target + " is. \n";
+    question += "Can you suggest possible location(s) for " + target + "? \n";
 
     int canSuggest; 
     if (!askYesNoQuestion(question, 10.0, canSuggest)) return false;
@@ -395,6 +384,12 @@ bool updateRequesterInfo(string requester, string message_id) {
   object.name = "object";
   object.variables.push_back("o_" + requester);
   uf.request.fluents.push_back(object);
+
+  bwi_kr_execution::AspFluent inside;
+  inside.name = "inside";
+  inside.variables.push_back("o_" + requester);
+  inside.variables.push_back(location);
+  uf.request.fluents.push_back(inside);
 
   bwi_kr_execution::AspFluent canbeside;
   canbeside.name = "canbeside";

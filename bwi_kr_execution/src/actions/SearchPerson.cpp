@@ -59,7 +59,7 @@ void SearchPerson::run() {
   if (at) {
 
     std::stringstream ss;
-    ss << "Is " << person << " in the room?";
+    ss << "Is " << person << " here?";
 
     bwi_services::SpeakMessage message_srv;
     message_srv.request.message = ss.str();

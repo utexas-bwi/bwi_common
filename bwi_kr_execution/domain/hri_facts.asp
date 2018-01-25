@@ -28,6 +28,3 @@ canlookfor(P) :- caninside(P,R).
 person(P,0) :- person(P,0).
 caninside(P,R,0) :- caninside(P,R,0).
 canbeside(P,O,0) :- canbeside(P,O,0).
-
-%person(yuqian).
-%canbeside(yuqian, o3_410_desk).
