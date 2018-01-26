@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<package>
+  <name>bwi_moveit_utils</name>
+  <version>0.1.0</version>
+  <description>The moveit_utils package</description>
+  <maintainer email="maxsvetlik@utexas.edu">Maxwell Svetlik</maintainer>
+  <license>BSD</license>
+  <author email="maxsvetlik@utexas.edu">Maxwell Svetlik</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>bwi_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>kinova_msgs</build_depend>
+  <build_depend>bwi_msgs</build_depend>  
+  <build_depend>moveit_ros_perception</build_depend>
+  <build_depend>moveit_ros_planning</build_depend>
+  <build_depend>moveit_ros_warehouse</build_depend>
+  <build_depend>moveit_ros_benchmarks</build_depend>
+  <build_depend>moveit_ros_robot_interaction</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>moveit_ros_visualization</build_depend>
+  <build_depend>moveit_ros_manipulation</build_depend>
+  <build_depend>moveit_ros_move_group</build_depend>
+  <build_depend>moveit_planners_ompl</build_depend>
+  <build_depend>moveit_setup_assistant</build_depend>
+  <build_depend>moveit_commander</build_depend>
+  <build_depend>moveit_simple_controller_manager</build_depend>
+  <build_depend>moveit_fake_controller_manager</build_depend>
+  <build_depend>moveit_ros_control_interface</build_depend>
+ 
+  
+  
+  <run_depend>bwi_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+  <export>
+  </export>
+</package>
