@@ -158,16 +158,14 @@ function createSegbots() {
   log("Pinging dns server");
   $.getJSON(server, function(data) {
     $.each(data, function(key, val) {
-        createIfHasVirtour(key,val,ROSBRIDGEPORT)
+        createIfHasVirtour(key,val,ROSBRIDGEPORT,Object.keys(data).length)
     });
-    if (numOfFailedSegbots == Object.keys(data).length) {
-      $(".available_robots").html("<h3>No robots available at this time</h3>");
-    }
+    
   }).error(function(err) { error("Failed to ping DNS server"); });
 }
 
 
-function createIfHasVirtour(name, ipaddr, rosbridgeport) {
+function createIfHasVirtour(name, ipaddr, rosbridgeport, totalSegbotsNum) {
   log("Checking Rosbridge existance for " + name + " on url " +  ipaddr + " : " + rosbridgeport);
   var testRos  = new ROSLIB.Ros({
     url : 'ws://' + ipaddr + ':' + rosbridgeport
@@ -183,6 +181,9 @@ function createIfHasVirtour(name, ipaddr, rosbridgeport) {
   testRos.on('error', function(err) {
     log('Virtour is not running on host.\''+name + '\'');
     numOfFailedSegbots++;
+    if (numOfFailedSegbots == totalSegbotsNum) {
+      $(".available_robots").html("<h3>No robots available at this time</h3>");
+    }
   });
 }
 
