@@ -12,6 +12,7 @@ var VIDEO_QUALITY = 30;
 
 // Globals
 var segbots = {};
+var numOfFailedSegbots = 0;
 var identity = null;
 var leader = false;
 var segbot = null;
@@ -156,16 +157,35 @@ function createSegbots() {
   }
   log("Pinging dns server");
   $.getJSON(server, function(data) {
-    var available = false;
     $.each(data, function(key, val) {
-      segbots[key] = createSegbot(key, val, ROSBRIDGEPORT, MJPEGSERVERPORT);
-      available = true;
+        createIfHasVirtour(key,val,ROSBRIDGEPORT)
     });
-    if (!available) {
+    if (numOfFailedSegbots == Object.keys(data).length) {
       $(".available_robots").html("<h3>No robots available at this time</h3>");
     }
   }).error(function(err) { error("Failed to ping DNS server"); });
 }
+
+
+function createIfHasVirtour(name, ipaddr, rosbridgeport) {
+  log("Checking Rosbridge existance for " + name + " on url " +  ipaddr + " : " + rosbridgeport);
+  var testRos  = new ROSLIB.Ros({
+    url : 'ws://' + ipaddr + ':' + rosbridgeport
+  });
+  
+  testRos.on('connection', function() { 
+    log('Virtour is running on host.\''+name + '\'');
+    segbots[name] = createSegbot(name, ipaddr, ROSBRIDGEPORT, MJPEGSERVERPORT);
+    available = true;
+    testRos.close();
+  });
+  
+  testRos.on('error', function(err) {
+    log('Virtour is not running on host.\''+name + '\'');
+    numOfFailedSegbots++;
+  });
+}
+
 
 function createSegbot(name, ipaddr, rosbridgeport, mjpegserverport) {
   var bot = Object.create(Segbot);
@@ -182,7 +202,12 @@ function createSegbot(name, ipaddr, rosbridgeport, mjpegserverport) {
   var rf = '<div class="col-md-3">';
   var rm = '<div class="robot module ' + color + '" robot="' + name + '">';
   //var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
-  var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
+  if (imageExists('./image/' + name + '.jpg')) {
+    var im = '<img class="img-circle" src="./image/' + name + '.jpg"/>';
+  } else {
+    var im = '<img class="img-circle" src="./image/irobot.jpg"/>';
+  }
+
   var nm = '<h2>' + name + '</h2>';
   var ed = '</div>';
 
@@ -191,6 +216,13 @@ function createSegbot(name, ipaddr, rosbridgeport, mjpegserverport) {
   $(".robot_links").append(robotdiv);
 
   return bot;
+}
+
+function imageExists(imageUrl){
+  var http = new XMLHttpRequest();
+  http.open('HEAD', imageUrl, false);
+  http.send();
+  return http.status != 404;
 }
 
 function SegBotConnection(ipaddr, rosbridgeport, mjpegserverport) {
@@ -875,7 +907,7 @@ $(".robots").on("click", ".robot", function() {
      //$(".controllingIframe").append("<source id=\"mp3Source\" type=\"audio/mp3\"></source>");
      //$(".controllingIframe").append("</audio>");
      //audio = document.querySelector('audio');
-     $(".controllingIframe").append("<audio id=\"mp3Source\"></audio>");
+     $(".controllingIframe").append("<audio id=\"mp3Source\" controls=\"controls\"></audio>");
      audio = document.getElementById('mp3Source');
      
      window.MediaSource = window.MediaSource || window.WebKitMediaSource;
@@ -885,7 +917,7 @@ $(".robots").on("click", ".robot", function() {
      
      mediaSource.addEventListener('sourceopen', onSourceOpen, false);
      mediaSource.addEventListener('webkitsourceopen', onSourceOpen, false);
-
+     
   } else {
     alert("Bummer. Your browser doesn't support the MediaSource API or the TextEncoder feature! Cannot stream audio.");
   }
