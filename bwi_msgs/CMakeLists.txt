@@ -22,17 +22,20 @@ add_message_files(
     LEDTestType.msg
     StopBaseStatus.msg
     ScavStatus.msg
+    WeekTime.msg
 )
 
 add_service_files(
   DIRECTORY srv
   FILES
+    ActionUpdate.srv
     DoorHandlerInterface.srv
     GetNextImage.srv
     ImageQuestion.srv
     LEDClear.srv
     LEDSetCamera.srv
     LEDTestStrip.srv
+    LocationAction.srv
     NextLocation.srv
     QuestionDialog.srv
     ResolveChangeFloor.srv
@@ -43,6 +46,8 @@ add_service_files(
     ScavHunt.srv
     Trigger.srv
     UploadImage.srv
+    ActionUpdate.srv
+    LocationAction.srv
 )
 
 add_action_files(

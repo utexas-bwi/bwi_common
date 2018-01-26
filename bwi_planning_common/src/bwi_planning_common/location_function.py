@@ -2,12 +2,18 @@
 
 from functools import partial
 import os.path
-from python_qt_binding.QtCore import QPoint, QSize, Qt
-from python_qt_binding.QtGui import QImage, QLabel, QLineEdit, QPainter, QPolygon, QPushButton, QColor
 import rospy
 import yaml
 
-from .utils import clearLayoutAndFixHeight, getLocationsImageFileLocationFromDataDirectory, scalePoint, scalePolygon
+from python_qt_binding.QtCore import QPoint, QSize, Qt
+from python_qt_binding.QtGui import QColor, QImage, QPainter, QPolygon
+try:                                    # attempt to import from Qt4 modules
+    from python_qt_binding.QtGui import QLabel, QLineEdit, QPushButton
+except ImportError:                     # else use Qt5 modules
+    from python_qt_binding.QtWidgets import QLabel, QLineEdit, QPushButton
+
+from .utils import clearLayoutAndFixHeight, getLocationsImageFileLocationFromDataDirectory, \
+                   scalePoint, scalePolygon
 
 class LocationFunction(object):
 

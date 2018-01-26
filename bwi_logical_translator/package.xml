@@ -1,0 +1,40 @@
+<package format="2">
+  <name>bwi_logical_translator</name>
+  <version>0.3.5</version>
+  <description>
+    High-level navigation application used by robots of the
+    Building-Wide Intelligence project at UT Austin for approaching
+    doors and going through them. This package also provides tools to
+    determine the robot's logical location, and sense when a door in
+    front of it is open or not.
+  </description>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/bwi_logical_translator</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
+
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+  <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+  <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>actionlib</depend>
+  <depend>bwi_mapper</depend>
+  <depend>bwi_msgs</depend>
+  <depend>bwi_planning_common</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>map_msgs</depend>
+  <depend>message_filters</depend>
+  <depend>move_base_msgs</depend>
+  <depend>multi_level_map_msgs</depend>
+  <depend>multi_level_map_utils</depend>
+  <depend>nav_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>tf</depend>
+
+  <exec_depend>utexas_gdc</exec_depend>
+
+</package>

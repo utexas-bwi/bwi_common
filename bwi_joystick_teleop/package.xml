@@ -11,8 +11,8 @@
   <license>BSD</license>
   
   <url type="website">http://wiki.ros.org/bwi_joystick_teleop</url>
-  <url type="repository">https://github.com/utexas-bwi/segbot.git</url>
-  <url type="bugtracker">https://github.com/utexas-bwi/segbot/issues</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common.git</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
  
   <buildtool_depend>catkin</buildtool_depend>
 

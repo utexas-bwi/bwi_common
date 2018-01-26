@@ -2,8 +2,14 @@
 
 from bwi_tools import getImageFileLocationFromMapFile as getImageFileLocation, loadMapFromFile
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QFrame, QHBoxLayout, QImage, QLabel, QMessageBox, QPainter, QPushButton, \
-                                    QVBoxLayout, QWidget
+from python_qt_binding.QtGui import QImage, QPainter
+try:                                    # attempt to import from Qt4 modules
+    from python_qt_binding.QtGui import QFrame, QHBoxLayout, QLabel, QMessageBox, \
+                                        QPushButton, QVBoxLayout, QWidget
+except ImportError:                     # else use Qt5 modules
+    from python_qt_binding.QtWidgets import QFrame, QHBoxLayout, QLabel, QMessageBox, \
+                                            QPushButton, QVBoxLayout, QWidget
+
 from qt_gui.plugin import Plugin
 
 from .location_function import LocationFunction
