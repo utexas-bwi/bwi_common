@@ -12,7 +12,7 @@
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/PartialPolicyExecutor.h"
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo.h>
 
 #include "actions/ActionFactory.h"
 #include "actions/LogicalNavigation.h"
@@ -251,7 +251,7 @@ int main(int argc, char**argv) {
 
   boost::filesystem::create_directories(queryDirectory);
   
-  FilteringQueryGenerator *generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
+  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
   FilteringKR *reasoner = new RemoteReasoner(generator,MAX_N,actionMapToSet(ActionFactory::actions()));
 
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);

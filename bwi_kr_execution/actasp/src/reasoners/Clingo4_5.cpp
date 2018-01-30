@@ -1,4 +1,4 @@
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo4_5.h>
 
 #include <actasp/AspRule.h>
 #include <actasp/AnswerSet.h>
@@ -13,15 +13,13 @@
 #include <iostream>
 #include <limits>
 
-#include <ros/ros.h>
-
 #define CURRENT_STATE_FILE std::string("/tmp/current.asp")
 
 using namespace std;
 
 namespace actasp {
 
-Clingo4_2::Clingo4_2(const std::string& incrementalVar,
+Clingo4_5::Clingo4_5(const std::string& incrementalVar,
                       const std::string& queryDir,
                       const std::string& domainDir,
                       const ActionSet& allActions,
@@ -55,7 +53,7 @@ Clingo4_2::Clingo4_2(const std::string& incrementalVar,
   currentFile.close();
 }
 
-Clingo4_2::Clingo4_2(const std::string& incrementalVar,
+Clingo4_5::Clingo4_5(const std::string& incrementalVar,
                      const std::string& queryDir,
                      const std::string& domainDir,
                      const ActionSet& allActions,
@@ -113,7 +111,7 @@ struct RuleToString4_2 {
         ruleStream << rule.head[i].toString();
 
       if (i < (size-1))
-        ruleStream << " | ";
+        ruleStream << ", ";
     }
 
     if (!(rule.body.empty()))
@@ -127,7 +125,7 @@ struct RuleToString4_2 {
         ruleStream << rule.body[i].toString();
 
       if (i < (size-1))
-        ruleStream << ", ";
+        ruleStream << "| ";
     }
 
     if (!(rule.head.empty() && rule.body.empty()))
@@ -351,9 +349,9 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
   return optimalAnswer;
 }
 
-string Clingo4_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
+string Clingo4_5::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
   stringstream goal;
-  goal << "#program check(" << incrementalVar << ")." << endl;
+  goal << "#program volatile(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
 
@@ -380,7 +378,7 @@ static list<AnswerSet> filterPlans(const list<AnswerSet> unfiltered_plans, const
   return plans;
 }
 
-std::list<actasp::AnswerSet> Clingo4_2::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
+std::list<actasp::AnswerSet> Clingo4_5::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int  max_plan_length,
     unsigned int answerset_number) const throw() {
@@ -407,7 +405,7 @@ struct MaxTimeStepLessThan4_2 {
   unsigned int initialTimeStep;
 };
 
-std::list<actasp::AnswerSet> Clingo4_2::lengthRangePlanQuery(const std::vector<actasp::AspRule>& goalRules,
+std::list<actasp::AnswerSet> Clingo4_5::lengthRangePlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int min_plan_length,
     unsigned int  max_plan_length,
@@ -431,7 +429,7 @@ std::list<actasp::AnswerSet> Clingo4_2::lengthRangePlanQuery(const std::vector<a
 
 }
 
-actasp::AnswerSet Clingo4_2::optimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
+actasp::AnswerSet Clingo4_5::optimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int  max_plan_length,
     unsigned int answerset_number,
@@ -452,7 +450,7 @@ actasp::AnswerSet Clingo4_2::optimalPlanQuery(const std::vector<actasp::AspRule>
     return optimalPlan;
 }
 
-AnswerSet Clingo4_2::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+AnswerSet Clingo4_5::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
   list<AnswerSet> sets = genericQuery(aspString(query,0),0,0,"stateQuery",1,true);
 
   return (sets.empty())? AnswerSet() : *(sets.begin());
@@ -469,7 +467,7 @@ struct HasTimeStepZeroInHead4_2 : unary_function<const AspRule&,bool> {
   }
 };
 
-std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::AspRule>& query,
+std::list<actasp::AnswerSet> Clingo4_5::genericQuery(const std::vector<actasp::AspRule>& query,
     unsigned int timeStep,
     const std::string& fileName,
     unsigned int answerSetsNumber) const throw() {
@@ -486,20 +484,20 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::A
 
   string cumulative_part = cumulativeString(cumulative,incrementalVar);
 
-  thequery << endl << "#program step(" << incrementalVar << ")." << endl;
+  thequery << endl << "#program cumulative(" << incrementalVar << ")." << endl;
   thequery << cumulative_part << endl;
 
   return genericQuery(thequery.str(),timeStep,timeStep,fileName,answerSetsNumber,true);
 
 }
 
-std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules,
+std::string Clingo4_5::generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules,
     const AnswerSet& plan) const throw() {
    string planQuery = generatePlanQuery(goalRules);
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
+  monitorQuery << "#program cumulative(" << incrementalVar << ")." << endl;
 
 
   const AnswerSet::FluentSet &actionSet = plan.getFluents();
@@ -519,7 +517,7 @@ std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
   return monitorQuery.str();
 }
 
-std::list<actasp::AnswerSet> Clingo4_2::monitorQuery(const std::vector<actasp::AspRule>& goalRules,
+std::list<actasp::AnswerSet> Clingo4_5::monitorQuery(const std::vector<actasp::AspRule>& goalRules,
     const AnswerSet& plan) const throw() {
 
   //   clock_t kr1_begin = clock();
@@ -536,7 +534,7 @@ std::list<actasp::AnswerSet> Clingo4_2::monitorQuery(const std::vector<actasp::A
   return result;
 }
 
-std::string Clingo4_2::makeQuery(const std::string& query,
+std::string Clingo4_5::makeQuery(const std::string& query,
                                  unsigned int initialTimeStep,
                                  unsigned int finalTimeStep,
                                  const std::string& fileName,
@@ -569,11 +567,12 @@ std::string Clingo4_2::makeQuery(const std::string& query,
 //   if ( finalTimeStep > initialTimeStep ) //when max and initial are the same, we do not want max
     iterations << " -cimax=" << finalTimeStep;
 
-  commandLine << "clingo " << iterations.str() << " " << domainDir << "*.asp " << queryPath << " ";
+  commandLine << "clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp ";
   if(useCurrentState)
     commandLine<< (currentFilePath);
   
   commandLine << " > " << outputFilePath << " " << answerSetsNumber;
+
 
   if (!system(commandLine.str().c_str())) {
     //maybe do something here, or just kill the warning about the return value not being used.
@@ -582,7 +581,7 @@ std::string Clingo4_2::makeQuery(const std::string& query,
   return outputFilePath;
 }
 
-std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::string& query,
+std::list<actasp::AnswerSet> Clingo4_5::genericQuery(const std::string& query,
     unsigned int initialTimeStep,
     unsigned int finalTimeStep,
     const std::string& fileName,
@@ -596,7 +595,7 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::string& query,
   return allAnswers;
 }
 
-std::list< std::list<AspAtom> > Clingo4_2::genericQuery(const std::string& query,
+std::list< std::list<AspAtom> > Clingo4_5::genericQuery(const std::string& query,
     unsigned int timestep,
     const std::string& fileName,
     unsigned int answerSetsNumber) const throw() {
@@ -639,7 +638,7 @@ std::list< std::list<AspAtom> > Clingo4_2::genericQuery(const std::string& query
 
 }
 
-void Clingo4_2::setCurrentState(const std::set<actasp::AspFluent>& newState) {
+void Clingo4_5::setCurrentState(const std::set<actasp::AspFluent>& newState) {
 
   //copy the current state in a file
   ofstream currentFile((currentFilePath).c_str());
@@ -652,7 +651,7 @@ void Clingo4_2::setCurrentState(const std::set<actasp::AspFluent>& newState) {
 
 }
 
-std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentState, const AnswerSet& plan,const std::vector<actasp::AspRule>& goals) {
+std::list<actasp::AnswerSet> Clingo4_5::filteringQuery(const AnswerSet& currentState, const AnswerSet& plan,const std::vector<actasp::AspRule>& goals) {
 
   //generate a string with all the fluents "0{fluent}1."
   //and add the minimize statement ( eg: :~ pos(x,y,z), ... . [1@1] )
