@@ -1,0 +1,13 @@
+# if you want to override the default z filter
+bool override_filter_z
+float32 filter_z_value
+
+# if you want to apply an x filter (i.e., side to side)
+bool apply_x_box_filter
+float32 x_min
+float32 x_max
+---
+bool is_plane_found
+sensor_msgs/PointCloud2 cloud_plane
+float32[4] cloud_plane_coef
+sensor_msgs/PointCloud2[] cloud_clusters

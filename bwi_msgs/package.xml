@@ -9,8 +9,8 @@
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/bwi_msgs</url>
-  <url type="repository">https://github.com/utexas-bwi/segbot_apps</url>
-  <url type="bugtracker">https://github.com/utexas-bwi/segbot_apps/issues</url>
+  <url type="repository">https://github.com/utexas-bwi/bwi_common</url>
+  <url type="bugtracker">https://github.com/utexas-bwi/bwi_common/issues</url>
 
   <author email="piyushk@gmail.com">Piyush Khandelwal</author>
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>

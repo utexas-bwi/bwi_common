@@ -14,20 +14,23 @@ import tf
 class LevelMultiplexer:
 
     def __init__(self):
+        """ Constructor. """
 
         rospy.init_node("map_mux")
 
-        self.global_frame_id = rospy.get_param('~global_frame_id', 'level_mux/map')
+        self.global_frame_id = rospy.get_param('~global_frame_id', 'level_mux_map')
         self.default_current_level = rospy.get_param('~default_current_level', None)
 
         # Subcribe to the multi level map data to get information about all the maps.
-        self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData, self.process_multimap)
         self.multimap_available = False
+        self.multimap_subscriber = rospy.Subscriber("map_metadata", MultiLevelMapData, self.process_multimap)
         multimap_topic_name = rospy.resolve_name("map_metadata")
+        rospy.loginfo('level_mux: multimap topic name is ' + str(multimap_topic_name))
         if '/' in multimap_topic_name:
             self.multimap_topic_prefix = multimap_topic_name[0:multimap_topic_name.rfind('/') + 1]
         else:
             self.multimap_topic_prefix = ""
+        rospy.loginfo('level_mux: multimap topic prefix is ' + str(self.multimap_topic_prefix))
 
         # We also need to publish information about the current level.
         self.current_level = None
@@ -44,6 +47,7 @@ class LevelMultiplexer:
         self.change_level_service = None
 
     def process_multimap(self, msg):
+        """ Callback for messages received on map metadata topic. """
 
         # Get information about all the levels.
         self.levels = msg.levels
@@ -65,26 +69,31 @@ class LevelMultiplexer:
         # If the service to change the level hasn't been advertised, then advertise it now.
         if self.change_level_service is None:
             self.change_level_service = rospy.Service('~change_current_level', ChangeCurrentLevel, self.change_level)
+            rospy.loginfo('level_mux: change level service defined.')
 
         self.multimap_available = True
 
         # Perform some sanity checks on the current_level
         if len(self.levels) == 1:
-            # If there is only one level, then change to that level without publishing initialpose.
+            # If there is only one level, then change to that level without
+            # publishing initialpose.
             req = ChangeCurrentLevelRequest()
             req.new_level_id = self.levels[0].level_id
             req.publish_initial_pose = False
             self.change_level(req)
         elif self.current_level is not None:
-            # This can only happen when the multimap changes from what it was previously. I'm not really sure if this
-            # will ever be possible, but let's perform some sanity checks here to make sure we don't get screwed.
+            # This can only happen when the multimap changes from what
+            # it was previously. I'm not really sure if this will ever
+            # be possible, but let's perform some sanity checks here
+            # to make sure we don't get screwed.
             current_level_found = False
             for level in self.levels:
                 if self.current_level == level.level_id:
                     current_level_found = True
                     break
             if not current_level_found:
-                # Of no! The multimap changed, and our current level is not longer available. Unregister everything!
+                # Oh no! The multimap changed, and our current level
+                # is not longer available. Unregister everything!
                 rospy.logerr("The multimap changed, and our selected current level " + self.current_level + " is no longer available. Navigation will probably not work properly!")
                 if self.level_publisher is not None:
                     self.level_publisher.unregister()
@@ -97,7 +106,10 @@ class LevelMultiplexer:
                     self.initialpose_publisher = None
                 self.current_level = None
 
-        # Perform some sanity checks on the current_level
+        rospy.loginfo('level_mux: multimap metadata available, current level is '
+                      + str(self.current_level))
+
+        # Perform some sanity checks on the default current_level
         if self.default_current_level is not None and self.current_level is None:
             default_level_found = False
             for level in self.levels:
@@ -113,6 +125,8 @@ class LevelMultiplexer:
                 rospy.logwarn("Default level requested as " + self.default_current_level + ", but unavailable in multimap.")
 
     def change_level(self, req):
+        """ Change level ROS service request handler. """
+        ###rospy.loginfo('level_mux: change level request:\n' + str(req))
         success = True
         error_message = ""
 
@@ -124,16 +138,17 @@ class LevelMultiplexer:
 
                 # Make this the current level
                 self.current_level = level.level_id
+                rospy.loginfo('level_mux: new level is ' + str(req.new_level_id))
 
                 # Initialize the mux output channels if they have not been initialized.
                 if self.level_publisher is None:
                     self.level_publisher = rospy.Publisher("~map", OccupancyGrid, latch=True, queue_size=1)
                     self.level_metadata_publisher = rospy.Publisher("~map_metadata", MapMetaData, latch=True, queue_size=1)
                     self.level_map_service = rospy.Service('~static_map', GetMap, self.process_level_service)
-                    # Note that initialpose is not latched, as the publication is only valid when the 
+                    # Note that initialpose is not latched, as the publication is only valid when the
                     # change_current_level service is called. Soon after, the robot may have moved, and this estimate
                     # is incorrect.
-                    self.initialpose_publisher = rospy.Publisher("initialpose", PoseWithCovarianceStamped, queue_size=1) 
+                    self.initialpose_publisher = rospy.Publisher("initialpose", PoseWithCovarianceStamped, queue_size=1)
                     self.set_map = rospy.ServiceProxy("set_map", SetMap)
                     try:
                         clear_costmap_service = rospy.ServiceProxy('move_base/clear_costmaps', Empty)
@@ -151,13 +166,14 @@ class LevelMultiplexer:
                 # Publish latched map messages
                 self.level_metadata_publisher.publish(self.maps[self.current_level].map.info)
                 self.level_publisher.publish(self.maps[self.current_level].map)
+                rospy.loginfo('level_mux: published map for ' + str(self.current_level))
 
                 if req.publish_initial_pose:
-                    try: 
+                    try:
                         self.set_map(self.maps[self.current_level].map, req.initial_pose)
                     except rospy.ServiceException:
                         # Service does not exist, level_mux being used without move_base OR a configuration snafu
-                        rospy.logwarn("MultiLevelMap - Multiplexer::changeLevel: " + 
+                        rospy.logwarn("MultiLevelMap - Multiplexer::changeLevel: " +
                                       "Couldn't set initial pose via service call. Trying unlatched publication.")
                         self.initialpose_publisher.publish(req.initial_pose)
                 self.status_publisher.publish(level)

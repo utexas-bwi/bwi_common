@@ -1,0 +1,20 @@
+<launch>
+
+	<!-- launch tabletop detection service -->
+	<node name="table_object_detection_node" pkg="bwi_perception" type="table_object_detection_node" output="screen">
+	</node>
+	
+	
+	<!-- launch change detection service -->
+	<node name="table_change_detection_node" pkg="bwi_perception" type="table_change_detection_node" output="screen">
+	</node>
+	
+	<!-- launch node for computing features from point clouds -->
+	<node name="pointcloud_feature_server" pkg="bwi_perception" type="pointcloud_feature_server" output="screen">
+	</node>
+	
+	<!-- launch node used to set obstacles for arm motion planning -->
+	<node name="obstacle_cloud_manager" pkg="bwi_perception" type="obstacle_cloud_manager" output="screen">
+	</node>
+
+</launch>

@@ -28,7 +28,7 @@ class MapServer:
             self.multimap_topic_prefix = ""
 
         #get parameters
-        self.global_frame_id = rospy.get_param('~global_frame_id', '/map')
+        self.global_frame_id = rospy.get_param('~global_frame_id', 'map')
         self.publish_rate = rospy.get_param('~publish_rate', 5)
         try:
 

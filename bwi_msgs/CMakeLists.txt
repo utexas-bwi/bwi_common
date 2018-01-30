@@ -47,6 +47,8 @@ add_service_files(
     Trigger.srv
     UploadImage.srv
     UpdateObject.srv
+    ActionUpdate.srv
+    LocationAction.srv
 )
 
 add_action_files(

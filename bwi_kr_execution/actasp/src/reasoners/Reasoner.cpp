@@ -69,7 +69,7 @@ bool Reasoner::updateFluents(const std::vector<actasp::AspFluent> &observations)
   
   obsRules.push_back(noopRule);
 
-  list<AnswerSet> currentState = clingo->genericQuery(obsRules,1,"observationQuery",1);
+  list<AnswerSet> currentState = clingo->genericQuery(obsRules,2,"observationQuery",1);
 
   if (currentState.empty())
     return false; //the observations are incompatible with the current state and are discarded

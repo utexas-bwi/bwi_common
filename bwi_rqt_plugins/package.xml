@@ -3,9 +3,9 @@
   <name>bwi_rqt_plugins</name>
   <version>0.3.12</version>
   <description>
-    Displays a simple GUI to the user. The GUI is capable of displaying a simple
-    message or image to the user, and ask a question. The message and question
-    plugins are also written in this package.
+    These are some rqt plugins written in Python.  One provides a
+    simple GUI capable of displaying messages to the user, or
+    questions and answers.
   </description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
@@ -22,12 +22,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>bwi_msgs</depend>
-  <depend>class_loader</depend>
-  <depend>cv_bridge</depend>
-  <depend>image_transport</depend>
   <depend>rqt_gui</depend>
-  <depend>rqt_gui_cpp</depend>
-  <depend>sensor_msgs</depend>
 
   <exec_depend>python_qt_binding</exec_depend>
   <exec_depend>qt_gui</exec_depend>
@@ -36,7 +31,6 @@
 
   <export>
     <rqt_gui plugin="${prefix}/python_plugins.xml"/>
-    <rqt_gui plugin="${prefix}/cpp_plugins.xml"/>
   </export>
 
 </package>

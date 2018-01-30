@@ -3,7 +3,7 @@
 
 #include "actasp/reasoners/Reasoner.h"
 #include <actasp/QueryGenerator.h>
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo.h>
 #include "actasp/action_utils.h"
 
 #include "msgs_utils.h"
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 
   boost::filesystem::create_directories(queryDirectory);
 
-  QueryGenerator* generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  QueryGenerator* generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
   reasoner = new Reasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
   reasoner->resetCurrentState();
 

@@ -1,17 +1,11 @@
 <launch>
 
- <arg name="simulation" default="false" />
- <arg name="domain" default="$(find bwi_kr_execution)/domain_dialog/" />
- <arg name="executor" default="learning_executor_node" />
+  <!-- invoke bwi_kr_execution.launch with different arg defaults. -->
+  <arg name="simulation" default="false" />
+  <arg name="domain" default="$(find bwi_kr_execution)/domain_dialog/" />
+  <arg name="executor" default="learning_executor_node" />
  
- <param name="/bwi_kr_execution/domain_directory" type="str" value="$(arg domain)" />
- 
-<node name="bwi_kr" pkg="bwi_kr_execution" type="knowledge_reasoning_node">
-  <param name="simulation" type="bool" value="$(arg simulation)" />
-</node>
-
-<node name="action_executor" pkg="bwi_kr_execution" type="$(arg executor)">
-  <param name="simulation" type="bool" value="$(arg simulation)" />
-</node>
+  <include file="$(find bwi_kr_execution)/launch/bwi_kr_execution.launch"
+           pass_all_args="true" />
 
 </launch>
