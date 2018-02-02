@@ -1,0 +1,8 @@
+- git:
+    local-name: bwi_common
+    uri: https://github.com/utexas-bwi/bwi_common.git
+    version: kinetic
+- git:
+    local-name: kinova-ros
+    uri: https://github.com/utexas-bwi/kinova-ros.git
+    version: kinetic
