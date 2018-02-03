@@ -196,4 +196,19 @@ namespace bwi_perception {
 		
 		return largest_pc_index;
 	}
+
+    bwi_perception::TabletopPerception::Response getTabletopScene(ros::NodeHandle n) {
+
+        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::TabletopPerception>(
+                "tabletop_object_detection_service");
+
+        bwi_perception::TabletopPerception srv;
+        if (client_tabletop_perception.call(srv)) {
+            return srv.response;
+        } else {
+            ROS_ERROR("Failed to call service tabletop_object_detection_service");
+            return srv.response;
+        }
+    }
+
 }
