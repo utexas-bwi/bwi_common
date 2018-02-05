@@ -6,13 +6,8 @@
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit_msgs/AttachedCollisionObject.h>
-#include <moveit_msgs/CollisionObject.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
-#include <control_msgs/FollowJointTrajectoryGoal.h>
 #include <actionlib/client/simple_action_client.h>
-#include "ros/ros.h"
-#include "geometry_msgs/PoseStamped.h"
 #include "bwi_moveit_utils/MicoMoveitCartesianPose.h"
 
 bool g_caught_sigint = false;
@@ -55,7 +50,7 @@ bool service_cb(bwi_moveit_utils::MicoMoveitCartesianPose::Request &req, bwi_mov
 }
 
 int main(int argc, char **argv){
-    ros::init(argc, argv, "mico_moveit_cartesianpose_service");
+    ros::init(argc, argv, "mico_moveit_cartesian_pose_service");
     ros::NodeHandle nh;
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -63,9 +58,9 @@ int main(int argc, char **argv){
     group = new moveit::planning_interface::MoveGroupInterface("arm");
     group->setGoalTolerance(0.01);
     group->setPoseReferenceFrame("m1n6s200_end_effector");
-    ros::ServiceServer srv = nh.advertiseService("mico_cartesianpose_service", service_cb);
+    ros::ServiceServer srv = nh.advertiseService("mico_cartesian_pose_service", service_cb);
 
-    pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/mico_cartesianpose_service/target_pose", 1, true);
+    pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/mico_cartesian_pose_service/target_pose", 1, true);
 
     ros::spin();
     return 0;

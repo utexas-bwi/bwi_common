@@ -26,22 +26,6 @@
 using namespace boost::assign;
 
 
-/*
-Safe q_poses for navigation
-
-joint1: 16.2132263184
-joint2: 179.944854736
-joint3: 83.7132339478
-joint4: 327.477294922
-joint5: 99.8863830566
-joint6: 337.704528809
-
-
-name: ['m1n6s200_joint_1', 'm1n6s200_joint_2', 'm1n6s200_joint_3', 'm1n6s200_joint_4', 'm1n6s200_joint_5', 'm1n6s200_joint_6', 'm1n6s200_joint_finger_1', 'm1n6s200_joint_finger_2']
-position: [-1.4918714173616245, -1.8046833895251533, -0.12993722748162864, -2.1717450183580356, 0.5688181856434458, 2.6786835908090505, -0.0008399999999999999, 0.0]
-
-*/
-
 
 bool debug = true;
 bool g_caught_sigint = false;
