@@ -4,4 +4,9 @@ geometry_msgs/Pose pose
 int64 timeout
 string question
 ---
+int32 SUCCESSFUL_ANSWER=0
+int32 TIMEOUT=1
+int32 CANCELLED=2
+
 string[] answers
+int32 end_reason
