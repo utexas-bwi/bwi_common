@@ -17,7 +17,7 @@ find_package(catkin REQUIRED
     COMPONENTS
         actionlib
         actionlib_msgs
-        bwi_kr_execution
+        plan_execution
         bwi_msgs
         cv_bridge
         image_transport
@@ -36,7 +36,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 catkin_package(
     CATKIN_DEPENDS 
         actionlib_msgs
-        bwi_kr_execution
+        plan_execution
         bwi_msgs
         message_runtime
         move_base_msgs

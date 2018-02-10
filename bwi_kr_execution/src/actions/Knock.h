@@ -5,8 +5,6 @@
 
 #include <ros/ros.h>
 
-#include <sound_play/SoundRequest.h>
-
 #include <string>
 
 namespace bwi_krexec {

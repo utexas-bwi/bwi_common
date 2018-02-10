@@ -5,7 +5,7 @@
  */ 
 
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
 
@@ -13,7 +13,7 @@
 
 #include <bwi_msgs/QuestionDialog.h>
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
@@ -69,10 +69,10 @@ int main(int argc, char**argv) {
 
     ROS_INFO_STREAM("going to " << location);
 
-    bwi_kr_execution::ExecutePlanGoal goal;
+    plan_execution::ExecutePlanGoal goal;
 
-    bwi_kr_execution::AspRule rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::AspRule rule;
+    plan_execution::AspFluent fluent;
     fluent.name = "not facing";
 
     fluent.variables.push_back(location);

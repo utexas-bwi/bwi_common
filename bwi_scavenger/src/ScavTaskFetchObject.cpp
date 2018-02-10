@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "ScavTaskFetchObject.h"
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 #include "bwi_msgs/QuestionDialog.h"
 
 std::string path_to_text; 
@@ -97,7 +97,7 @@ void ScavTaskFetchObject::hriThread() {
     gui_service_client->call(srv);
     room_name_to = srv.response.text;
 
-    actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> asp_plan_client("/action_executor/execute_plan", true); 
+    actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> asp_plan_client("/action_executor/execute_plan", true); 
     asp_plan_client.waitForServer();
 
     // print to gui: moving to the first room
@@ -106,9 +106,9 @@ void ScavTaskFetchObject::hriThread() {
     gui_service_client->call(srv);
 
     // wrapping up a "goal" for moving the robot platform
-    bwi_kr_execution::ExecutePlanGoal goal;
-    bwi_kr_execution::AspRule rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::ExecutePlanGoal goal;
+    plan_execution::AspRule rule;
+    plan_execution::AspFluent fluent;
 
     // move to the room to ask for the object
     fluent.name = "not at";

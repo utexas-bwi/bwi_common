@@ -1,12 +1,12 @@
 #ifndef bwi_actexec_GoThrough_h__guard
 #define bwi_actexec_GoThrough_h__guard
 
-#include "LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 namespace bwi_krexec {
 
   
-class GoThrough : public LogicalNavigation {
+class GoThrough : public plan_exec::LogicalAction {
 public:  
   explicit GoThrough(const std::string& doorName);
   

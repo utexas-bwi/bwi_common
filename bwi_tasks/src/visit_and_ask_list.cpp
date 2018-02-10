@@ -1,21 +1,21 @@
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
-#include <bwi_kr_execution/UpdateFluents.h>
+#include "plan_execution/ExecutePlanAction.h"
+#include <plan_execution/UpdateFluents.h>
 
 #include <actionlib/client/simple_action_client.h>
 
 #include <ros/ros.h>
 #include <time.h> 
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
-bwi_kr_execution::ExecutePlanGoal navigationGoal(const string location) {
-  bwi_kr_execution::ExecutePlanGoal goal;
+plan_execution::ExecutePlanGoal navigationGoal(const string location) {
+  plan_execution::ExecutePlanGoal goal;
 
-    bwi_kr_execution::AspRule rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::AspRule rule;
+    plan_execution::AspFluent fluent;
     fluent.name = "not facing";
 
     fluent.variables.push_back(location);
@@ -26,26 +26,26 @@ bwi_kr_execution::ExecutePlanGoal navigationGoal(const string location) {
   return goal;
 }
 
-bwi_kr_execution::ExecutePlanGoal findPersonGoal(const string person) {
-  bwi_kr_execution::ExecutePlanGoal goal;
+plan_execution::ExecutePlanGoal findPersonGoal(const string person) {
+  plan_execution::ExecutePlanGoal goal;
 
-    bwi_kr_execution::AspRule rule;
+    plan_execution::AspRule rule;
 
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::AspFluent fluent;
     fluent.name = "not ingdc";
     fluent.variables.push_back(person);
 
     rule.body.push_back(fluent);
 
-    bwi_kr_execution::AspFluent fluent_not;
+    plan_execution::AspFluent fluent_not;
     fluent_not.name = "not -ingdc";
     fluent_not.variables.push_back(person);
     
     rule.body.push_back(fluent_not);
 
 
-    bwi_kr_execution::AspRule rule_nav;
-    bwi_kr_execution::AspFluent fluent_nav;
+    plan_execution::AspRule rule_nav;
+    plan_execution::AspFluent fluent_nav;
     fluent_nav.name = "not facing";
 
     fluent_nav.variables.push_back("d3_414b2");
@@ -92,13 +92,13 @@ int main(int argc, char**argv) {
   Client client("/action_executor/execute_plan", true);
   client.waitForServer();
 
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
     krClient.waitForExistence();
 
   bool fromAtoB = true;
 
   while (ros::ok()) {
-    bwi_kr_execution::ExecutePlanGoal goal;
+    plan_execution::ExecutePlanGoal goal;
 
     float r = ((float) rand() / (RAND_MAX));
     r=0;
@@ -118,8 +118,8 @@ int main(int argc, char**argv) {
       if (current_person >= (int)people.size())
           current_person = 0;
 
-      bwi_kr_execution::UpdateFluents uf;
-      bwi_kr_execution::AspFluent find_person_flag;
+      plan_execution::UpdateFluents uf;
+      plan_execution::AspFluent find_person_flag;
       find_person_flag.name = "findPersonTask";
       find_person_flag.variables.push_back(person);
       uf.request.fluents.push_back(find_person_flag);

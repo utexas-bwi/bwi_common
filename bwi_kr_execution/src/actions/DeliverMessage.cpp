@@ -1,14 +1,14 @@
 #include "DeliverMessage.h"
 
-#include "ActionFactory.h"
+#include "plan_execution/ActionFactory.h"
 
 #include "CallGUI.h"
 
-#include "bwi_kr_execution/AspFluent.h"
+#include "plan_execution/AspFluent.h"
 
-#include <bwi_kr_execution/UpdateFluents.h>
-#include <bwi_kr_execution/CurrentStateQuery.h>
-#include <bwi_kr_execution/GetHriMessage.h>
+#include <plan_execution/UpdateFluents.h>
+#include <plan_execution/CurrentStateQuery.h>
+#include <plan_execution/GetHriMessage.h>
 
 #include <ros/ros.h>
 #include <bwi_services/SpeakMessage.h>
@@ -28,7 +28,7 @@ DeliverMessage::DeliverMessage() :
 
 struct IsFluentAt {
   
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+  bool operator()(const plan_execution::AspFluent& fluent) {
     return fluent.name == "at";
   }
   
@@ -38,16 +38,16 @@ void DeliverMessage::run() {
 
   ros::NodeHandle n;
   ros::ServiceClient speakClient = n.serviceClient<bwi_services::SpeakMessage> ( "speak_message" );
-  ros::ServiceClient updateClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ("update_fluents");
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ("current_state_query");
-  ros::ServiceClient messageClient = n.serviceClient<bwi_kr_execution::GetHriMessage> ("look_up_message");
+  ros::ServiceClient updateClient = n.serviceClient<plan_execution::UpdateFluents> ("update_fluents");
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ("current_state_query");
+  ros::ServiceClient messageClient = n.serviceClient<plan_execution::GetHriMessage> ("look_up_message");
 
   speakClient.waitForExistence();
   updateClient.waitForExistence();
   krClient.waitForExistence();
   messageClient.waitForExistence();
 
-  bwi_kr_execution::GetHriMessage ghm;
+  plan_execution::GetHriMessage ghm;
   ghm.request.message_id = message_id;
   messageClient.call(ghm);
   message = ghm.response.message;
@@ -70,7 +70,7 @@ void DeliverMessage::run() {
   CallGUI ask("ask", CallGUI::CHOICE_QUESTION, ss.str(), 20.0, options);
   ask.run();
 
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
   if (ask.getResponseIndex() == 0) {
     vector<string> options;
@@ -78,7 +78,7 @@ void DeliverMessage::run() {
     CallGUI message_gui("message", CallGUI::CHOICE_QUESTION, message.content, 10.0, options);
     message_gui.run();
 
-    bwi_kr_execution::AspFluent delivered;
+    plan_execution::AspFluent delivered;
     delivered.name = "messagedelivered";
     delivered.variables.push_back(person);
     delivered.variables.push_back(message_id);
@@ -90,23 +90,23 @@ void DeliverMessage::run() {
     message.run();
     ros::Duration(3.0).sleep();
 
-    bwi_kr_execution::AspFluent not_delivered;
+    plan_execution::AspFluent not_delivered;
     not_delivered.name = "-messagedelivered";
     not_delivered.variables.push_back(person);
     not_delivered.variables.push_back(message_id);
     uf.request.fluents.push_back(not_delivered);
   }
   else {
-    bwi_kr_execution::CurrentStateQuery csq;
+    plan_execution::CurrentStateQuery csq;
     krClient.call(csq);
-    vector<bwi_kr_execution::AspFluent>::const_iterator atIt = 
+    vector<plan_execution::AspFluent>::const_iterator atIt = 
                       find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
                       
     if(atIt == csq.response.answer.fluents.end()) {
       ROS_ERROR("DeliverMessage: fluent \"at\" missing ");
     }
     else {
-      bwi_kr_execution::AspFluent not_inroom;
+      plan_execution::AspFluent not_inroom;
       not_inroom.name = "-inside";
       not_inroom.variables.push_back(person);
       not_inroom.variables.push_back(atIt->variables[0]);

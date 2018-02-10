@@ -1,12 +1,12 @@
 #ifndef bwi_actexec_ApproachDoor_h__guard
 #define bwi_actexec_ApproachDoor_h__guard
 
-#include "LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 namespace bwi_krexec {
 
   
-class ApproachDoor : public LogicalNavigation {
+class ApproachDoor : public plan_exec::LogicalAction {
 public:  
   explicit ApproachDoor(const std::string& doorName);
   

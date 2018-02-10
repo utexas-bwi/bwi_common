@@ -1,24 +1,24 @@
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalNavigationAction.h>
 #include <tf/transform_listener.h>
-#include <bwi_kr_execution/UpdateFluents.h>
-#include <bwi_kr_execution/CurrentStateQuery.h>
+#include <plan_execution/UpdateFluents.h>
+#include <plan_execution/CurrentStateQuery.h>
 #include <bwi_msgs/UpdateObject.h>
 
 #include <geometry_msgs/Pose.h>
 #include <std_srvs/Empty.h>
 #include <ros/ros.h>
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
 struct IsFluentAt {
   
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+  bool operator()(const plan_execution::AspFluent& fluent) {
     return fluent.name == "at";
   }
   
@@ -64,11 +64,11 @@ int main(int argc, char**argv) {
   lnClient.call(uo);
 
   //get current logical location
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ("current_state_query");
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ("current_state_query");
   krClient.waitForExistence();
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   krClient.call(csq);
-  vector<bwi_kr_execution::AspFluent>::const_iterator atIt = 
+  vector<plan_execution::AspFluent>::const_iterator atIt = 
                     find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
                     
   if (atIt == csq.response.answer.fluents.end()) {
@@ -78,29 +78,29 @@ int main(int argc, char**argv) {
   string location = atIt->variables[0];
 
   //update task information to KR
-  krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ("update_fluents");
+  krClient = n.serviceClient<plan_execution::UpdateFluents> ("update_fluents");
   krClient.waitForExistence();
 
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent lookingfor;
+  plan_execution::AspFluent lookingfor;
   lookingfor.name = "lookingfor";
   lookingfor.variables.push_back(person_to_find);
   uf.request.fluents.push_back(lookingfor);
 
-  bwi_kr_execution::AspFluent inroom;
+  plan_execution::AspFluent inroom;
   inroom.name = "inroom";
   inroom.variables.push_back(requester);
   inroom.variables.push_back(location);
   uf.request.fluents.push_back(inroom);
 
-  bwi_kr_execution::AspFluent locationmarker;
+  plan_execution::AspFluent locationmarker;
   locationmarker.name = "locationmarker";
   locationmarker.variables.push_back(requester);
   locationmarker.variables.push_back(requester+"_marker");
   uf.request.fluents.push_back(locationmarker);
 
-  bwi_kr_execution::AspFluent message;
+  plan_execution::AspFluent message;
   message.name = "message";
   message.variables.push_back(requester);
   message.variables.push_back("message");
@@ -111,17 +111,17 @@ int main(int argc, char**argv) {
   ROS_INFO_STREAM("Looking for " << person_to_find);
 
   //construct ASP planning goal
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
 
   //find the person or conclude that the person cannot be found at the moment
-  bwi_kr_execution::AspRule found_rule;
+  plan_execution::AspRule found_rule;
 
-  bwi_kr_execution::AspFluent found;
+  plan_execution::AspFluent found;
   found.name = "not found";
   found.variables.push_back(person_to_find);
   found_rule.body.push_back(found);
 
-  bwi_kr_execution::AspFluent not_found;
+  plan_execution::AspFluent not_found;
   not_found.name = "not -found";
   not_found.variables.push_back(person_to_find);
   found_rule.body.push_back(not_found);
@@ -129,15 +129,15 @@ int main(int argc, char**argv) {
   goal.aspGoal.push_back(found_rule);
 
   //report back to where the task was sent
-  bwi_kr_execution::AspRule report_back_rule;
+  plan_execution::AspRule report_back_rule;
 
-  bwi_kr_execution::AspFluent delivered;
+  plan_execution::AspFluent delivered;
   delivered.name = "not messagedelivered";
   delivered.variables.push_back(requester);
   delivered.variables.push_back("message");
   report_back_rule.body.push_back(delivered);
 
-  bwi_kr_execution::AspFluent not_inroom;
+  plan_execution::AspFluent not_inroom;
   not_inroom.name = "not -inroom";
   not_inroom.variables.push_back(requester);
   not_inroom.variables.push_back(location);
@@ -145,9 +145,9 @@ int main(int argc, char**argv) {
 
   goal.aspGoal.push_back(report_back_rule);
 
-  bwi_kr_execution::AspRule at_rule;
+  plan_execution::AspRule at_rule;
 
-  bwi_kr_execution::AspFluent at;
+  plan_execution::AspFluent at;
   at.name = "not at";
   at.variables.push_back(location);
   at_rule.body.push_back(at);

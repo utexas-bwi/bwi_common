@@ -67,9 +67,9 @@ bool SearchPlannerSimple::moveToNextDoor() {
     goal_door = (goal_door + rand()) % doors.size(); 
 
     ROS_INFO_STREAM("going to " << doors.at(goal_door));
-    bwi_kr_execution::ExecutePlanGoal goal; 
-    bwi_kr_execution::AspRule rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::ExecutePlanGoal goal; 
+    plan_execution::AspRule rule;
+    plan_execution::AspFluent fluent;
     fluent.name = "not beside";
     fluent.variables.push_back(doors.at(goal_door));
     rule.body.push_back(fluent);

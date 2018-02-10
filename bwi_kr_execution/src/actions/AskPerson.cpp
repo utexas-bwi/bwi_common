@@ -4,9 +4,9 @@
 
 #include "CallGUI.h"
 
-#include "bwi_kr_execution/AspFluent.h"
+#include "plan_execution/AspFluent.h"
 
-#include <bwi_kr_execution/UpdateFluents.h>
+#include <plan_execution/UpdateFluents.h>
 
 #include <ros/ros.h>
 #include <sound_play/sound_play.h>
@@ -39,7 +39,7 @@ void AskPerson::run() {
 //  if (ask_pub.getNumSubscribers() == 0) return; //if the subscriber is not connected, sleep
 //Matteo: the sound node may not be up, I'm commenting this line.
   
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();
   
   //speak
@@ -64,8 +64,8 @@ void AskPerson::run() {
   int response = askPerson.getResponseIndex();
 
   if (response < 0) {    
-    bwi_kr_execution::UpdateFluents uf;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::UpdateFluents uf;
+    plan_execution::AspFluent fluent;
     
     fluent.timeStep = 0;
     fluent.variables.push_back(person_to_ask);
@@ -83,8 +83,8 @@ void AskPerson::run() {
     CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you anyway!");
     thank.run();
 
-    bwi_kr_execution::UpdateFluents uf;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::UpdateFluents uf;
+    plan_execution::AspFluent fluent;
     
     fluent.timeStep = 0;
     fluent.variables.push_back(person_to_ask);
@@ -102,8 +102,8 @@ void AskPerson::run() {
     CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you!");
     thank.run();
 
-    bwi_kr_execution::UpdateFluents uf;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::UpdateFluents uf;
+    plan_execution::AspFluent fluent;
     
     fluent.name = "-ingdc";
     
@@ -138,8 +138,8 @@ void AskPerson::run() {
         askPerson->run();
 
         if ((askPerson->getResponseIndex() == -3) && (askPerson->getResponse() != "")) {
-              bwi_kr_execution::UpdateFluents uf;
-              bwi_kr_execution::AspFluent fluent;
+              plan_execution::UpdateFluents uf;
+              plan_execution::AspFluent fluent;
               
               fluent.timeStep = 0;
               fluent.variables.push_back(person_to_know);
@@ -172,8 +172,8 @@ void AskPerson::run() {
       //ask_pub.publish(sound_req);
       thank->run();
 
-      bwi_kr_execution::UpdateFluents uf;
-      bwi_kr_execution::AspFluent fluent;
+      plan_execution::UpdateFluents uf;
+      plan_execution::AspFluent fluent;
       
       fluent.timeStep = 0;
       fluent.variables.push_back(person_to_ask);

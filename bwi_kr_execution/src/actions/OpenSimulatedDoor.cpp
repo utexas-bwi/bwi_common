@@ -1,10 +1,10 @@
 #include "OpenSimulatedDoor.h"
 
-#include "bwi_kr_execution/CurrentStateQuery.h"
+#include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
 
-#include "ActionFactory.h"
-#include "LogicalNavigation.h"
+#include "plan_execution/ActionFactory.h"
+#include "plan_execution/LogicalAction.h"
 
 #include "actasp/AspFluent.h"
 
@@ -37,21 +37,21 @@ void OpenSimulatedDoor::run() {
 
     vector<string> params;
     params.push_back(door);
-    senseDoor = new LogicalNavigation ("sensedoor",params);
+    senseDoor = new plan_exec::LogicalAction ("sensedoor",params);
   }
 
   senseDoor->run();
 
-  ros::ServiceClient currentClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ("current_state_query");
-  bwi_kr_execution::AspFluent openFluent;
+  ros::ServiceClient currentClient = n.serviceClient<plan_execution::CurrentStateQuery> ("current_state_query");
+  plan_execution::AspFluent openFluent;
   openFluent.name = "open";
   openFluent.timeStep = 0;
   openFluent.variables.push_back(door);
 
-  bwi_kr_execution::AspRule rule;
+  plan_execution::AspRule rule;
   rule.head.push_back(openFluent);
 
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   csq.request.query.push_back(rule);
 
   currentClient.call(csq);
@@ -74,6 +74,6 @@ std::vector<std::string> OpenSimulatedDoor::getParameters() const {
   return param;
 }
 
-bwi_krexec::ActionFactory simulatedOpenDoor(new OpenSimulatedDoor(), true);
+plan_exec::ActionFactory simulatedOpenDoor(new OpenSimulatedDoor(), true);
 
 }

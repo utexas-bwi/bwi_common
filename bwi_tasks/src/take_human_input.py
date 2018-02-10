@@ -7,7 +7,7 @@ import roslib; roslib.load_manifest('bwi_tasks')
 
 import actionlib
 import actionlib_msgs.msg
-from bwi_kr_execution.msg import *
+from plan_execution.msg import *
 import bwi_msgs.srv
 import bwi_rlg.srv
 import os.path

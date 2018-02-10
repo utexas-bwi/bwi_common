@@ -4,14 +4,15 @@ project(bwi_tasks)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
-  bwi_kr_execution
+  plan_execution
   bwi_msgs
   roscpp
   rospy
   std_msgs
+  tf_conversions
 )
 
-catkin_package(CATKIN_DEPENDS actionlib_msgs bwi_msgs std_msgs)
+catkin_package(CATKIN_DEPENDS actionlib_msgs bwi_msgs std_msgs plan_execution)
 
 include_directories(${catkin_INCLUDE_DIRS})
 

@@ -1,14 +1,14 @@
 #include <bwi_msgs/QuestionDialog.h>
-#include <bwi_kr_execution/ExecutePlanAction.h>
+#include <plan_execution/ExecutePlanAction.h>
 #include <bwi_msgs/LogicalNavigationAction.h>
 
 #include <actionlib/client/simple_action_client.h>
 #include <tf/transform_listener.h>
-#include <bwi_kr_execution/UpdateFluents.h>
-#include <bwi_kr_execution/CurrentStateQuery.h>
-#include <bwi_kr_execution/GetHriMessage.h>
+#include <plan_execution/UpdateFluents.h>
+#include <plan_execution/CurrentStateQuery.h>
+#include <plan_execution/GetHriMessage.h>
 #include <bwi_msgs/UpdateObject.h>
-#include <bwi_kr_execution/HriMessage.h>
+#include <plan_execution/HriMessage.h>
 
 #include <geometry_msgs/Pose.h>
 #include <std_srvs/Empty.h>
@@ -16,7 +16,7 @@
 #include <ros/ros.h>
 #include <string>
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
@@ -30,14 +30,14 @@ std::vector<string> doors;
 Client* client;
 
 struct IsFluentAt {
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+  bool operator()(const plan_execution::AspFluent& fluent) {
     return fluent.name == "at";
   }
 };
 
 struct IsFluentFound {
   IsFluentFound(string name) : name(name) {}
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+  bool operator()(const plan_execution::AspFluent& fluent) {
     return fluent.name == "found" && fluent.variables[0] == name;
   }
 private:
@@ -47,7 +47,7 @@ private:
 
 struct IsFluentBusy {
   IsFluentBusy(string name) : name(name) {}
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+  bool operator()(const plan_execution::AspFluent& fluent) {
     return fluent.name == "busy" && fluent.variables[0] == name;
   }
 private:
@@ -59,10 +59,10 @@ public:
 
   MessageServer() : messages(), id_counter(0) {}
 
-  static const bwi_kr_execution::HriMessage emptyMessage;
+  static const plan_execution::HriMessage emptyMessage;
 
   string addMessage(string content, string from, string to) {
-    bwi_kr_execution::HriMessage message;
+    plan_execution::HriMessage message;
     stringstream ss;
     ss << "m" << id_counter++;
 
@@ -70,16 +70,16 @@ public:
     message.content = content;
     message.from = from;
     message.to = to;
-    messages.insert(make_pair<string,bwi_kr_execution::HriMessage> (message.id, message));
+    messages.insert(make_pair<string,plan_execution::HriMessage> (message.id, message));
     return message.id;
   }
 
-  void addMessage(bwi_kr_execution::HriMessage message) {
-    messages.insert(make_pair<string,bwi_kr_execution::HriMessage> (message.id, message));
+  void addMessage(plan_execution::HriMessage message) {
+    messages.insert(make_pair<string,plan_execution::HriMessage> (message.id, message));
   }
 
-  bool lookUpMessage(bwi_kr_execution::GetHriMessage::Request  &req,
-                     bwi_kr_execution::GetHriMessage::Response &res) {
+  bool lookUpMessage(plan_execution::GetHriMessage::Request  &req,
+                     plan_execution::GetHriMessage::Response &res) {
     if (messages.find(req.message_id) != messages.end()) {
       res.message = messages.find(req.message_id)->second;
     }
@@ -91,12 +91,12 @@ public:
   }
 
 private:
-  map<string, bwi_kr_execution::HriMessage> messages;
+  map<string, plan_execution::HriMessage> messages;
   int id_counter;
 
 };
 
-const bwi_kr_execution::HriMessage MessageServer::emptyMessage;
+const plan_execution::HriMessage MessageServer::emptyMessage;
 MessageServer messageServer;
 
 void setDialogState(const std_msgs::Bool::ConstPtr& msg) {
@@ -175,10 +175,10 @@ void displayMessage(string message, float timeout, bool confirm = false) {
 }
 
 void goToDoor(string door) {  
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
 
-  bwi_kr_execution::AspRule rule;
-  bwi_kr_execution::AspFluent fluent;
+  plan_execution::AspRule rule;
+  plan_execution::AspFluent fluent;
   fluent.name = "not facing";
 
   fluent.variables.push_back(door);
@@ -198,10 +198,10 @@ void goToRandomDoor() {
 
 bool checkFound(string person) {
   transform(person.begin(), person.end(), person.begin(), ::tolower);
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   krClient.call(csq);
 
-  vector<bwi_kr_execution::AspFluent>::const_iterator foundIt = 
+  vector<plan_execution::AspFluent>::const_iterator foundIt = 
                     find_if(csq.response.answer.fluents.begin(), 
                             csq.response.answer.fluents.end(), 
                             IsFluentFound(person));
@@ -214,10 +214,10 @@ bool checkFound(string person) {
 
 bool checkBusy(string person) {
   transform(person.begin(), person.end(), person.begin(), ::tolower);
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   krClient.call(csq);
 
-  vector<bwi_kr_execution::AspFluent>::const_iterator busyIt = 
+  vector<plan_execution::AspFluent>::const_iterator busyIt = 
                     find_if(csq.response.answer.fluents.begin(), 
                             csq.response.answer.fluents.end(), 
                             IsFluentBusy(person));
@@ -230,14 +230,14 @@ bool checkBusy(string person) {
 
 bool updateLookingFor(string target) {
   transform(target.begin(), target.end(), target.begin(), ::tolower);
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent lookingfor;
+  plan_execution::AspFluent lookingfor;
   lookingfor.name = "lookingfor";
   lookingfor.variables.push_back(target);
   uf.request.fluents.push_back(lookingfor);
 
-  bwi_kr_execution::AspFluent person;
+  plan_execution::AspFluent person;
   person.name = "person";
   person.variables.push_back(target);
   uf.request.fluents.push_back(person);
@@ -249,14 +249,14 @@ bool updateLookingFor(string target) {
 
 bool updateLocations(string target, string locations) {
   transform(target.begin(), target.end(), target.begin(), ::tolower);
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
   size_t start = locations.find_first_of("lo");
   size_t end = locations.find(";");
   if (start == string::npos) return false;
 
   while (end != string::npos) {
-    bwi_kr_execution::AspFluent location;
+    plan_execution::AspFluent location;
     location.name = ((locations[start] == 'l') ? "caninside" : "canbeside");
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start, end-start));
@@ -267,7 +267,7 @@ bool updateLocations(string target, string locations) {
   }
 
   if (start != string::npos) {
-    bwi_kr_execution::AspFluent location;
+    plan_execution::AspFluent location;
     location.name = ((locations[start] == 'l') ? "caninside" : "canbeside");
     location.variables.push_back(target);
     location.variables.push_back(locations.substr(start));
@@ -356,9 +356,9 @@ bool updateRequesterInfo(string requester, string message_id) {
   lnClient.call(uo);
 
   //get current logical location
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   krClient.call(csq);
-  vector<bwi_kr_execution::AspFluent>::const_iterator atIt = 
+  vector<plan_execution::AspFluent>::const_iterator atIt = 
                     find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
                     
   if (atIt == csq.response.answer.fluents.end()) {
@@ -367,31 +367,31 @@ bool updateRequesterInfo(string requester, string message_id) {
   }
   string location = atIt->variables[0];
 
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent person;
+  plan_execution::AspFluent person;
   person.name = "person";
   person.variables.push_back(requester);
   uf.request.fluents.push_back(person);
 
-  bwi_kr_execution::AspFluent caninside;
+  plan_execution::AspFluent caninside;
   caninside.name = "caninside";
   caninside.variables.push_back(requester);
   caninside.variables.push_back(location);
   uf.request.fluents.push_back(caninside);
 
-  bwi_kr_execution::AspFluent object;
+  plan_execution::AspFluent object;
   object.name = "object";
   object.variables.push_back("o_" + requester);
   uf.request.fluents.push_back(object);
 
-  bwi_kr_execution::AspFluent inside;
+  plan_execution::AspFluent inside;
   inside.name = "inside";
   inside.variables.push_back("o_" + requester);
   inside.variables.push_back(location);
   uf.request.fluents.push_back(inside);
 
-  bwi_kr_execution::AspFluent canbeside;
+  plan_execution::AspFluent canbeside;
   canbeside.name = "canbeside";
   canbeside.variables.push_back(requester);
   canbeside.variables.push_back("o_" + requester);
@@ -420,9 +420,9 @@ bwi_msgs::QuestionDialog getInitialPage() {
 
 void sendDeliveryGoal(string target, string id) {
   transform(target.begin(), target.end(), target.begin(), ::tolower);
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent message;
+  plan_execution::AspFluent message;
   message.name = "message";
   message.variables.push_back(target);
   message.variables.push_back(id);
@@ -431,18 +431,18 @@ void sendDeliveryGoal(string target, string id) {
   updateClient.call(uf);
 
   //construct ASP planning goal
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
 
   //find the person or conclude that the person cannot be found at the moment
-  bwi_kr_execution::AspRule delivered_rule;
+  plan_execution::AspRule delivered_rule;
 
-  bwi_kr_execution::AspFluent delivered;
+  plan_execution::AspFluent delivered;
   delivered.name = "not messagedelivered";
   delivered.variables.push_back(target);
   delivered.variables.push_back(id);
   delivered_rule.body.push_back(delivered);
 
-  bwi_kr_execution::AspFluent not_found;
+  plan_execution::AspFluent not_found;
   not_found.name = "not -found";
   not_found.variables.push_back(target);
   delivered_rule.body.push_back(not_found);
@@ -504,9 +504,9 @@ int main(int argc, char**argv) {
 
   guiClient = n.serviceClient<bwi_msgs::QuestionDialog>("/question_dialog");
   guiClient.waitForExistence();
-  krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ("current_state_query");
+  krClient = n.serviceClient<plan_execution::CurrentStateQuery> ("current_state_query");
   krClient.waitForExistence();
-  updateClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ("update_fluents");
+  updateClient = n.serviceClient<plan_execution::UpdateFluents> ("update_fluents");
   updateClient.waitForExistence();
   lnClient = n.serviceClient<bwi_msgs::UpdateObject> ("update_object");
   lnClient.waitForExistence();

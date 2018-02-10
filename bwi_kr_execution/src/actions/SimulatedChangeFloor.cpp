@@ -2,10 +2,10 @@
 
 #include <boost/foreach.hpp>
 
-#include "ActionFactory.h"
-#include "../StaticFacts.h"
+#include "plan_execution/ActionFactory.h"
+#include "plan_execution/StaticFacts.h"
 
-#include "bwi_kr_execution/UpdateFluents.h"
+#include "plan_execution/UpdateFluents.h"
 #include "ros/console.h"
 #include "ros/ros.h"
 
@@ -28,7 +28,7 @@ void SimulatedChangeFloor::run() {
   
     // Get the doors for this elevator.
     std::string facing_door;
-    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
+    std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
       if (fact.getName() == "hasdoor") {
         std::vector<std::string> params = fact.getParameters();
@@ -112,23 +112,23 @@ void SimulatedChangeFloor::run() {
           lnac->waitForResult();
 
           // Update knowledge base to reflect change in position.
-          ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+          ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
           krClient.waitForExistence();
-          bwi_kr_execution::UpdateFluents uf;
+          plan_execution::UpdateFluents uf;
 
-          bwi_kr_execution::AspFluent open_door;
+          plan_execution::AspFluent open_door;
           open_door.name = "open";
           open_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent face_door;
+          plan_execution::AspFluent face_door;
           face_door.name = "facing";
           face_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent beside_door;
+          plan_execution::AspFluent beside_door;
           beside_door.name = "beside";
           beside_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent at_loc;
+          plan_execution::AspFluent at_loc;
           at_loc.name = "at";
           at_loc.variables.push_back(dest_room);
 
@@ -166,6 +166,6 @@ std::vector<std::string> SimulatedChangeFloor::getParameters() const {
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-ActionFactory simulatedChangeFloor(new SimulatedChangeFloor(), true);
+plan_exec::ActionFactory simulatedChangeFloor(new SimulatedChangeFloor(), true);
 
 }
