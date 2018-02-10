@@ -4,12 +4,8 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/AttachedCollisionObject.h>
-#include <moveit_msgs/CollisionObject.h>
 #include <boost/assign/std/vector.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
-#include "ros/ros.h"
-#include "geometry_msgs/Quaternion.h"
 #include "bwi_moveit_utils/MicoMoveitJointPose.h"
 using namespace boost::assign;
     
@@ -64,7 +60,7 @@ bool service_cb(bwi_moveit_utils::MicoMoveitJointPose::Request &req, bwi_moveit_
 }   
 int main(int argc, char **argv)
 {   
-    ros::init(argc, argv, "mico_moveit_jointpose_service");
+    ros::init(argc, argv, "mico_moveit_joint_pose_service");
     ros::NodeHandle nh;
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -72,7 +68,7 @@ int main(int argc, char **argv)
     group = new moveit::planning_interface::MoveGroupInterface("arm");
     group->setGoalTolerance(0.01);
     group->setPoseReferenceFrame("m1n6s200_end_effector");
-    ros::ServiceServer srv = nh.advertiseService("mico_jointpose_service", service_cb);
+    ros::ServiceServer srv = nh.advertiseService("mico_joint_pose_service", service_cb);
 
     //TODO: as a rosparam, option for planning time
     ros::spin();

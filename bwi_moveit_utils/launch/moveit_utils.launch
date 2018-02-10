@@ -1,17 +1,21 @@
 <launch>
+
 	<!-- Mico services: These services interface with moveit and the controller -->
-	<node name="mico_moveit_joint_pose_service" pkg="moveit_utils" type="mico_moveit_joint_pose_service">
+	<node name="mico_moveit_joint_pose_service" pkg="bwi_moveit_utils" type="mico_moveit_joint_pose_service">
 	    <param name="arm/solve_type" value="Manipulation2" />
 	</node>
-	<node name="mico_moveit_caresianpose_service" pkg="moveit_utils" type="mico_moveit_cartesianpose_service">
+	<node name="mico_moveit_cartesian_pose_service" pkg="bwi_moveit_utils" type="mico_moveit_cartesian_pose_service">
 	    <param name="arm/solve_type" value="Manipulation2" />
 	</node>
-	
+
+	<node name="mico_moveit_waypoint_service" pkg="bwi_moveit_utils" type="mico_moveit_waypoint_service">
+        <param name="arm/solve_type" value="Manipulation2" />
+    </node>
+
 	<!-- safety service -->
-	<node name="mico_nav_safety_service" pkg="moveit_utils" type="mico_nav_safety_service" output="screen"/> 
+    <node name="mico_nav_safety_service" pkg="bwi_moveit_utils" type="mico_nav_safety_service" output="screen"/> 
 	
 	<!-- Jivko's angular controler -->
-	<node name="angular_vel_control_srv" pkg="moveit_utils" type="angular_vel_control_srv" />
+    <node name="angular_vel_control_srv" pkg="bwi_moveit_utils" type="angular_vel_control_srv" />
 	
-
 </launch>
