@@ -25,6 +25,7 @@
   <depend>std_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>tf</depend>
+  <depend>boost</depend>
 
   <exec_depend>message_runtime</exec_depend>
 
