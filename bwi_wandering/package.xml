@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>bwi_wandering</name>
+  <version>0.3.12</version>
+  <description>
+    Wandering behavior implementation for the Building-Wide Intelligence
+    project of the University of Texas at Austin.
+  </description>
+
+  <author email="jgoo@utexas.edu">Jamin Goo</author>
+  <maintainer email="shivampatel@utexas.edu">Shivam Patel</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>bwi_kr_execution</depend>
+  <depend>bwi_msgs</depend>
+  <depend>move_base_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>tf</depend>
+
+  <exec_depend>message_runtime</exec_depend>
+
+</package>
