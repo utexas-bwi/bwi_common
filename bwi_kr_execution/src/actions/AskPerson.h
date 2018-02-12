@@ -31,8 +31,6 @@ private:
  std::vector<std::string> getParameters() const;
  std::string person_to_ask;
  std::string person_to_know;
- static ros::Publisher ask_pub;
- static bool pub_set;
  bool done;
  
 };

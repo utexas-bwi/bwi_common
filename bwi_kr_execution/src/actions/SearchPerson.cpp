@@ -35,20 +35,20 @@ void SearchPerson::run() {
   ros::NodeHandle n;
 
   //current state query
-  ros::ServiceClient currentClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );
+  ros::ServiceClient currentClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
   currentClient.waitForExistence();
   ros::ServiceClient speakClient = n.serviceClient<bwi_services::SpeakMessage> ( "speak_message" );
   speakClient.waitForExistence();
 
-  bwi_kr_execution::AspFluent atFluent;
+  plan_execution::AspFluent atFluent;
   atFluent.name = "at";
   atFluent.timeStep = 0;
   atFluent.variables.push_back(room);
   
-  bwi_kr_execution::AspRule rule;
+  plan_execution::AspRule rule;
   rule.head.push_back(atFluent);
   
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   csq.request.query.push_back(rule);
   
   currentClient.call(csq);
@@ -80,14 +80,14 @@ void SearchPerson::run() {
   }
   
 
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();
 
   person[0] = tolower(person[0]);
 
-  bwi_kr_execution::UpdateFluents uf;
+  plan_execution::UpdateFluents uf;
 
-  bwi_kr_execution::AspFluent inside;
+  plan_execution::AspFluent inside;
   inside.timeStep = 0;
   inside.variables.push_back(person);
   inside.variables.push_back(room);
@@ -95,7 +95,7 @@ void SearchPerson::run() {
   uf.request.fluents.push_back(inside);
 
   if (object[0] == 'o') {
-    bwi_kr_execution::AspFluent near;
+    plan_execution::AspFluent near;
     near.timeStep = 0;
     near.variables.push_back(person);
     near.variables.push_back(object);
@@ -127,6 +127,6 @@ std::vector<std::string> SearchPerson::getParameters() const {
 }
 
 
-ActionFactory SearchPersonFactory(new SearchPerson());
+plan_exec::ActionFactory SearchPersonFactory(new SearchPerson());
   
 }

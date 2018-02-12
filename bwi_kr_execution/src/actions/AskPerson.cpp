@@ -1,6 +1,6 @@
 #include "AskPerson.h"
 
-#include "ActionFactory.h"
+#include "plan_execution/ActionFactory.h"
 
 #include "CallGUI.h"
 
@@ -9,7 +9,6 @@
 #include <plan_execution/UpdateFluents.h>
 
 #include <ros/ros.h>
-#include <sound_play/sound_play.h>
 
 #include <string>
 #include <iostream>
@@ -23,35 +22,17 @@ AskPerson::AskPerson() :
             person_to_know(),
             done(false){
             }
-
-ros::Publisher AskPerson::ask_pub;
-bool AskPerson::pub_set(false);
   
 void AskPerson::run() {
 
   ros::NodeHandle n;
-
-  if (!pub_set) { 
-    ask_pub = n.advertise<sound_play::SoundRequest>("robotsound", 1000);
-    pub_set = true;
-  }
-
-//  if (ask_pub.getNumSubscribers() == 0) return; //if the subscriber is not connected, sleep
-//Matteo: the sound node may not be up, I'm commenting this line.
   
   ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
   krClient.waitForExistence();
-  
-  //speak
-  sound_play::SoundRequest sound_req;
-  sound_req.sound = sound_play::SoundRequest::SAY;
-  sound_req.command = sound_play::SoundRequest::PLAY_ONCE;
 
   stringstream ss;
   ss << "Hi " << person_to_ask << "! ";
   ss << "Do you know where " << person_to_know << " is?";
-  sound_req.arg = ss.str();
-  ask_pub.publish(sound_req);
 
   vector<string> options;
   options.push_back("Yes! In GDC");
@@ -78,8 +59,6 @@ void AskPerson::run() {
   }
 
   if (response == 2) {
-    sound_req.arg = "OK, thank you anyway!";
-    ask_pub.publish(sound_req);
     CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you anyway!");
     thank.run();
 
@@ -97,8 +76,6 @@ void AskPerson::run() {
   }
 
     if (response == 1) {
-    sound_req.arg = "OK, thank you!";
-    ask_pub.publish(sound_req);
     CallGUI thank("thank", CallGUI::DISPLAY,  "OK, thank you!");
     thank.run();
 
@@ -118,8 +95,6 @@ void AskPerson::run() {
 
       bool know = false;
       int count = 0;
-
-      sound_req.arg = "Great! Please tell me the room number.";
       
       stringstream question_text;
       question_text << "Great! Please tell me the room number." << endl;
@@ -134,7 +109,6 @@ void AskPerson::run() {
       
       while ((! know) && (count < 3)) {
 
-        ask_pub.publish(sound_req);
         askPerson->run();
 
         if ((askPerson->getResponseIndex() == -3) && (askPerson->getResponse() != "")) {
@@ -155,21 +129,17 @@ void AskPerson::run() {
 
         count++;
 
-        sound_req.arg = "The room number doesn't exist. Please try again.";
         delete askPerson;
         askPerson = new CallGUI("askPerson", CallGUI::TEXT_QUESTION,  "The room number doesn't exist. Please try again.", 60.0);
       }
 
-      sound_req.arg = "Thank you!";
       CallGUI *thank = new CallGUI("thank", CallGUI::DISPLAY,  "Thank you!");
 
       if (!know) {
-        sound_req.arg = "OK, thank you anyway!";
         delete thank;
         thank = new CallGUI("thank", CallGUI::DISPLAY,  "OK, thank you anyway!");
       }
 
-      //ask_pub.publish(sound_req);
       thank->run();
 
       plan_execution::UpdateFluents uf;
@@ -206,6 +176,6 @@ std::vector<std::string> AskPerson::getParameters() const {
 }
 
 
-ActionFactory AskPersonFactory(new AskPerson());
+plan_exec::ActionFactory AskPersonFactory(new AskPerson());
   
 }

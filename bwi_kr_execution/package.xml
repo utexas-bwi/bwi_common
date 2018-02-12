@@ -22,11 +22,11 @@
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend> 
   <depend>bwi_logical_translator</depend>
+  <depend>bwi_services</depend> 
   <depend>bwi_msgs</depend> 
   <depend>gringo</depend>
   <depend>roscpp</depend>
   <depend>roslib</depend>
-  <depend>sound_play</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
   <depend>plan_execution</depend>

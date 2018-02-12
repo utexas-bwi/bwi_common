@@ -138,6 +138,6 @@ std::vector<std::string> DeliverMessage::getParameters() const {
 }
 
 
-ActionFactory DeliverMessageFactory(new DeliverMessage());
+plan_exec::ActionFactory DeliverMessageFactory(new DeliverMessage());
   
 }

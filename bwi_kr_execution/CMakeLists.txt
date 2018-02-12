@@ -5,13 +5,13 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs 
   bwi_msgs
+  bwi_services
   message_generation
+  plan_execution
   roscpp
   roslib
-  sound_play
   std_msgs
   std_srvs
-  plan_execution
 )
  
 catkin_package(
@@ -20,12 +20,12 @@ catkin_package(
   CATKIN_DEPENDS
     actionlib_msgs
     bwi_msgs
+    bwi_services
     message_runtime
+    plan_execution
     roscpp
-    sound_play
     std_msgs
     std_srvs
-    plan_execution
 )
 
 include_directories(
