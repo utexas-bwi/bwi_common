@@ -1,0 +1,5 @@
+sensor_msgs/PointCloud2 cloud_input
+---
+sensor_msgs/PointCloud2[] horizontal_planes
+geometry_msgs/Quaternion[] horizontal_plane_coefs
+visualization_msgs/Marker[] horizontal_plane_bounding_boxes
