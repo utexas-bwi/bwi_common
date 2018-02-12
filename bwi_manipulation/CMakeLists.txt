@@ -35,7 +35,7 @@ catkin_package(
         LIBRARIES manipulation_utilities
 )
 
-add_library(manipulation_utilities src/grasp_utils.cpp)
+add_library(manipulation_utilities src/grasp_utils.cpp src/GraspCartesianCommand.cpp)
 target_link_libraries(manipulation_utilities ${catkin_LIBRARIES})
 
 
