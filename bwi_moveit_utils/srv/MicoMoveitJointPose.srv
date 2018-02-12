@@ -1,5 +1,0 @@
-kinova_msgs/JointAngles target
-moveit_msgs/CollisionObject[] collision_objects
-moveit_msgs/Constraints constraints
----
-bool completed
