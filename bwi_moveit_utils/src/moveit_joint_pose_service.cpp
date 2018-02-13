@@ -6,7 +6,7 @@
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <boost/assign/std/vector.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
-#include "bwi_moveit_utils/MicoMoveitJointPose.h"
+#include "bwi_moveit_utils/MoveitJointPose.h"
 using namespace boost::assign;
     
 #define NUM_JOINTS 6
@@ -23,25 +23,14 @@ void sig_handler(int sig){
     ros::shutdown();
     exit(1);
 };  
-bool service_cb(bwi_moveit_utils::MicoMoveitJointPose::Request &req, bwi_moveit_utils::MicoMoveitJointPose::Response &res){
+bool service_cb(bwi_moveit_utils::MoveitJointPose::Request &req, bwi_moveit_utils::MoveitJointPose::Response &res){
 
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
     planning_scene_interface.addCollisionObjects(req.collision_objects);
 
-
     std::vector<double> q_vals;
-    for(int i = 0; i < NUM_JOINTS; i++){
-        switch(i) {
-            case 0  :    q_vals.push_back(req.target.joint1); break;
-            case 1  :    q_vals.push_back(req.target.joint2); break;
-            case 2  :    q_vals.push_back(req.target.joint3); break;
-            case 3  :    q_vals.push_back(req.target.joint4); break;
-            case 4  :    q_vals.push_back(req.target.joint5); break;
-            case 5  :    q_vals.push_back(req.target.joint6); break;
-        }
-	//ROS_INFO("Requested angle: %f", q_vals.at(i));
-    }
-    group->setJointValueTarget(q_vals);
+
+    group->setJointValueTarget(req.target);
     group->setStartState(*group->getCurrentState());
 
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
@@ -60,7 +49,7 @@ bool service_cb(bwi_moveit_utils::MicoMoveitJointPose::Request &req, bwi_moveit_
 }   
 int main(int argc, char **argv)
 {   
-    ros::init(argc, argv, "mico_moveit_joint_pose_service");
+    ros::init(argc, argv, "moveit_joint_pose_service");
     ros::NodeHandle nh;
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -68,7 +57,7 @@ int main(int argc, char **argv)
     group = new moveit::planning_interface::MoveGroupInterface("arm");
     group->setGoalTolerance(0.01);
     group->setPoseReferenceFrame("m1n6s200_end_effector");
-    ros::ServiceServer srv = nh.advertiseService("mico_joint_pose_service", service_cb);
+    ros::ServiceServer srv = nh.advertiseService("joint_pose_service", service_cb);
 
     //TODO: as a rosparam, option for planning time
     ros::spin();

@@ -3,6 +3,6 @@
     uri: https://github.com/utexas-bwi/bwi_common.git
     version: kinetic
 - git:
-    local-name: kinova-ros
-    uri: https://github.com/utexas-bwi/kinova-ros.git
+    local-name: agile_grasp
+    uri: https://github.com/utexas-bwi/agile_grasp.git
     version: kinetic

@@ -1,0 +1,33 @@
+<package format="2">
+    <name>bwi_manipulation</name>
+    <version>0.1.0</version>
+    <description>
+        Manipulation capabilities for the Building Wide Intelligence project.
+    </description>
+    <license>BSD</license>
+
+    <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+    <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
+    <maintainer email="jack.oquin@gmail.com">Jack O'Quin</maintainer>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>actionlib</depend>
+    <depend>actionlib_msgs</depend>
+    <depend>agile_grasp</depend>
+    <depend>bwi_moveit_utils</depend>
+    <depend>geometry_msgs</depend>
+    <depend>moveit_ros_planning_interface</depend>
+    <depend>moveit_msgs</depend>
+    <depend>move_base_msgs</depend>
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>std_msgs</depend>
+    <depend>tf</depend>
+
+    <build_depend>message_generation</build_depend>
+    <exec_depend>message_runtime</exec_depend>
+    <export>
+    </export>
+
+</package>

@@ -42,9 +42,6 @@
 
 namespace bwi_perception {
 	
-	
-	
-	
 	pcl::PointCloud<pcl::Normal>::Ptr computeNormals(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double normals_search_radius) {
 		// Create the normal estimation class, and pass the input dataset to it
 		pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> ne;

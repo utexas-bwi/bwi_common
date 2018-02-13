@@ -1,4 +1,4 @@
-kinova_msgs/JointAngles target
+float64[] target
 moveit_msgs/CollisionObject[] collision_objects
 moveit_msgs/Constraints constraints
 ---

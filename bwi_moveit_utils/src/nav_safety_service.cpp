@@ -10,9 +10,9 @@
 #include <std_msgs/Bool.h>
 
 //services
-#include "bwi_moveit_utils/MicoMoveitJointPose.h"
+#include "bwi_moveit_utils/MoveitJointPose.h"
 
-#include "bwi_moveit_utils/MicoNavSafety.h"
+#include "bwi_moveit_utils/NavSafety.h"
 #include <moveit_msgs/GetPositionFK.h>
 #include <bwi_msgs/StopBaseStatus.h>
 #include <bwi_msgs/StopBase.h>
@@ -141,16 +141,10 @@ void joint_state_cb(const sensor_msgs::JointStateConstPtr& js){
 
 };
 
-bool service_cb(bwi_moveit_utils::MicoNavSafety::Request &req, bwi_moveit_utils::MicoNavSafety::Response &res){
-    bwi_moveit_utils::MicoMoveitJointPose movement_srv;
-    kinova_msgs::JointAngles target;
-    target.joint1 = q_safe.at(0);
-    target.joint2 = q_safe.at(1);
-    target.joint3 = q_safe.at(2);
-    target.joint4 = q_safe.at(3);
-    target.joint5 = q_safe.at(4);
-    target.joint6 = q_safe.at(5);
-    movement_srv.request.target = target;
+bool service_cb(bwi_moveit_utils::NavSafety::Request &req, bwi_moveit_utils::NavSafety::Response &res){
+    bwi_moveit_utils::MoveitJointPose movement_srv;
+
+    movement_srv.request.target = q_safe;
 	
 	ROS_INFO("[mico_nav_safety_service.cpp] making a call to moveit client...");
 	
@@ -179,12 +173,12 @@ bool set_mode_cb(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &r
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "mico_nav_safety_node");
+    ros::init(argc, argv, "nav_safety_node");
     ros::NodeHandle nh;
-    movement_client = nh.serviceClient<bwi_moveit_utils::MicoMoveitJointPose>("mico_jointpose_service");
+    movement_client = nh.serviceClient<bwi_moveit_utils::MoveitJointPose>("jointpose_service");
     ros::Subscriber sub_angles = nh.subscribe ("/m1n6s200_driver/out/joint_state", 10, joint_state_cb);
     pub = nh.advertise<std_msgs::Bool>("mico_nav_safe", 10);
-    ros::ServiceServer srv = nh.advertiseService("mico_nav_safety", service_cb);
+    ros::ServiceServer srv = nh.advertiseService("nav_safety", service_cb);
     fkine_client = nh.serviceClient<moveit_msgs::GetPositionFK>("compute_fk");
     stopbase_client = nh.serviceClient<bwi_msgs::StopBase>("stop_base");
 

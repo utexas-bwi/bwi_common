@@ -1,3 +1,0 @@
-sensor_msgs/JointState state
----
-bool success
