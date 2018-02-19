@@ -1,6 +1,6 @@
 #include "GoThrough.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "plan_execution/CurrentStateQuery.h"
 
@@ -68,7 +68,7 @@ void GoThrough::run() {
   
 }
 
-plan_exec::ActionFactory gothroughFactory(new GoThrough(""));
+ActionFactory gothroughFactory(new GoThrough(""));
   
   
 }

@@ -1,4 +1,4 @@
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "actasp/Action.h"
 #include <boost/config/no_tr1/complex.hpp>
@@ -6,7 +6,7 @@
 using namespace std;
 using namespace actasp;
 
-namespace plan_exec {
+namespace bwi_krexec {
 
 bool ActionFactory::simulation(false);
 

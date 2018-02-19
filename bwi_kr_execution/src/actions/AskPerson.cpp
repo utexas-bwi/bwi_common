@@ -1,6 +1,6 @@
 #include "AskPerson.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "CallGUI.h"
 
@@ -176,6 +176,6 @@ std::vector<std::string> AskPerson::getParameters() const {
 }
 
 
-plan_exec::ActionFactory AskPersonFactory(new AskPerson());
+ActionFactory AskPersonFactory(new AskPerson());
   
 }

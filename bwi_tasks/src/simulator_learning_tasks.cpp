@@ -2,7 +2,6 @@
 #include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
 #include <bwi_msgs/DoorHandlerInterface.h>
 #include <plan_execution/CurrentStateQuery.h>
 #include <plan_execution/UpdateFluents.h>

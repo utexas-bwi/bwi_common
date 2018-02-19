@@ -1,6 +1,6 @@
 #include "DeliverMessage.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "CallGUI.h"
 
@@ -138,6 +138,6 @@ std::vector<std::string> DeliverMessage::getParameters() const {
 }
 
 
-plan_exec::ActionFactory DeliverMessageFactory(new DeliverMessage());
+ActionFactory DeliverMessageFactory(new DeliverMessage());
   
 }

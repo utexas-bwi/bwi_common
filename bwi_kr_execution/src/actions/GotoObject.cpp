@@ -1,6 +1,6 @@
 #include "GotoObject.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 #include "plan_execution/msgs_utils.h"
 
 #include "actasp/AnswerSet.h"
@@ -59,7 +59,7 @@ void GotoObject::run()  {
   
 }
 
-plan_exec::ActionFactory gotoFactory(new GotoObject(""));
+ActionFactory gotoFactory(new GotoObject(""));
   
   
 }

@@ -1,6 +1,6 @@
 #include "SearchPerson.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "CallGUI.h"
 
@@ -127,6 +127,6 @@ std::vector<std::string> SearchPerson::getParameters() const {
 }
 
 
-plan_exec::ActionFactory SearchPersonFactory(new SearchPerson());
+ActionFactory SearchPersonFactory(new SearchPerson());
   
 }

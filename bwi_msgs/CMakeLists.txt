@@ -55,7 +55,7 @@ add_action_files(
   DIRECTORY action
   FILES
     LEDControl.action
-    LogicalNavigation.action
+    LogicalAction.action
 )
 
 generate_messages(

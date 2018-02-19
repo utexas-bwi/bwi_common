@@ -12,7 +12,8 @@
 
 #include "plan_execution/ExecutePlanAction.h"
 
-#include "plan_execution/ActionFactory.h"
+//#include "plan_execution/ActionFactory.h"
+#include "actions/ActionFactory.h"
 #include "plan_execution/LogicalAction.h"
 
 #include <actionlib/server/simple_action_server.h>
@@ -31,8 +32,11 @@ const std::string queryDirectory("/tmp/bwi_action_execution/");
 
 
 using namespace std;
+using namespace bwi_krexec;
 using namespace plan_exec;
 using namespace actasp;
+
+namespace bwi_krexec{}
 
 typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 

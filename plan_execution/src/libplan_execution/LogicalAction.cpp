@@ -1,7 +1,5 @@
 #include "plan_execution/LogicalAction.h"
 
-#include "plan_execution/ActionFactory.h"
-
 #include "actasp/AspFluent.h"
 
 #include <bwi_planning_common/PlannerInterface.h>
@@ -54,7 +52,7 @@ void LogicalAction::run() {
   ROS_DEBUG_STREAM("Executing " << name);
 
   if (!request_in_progress) {
-    lnac = new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
+    lnac = new actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction>("execute_logical_goal",
                                                                                                  true);
     lnac->waitForServer();
     goal.command.name = name;
@@ -67,7 +65,7 @@ void LogicalAction::run() {
 
   // If the action finished, need to do some work here.
   if (finished_before_timeout) {
-    bwi_msgs::LogicalNavigationResultConstPtr result = lnac->getResult();
+    bwi_msgs::LogicalActionResultConstPtr result = lnac->getResult();
     
     // Update fluents based on the result of the logical nav request.
     NodeHandle n;
@@ -94,8 +92,5 @@ Action *LogicalAction::cloneAndInit(const actasp::AspFluent & fluent) const {
 }
 
 
-
-// static ActionFactory gothroughFactory(new LogicalNavigation("gothrough"));
-// static ActionFactory approachFactory(new LogicalNavigation("approach"));
 	
 } //namespace

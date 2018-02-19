@@ -14,7 +14,7 @@
 #include "actasp/executors/PartialPolicyExecutor.h"
 #include <actasp/reasoners/Clingo.h>
 
-#include "plan_execution/ActionFactory.h"
+#include "actions/ActionFactory.h"
 #include "plan_execution/LogicalAction.h"
 
 
@@ -37,8 +37,9 @@ std::string valueDirectory;
 
 
 using namespace std;
-using namespace plan_exec;
+using namespace bwi_krexec;
 using namespace actasp;
+using namespace plan_exec;
 
 typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 

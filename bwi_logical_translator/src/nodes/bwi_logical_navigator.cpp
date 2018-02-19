@@ -57,7 +57,8 @@
 #include <tf/transform_listener.h>
 
 #include <bwi_msgs/ResolveChangeFloor.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalActionAction.h>
+#include <bwi_msgs/UpdateObject.h>
 #include <bwi_logical_translator/bwi_logical_translator.h>
 
 using bwi_planning_common::PlannerAtom;
@@ -67,15 +68,16 @@ class BwiLogicalNavigator : public bwi_logical_translator::BwiLogicalTranslator 
 
   public:
 
-    typedef actionlib::SimpleActionServer<bwi_msgs::LogicalNavigationAction> LogicalNavActionServer;
+    typedef actionlib::SimpleActionServer<bwi_msgs::LogicalActionAction> LogicalNavActionServer;
 
     BwiLogicalNavigator();
 
-    void execute(const bwi_msgs::LogicalNavigationGoalConstPtr &goal);
+    void execute(const bwi_msgs::LogicalActionGoalConstPtr &goal);
     bool changeFloorResolutionHandler(bwi_msgs::ResolveChangeFloor::Request &req,
                                       bwi_msgs::ResolveChangeFloor::Response &res);
-
-
+    bool updateObject(bwi_msgs::UpdateObject::Request &req,
+                      bwi_msgs::UpdateObject::Response &res);
+ 
   protected:
 
     void senseState(std::vector<PlannerAtom>& observations,
@@ -122,6 +124,7 @@ class BwiLogicalNavigator : public bwi_logical_translator::BwiLogicalTranslator 
     bool execute_action_server_started_;
 
     ros::ServiceServer change_floor_resolution_server_;
+    ros::ServiceServer add_object_server_;
     boost::shared_ptr<actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> > robot_controller_;
 
     boost::shared_ptr<tf::TransformListener> tf_;
@@ -180,6 +183,9 @@ BwiLogicalNavigator::BwiLogicalNavigator() :
                                                           "execute_logical_goal",
                                                           boost::bind(&BwiLogicalNavigator::execute, this, _1),
                                                           false));
+  add_object_server_ = nh_->advertiseService("update_object",
+                                                         &BwiLogicalNavigator::updateObject,
+                                                         this);
 
   change_floor_resolution_server_ = nh_->advertiseService("resolve_change_floor",
                                                           &BwiLogicalNavigator::changeFloorResolutionHandler,
@@ -325,6 +331,11 @@ void BwiLogicalNavigator::senseState(std::vector<PlannerAtom>& observations, siz
 
   for (size_t door = 0; door < num_doors; ++door) {
 
+    if ((doors_[door].approach_names[0] != getLocationString(location_idx)) &&
+        (doors_[door].approach_names[1] != getLocationString(location_idx))) {
+      // We can't sense the current door since we're not in a location that this door connects.
+      continue;
+    }
 
     PlannerAtom beside_door;
     beside_door.value.push_back(getDoorString(door));
@@ -652,9 +663,9 @@ bool BwiLogicalNavigator::senseDoor(const std::string& door_name,
   return true;
 }
 
-void BwiLogicalNavigator::execute(const bwi_msgs::LogicalNavigationGoalConstPtr& goal) {
+void BwiLogicalNavigator::execute(const bwi_msgs::LogicalActionGoalConstPtr& goal) {
 
-  bwi_msgs::LogicalNavigationResult res;
+  bwi_msgs::LogicalActionResult res;
   res.observations.clear();
 
   if (goal->command.name == "approach") {
@@ -691,6 +702,30 @@ bool BwiLogicalNavigator::changeFloorResolutionHandler(bwi_msgs::ResolveChangeFl
   res.success = resolveChangeFloorRequest(req.new_room, req.facing_door, res.floor_name, res.pose, res.error_message);
   return true;
 }
+
+bool BwiLogicalNavigator::updateObject(bwi_msgs::UpdateObject::Request &req,
+                                          bwi_msgs::UpdateObject::Response &res) {
+  if ((int) req.type == bwi_msgs::UpdateObjectRequest::UPDATE) {
+    object_approach_map_[req.object_name] = req.pose;
+    res.success = true;
+  }
+  else if ((int) req.type == bwi_msgs::UpdateObjectRequest::REMOVE) {
+    std::map<std::string, geometry_msgs::Pose>::iterator it = object_approach_map_.find(req.object_name);
+    if (it == object_approach_map_.end()) {
+      ROS_ERROR_STREAM("BwiLogicalNavigator::updateObject: object to remove does not exist");
+      res.success = false;
+    }
+    else {
+      object_approach_map_.erase(it);
+      res.success = true;
+    }
+  }
+  else {
+    ROS_ERROR_STREAM("BwiLogicalNavigator::updateObject: unknown request type");
+    res.success = false;
+  }
+}
+
 
 int main(int argc, char *argv[]) {
 

@@ -2,7 +2,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 #include "plan_execution/StaticFacts.h"
 
 #include "plan_execution/UpdateFluents.h"
@@ -10,7 +10,7 @@
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalActionAction.h>
 
 namespace bwi_krexec {
 
@@ -78,11 +78,11 @@ void ChangeFloor::run() {
         } else {
 
           // Attempt to change the robot's location to this floor and location.
-          boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
-          lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
+          boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction> > lnac;
+          lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction>("execute_logical_goal",
                                                                                                            true));
           lnac->waitForServer();
-          bwi_msgs::LogicalNavigationGoal goal;
+          bwi_msgs::LogicalActionGoal goal;
           goal.command.name = "changefloor";
           goal.command.value.push_back(dest_room);
           goal.command.value.push_back(facing_door);
@@ -150,6 +150,6 @@ std::vector<std::string> ChangeFloor::getParameters() const {
 
 //if you want the action to be available only in simulation, or only
 //on the robot, use the constructor that also takes a boolean.
-plan_exec::ActionFactory changeFloor(new ChangeFloor(), false);
+ActionFactory changeFloor(new ChangeFloor(), false);
 
 }

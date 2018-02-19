@@ -117,41 +117,12 @@ add_subdirectory(actasp/src/)
 add_library(actasp ${actasp_SRC})
 target_link_libraries(actasp ${catkin_LIBRARIES})
 
-set(kractions_SRC)
+set(plan_execution_SRC)
 add_subdirectory(src/libplan_execution)
-add_library(plan_execution ${kractions_SRC})
+add_library(plan_execution ${plan_execution_SRC})
 add_dependencies(plan_execution ${catkin_EXPORTED_TARGETS})
 add_dependencies(plan_execution ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(plan_execution actasp ${catkin_LIBRARIES})
-
-set(spexec_SRC)
-set(anyexec_SRC)
-set(lexec_SRC)
-set(xpexec_SRC)
-set(krreasoner_SRC)
-
-add_subdirectory(src)
-add_executable(single_plan_executor_node ${spexec_SRC})
-target_link_libraries(single_plan_executor_node
-  ${catkin_LIBRARIES} actasp plan_execution)
-
-add_executable(any_plan_executor_node ${anyexec_SRC})
-target_link_libraries(any_plan_executor_node
-  ${catkin_LIBRARIES} actasp plan_execution)
-
-add_executable(learning_executor_node ${lexec_SRC})
-target_link_libraries(learning_executor_node
-  ${catkin_LIBRARIES} actasp plan_execution)
- 
-add_executable(knowledge_reasoning_node  ${krreasoner_SRC})
-target_link_libraries(knowledge_reasoning_node
-  ${catkin_LIBRARIES} actasp plan_execution)
-
-add_executable(asp_formatter src/asp_formatter.cpp)
-target_link_libraries(asp_formatter ${catkin_LIBRARIES} actasp)
-
-add_executable(state_tracker src/state_tracker.cpp)
-target_link_libraries(state_tracker actasp plan_execution)
 
 #############
 ## Install ##
@@ -182,14 +153,6 @@ install(TARGETS plan_execution
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 
-install(TARGETS
-          any_plan_executor_node
-          asp_formatter
-          knowledge_reasoning_node
-          learning_executor_node
-          single_plan_executor_node
-	  state_tracker
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #############
 ## Testing ##

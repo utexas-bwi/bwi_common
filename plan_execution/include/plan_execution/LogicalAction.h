@@ -4,7 +4,7 @@
 #include "actasp/Action.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalActionAction.h>
 
 namespace plan_exec {
 
@@ -37,8 +37,8 @@ protected:
 	std::vector<std::string> parameters;
 	bool done;
 
-  actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>* lnac;
-  bwi_msgs::LogicalNavigationGoal goal;
+  actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction>* lnac;
+  bwi_msgs::LogicalActionGoal goal;
   bool request_in_progress;
 
 };	

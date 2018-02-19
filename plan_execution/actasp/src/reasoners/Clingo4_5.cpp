@@ -13,6 +13,8 @@
 #include <iostream>
 #include <limits>
 
+#include <ros/ros.h>
+
 #define CURRENT_STATE_FILE std::string("/tmp/current.asp")
 
 using namespace std;
@@ -88,16 +90,16 @@ Clingo4_5::Clingo4_5(const std::string& incrementalVar,
   currentFile.close();
 }
 
-struct RuleToString4_2 {
-  RuleToString4_2(unsigned int timeStepNum) {
+struct RuleToString4_5 {
+  RuleToString4_5(unsigned int timeStepNum) {
     stringstream ss;
     ss << timeStepNum;
     timeStep = ss.str();
   }
 
-  RuleToString4_2(const std::string& timeStepVar) : timeStep(timeStepVar) {}
+  RuleToString4_5(const std::string& timeStepVar) : timeStep(timeStepVar) {}
 
-  RuleToString4_2() : timeStep("") {}
+  RuleToString4_5() : timeStep("") {}
 
   std::string operator()(const AspRule& rule) const {
 
@@ -111,7 +113,7 @@ struct RuleToString4_2 {
         ruleStream << rule.head[i].toString();
 
       if (i < (size-1))
-        ruleStream << ", ";
+        ruleStream << " | ";
     }
 
     if (!(rule.body.empty()))
@@ -125,7 +127,7 @@ struct RuleToString4_2 {
         ruleStream << rule.body[i].toString();
 
       if (i < (size-1))
-        ruleStream << "| ";
+        ruleStream << ", ";
     }
 
     if (!(rule.head.empty() && rule.body.empty()))
@@ -137,9 +139,9 @@ struct RuleToString4_2 {
   string timeStep;
 };
 
-struct RuleToCumulativeString4_2 {
+struct RuleToCumulativeString4_5 {
 
-  RuleToCumulativeString4_2(const std::string& timeStepVar) : timeStep(timeStepVar) {}
+  RuleToCumulativeString4_5(const std::string& timeStepVar) : timeStep(timeStepVar) {}
 
   std::string operator()(const AspRule& rule) const {
 
@@ -183,9 +185,9 @@ struct RuleToCumulativeString4_2 {
   string timeStep;
 };
 
-struct RuleToGoalString4_2 {
+struct RuleToGoalString4_5 {
 
-  RuleToGoalString4_2(const std::string& timeStepVar) : timeStep(timeStepVar) {}
+  RuleToGoalString4_5(const std::string& timeStepVar) : timeStep(timeStepVar) {}
 
   std::string operator()(const AspRule& rule) const {
 
@@ -225,14 +227,14 @@ struct RuleToGoalString4_2 {
 static string cumulativeString(const std::vector<actasp::AspRule>& query, const string& timeStepVar) {
 
   stringstream aspStream;
-  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToCumulativeString4_2(timeStepVar));
+  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToCumulativeString4_5(timeStepVar));
   return aspStream.str();
 }
 
 static string aspString(const std::vector<actasp::AspRule>& query, const string& timeStepVar) {
 
   stringstream aspStream;
-  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToString4_2(timeStepVar));
+  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToString4_5(timeStepVar));
   return aspStream.str();
 }
 
@@ -351,11 +353,11 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
 
 string Clingo4_5::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
   stringstream goal;
-  goal << "#program volatile(" << incrementalVar << ")." << endl;
+  goal << "#program check(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
 
-  transform(goalRules.begin(),goalRules.end(),ostream_iterator<std::string>(goal),RuleToGoalString4_2(incrementalVar));
+  transform(goalRules.begin(),goalRules.end(),ostream_iterator<std::string>(goal),RuleToGoalString4_5(incrementalVar));
 
   goal << endl;
 
@@ -394,9 +396,9 @@ std::list<actasp::AnswerSet> Clingo4_5::minimalPlanQuery(const std::vector<actas
 
 }
 
-struct MaxTimeStepLessThan4_2 {
+struct MaxTimeStepLessThan4_5 {
 
-  MaxTimeStepLessThan4_2(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
+  MaxTimeStepLessThan4_5(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
 
   bool operator()(const AnswerSet& answer) {
     return !answer.getFluents().empty() &&  answer.maxTimeStep() < initialTimeStep;
@@ -420,7 +422,7 @@ std::list<actasp::AnswerSet> Clingo4_5::lengthRangePlanQuery(const std::vector<a
   //clingo 3 generates all plans up to a maximum length anyway, we can't avoid the plans shorter than min_plan_length to be generated
   //we can only filter them out afterwards
 
-  allplans.remove_if(MaxTimeStepLessThan4_2(min_plan_length));
+  allplans.remove_if(MaxTimeStepLessThan4_5(min_plan_length));
 
   if (filterActions)
     return filterPlans(allplans,allActions);
@@ -456,7 +458,7 @@ AnswerSet Clingo4_5::currentStateQuery(const std::vector<actasp::AspRule>& query
   return (sets.empty())? AnswerSet() : *(sets.begin());
 }
 
-struct HasTimeStepZeroInHead4_2 : unary_function<const AspRule&,bool> {
+struct HasTimeStepZeroInHead4_5 : unary_function<const AspRule&,bool> {
 
   bool operator()(const AspRule &rule) const {
     if (rule.head.empty())
@@ -473,18 +475,18 @@ std::list<actasp::AnswerSet> Clingo4_5::genericQuery(const std::vector<actasp::A
     unsigned int answerSetsNumber) const throw() {
 
   std::vector<actasp::AspRule> base;
-  remove_copy_if(query.begin(),query.end(),back_inserter(base), not1(HasTimeStepZeroInHead4_2()));
+  remove_copy_if(query.begin(),query.end(),back_inserter(base), not1(HasTimeStepZeroInHead4_5()));
 
   string base_part = aspString(base,0);
 
   stringstream thequery(base_part, ios_base::app | ios_base::out);
 
   std::vector<actasp::AspRule> cumulative;
-  remove_copy_if(query.begin(),query.end(),back_inserter(cumulative), HasTimeStepZeroInHead4_2());
+  remove_copy_if(query.begin(),query.end(),back_inserter(cumulative), HasTimeStepZeroInHead4_5());
 
   string cumulative_part = cumulativeString(cumulative,incrementalVar);
 
-  thequery << endl << "#program cumulative(" << incrementalVar << ")." << endl;
+  thequery << endl << "#program step(" << incrementalVar << ")." << endl;
   thequery << cumulative_part << endl;
 
   return genericQuery(thequery.str(),timeStep,timeStep,fileName,answerSetsNumber,true);
@@ -497,7 +499,7 @@ std::string Clingo4_5::generateMonitorQuery(const std::vector<actasp::AspRule>& 
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  monitorQuery << "#program cumulative(" << incrementalVar << ")." << endl;
+  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
 
 
   const AnswerSet::FluentSet &actionSet = plan.getFluents();
@@ -526,7 +528,7 @@ std::list<actasp::AnswerSet> Clingo4_5::monitorQuery(const std::vector<actasp::A
 
   list<actasp::AnswerSet> result = genericQuery(monitorQuery,plan.getFluents().size(),plan.getFluents().size(),"monitorQuery",1,true);
 
-  result.remove_if(MaxTimeStepLessThan4_2(plan.getFluents().size()));
+  result.remove_if(MaxTimeStepLessThan4_5(plan.getFluents().size()));
 
 //   clock_t kr1_end = clock();
 //   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
@@ -567,12 +569,11 @@ std::string Clingo4_5::makeQuery(const std::string& query,
 //   if ( finalTimeStep > initialTimeStep ) //when max and initial are the same, we do not want max
     iterations << " -cimax=" << finalTimeStep;
 
-  commandLine << "clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp ";
+  commandLine << "clingo " << iterations.str() << " " << domainDir << "*.asp " << queryPath << " ";
   if(useCurrentState)
     commandLine<< (currentFilePath);
   
   commandLine << " > " << outputFilePath << " " << answerSetsNumber;
-
 
   if (!system(commandLine.str().c_str())) {
     //maybe do something here, or just kill the warning about the return value not being used.

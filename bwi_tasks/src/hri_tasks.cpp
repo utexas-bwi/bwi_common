@@ -1,6 +1,6 @@
 #include <bwi_msgs/QuestionDialog.h>
 #include <plan_execution/ExecutePlanAction.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalActionAction.h>
 
 #include <actionlib/client/simple_action_client.h>
 #include <tf/transform_listener.h>
@@ -499,7 +499,7 @@ int main(int argc, char**argv) {
   client = new Client("action_executor/execute_plan", true);
   client->waitForServer();
 
-  actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> navClient("execute_logical_goal", true);;
+  actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction> navClient("execute_logical_goal", true);;
   navClient.waitForServer();
 
   guiClient = n.serviceClient<bwi_msgs::QuestionDialog>("/question_dialog");

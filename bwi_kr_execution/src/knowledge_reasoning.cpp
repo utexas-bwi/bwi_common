@@ -1,5 +1,5 @@
 
-#include "plan_execution/ActionFactory.h"
+#include "actions/ActionFactory.h"
 
 #include "actasp/reasoners/Reasoner.h"
 #include <actasp/QueryGenerator.h>
@@ -23,10 +23,11 @@
 using namespace actasp;
 using namespace std;
 using namespace ros;
+using namespace bwi_krexec;
 using namespace plan_exec;
 
 const int MAX_N = 20;
-const std::string queryDirectory("/tmp/plan_execution/");
+const std::string queryDirectory("/tmp/bwi_knowledge_reasoning/");
 
 
 

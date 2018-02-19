@@ -1,6 +1,6 @@
 #include "ApproachDoor.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 #include "plan_execution/msgs_utils.h"
 
 #include "actasp/AnswerSet.h"
@@ -59,7 +59,7 @@ void ApproachDoor::run()  {
   
 }
 
-plan_exec::ActionFactory approachFactory(new ApproachDoor(""));
+ActionFactory approachFactory(new ApproachDoor(""));
   
   
 }

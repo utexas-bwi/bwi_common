@@ -3,7 +3,7 @@
 #include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 #include "plan_execution/LogicalAction.h"
 
 #include "actasp/AspFluent.h"
@@ -74,6 +74,6 @@ std::vector<std::string> OpenSimulatedDoor::getParameters() const {
   return param;
 }
 
-plan_exec::ActionFactory simulatedOpenDoor(new OpenSimulatedDoor(), true);
+ActionFactory simulatedOpenDoor(new OpenSimulatedDoor(), true);
 
 }

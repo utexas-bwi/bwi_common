@@ -4,7 +4,7 @@
 #include "CallGUI.h"
 #include "plan_execution/LogicalAction.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "actasp/AspFluent.h"
 
@@ -90,7 +90,6 @@ std::vector<std::string> OpenDoor::getParameters() const {
   return param;
 }
 
-
-plan_exec::ActionFactory openDoorFactory(new OpenDoor(), false);
+ActionFactory openDoorFactory(new OpenDoor(), false);
   
 }

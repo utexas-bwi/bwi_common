@@ -1,6 +1,6 @@
 #include "Knock.h"
 
-#include "plan_execution/ActionFactory.h"
+#include "ActionFactory.h"
 
 #include "CallGUI.h"
 
@@ -75,7 +75,6 @@ std::vector<std::string> Knock::getParameters() const {
   return param;
 }
 
-
-plan_exec::ActionFactory KnockFactory(new Knock());
+ActionFactory KnockFactory(new Knock());
   
 }

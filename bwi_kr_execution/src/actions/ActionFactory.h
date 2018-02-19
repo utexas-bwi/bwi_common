@@ -1,5 +1,5 @@
-#ifndef actexec_ActionFactory_h__guard
-#define actexec_ActionFactory_h__guard
+#ifndef bwi_actexec_ActionFactory_h__guard
+#define bwi_actexec_ActionFactory_h__guard
 
 #include "actasp/actaspfwd.h"
 
@@ -7,7 +7,7 @@
 #include <map>
 #include <stdexcept>
 
-namespace plan_exec {
+namespace bwi_krexec {
 
 struct ActionFactory {
 	

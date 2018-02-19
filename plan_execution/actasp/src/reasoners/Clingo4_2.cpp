@@ -13,8 +13,6 @@
 #include <iostream>
 #include <limits>
 
-#include <ros/ros.h>
-
 #define CURRENT_STATE_FILE std::string("/tmp/current.asp")
 
 using namespace std;
@@ -113,7 +111,7 @@ struct RuleToString4_2 {
         ruleStream << rule.head[i].toString();
 
       if (i < (size-1))
-        ruleStream << " | ";
+        ruleStream << ", ";
     }
 
     if (!(rule.body.empty()))
@@ -127,7 +125,7 @@ struct RuleToString4_2 {
         ruleStream << rule.body[i].toString();
 
       if (i < (size-1))
-        ruleStream << ", ";
+        ruleStream << "| ";
     }
 
     if (!(rule.head.empty() && rule.body.empty()))
@@ -353,7 +351,7 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
 
 string Clingo4_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
   stringstream goal;
-  goal << "#program check(" << incrementalVar << ")." << endl;
+  goal << "#program volatile(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
 
@@ -486,7 +484,7 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::A
 
   string cumulative_part = cumulativeString(cumulative,incrementalVar);
 
-  thequery << endl << "#program step(" << incrementalVar << ")." << endl;
+  thequery << endl << "#program cumulative(" << incrementalVar << ")." << endl;
   thequery << cumulative_part << endl;
 
   return genericQuery(thequery.str(),timeStep,timeStep,fileName,answerSetsNumber,true);
@@ -499,7 +497,7 @@ std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
+  monitorQuery << "#program cumulative(" << incrementalVar << ")." << endl;
 
 
   const AnswerSet::FluentSet &actionSet = plan.getFluents();
@@ -569,11 +567,12 @@ std::string Clingo4_2::makeQuery(const std::string& query,
 //   if ( finalTimeStep > initialTimeStep ) //when max and initial are the same, we do not want max
     iterations << " -cimax=" << finalTimeStep;
 
-  commandLine << "clingo " << iterations.str() << " " << domainDir << "*.asp " << queryPath << " ";
+  commandLine << "clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp ";
   if(useCurrentState)
     commandLine<< (currentFilePath);
   
   commandLine << " > " << outputFilePath << " " << answerSetsNumber;
+
 
   if (!system(commandLine.str().c_str())) {
     //maybe do something here, or just kill the warning about the return value not being used.
