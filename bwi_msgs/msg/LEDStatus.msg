@@ -8,4 +8,4 @@ uint8 CAMERA_OFF = 2
 
 # Selects which animation to execute
 
-uint8 camera_status
+uint8 status
