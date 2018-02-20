@@ -26,7 +26,7 @@
 #include <string>
 
 const int MAX_N = 30;
-const int PLANNER_TIMEOUT = 40; //seconds
+const int PLANNER_TIMEOUT = 50; //seconds
 const std::string queryDirectory("/tmp/bwi_action_execution/");
 
 
@@ -40,43 +40,43 @@ typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Serve
 ActionExecutor *executor;
 
 struct PrintFluent {
-  
+
   PrintFluent(ostream& stream) : stream(stream) {}
-  
+
   string operator()(const AspFluent& fluent) {
     stream << fluent.toString() << " ";
   }
-  
+
   ostream &stream;
-  
+
 };
 
 struct Observer : public ExecutionObserver, public PlanningObserver {
-  
+
   void actionStarted(const AspFluent& action) throw() {
     ROS_INFO_STREAM("Starting execution: " << action.toString());
   }
-  
+
   void actionTerminated(const AspFluent& action) throw() {
     ROS_INFO_STREAM("Terminating execution: " << action.toString());
   }
-  
-  
+
+
   void planChanged(const AnswerSet& newPlan) throw() {
    stringstream planStream;
-   
+
    ROS_INFO_STREAM("plan size: " << newPlan.getFluents().size());
-   
+
    copy(newPlan.getFluents().begin(),newPlan.getFluents().end(),ostream_iterator<string>(planStream," "));
-   
+
    ROS_INFO_STREAM(planStream.str());
   }
-  
+
     void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() {}
-  
+
   void policyChanged(PartialPolicy* policy) throw() {}
-  
-  
+
+
 };
 
 void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
@@ -99,14 +99,14 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
       executor->executeActionStep();
     }
     else {
-      
+
       as->setPreempted();
-      
-      if (executor->goalReached()) 
+
+      if (executor->goalReached())
         ROS_INFO("Preempted, but execution succeded");
-      else 
+      else
         ROS_INFO("Preempted, execution aborted");
-      
+
       if(as->isNewGoalAvailable()) {
         goalRules.clear();
         const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
@@ -139,11 +139,11 @@ int main(int argc, char**argv) {
 //   if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
 //     ros::console::notifyLoggerLevelsChanged();
 //   }
-  
+
   ros::NodeHandle privateNode("~");
   string domainDirectory;
   n.param<std::string>("bwi_kr_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
-  
+
   if(domainDirectory.at(domainDirectory.size()-1) != '/')
     domainDirectory += '/';
 
@@ -154,18 +154,18 @@ int main(int argc, char**argv) {
 
   bool simulating;
   privateNode.param<bool>("simulation",simulating,false);
-  ActionFactory::setSimulation(simulating); 
-  
+  ActionFactory::setSimulation(simulating);
+
   boost::filesystem::create_directories(queryDirectory);
 
   FilteringQueryGenerator *generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),PLANNER_TIMEOUT);
   AspKR *reasoner = new RemoteReasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
-  
+
   //need a pointer to the specific type for the observer
   ReplanningActionExecutor *replanner = new ReplanningActionExecutor(reasoner,reasoner,ActionFactory::actions());
   executor = replanner;
-  
+
   Observer observer;
   executor->addExecutionObserver(&observer);
   replanner->addPlanningObserver(&observer);
@@ -175,6 +175,6 @@ int main(int argc, char**argv) {
 
   ros::spin();
 
-  
+
   return 0;
 }
