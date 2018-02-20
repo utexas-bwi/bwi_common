@@ -9,23 +9,36 @@
 #include "ros/console.h"
 #include "ros/ros.h"
 
+#include "bwi_kr_execution/CurrentStateQuery.h"
+#include "../msgs_utils.h"
+#include "actasp/AnswerSet.h"
+
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalNavigationAction.h>
+
+/*******************************************************
+*                   Service Headers                    *
+********************************************************/
+#include "bwi_services/SpeakMessage.h"
 
 namespace bwi_krexec {
 
 ChangeFloor::ChangeFloor() :
-             done(false),
-             asked(false),
-             failed(false) {}
+              done(false),
+              asked(false),
+              failed(false) {}
 
 void ChangeFloor::run() {
-  
+
   if(!asked) {
+
+    ros::NodeHandle n;
+    ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service_node/speak_message");
+    bwi_services::SpeakMessage speak_srv;
 
     // Get the doors for this elevator.
     std::string dest_floor;
-    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
+    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts();
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
       if (fact.getName() == "floor") {
         std::vector<std::string> params = fact.getParameters();
@@ -43,11 +56,65 @@ void ChangeFloor::run() {
     } else {
       std::vector<std::string> options;
       options.push_back("Reached!");
-      askToChangeFloor.reset(new CallGUI("askToChangeFloor", 
-                                         CallGUI::CHOICE_QUESTION,  
-                                         "Could you press the button for floor " + dest_floor + 
-                                           ", and then let me know when the elevator arrives there?", 
-                                         120.0f, 
+      askToChangeFloor.reset(new CallGUI("askToChangeFloor",
+                                         CallGUI::DISPLAY,
+                                         "Could you press the button for floor " + dest_floor +
+                                         ", and then let me know when the elevator arrives there?"));
+      askToChangeFloor->run();
+
+      speak_srv.request.message = "Could you press the button for floor " + dest_floor + ", and then let me know when the elevator arrives there?";
+      speak_message_client.call(speak_srv);
+
+      // Retrieve current state fluents
+      ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );
+      krClient.waitForExistence();
+
+      bwi_kr_execution::CurrentStateQuery csq;
+      krClient.call(csq);
+
+      actasp::AnswerSet answer = TranslateAnswerSet()(csq.response.answer);
+
+      // Get the elevator we are using
+      std::string elev_room;
+      std::set<actasp::AspFluent> fluents_at_zero = answer.getFluentsAtTime(0);
+      BOOST_FOREACH(const actasp::AspFluent fluent, fluents_at_zero) {
+        if (fluent.getName() == "at") {
+          // ROS_INFO_STREAM("Elev Room: " << fluent.getParameters()[0]);
+          elev_room = fluent.getParameters()[0];
+          break;
+        }
+      }
+
+      // Get the door for the elevator we are using
+      std::string elev_door;
+      std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts();
+      BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
+        if (fact.getName() == "hasdoor") {
+          std::vector<std::string> params = fact.getParameters();
+          if (params[0] == elev_room) {
+            // ROS_INFO_STREAM("Elev Door: " << params[1]);
+            elev_door = params[1];
+            break;
+          }
+        }
+      }
+
+      // Make robot face elevator door
+      boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
+      lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
+                                                                                                       true));
+      lnac->waitForServer();
+      bwi_msgs::LogicalNavigationGoal goal;
+      goal.command.name = "approach";
+      goal.command.value.push_back(elev_door);
+      lnac->sendGoal(goal);
+      //lnac->waitForResult();
+
+      askToChangeFloor.reset(new CallGUI("askToChangeFloor",
+                                         CallGUI::CHOICE_QUESTION,
+                                         "Could you press the button for floor " + dest_floor +
+                                           ", and then let me know when the elevator arrives there?",
+                                         120.0f,
                                          options));
       askToChangeFloor->run();
     }
@@ -60,7 +127,7 @@ void ChangeFloor::run() {
 
         // Get the doors for this elevator.
         std::string facing_door;
-        std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
+        std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts();
         BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
           if (fact.getName() == "hasdoor") {
             std::vector<std::string> params = fact.getParameters();
@@ -127,7 +194,7 @@ void ChangeFloor::run() {
       done = true;
     }
   }
- 
+
 }
 
 bool ChangeFloor::hasFinished() const {
