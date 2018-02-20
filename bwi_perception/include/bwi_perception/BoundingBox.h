@@ -34,7 +34,7 @@ namespace bwi_perception {
         visualization_msgs::Marker to_marker(const int marker_index,
                                              const std::string &ns) const;
 
-        static void transform(const std::string &target_frame, const BoundingBox &in, BoundingBox &out);
+        static void transform(const std::string &target_frame, const BoundingBox &in, BoundingBox &out, const tf::TransformListener &listener = tf::TransformListener());
     };
 
     template<typename T>
@@ -44,7 +44,8 @@ namespace bwi_perception {
         Eigen::Vector4f min, max = Eigen::Vector4f::Zero();
         pcl::getMinMax3D(*plane_cloud, min, max);
 
-        Eigen::Vector4f position((max[0] - min[0]) / 2, (max[1] - min[2]) / 2, (max[3] - min[3]) / 2, 1);
+        Eigen::Vector4f position = min + (max - min) / 2;
+        position.w() = 1;
         return BoundingBox(min, max, centroid, Eigen::Quaternionf(0, 0, 0, 1), position, plane_cloud->header.frame_id);
     }
 

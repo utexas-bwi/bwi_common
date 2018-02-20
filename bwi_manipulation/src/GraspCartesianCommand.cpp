@@ -58,15 +58,15 @@ namespace bwi_manipulation {
         command.grasp_pose = grasp_pose;
         // We assume that the appr
 
-        Eigen::Vector3d approach_axis(1, 0, 0);
+        Eigen::Vector3d approach_axis(0, 0, 1);
         Eigen::Quaterniond quat;
         tf::quaternionMsgToEigen(grasp_pose.pose.orientation, quat);
         approach_axis = quat * approach_axis;
 
         geometry_msgs::PoseStamped approach_pose = grasp_pose;
-        approach_pose.pose.position.x += approach_axis.x();
-        approach_pose.pose.position.y += approach_axis.y();
-        approach_pose.pose.position.z += approach_axis.z();
+        approach_pose.pose.position.x -= offset_approach * approach_axis.x();
+        approach_pose.pose.position.y -= offset_approach * approach_axis.y();
+        approach_pose.pose.position.z -= offset_approach * approach_axis.z();
         command.approach_pose = approach_pose;
         return command;
     }

@@ -10,6 +10,8 @@
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
+using namespace std;
+
 namespace bwi_perception {
     BoundingBox::BoundingBox(const Eigen::Vector4f &min, const Eigen::Vector4f &max, const Eigen::Vector4f &centroid,
                              const Eigen::Quaternionf &orientation, const Eigen::Vector4f &position,
@@ -53,9 +55,6 @@ namespace bwi_perception {
         marker.scale.y = abs(max[1] - min[1]);
         marker.scale.z = abs(max[2] - min[2]);
 
-        // Set the color -- be sure to set alpha to something non-zero!
-        //int	apply_color = marker_index % colormap.size();
-
         marker.color.r = 0.0;
         marker.color.g = 0.0;
         marker.color.b = 1.0;
@@ -82,13 +81,16 @@ namespace bwi_perception {
         out.z() = out_p.point.z;
     }
 
-    void BoundingBox::transform(const std::string &target_frame, const BoundingBox &in, BoundingBox &out) {
-        tf::TransformListener listener;
-        transform_eigen(listener, target_frame, in.centroid, in.frame_id, out.centroid);
-        transform_eigen(listener, target_frame, in.min, in.frame_id, out.min);
-        transform_eigen(listener, target_frame, in.max, in.frame_id, out.max);
-        transform_eigen(listener, target_frame, in.position, in.frame_id, out.position);
+    void BoundingBox::transform(const std::string &target_frame, const BoundingBox &in, BoundingBox &out, const tf::TransformListener &listener){
+
+        string in_frame = in.frame_id;
+        listener.waitForTransform(target_frame, in_frame, ros::Time::now(), ros::Duration(3));
+        transform_eigen(listener, target_frame, in.centroid, in_frame, out.centroid);
+        transform_eigen(listener, target_frame, in.min, in_frame, out.min);
+        transform_eigen(listener, target_frame, in.max, in_frame, out.max);
+        transform_eigen(listener, target_frame, in.position, in_frame, out.position);
         tf::Stamped <tf::Quaternion> quat;
+        quat.frame_id_ = in_frame;
         quat.setX(in.orientation.x());
         quat.setY(in.orientation.y());
         quat.setZ(in.orientation.z());
