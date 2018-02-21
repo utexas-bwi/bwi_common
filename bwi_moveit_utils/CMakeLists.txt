@@ -30,7 +30,6 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 add_service_files(
    FILES
-   NavSafety.srv
    MoveitCartesianPose.srv
    MoveitJointPose.srv
    MoveitWaypoint.srv
@@ -50,17 +49,14 @@ include_directories( ${catkin_INCLUDE_DIRS} )
 
 
 add_executable(moveit_joint_pose_service src/moveit_joint_pose_service.cpp)
-add_executable(nav_safety_service src/nav_safety_service.cpp)
 add_executable(moveit_cartesian_pose_service src/moveit_cartesian_pose_service.cpp)
 add_executable(moveit_waypoint_service src/moveit_waypoint_service.cpp)
 
 add_dependencies(moveit_joint_pose_service bwi_moveit_utils_gencpp)
-add_dependencies(nav_safety_service bwi_moveit_utils_gencpp ${catkin_EXPORTED_TARGETS})
+
 add_dependencies(moveit_cartesian_pose_service bwi_moveit_utils_gencpp)
 add_dependencies(moveit_waypoint_service bwi_moveit_utils_gencpp)
 
 target_link_libraries(moveit_joint_pose_service ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(nav_safety_service ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(moveit_cartesian_pose_service ${catkin_LIBRARIES})
 target_link_libraries(moveit_waypoint_service ${catkin_LIBRARIES})
-

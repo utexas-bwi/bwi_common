@@ -12,8 +12,4 @@
         <param name="arm/solve_type" value="Manipulation2" />
     </node>
 
-	<!-- safety service -->
-    <node name="nav_safety_service" pkg="bwi_moveit_utils" type="nav_safety_service" output="screen"/>
-	
-
 </launch>
