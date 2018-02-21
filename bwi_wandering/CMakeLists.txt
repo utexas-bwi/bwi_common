@@ -6,6 +6,7 @@ pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 find_package(catkin REQUIRED 
     COMPONENTS
+        ar_track_alvar
         actionlib
         actionlib_msgs
         bwi_kr_execution
