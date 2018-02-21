@@ -1,12 +1,12 @@
 #ifndef bwi_actexec_GotoObject_h__guard
 #define bwi_actexec_GotoObject_h__guard
 
-#include "LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 namespace bwi_krexec {
 
   
-class GotoObject : public LogicalNavigation {
+class GotoObject : public plan_exec::LogicalAction {
 public:  
   explicit GotoObject(const std::string& objectName);
   

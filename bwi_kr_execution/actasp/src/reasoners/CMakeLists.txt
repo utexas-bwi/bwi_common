@@ -1,8 +1,0 @@
-SET( actasp_SRC  ${actasp_SRC}
-	${CMAKE_CURRENT_SOURCE_DIR}/Clingo3.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Clingo4_2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Reasoner.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/FilteringReasoner.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/IsNotLocallyOptimal.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/LexComparator.cpp
-PARENT_SCOPE)

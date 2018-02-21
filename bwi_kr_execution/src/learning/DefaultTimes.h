@@ -1,11 +1,11 @@
-#ifndef bwi_krexec_DefaultTimes_h__guard
-#define bwi_krexec_DefaultTimes_h__guard
+#ifndef plan_exec_DefaultTimes_h__guard
+#define plan_exec_DefaultTimes_h__guard
 
 #include <actasp/actaspfwd.h>
 
 #include "DefaultActionValue.h"
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 struct DefaultTimes : public DefaultActionValue {
   

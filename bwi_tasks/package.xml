@@ -20,7 +20,7 @@
 
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
-  <depend>bwi_kr_execution</depend>
+  <depend>plan_execution</depend>
   <depend>bwi_msgs</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>

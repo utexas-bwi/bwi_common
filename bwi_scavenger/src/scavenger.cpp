@@ -2,7 +2,7 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 #include "std_msgs/String.h"
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 #include <actionlib/client/simple_action_client.h>
 
 #include <stdlib.h>     /* srand, rand */
@@ -50,7 +50,7 @@ bool callback_srv_scav(bwi_msgs::ScavHunt::Request &req,
         task_manager->paused = true; 
 
         ROS_INFO("stopping movements at kr and motion levels"); 
-        actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> 
+        actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> 
             client("/action_executor/execute_plan", true);
 
         ros::spinOnce(); 

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>plan_execution</name>
+  <version>0.0.0</version>
+  <description>The plan_execution package</description>
+
+  <maintainer email="jiangyuqian@utexas.edu">Yuqian Jiang</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend> 
+  <depend>bwi_logical_translator</depend>
+  <depend>bwi_msgs</depend> 
+  <depend>gringo</depend>
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+</package>

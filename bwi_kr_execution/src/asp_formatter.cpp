@@ -1,5 +1,5 @@
 
-#include "actasp/AnswerSet.h"
+#include <actasp/AnswerSet.h>
 #include <actasp/Action.h>
 
 #include <iostream>

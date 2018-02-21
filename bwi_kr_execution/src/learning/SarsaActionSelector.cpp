@@ -43,7 +43,7 @@
 using namespace std;
 using namespace actasp;
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 SarsaActionSelector::SarsaActionSelector(actasp::FilteringKR* reasoner, DefaultActionValue *defval,
     RewardFunction<State>*reward, const SarsaParams& p) :

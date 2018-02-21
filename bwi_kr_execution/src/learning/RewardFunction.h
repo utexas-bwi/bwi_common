@@ -1,11 +1,11 @@
-#ifndef bwi_krexec_RewardFunction_h__guard
-#define bwi_krexec_RewardFunction_h__guard
+#ifndef plan_exec_RewardFunction_h__guard
+#define plan_exec_RewardFunction_h__guard
 
 #include <actasp/AspFluent.h>
 
 #include <set>
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 template <typename State>
 struct RewardFunction {

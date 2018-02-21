@@ -7,7 +7,7 @@
 
 using namespace actasp;
 
-namespace bwi_krexec {
+namespace plan_exec {
  
 double DefaultTimes::value(const AspFluent& action) {
   

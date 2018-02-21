@@ -1,4 +1,4 @@
-#program step(n).
+#program cumulative(n).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

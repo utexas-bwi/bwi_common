@@ -1,5 +1,5 @@
-#ifndef bwi_krexec_SarsaActionSelector_h__guard
-#define bwi_krexec_SarsaActionSelector_h__guard
+#ifndef plan_exec_SarsaActionSelector_h__guard
+#define plan_exec_SarsaActionSelector_h__guard
 
 #include <actasp/ActionSelector.h>
 #include <actasp/ExecutionObserver.h>
@@ -11,7 +11,7 @@
 #include <actasp/FilteringKR.h>
 
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 template <typename T>
 class RewardFunction;

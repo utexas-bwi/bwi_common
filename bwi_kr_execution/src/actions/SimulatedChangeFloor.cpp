@@ -3,15 +3,15 @@
 #include <boost/foreach.hpp>
 
 #include "ActionFactory.h"
-#include "../StaticFacts.h"
+#include "plan_execution/StaticFacts.h"
 
-#include "bwi_kr_execution/UpdateFluents.h"
+#include "plan_execution/UpdateFluents.h"
 #include "ros/console.h"
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/DoorHandlerInterface.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
+#include <bwi_msgs/LogicalActionAction.h>
 #include <bwi_msgs/ResolveChangeFloor.h>
 #include <bwi_msgs/RobotTeleporterInterface.h>
 
@@ -28,7 +28,7 @@ void SimulatedChangeFloor::run() {
   
     // Get the doors for this elevator.
     std::string facing_door;
-    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
+    std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
       if (fact.getName() == "hasdoor") {
         std::vector<std::string> params = fact.getParameters();
@@ -100,11 +100,11 @@ void SimulatedChangeFloor::run() {
           door_client.call(dhi);
 
           // Attempt to change the robot's location to this floor and location.
-          boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction> > lnac;
-          lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalNavigationAction>("execute_logical_goal",
+          boost::shared_ptr<actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction> > lnac;
+          lnac.reset(new actionlib::SimpleActionClient<bwi_msgs::LogicalActionAction>("execute_logical_goal",
                                                                                                            true));
           lnac->waitForServer();
-          bwi_msgs::LogicalNavigationGoal goal;
+          bwi_msgs::LogicalActionGoal goal;
           goal.command.name = "changefloor";
           goal.command.value.push_back(dest_room);
           goal.command.value.push_back(facing_door);
@@ -112,23 +112,23 @@ void SimulatedChangeFloor::run() {
           lnac->waitForResult();
 
           // Update knowledge base to reflect change in position.
-          ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+          ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
           krClient.waitForExistence();
-          bwi_kr_execution::UpdateFluents uf;
+          plan_execution::UpdateFluents uf;
 
-          bwi_kr_execution::AspFluent open_door;
+          plan_execution::AspFluent open_door;
           open_door.name = "open";
           open_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent face_door;
+          plan_execution::AspFluent face_door;
           face_door.name = "facing";
           face_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent beside_door;
+          plan_execution::AspFluent beside_door;
           beside_door.name = "beside";
           beside_door.variables.push_back(facing_door);
 
-          bwi_kr_execution::AspFluent at_loc;
+          plan_execution::AspFluent at_loc;
           at_loc.name = "at";
           at_loc.variables.push_back(dest_room);
 

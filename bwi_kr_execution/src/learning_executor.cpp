@@ -1,21 +1,21 @@
 
-#include "msgs_utils.h"
-#include "RemoteReasoner.h"
-#include "StaticFacts.h"
+#include "plan_execution/msgs_utils.h"
+#include "plan_execution/RemoteReasoner.h"
+#include "plan_execution/StaticFacts.h"
 
 #include "learning/SarsaActionSelector.h"
 #include "learning/TimeReward.h"
 #include "learning/DefaultTimes.h"
 #include "learning/ActionLogger.h"
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/PartialPolicyExecutor.h"
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo.h>
 
 #include "actions/ActionFactory.h"
-#include "actions/LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 
 #include <actionlib/server/simple_action_server.h>
@@ -39,8 +39,9 @@ std::string valueDirectory;
 using namespace std;
 using namespace bwi_krexec;
 using namespace actasp;
+using namespace plan_exec;
 
-typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Server;
+typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 
 ActionExecutor *executor;
 SarsaActionSelector *selector;
@@ -138,7 +139,7 @@ void completeTask(const string& valueFileName, const ros::Time& begin, const str
   
 }
 
-void initiateTask(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, string &valueFileName, ros::Time& begin, char* time_string) {
+void initiateTask(const plan_execution::ExecutePlanGoalConstPtr& plan, string &valueFileName, ros::Time& begin, char* time_string) {
   
   begin = ros::Time::now();
   
@@ -165,7 +166,7 @@ void initiateTask(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, string 
   
 }
 
-void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
+void executePlan(const plan_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
   
   string valueFileName;
   char time_string[10];
@@ -194,7 +195,7 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
   
         completeTask(valueFileName,begin,time_string);
         
-        const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
+        const plan_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
 
         initiateTask(newGoal,valueFileName,begin,time_string);
                 
@@ -229,13 +230,13 @@ int main(int argc, char**argv) {
 
   ros::NodeHandle privateNode("~");
   string domainDirectory;
-  n.param<std::string>("bwi_kr_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
+  n.param<std::string>("plan_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
 
   if (domainDirectory.at(domainDirectory.size()-1) != '/')
     domainDirectory += '/';
 
 //  create initial state
-  LogicalNavigation setInitialState("noop");
+  LogicalAction setInitialState("noop");
   setInitialState.run();
 
  
@@ -251,7 +252,7 @@ int main(int argc, char**argv) {
 
   boost::filesystem::create_directories(queryDirectory);
   
-  FilteringQueryGenerator *generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
+  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
   FilteringKR *reasoner = new RemoteReasoner(generator,MAX_N,actionMapToSet(ActionFactory::actions()));
 
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);

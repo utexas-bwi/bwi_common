@@ -6,8 +6,6 @@
 
 #include <ros/ros.h>
 
-#include <sound_play/SoundRequest.h>
-
 #include <string>
 
 namespace bwi_krexec {
@@ -33,8 +31,6 @@ private:
  std::vector<std::string> getParameters() const;
  std::string person_to_ask;
  std::string person_to_know;
- static ros::Publisher ask_pub;
- static bool pub_set;
  bool done;
  
 };

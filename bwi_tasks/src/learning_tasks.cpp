@@ -1,33 +1,32 @@
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_msgs/LogicalNavigationAction.h>
-#include <bwi_kr_execution/CurrentStateQuery.h>
-#include <bwi_kr_execution/UpdateFluents.h>
+#include <plan_execution/CurrentStateQuery.h>
+#include <plan_execution/UpdateFluents.h>
 
 #include <std_srvs/Empty.h>
 #include <ros/ros.h>
 
 #include <ctime> //to seed rand
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
 
 struct Task {
   
-  Task(const bwi_kr_execution::ExecutePlanGoal& initial_state, const bwi_kr_execution::ExecutePlanGoal& goal) :
+  Task(const plan_execution::ExecutePlanGoal& initial_state, const plan_execution::ExecutePlanGoal& goal) :
         initial_state(initial_state), goal(goal) {}
   
-  bwi_kr_execution::ExecutePlanGoal initial_state;
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal initial_state;
+  plan_execution::ExecutePlanGoal goal;
 };
 
 struct NotPositionFluent {
 
-  bool operator()(const bwi_kr_execution::AspFluent& fluent) const {
+  bool operator()(const plan_execution::AspFluent& fluent) const {
 
     return !(fluent.name == "at" ||
              fluent.name == "-at" ||
@@ -38,7 +37,7 @@ struct NotPositionFluent {
   }
 };
 
-bool goToInitialState(Client &client,const  bwi_kr_execution::ExecutePlanGoal& initial_state) {
+bool goToInitialState(Client &client,const  plan_execution::ExecutePlanGoal& initial_state) {
 
   ROS_INFO("Going to the initial state");
 
@@ -54,18 +53,18 @@ bool goToInitialState(Client &client,const  bwi_kr_execution::ExecutePlanGoal& i
   return true;
 }
 
-bwi_kr_execution::ExecutePlanGoal initialStateFormula() {
+plan_execution::ExecutePlanGoal initialStateFormula() {
   
-  bwi_kr_execution::ExecutePlanGoal go_to_initial_state;
+  plan_execution::ExecutePlanGoal go_to_initial_state;
   
-    bwi_kr_execution::AspRule initial_rule1;
-  bwi_kr_execution::AspFluent front_of_lab_door;
+    plan_execution::AspRule initial_rule1;
+  plan_execution::AspFluent front_of_lab_door;
   front_of_lab_door.name = "not facing";
   front_of_lab_door.variables.push_back("d3_414b1");
   initial_rule1.body.push_back(front_of_lab_door);
   
-  bwi_kr_execution::AspRule initial_rule2;
-  bwi_kr_execution::AspFluent outside_of_lab;
+  plan_execution::AspRule initial_rule2;
+  plan_execution::AspFluent outside_of_lab;
   outside_of_lab.name = "at";
   outside_of_lab.variables.push_back("l3_414b");
   initial_rule2.body.push_back(outside_of_lab);
@@ -77,26 +76,26 @@ bwi_kr_execution::ExecutePlanGoal initialStateFormula() {
 }
   
   
-bwi_kr_execution::ExecutePlanGoal findPerson(const std::string& personName) {
+plan_execution::ExecutePlanGoal findPerson(const std::string& personName) {
   
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
 
-    bwi_kr_execution::AspRule main_rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::AspRule main_rule;
+    plan_execution::AspFluent fluent;
     fluent.name = "not ingdc";
     fluent.variables.push_back(personName);
 
     main_rule.body.push_back(fluent);
 
 
-    bwi_kr_execution::AspFluent fluent_not;
+    plan_execution::AspFluent fluent_not;
     fluent_not.name = "not -ingdc";
     fluent_not.variables.push_back(personName);
 
     main_rule.body.push_back(fluent_not);
     
-    bwi_kr_execution::AspRule flag_rule;
-    bwi_kr_execution::AspFluent find_person_flag;
+    plan_execution::AspRule flag_rule;
+    plan_execution::AspFluent find_person_flag;
     find_person_flag.name = "findPersonTask";
     flag_rule.head.push_back(find_person_flag);
 
@@ -106,12 +105,12 @@ bwi_kr_execution::ExecutePlanGoal findPerson(const std::string& personName) {
     return goal;
 }
 
-bwi_kr_execution::ExecutePlanGoal goToPlace(const std::string& place) {
+plan_execution::ExecutePlanGoal goToPlace(const std::string& place) {
   
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
 
-    bwi_kr_execution::AspRule rule;
-    bwi_kr_execution::AspFluent fluent;
+    plan_execution::AspRule rule;
+    plan_execution::AspFluent fluent;
     fluent.name = "not at";
     fluent.variables.push_back(place);
 
@@ -129,19 +128,19 @@ void resetMemory() {
 
   ROS_INFO("Resetting the knowledge base (forgetting everything)");
 
-  ros::ServiceClient current_state_query = n.serviceClient<bwi_kr_execution::CurrentStateQuery>("current_state_query");
-  bwi_kr_execution::CurrentStateQuery query;
+  ros::ServiceClient current_state_query = n.serviceClient<plan_execution::CurrentStateQuery>("current_state_query");
+  plan_execution::CurrentStateQuery query;
   current_state_query.call(query);
 
-  list<bwi_kr_execution::AspFluent> fluents_to_keep;
+  list<plan_execution::AspFluent> fluents_to_keep;
   remove_copy_if(query.response.answer.fluents.begin(), query.response.answer.fluents.end(), back_inserter(fluents_to_keep), NotPositionFluent());
 
   ros::ServiceClient forget_everything = n.serviceClient<std_srvs::Empty>("reset_state");
   std_srvs::Empty nothingness;
   forget_everything.call(nothingness);
 
-  ros::ServiceClient put_fluents_back = n.serviceClient<bwi_kr_execution::UpdateFluents>("update_fluents");
-  bwi_kr_execution::UpdateFluents toUpdate;
+  ros::ServiceClient put_fluents_back = n.serviceClient<plan_execution::UpdateFluents>("update_fluents");
+  plan_execution::UpdateFluents toUpdate;
 
   toUpdate.request.fluents.insert(toUpdate.request.fluents.end(),fluents_to_keep.begin(), fluents_to_keep.end());
 
@@ -154,7 +153,7 @@ int main(int argc, char**argv) {
   ros::init(argc, argv, "look_for_person");
   ros::NodeHandle n;
 
-  bwi_kr_execution::ExecutePlanGoal in_front_of_lab = initialStateFormula();
+  plan_execution::ExecutePlanGoal in_front_of_lab = initialStateFormula();
   
   vector<Task> tasks;
 //  tasks.push_back(Task(in_front_of_lab, goToPlace("l2_302")));

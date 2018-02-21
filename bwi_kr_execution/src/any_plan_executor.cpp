@@ -1,7 +1,7 @@
 
-#include "msgs_utils.h"
-#include "RemoteReasoner.h"
-#include "StaticFacts.h"
+#include "plan_execution/msgs_utils.h"
+#include "plan_execution/RemoteReasoner.h"
+#include "plan_execution/StaticFacts.h"
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/ReplanningActionExecutor.h"
@@ -9,13 +9,13 @@
 #include "actasp/ExecutionObserver.h"
 #include "actasp/PlanningObserver.h"
 #include "actasp/AnswerSet.h"
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo.h>
 
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include "actions/ActionFactory.h"
-#include "actions/LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 #include <actionlib/server/simple_action_server.h>
 
@@ -34,8 +34,9 @@ const std::string queryDirectory("/tmp/bwi_action_execution/");
 using namespace std;
 using namespace bwi_krexec;
 using namespace actasp;
+using namespace plan_exec;
 
-typedef actionlib::SimpleActionServer<bwi_kr_execution::ExecutePlanAction> Server;
+typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 
 
 ActionExecutor *executor;
@@ -80,7 +81,7 @@ struct Observer : public ExecutionObserver, public PlanningObserver {
   
 };
 
-void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
+void executePlan(const plan_execution::ExecutePlanGoalConstPtr& plan, Server* as) {
 
   vector<AspRule> goalRules;
 
@@ -98,7 +99,7 @@ void executePlan(const bwi_kr_execution::ExecutePlanGoalConstPtr& plan, Server* 
     else {
       if(as->isNewGoalAvailable()) {
         goalRules.clear();
-        const bwi_kr_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
+        const plan_execution::ExecutePlanGoalConstPtr& newGoal = as->acceptNewGoal();
         transform(newGoal->aspGoal.begin(),newGoal->aspGoal.end(),back_inserter(goalRules),TranslateRule());
         executor->setGoal(goalRules);
       }
@@ -127,13 +128,13 @@ int main(int argc, char**argv) {
   
   ros::NodeHandle privateNode("~");
   string domainDirectory;
-  n.param<std::string>("bwi_kr_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
+  n.param<std::string>("plan_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
   
   if(domainDirectory.at(domainDirectory.size()-1) != '/')
     domainDirectory += '/';
 
 //  create initial state
-  LogicalNavigation setInitialState("noop");
+  LogicalAction setInitialState("noop");
   setInitialState.run();
 
 
@@ -143,7 +144,7 @@ int main(int argc, char**argv) {
   
   boost::filesystem::create_directories(queryDirectory);
 
-  FilteringQueryGenerator *generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
   AspKR *reasoner = new RemoteReasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
   StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
   Planner *planner = new AnyPlan(reasoner,1.);

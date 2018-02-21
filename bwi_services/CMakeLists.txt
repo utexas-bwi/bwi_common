@@ -3,7 +3,7 @@ project(bwi_services)
 
 find_package(catkin REQUIRED COMPONENTS 
   actionlib
-  bwi_kr_execution
+  plan_execution
   message_generation
   roscpp
   std_msgs
@@ -23,7 +23,7 @@ generate_messages(
 catkin_package(
   CATKIN_DEPENDS
     actionlib
-    bwi_kr_execution
+    plan_execution
     message_runtime
     roscpp
     std_msgs

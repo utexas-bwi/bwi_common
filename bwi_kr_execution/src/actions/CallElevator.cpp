@@ -3,10 +3,10 @@
 #include <boost/foreach.hpp>
 
 #include "ActionFactory.h"
-#include "../StaticFacts.h"
+#include "plan_execution/StaticFacts.h"
 
-#include "bwi_kr_execution/CurrentStateQuery.h"
-#include "bwi_kr_execution/UpdateFluents.h"
+#include "plan_execution/CurrentStateQuery.h"
+#include "plan_execution/UpdateFluents.h"
 #include "ros/console.h"
 #include "ros/ros.h"
 
@@ -19,7 +19,7 @@ CallElevator::CallElevator() :
 
 struct IsFluentFacing {
  
- bool operator() (const bwi_kr_execution::AspFluent& fluent) {
+ bool operator() (const plan_execution::AspFluent& fluent) {
    return fluent.name == "facing";
  }
  
@@ -32,7 +32,7 @@ void CallElevator::run() {
 
     // Get the doors for this elevator.
     std::vector<std::string> doors;
-    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts(); 
+    std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts(); 
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
       if (fact.getName() == "elevhasdoor") {
         std::vector<std::string> params = fact.getParameters();
@@ -50,14 +50,14 @@ void CallElevator::run() {
 
       // Figure out which of the doors we're facing.
       ros::NodeHandle n;
-      ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );
+      ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
       krClient.waitForExistence();
 
-      bwi_kr_execution::CurrentStateQuery csq;
+      plan_execution::CurrentStateQuery csq;
 
       krClient.call(csq);
   
-      std::vector<bwi_kr_execution::AspFluent>::const_iterator facingDoorIt = 
+      std::vector<plan_execution::AspFluent>::const_iterator facingDoorIt = 
         find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentFacing());
 
       if (facingDoorIt == csq.response.answer.fluents.end()) {
@@ -92,10 +92,10 @@ void CallElevator::run() {
       if (response_idx == 0) {
 
         ros::NodeHandle n;
-        ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+        ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
         krClient.waitForExistence();
-        bwi_kr_execution::UpdateFluents uf;
-        bwi_kr_execution::AspFluent open_door;
+        plan_execution::UpdateFluents uf;
+        plan_execution::AspFluent open_door;
         open_door.name = "open";
         open_door.variables.push_back(facing_door);
         uf.request.fluents.push_back(open_door);

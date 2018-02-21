@@ -1,5 +1,5 @@
-#ifndef bwi_krexec_QLearningActionSelector_h__guard
-#define bwi_krexec_QLearningActionSelector_h__guard
+#ifndef plan_exec_QLearningActionSelector_h__guard
+#define plan_exec_QLearningActionSelector_h__guard
 
 #include "DefaultActionValue.h"
 
@@ -13,7 +13,7 @@
 
 #include <iosfwd>
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 template <typename T>
 class RewardFunction;

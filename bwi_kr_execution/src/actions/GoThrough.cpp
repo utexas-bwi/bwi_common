@@ -2,7 +2,7 @@
 
 #include "ActionFactory.h"
 
-#include "bwi_kr_execution/CurrentStateQuery.h"
+#include "plan_execution/CurrentStateQuery.h"
 
 #include <ros/console.h>
 #include <ros/ros.h>
@@ -22,13 +22,13 @@ namespace bwi_krexec {
     
   
 GoThrough::GoThrough(const std::string& doorName): 
-              LogicalNavigation("gothrough",createVector(doorName)),
+              plan_exec::LogicalAction("gothrough",createVector(doorName)),
               failed(false){}
  
  
  struct IsFluentAt {
    
-   bool operator()(const bwi_kr_execution::AspFluent& fluent) {
+   bool operator()(const plan_execution::AspFluent& fluent) {
      return fluent.name == "at";
    }
    
@@ -37,14 +37,14 @@ GoThrough::GoThrough(const std::string& doorName):
 void GoThrough::run() {
   
   ros::NodeHandle n;
-  ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );
+  ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
   krClient.waitForExistence();
   
-  bwi_kr_execution::CurrentStateQuery csq;
+  plan_execution::CurrentStateQuery csq;
   
   krClient.call(csq);
   
-  vector<bwi_kr_execution::AspFluent>::const_iterator atIt = 
+  vector<plan_execution::AspFluent>::const_iterator atIt = 
                     find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
   
    bool error = false;
@@ -57,7 +57,7 @@ void GoThrough::run() {
   else 
     initialPosition = atIt->variables[0];
   
-  bwi_krexec::LogicalNavigation::run();
+  plan_exec::LogicalAction::run();
   
    krClient.call(csq);
   
@@ -68,7 +68,7 @@ void GoThrough::run() {
   
 }
 
-static ActionFactory gothroughFactory(new GoThrough(""));
+ActionFactory gothroughFactory(new GoThrough(""));
   
   
 }

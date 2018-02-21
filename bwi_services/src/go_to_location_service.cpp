@@ -1,9 +1,9 @@
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 #include <actionlib/client/simple_action_client.h>
 #include <ros/ros.h>
 #include "bwi_services/GoToLocation.h"
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 Client* client;
 
@@ -17,10 +17,10 @@ bool go_to_location(bwi_services::GoToLocation::Request &req,
   client->waitForServer();
   
   ROS_INFO("creating goal");
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
   
-  bwi_kr_execution::AspRule rule;
-  bwi_kr_execution::AspFluent fluent;
+  plan_execution::AspRule rule;
+  plan_execution::AspFluent fluent;
   fluent.name = "not at";
   
   fluent.variables.push_back(req.location);

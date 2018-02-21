@@ -1,4 +1,4 @@
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 #include <actionlib/client/simple_action_client.h>
 #include <ros/ros.h>
 #include "bwi_virtour/GoToLocation.h"
@@ -6,7 +6,7 @@
 #include "geometry_msgs/Twist.h"
 #include "bwi_virtour/Rotate.h"
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 Client* client;
 ros::Publisher cmd_vel_pub;

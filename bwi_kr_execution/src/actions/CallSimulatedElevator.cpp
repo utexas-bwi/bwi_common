@@ -2,13 +2,13 @@
 
 #include <boost/foreach.hpp>
 
-#include "bwi_kr_execution/CurrentStateQuery.h"
+#include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
 
 #include "ActionFactory.h"
-#include "../StaticFacts.h"
+#include "plan_execution/StaticFacts.h"
 
-#include "bwi_kr_execution/UpdateFluents.h"
+#include "plan_execution/UpdateFluents.h"
 
 #include "ros/console.h"
 #include "ros/ros.h"
@@ -26,7 +26,7 @@ void CallSimulatedElevator::run() {
 
     // Get the doors for this elevator.
     doors.clear();
-    std::list<actasp::AspAtom> static_facts = StaticFacts::staticFacts();
+    std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts();
     BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
       if (fact.getName() == "elevhasdoor") {
         std::vector<std::string> params = fact.getParameters();
@@ -62,16 +62,16 @@ void CallSimulatedElevator::run() {
 
     // The door may not be visible to the robot in simulation. Force state update.
     ros::NodeHandle n;
-    ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::UpdateFluents> ( "update_fluents" );
+    ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
     krClient.waitForExistence();
-    bwi_kr_execution::UpdateFluents uf;
-    bwi_kr_execution::AspFluent open_door;
+    plan_execution::UpdateFluents uf;
+    plan_execution::AspFluent open_door;
     open_door.name = "open";
     open_door.variables.push_back(selectedDoor);
     uf.request.fluents.push_back(open_door);
 
     /* TODO: Remove this hack. Also, pretend you're facing the door that opened. This way it's shorter to use the open elevator. */
-    bwi_kr_execution::AspFluent facing_door;
+    plan_execution::AspFluent facing_door;
     facing_door.name = "facing";
     facing_door.variables.push_back(selectedDoor);
     uf.request.fluents.push_back(facing_door);

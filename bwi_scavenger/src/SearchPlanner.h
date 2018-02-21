@@ -14,10 +14,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #define PI (3.1415926)
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> KrClient;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> KrClient;
 
 class SearchPlannerSimple {
 

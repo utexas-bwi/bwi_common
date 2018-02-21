@@ -46,6 +46,7 @@ add_service_files(
     ScavHunt.srv
     Trigger.srv
     UploadImage.srv
+    UpdateObject.srv
     ActionUpdate.srv
     LocationAction.srv
 )
@@ -54,7 +55,7 @@ add_action_files(
   DIRECTORY action
   FILES
     LEDControl.action
-    LogicalNavigation.action
+    LogicalAction.action
 )
 
 generate_messages(

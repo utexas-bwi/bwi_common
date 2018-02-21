@@ -52,13 +52,15 @@ int main(int argc, char** argv) {
   nh.param<int32_t>("pitch", pitch, 50);  
   nh.param<std::string>("voice", voice, "default");
 
-  ros::ServiceServer service = nh.advertiseService("speak_message", speak_message);
+  ros::NodeHandle n;
+
+  ros::ServiceServer service = n.advertiseService("speak_message", speak_message);
   ROS_INFO("SpeakMessage Service started");
   ROS_INFO("Speed:%s",(boost::lexical_cast<std::string>(speed)).c_str());
   ROS_INFO("Pitch:%s",(boost::lexical_cast<std::string>(pitch)).c_str());
   ROS_INFO("Voice:%s",voice.c_str());
 
   ros::spin();
-  ROS_INFO("Done spinning");
+  
   return 0;
 }

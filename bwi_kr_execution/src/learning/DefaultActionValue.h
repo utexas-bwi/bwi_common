@@ -1,9 +1,9 @@
-#ifndef bwi_krexec_DefaultActionValue_h__guard
-#define bwi_krexec_DefaultActionValue_h__guard
+#ifndef plan_exec_DefaultActionValue_h__guard
+#define plan_exec_DefaultActionValue_h__guard
 
 #include <actasp/actaspfwd.h>
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 struct DefaultActionValue {
   

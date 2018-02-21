@@ -2,15 +2,15 @@
 
 
 #include "CallGUI.h"
-#include "LogicalNavigation.h"
+#include "plan_execution/LogicalAction.h"
 
 #include "ActionFactory.h"
 
 #include "actasp/AspFluent.h"
 
-#include "bwi_kr_execution/CurrentStateQuery.h"
-#include "bwi_kr_execution/AspRule.h"
-#include "bwi_kr_execution/AspFluent.h"
+#include "plan_execution/CurrentStateQuery.h"
+#include "plan_execution/AspRule.h"
+#include "plan_execution/AspFluent.h"
 
 #include <ros/ros.h>
 
@@ -33,28 +33,28 @@ void OpenDoor::run() {
     askToOpen.run();
     asked = true;
     startTime = ros::Time::now();
+    vector<string> params;
+    params.push_back(door);
+    senseDoor = new plan_exec::LogicalAction ("sensedoor",params);
   }
   
   if(!open) {
-    vector<string> params;
-    params.push_back(door);
-    LogicalNavigation senseDoor("sensedoor",params);
-   
-    senseDoor.run();
+
+    senseDoor->run();
     
     //check if door is open
     ros::NodeHandle n;
-    ros::ServiceClient currentClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );
+    ros::ServiceClient currentClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
     
-    bwi_kr_execution::AspFluent openFluent;
+    plan_execution::AspFluent openFluent;
     openFluent.name = "open";
     openFluent.timeStep = 0;
     openFluent.variables.push_back(door);
     
-    bwi_kr_execution::AspRule rule;
+    plan_execution::AspRule rule;
     rule.head.push_back(openFluent);
     
-    bwi_kr_execution::CurrentStateQuery csq;
+    plan_execution::CurrentStateQuery csq;
     csq.request.query.push_back(rule);
     
     currentClient.call(csq);
@@ -89,7 +89,6 @@ std::vector<std::string> OpenDoor::getParameters() const {
   param.push_back(door);
   return param;
 }
-
 
 ActionFactory openDoorFactory(new OpenDoor(), false);
   

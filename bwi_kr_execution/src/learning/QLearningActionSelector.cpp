@@ -30,7 +30,7 @@
 using namespace actasp;
 using namespace std;
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 struct CompareValues {
 

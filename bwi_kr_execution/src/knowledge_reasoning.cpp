@@ -3,15 +3,15 @@
 
 #include "actasp/reasoners/Reasoner.h"
 #include <actasp/QueryGenerator.h>
-#include <actasp/reasoners/Clingo4_2.h>
+#include <actasp/reasoners/Clingo.h>
 #include "actasp/action_utils.h"
 
-#include "msgs_utils.h"
-#include "bwi_kr_execution/UpdateFluents.h"
-#include "bwi_kr_execution/CurrentStateQuery.h"
-#include "bwi_kr_execution/ComputePlan.h"
-#include "bwi_kr_execution/ComputeAllPlans.h"
-#include "bwi_kr_execution/IsPlanValid.h"
+#include "plan_execution/msgs_utils.h"
+#include "plan_execution/UpdateFluents.h"
+#include "plan_execution/CurrentStateQuery.h"
+#include "plan_execution/ComputePlan.h"
+#include "plan_execution/ComputeAllPlans.h"
+#include "plan_execution/IsPlanValid.h"
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -24,26 +24,27 @@ using namespace actasp;
 using namespace std;
 using namespace ros;
 using namespace bwi_krexec;
+using namespace plan_exec;
 
 const int MAX_N = 20;
-const std::string queryDirectory("/tmp/bwi_kr_execution/");
+const std::string queryDirectory("/tmp/bwi_knowledge_reasoning/");
 
 
 
-bool updateFluents(bwi_kr_execution::UpdateFluents::Request  &req,
-                   bwi_kr_execution::UpdateFluents::Response &res) throw();
+bool updateFluents(plan_execution::UpdateFluents::Request  &req,
+                   plan_execution::UpdateFluents::Response &res) throw();
 
-bool currentStateQuery(bwi_kr_execution::CurrentStateQuery::Request  &req,
-                       bwi_kr_execution::CurrentStateQuery::Response &res) throw();
+bool currentStateQuery(plan_execution::CurrentStateQuery::Request  &req,
+                       plan_execution::CurrentStateQuery::Response &res) throw();
 
-bool computePlan(bwi_kr_execution::ComputePlan::Request  &req,
-                 bwi_kr_execution::ComputePlan::Response &res);
+bool computePlan(plan_execution::ComputePlan::Request  &req,
+                 plan_execution::ComputePlan::Response &res);
 
-bool computeAllPlans(bwi_kr_execution::ComputeAllPlans::Request  &req,
-                     bwi_kr_execution::ComputeAllPlans::Response &res);
+bool computeAllPlans(plan_execution::ComputeAllPlans::Request  &req,
+                     plan_execution::ComputeAllPlans::Response &res);
 
-bool isPlanvalid(bwi_kr_execution::IsPlanValid::Request  &req,
-                 bwi_kr_execution::IsPlanValid::Response &res);
+bool isPlanvalid(plan_execution::IsPlanValid::Request  &req,
+                 plan_execution::IsPlanValid::Response &res);
 
 bool resetState(std_srvs::Empty::Request &,
                 std_srvs::Empty::Response &);
@@ -62,7 +63,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle privateNode("~");
   
   string domainDirectory;
-  n.param<std::string>("bwi_kr_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
+  n.param<std::string>("plan_execution/domain_directory", domainDirectory, ros::package::getPath("bwi_kr_execution")+"/domain/");
   
   if(domainDirectory.at(domainDirectory.size()-1) != '/')
     domainDirectory += '/';
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 
   boost::filesystem::create_directories(queryDirectory);
 
-  QueryGenerator* generator = new Clingo4_2("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+  QueryGenerator* generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
   reasoner = new Reasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
   reasoner->resetCurrentState();
 
@@ -93,12 +94,13 @@ int main(int argc, char **argv) {
 
   delete reasoner;
   delete generator;
+  boost::filesystem::remove_all(queryDirectory);
 
   return 0;
 }
 
-bool updateFluents(bwi_kr_execution::UpdateFluents::Request  &req,
-                   bwi_kr_execution::UpdateFluents::Response &res) throw() {
+bool updateFluents(plan_execution::UpdateFluents::Request  &req,
+                   plan_execution::UpdateFluents::Response &res) throw() {
 
   vector<AspFluent> fluents;
   transform(req.fluents.begin(),req.fluents.end(),back_inserter(fluents),TranslateFluent());
@@ -108,8 +110,8 @@ bool updateFluents(bwi_kr_execution::UpdateFluents::Request  &req,
   return true;
 }
 
-bool currentStateQuery(bwi_kr_execution::CurrentStateQuery::Request  &req,
-                       bwi_kr_execution::CurrentStateQuery::Response &res) throw() {
+bool currentStateQuery(plan_execution::CurrentStateQuery::Request  &req,
+                       plan_execution::CurrentStateQuery::Response &res) throw() {
 
   vector<AspRule> rules;
   transform(req.query.begin(),req.query.end(),back_inserter(rules),TranslateRule());
@@ -123,8 +125,8 @@ bool currentStateQuery(bwi_kr_execution::CurrentStateQuery::Request  &req,
 }
 
 
-bool computePlan(bwi_kr_execution::ComputePlan::Request  &req,
-                 bwi_kr_execution::ComputePlan::Response &res) {
+bool computePlan(plan_execution::ComputePlan::Request  &req,
+                 plan_execution::ComputePlan::Response &res) {
   vector<AspRule> goal;
   transform(req.goal.begin(),req.goal.end(),back_inserter(goal),TranslateRule());
 
@@ -137,7 +139,7 @@ bool computePlan(bwi_kr_execution::ComputePlan::Request  &req,
   return true;
 }
 
-bool computeAllPlans(bwi_kr_execution::ComputeAllPlans::Request& req, bwi_kr_execution::ComputeAllPlans::Response& res) {
+bool computeAllPlans(plan_execution::ComputeAllPlans::Request& req, plan_execution::ComputeAllPlans::Response& res) {
 
   vector<AspRule> goal;
   transform(req.goal.begin(),req.goal.end(),back_inserter(goal),TranslateRule());
@@ -151,7 +153,7 @@ bool computeAllPlans(bwi_kr_execution::ComputeAllPlans::Request& req, bwi_kr_exe
 }
 
 
-bool isPlanvalid(bwi_kr_execution::IsPlanValid::Request& req, bwi_kr_execution::IsPlanValid::Response& res) {
+bool isPlanvalid(plan_execution::IsPlanValid::Request& req, plan_execution::IsPlanValid::Response& res) {
 
   vector<AspRule> goal;
   transform(req.goal.begin(),req.goal.end(),back_inserter(goal),TranslateRule());

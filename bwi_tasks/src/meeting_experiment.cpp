@@ -1,11 +1,11 @@
 
-#include "bwi_kr_execution/ExecutePlanAction.h"
+#include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/client/simple_action_client.h>
 
 #include <ros/ros.h>
 
-typedef actionlib::SimpleActionClient<bwi_kr_execution::ExecutePlanAction> Client;
+typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 
 using namespace std;
 
@@ -22,16 +22,16 @@ int main(int argc, char**argv) {
   Client client("/action_executor/execute_plan", true);
   client.waitForServer();
   
-  bwi_kr_execution::ExecutePlanGoal goal;
+  plan_execution::ExecutePlanGoal goal;
   
-  bwi_kr_execution::AspRule rule;
-  bwi_kr_execution::AspFluent fluent;
+  plan_execution::AspRule rule;
+  plan_execution::AspFluent fluent;
   fluent.name = "not allinmeeting";
   fluent.variables.push_back(meeting);
   rule.body.push_back(fluent);
   
-  bwi_kr_execution::AspRule flag_rule;
-  bwi_kr_execution::AspFluent find_person_flag;
+  plan_execution::AspRule flag_rule;
+  plan_execution::AspFluent find_person_flag;
   find_person_flag.name = "findPersonTask";
   flag_rule.head.push_back(find_person_flag);
   

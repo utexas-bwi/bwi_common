@@ -1,5 +1,5 @@
-#ifndef bwi_krexec_TimeReward_h__guard
-#define bwi_krexec_TimeReward_h__guard
+#ifndef plan_exec_TimeReward_h__guard
+#define plan_exec_TimeReward_h__guard
 
 #include "actasp/ExecutionObserver.h"
 #include "actasp/AspFluent.h"
@@ -14,7 +14,7 @@ namespace actasp {
   class PartialPolicy;
 }
 
-namespace bwi_krexec {
+namespace plan_exec {
 
 template <typename State>
 class TimeReward : public RewardFunction<State>, public actasp::ExecutionObserver {
