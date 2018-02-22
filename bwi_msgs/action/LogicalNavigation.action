@@ -4,3 +4,11 @@ bool success
 string status
 bwi_planning_common/PlannerAtom[] observations
 ---
+#The name of the goal that is currently being run by the server
+uint8 action
+uint8 SENSE_STATE = 0
+uint8 APPROACH_DOOR = 1
+uint8 SENSE_DOOR = 2
+uint8 APPROACH_OBJECT = 3
+uint8 CHANGE_FLOOR = 4 
+string data #extra information
