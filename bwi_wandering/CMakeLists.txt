@@ -47,10 +47,17 @@ add_dependencies(wandering ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wandering
     ${catkin_LIBRARIES})
 
+
+add_executable(turning src/turn.cpp )
+add_dependencies(wandering ${catkin_EXPORTED_TARGETS})
+target_link_libraries(turning
+    ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
 
 install(TARGETS 
           wandering 
+          turning
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
