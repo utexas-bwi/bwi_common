@@ -298,10 +298,11 @@ function subscribeScavengerHuntListener(ros) {
   });
 }
 
+// Oleg: Need to figure out this thing with the topic. Is it /audio or /audio/audio? why can it change?
 function subscribeAudioListner(ros) {
   var listener = new ROSLIB.Topic({
     ros : ros,
-    name : '/audio',
+    name : '/audio/audio',
     messageType : 'audio_common_msgs/AudioData'
   });
   log("Added ping Audio listener");
