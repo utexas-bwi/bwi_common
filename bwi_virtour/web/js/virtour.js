@@ -160,6 +160,9 @@ function createSegbots() {
     $.each(data, function(key, val) {
         createIfHasVirtour(key,val,ROSBRIDGEPORT,Object.keys(data).length)
     });
+    if (Object.keys(data).length == 0) {
+      $(".available_robots").html("<h3>No robots available at this time</h3>");
+    }
     
   }).error(function(err) { error("Failed to ping DNS server"); });
 }
