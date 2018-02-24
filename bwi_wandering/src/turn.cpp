@@ -72,11 +72,11 @@ int main(int argc, char **argv) {
 
         move_base_msgs::MoveBaseGoal goal;
 
-        Eigen::Quaternionf quat = inverse_quat (tag_base_link_pose.pose);
-        geometry_msgs::Quaternion q = eigen_to_geoQuat(quat);
-        double yaw_t = tf::getYaw(q);
+        // Eigen::Quaternionf quat = inverse_quat (tag_base_link_pose.pose);
+        // geometry_msgs::Quaternion q = eigen_to_geoQuat(quat);
+        double yaw_t = tf::getYaw(tag_base_link_pose.pose.orientation);
 
-        double delta_yaw = yaw_t;
+        double delta_yaw = yaw_t/6;
 
         ROS_INFO("delta_yaw : %f ", delta_yaw);
 
