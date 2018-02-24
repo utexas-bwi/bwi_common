@@ -25,10 +25,11 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
 
+  <exec_depend>audio_capture</exec_depend>
+  <exec_depend>bwi_kr_execution</exec_depend>
   <exec_depend>bwi_services</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>web_video_server</exec_depend>
-  <exec_depend>audio_capture</exec_depend>
   
 </package>
