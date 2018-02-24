@@ -6,9 +6,11 @@ compiler:
 env:
   global:
     - CATKIN_CONFIG='--no-install'  # work around kinova-ros install bug
+    - ROS_DISTRO="kinetic"
+    - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
     - UPSTREAM_WORKSPACE=file
   matrix:
-    - ROS_DISTRO="kinetic" ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
+    - BUILD_PKGS_WHITELIST="bwi_common"
 install:
   - git clone https://github.com/ros-industrial/industrial_ci.git .ci_config
 script:
