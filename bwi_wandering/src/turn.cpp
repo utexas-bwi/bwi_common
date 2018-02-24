@@ -54,23 +54,28 @@ int main(int argc, char **argv) {
         try {
           camera_pose.header = current_vis_msg.header;
           camera_pose.pose = current_vis_msg.pose;
-          tf_l.waitForTransform("/map", camera_pose.header.frame_id, ros::Time(0), ros::Duration(4));
-          tf_l.transformPose("/map", camera_pose, tag_base_link_pose);
+          tf_l.waitForTransform("/base_link", camera_pose.header.frame_id, ros::Time(0), ros::Duration(4));
+          tf_l.transformPose("/base_link", camera_pose, tag_base_link_pose);
         }
         catch (tf::TransformException ex) {ROS_INFO ("%s", ex.what());}
 
         move_base_msgs::MoveBaseGoal goal;
-        tag_base_link_pose.header = robot_pose.header;
 
         double yaw_r = tf::getYaw(robot_pose.pose.pose.orientation);
         double yaw_t = tf::getYaw(tag_base_link_pose.pose.orientation);
 
+        double delta_yaw = yaw_t - yaw_r;
+
+
         ROS_INFO("robot: %f     tag: %f  ", yaw_r, yaw_t);
 
 
-        tag_base_link_pose.pose.position = robot_pose.pose.pose.position;
-        goal.target_pose = tag_base_link_pose;
-
+        goal.target_pose.header.stamp = ros::Time::now();
+        goal.target_pose.header.frame_id = "/base_link";
+        goal.target_pose.pose.position.x = 0.0;
+        goal.target_pose.pose.position.y = 0.0;
+        goal.target_pose.pose.position.z = 0.0;
+        goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(delta_yaw);
 
         ac.sendGoal(goal);
         ac.waitForResult();
