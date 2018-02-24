@@ -13,6 +13,9 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
+#include "Eigen/Dense"
 
 bool marker_seen = false;
 
@@ -34,6 +37,20 @@ void amcl_cb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {
   robot_pose = *msg;
 }
 
+/* Method to convert a vector into a 4x4 matrix */
+Eigen::Quaternionf inverse_quat(geometry_msgs::Pose cur_pose) {
+    geometry_msgs::Quaternion quat = cur_pose.orientation;
+    Eigen::Quaternionf quat_eigen = Eigen::Quaternionf(quat.w, quat.x, quat.y, quat.z);
+    return quat_eigen.inverse();
+}
+
+geometry_msgs::Quaternion eigen_to_geoQuat (Eigen::Quaternionf quat) {
+  geometry_msgs::Quaternion q;
+  q.x = quat.x(); q.y = quat.y(); q.w = quat.w(); q.z = quat.z();
+  return q;
+}
+
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "data_collection");
     ros::NodeHandle n;
@@ -53,6 +70,7 @@ int main(int argc, char **argv) {
       if(marker_seen) {
         try {
           camera_pose.header = current_vis_msg.header;
+          ROS_INFO("Header frame id : %s" , camera_pose.header.frame_id.c_str());
           camera_pose.pose = current_vis_msg.pose;
           tf_l.waitForTransform("/base_link", camera_pose.header.frame_id, ros::Time(0), ros::Duration(4));
           tf_l.transformPose("/base_link", camera_pose, tag_base_link_pose);
@@ -61,14 +79,15 @@ int main(int argc, char **argv) {
 
         move_base_msgs::MoveBaseGoal goal;
 
-        double yaw_r = tf::getYaw(robot_pose.pose.pose.orientation);
-        double yaw_t = tf::getYaw(tag_base_link_pose.pose.orientation);
+        // double yaw_r = tf::getYaw(robot_pose.pose.pose.orientation);
 
-        double delta_yaw = yaw_t - yaw_r;
+        Eigen::Quaternionf quat = inverse_quat (tag_base_link_pose.pose);
+        geometry_msgs::Quaternion q = eigen_to_geoQuat(quat);
+        double yaw_t = tf::getYaw(q);
 
+        double delta_yaw = yaw_t;
 
-        ROS_INFO("robot: %f     tag: %f  ", yaw_r, yaw_t);
-
+        ROS_INFO("delta_yaw : %f ", delta_yaw);
 
         goal.target_pose.header.stamp = ros::Time::now();
         goal.target_pose.header.frame_id = "/base_link";
@@ -79,6 +98,8 @@ int main(int argc, char **argv) {
 
         ac.sendGoal(goal);
         ac.waitForResult();
+        marker_seen = false;
+        ros::Duration(2).sleep();
       }
       marker_seen = false;
     }

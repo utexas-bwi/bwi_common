@@ -18,7 +18,7 @@ find_package(catkin REQUIRED
         tf
 )
 
-
+find_package (Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 catkin_package(
@@ -40,7 +40,11 @@ catkin_package(
 ###########
 
 include_directories(
-  ${catkin_INCLUDE_DIRS})
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+    /usr/include/eigen3
+    include
+)
 
 add_executable(wandering src/wandering.cpp )
 add_dependencies(wandering ${catkin_EXPORTED_TARGETS})
