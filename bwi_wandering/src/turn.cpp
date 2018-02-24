@@ -17,24 +17,16 @@
 #include "Eigen/Geometry"
 #include "Eigen/Dense"
 
-bool marker_seen = false;
+bool marker_seen = false; // flag to check if the robot detected a marker
 
-visualization_msgs::Marker current_vis_msg;
-geometry_msgs::PoseStamped tag_base_link_pose;
-geometry_msgs::PoseStamped camera_pose;
-
-int cur_tag_id = 0;
-geometry_msgs::PoseWithCovarianceStamped robot_pose;
+visualization_msgs::Marker current_vis_msg; //pose info of tag detected
+geometry_msgs::PoseStamped tag_base_link_pose; //transformed pose of tag wrt base_link
+geometry_msgs::PoseStamped camera_pose; //casting marker type to posestamped type
 
 /* Call back method to get the pose of AR marker */
 void vis_cb(const visualization_msgs::Marker::ConstPtr& msg) {
     current_vis_msg = *msg;
     marker_seen = true;
-}
-
-/* Call back method to get the pose of Segbot */
-void amcl_cb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {
-  robot_pose = *msg;
 }
 
 /* Method to convert a vector into a 4x4 matrix */
@@ -44,6 +36,7 @@ Eigen::Quaternionf inverse_quat(geometry_msgs::Pose cur_pose) {
     return quat_eigen.inverse();
 }
 
+/* Method to convert Eigen quat to ROS(tf) quat */
 geometry_msgs::Quaternion eigen_to_geoQuat (Eigen::Quaternionf quat) {
   geometry_msgs::Quaternion q;
   q.x = quat.x(); q.y = quat.y(); q.w = quat.w(); q.z = quat.z();
@@ -59,9 +52,6 @@ int main(int argc, char **argv) {
     //subscriber to get tag information
     ros::Subscriber vis_sub = n.subscribe("/visualization_marker", 1, vis_cb);
 
-    //subscriber to get robot location
-    ros::Subscriber amcl_sub = n.subscribe("/amcl_pose", 1, amcl_cb);
-
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac("move_base",true);
 
     while(ros::ok()) {
@@ -69,7 +59,10 @@ int main(int argc, char **argv) {
       ros::Duration(2).sleep();
       if(marker_seen) {
         try {
+          /* transform tag wrt base_link
+             first need to change current_vis_msg into posestamped type */
           camera_pose.header = current_vis_msg.header;
+          camera_pose.pose = current_vis_msg.pose;
           ROS_INFO("Header frame id : %s" , camera_pose.header.frame_id.c_str());
           camera_pose.pose = current_vis_msg.pose;
           tf_l.waitForTransform("/base_link", camera_pose.header.frame_id, ros::Time(0), ros::Duration(4));
@@ -78,8 +71,6 @@ int main(int argc, char **argv) {
         catch (tf::TransformException ex) {ROS_INFO ("%s", ex.what());}
 
         move_base_msgs::MoveBaseGoal goal;
-
-        // double yaw_r = tf::getYaw(robot_pose.pose.pose.orientation);
 
         Eigen::Quaternionf quat = inverse_quat (tag_base_link_pose.pose);
         geometry_msgs::Quaternion q = eigen_to_geoQuat(quat);
