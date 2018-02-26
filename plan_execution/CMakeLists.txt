@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs 
   message_generation
   roscpp
-  rospy
+  bwi_logical_translator
   bwi_msgs
   std_msgs
   std_srvs
