@@ -160,6 +160,9 @@ function createSegbots() {
     $.each(data, function(key, val) {
         createIfHasVirtour(key,val,ROSBRIDGEPORT,Object.keys(data).length)
     });
+    if (Object.keys(data).length == 0) {
+      $(".available_robots").html("<h3>No robots available at this time</h3>");
+    }
     
   }).error(function(err) { error("Failed to ping DNS server"); });
 }
@@ -298,10 +301,11 @@ function subscribeScavengerHuntListener(ros) {
   });
 }
 
+// Oleg: Need to figure out this thing with the topic. Is it /audio or /audio/audio? why can it change?
 function subscribeAudioListner(ros) {
   var listener = new ROSLIB.Topic({
     ros : ros,
-    name : '/audio',
+    name : '/audio/audio',
     messageType : 'audio_common_msgs/AudioData'
   });
   log("Added ping Audio listener");
