@@ -1,8 +1,4 @@
 - git:
-    local-name: bwi_common
-    uri: https://github.com/utexas-bwi/bwi_common.git
-    version: master
-- git:
     local-name: agile_grasp
     uri: https://github.com/utexas-bwi/agile_grasp.git
     version: kinetic
