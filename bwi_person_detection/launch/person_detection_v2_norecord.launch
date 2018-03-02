@@ -1,0 +1,17 @@
+<launch>
+
+<node pkg="person_detector" type="person_detection" name="person_detection" output="screen"> 
+
+    <param name="ground_plane_file" value="$(find person_detector)/data/segbot_v2_coef.txt" />
+	<param name="visualize" value="true" />
+	<param name="rate" value="10.0" />
+	<param name="write_to_file" value="false" />
+	<param name="record_file" value="$(find person_detector)/data/record.txt" />
+	<param name="out_frame_id" value = "/map"/>
+	<param name="rgbd_topic" value = "nav_kinect/depth_registered/points"/>
+	<param name="classifier_location" value = "$(find person_detector)/data/classifier.yaml"/>
+	<param name="sensor_frame_id" value = "/nav_kinect_rgb_optical_frame"/>
+
+</node>
+
+</launch>
