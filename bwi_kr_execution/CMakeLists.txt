@@ -31,7 +31,6 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${actasp_INCLUDE_DIRS}
-  ${plan_execution_INCLUDE_DIRS}
 )
 
 set(bwikractions_SRC)

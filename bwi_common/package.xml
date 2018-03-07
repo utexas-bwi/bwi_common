@@ -19,8 +19,13 @@
   <exec_depend>bwi_kr_execution</exec_depend>
   <exec_depend>bwi_logging</exec_depend>
   <exec_depend>bwi_logical_translator</exec_depend>
+  <!-- comment out to avoid compiling agile_grasp
+  <exec_depend>bwi_manipulation</exec_depend>
+  -->
   <exec_depend>bwi_mapper</exec_depend>
+  <exec_depend>bwi_moveit_utils</exec_depend>
   <exec_depend>bwi_msgs</exec_depend>
+  <exec_depend>bwi_perception</exec_depend>
   <exec_depend>bwi_planning_common</exec_depend>
   <exec_depend>bwi_rqt_plugins</exec_depend>
   <exec_depend>bwi_scavenger</exec_depend>
