@@ -1,6 +1,7 @@
 # if you want to override the default z filter
 bool override_filter_z
-float32 filter_z_value
+float32 min_z_value
+float32 max_z_value
 
 # if you want to apply an x filter (i.e., side to side)
 bool apply_x_box_filter
