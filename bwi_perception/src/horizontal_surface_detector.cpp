@@ -40,6 +40,7 @@
 
 #include <bwi_perception/BoundingBox.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <bwi_perception/bwi_perception.h>
 
 
 const std::string bounding_box_marker_ns = "horizontal_planes_marker";
@@ -96,34 +97,6 @@ bool compare_cluster_size(const pcl::PointIndices &lhs, const pcl::PointIndices 
     return lhs.indices.size() < rhs.indices.size();
 }
 
-/*Function for finding the largest plane from the segmented "table"
- * removes noise*/
-PointCloudT::Ptr seg_largest_plane(const PointCloudT::Ptr &in, double tolerance) {
-    pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
-    tree->setInputCloud(in);
-    ROS_INFO("point cloud size of 'plane cloud' : %ld", in->size());
-
-    //use euclidean cluster extraction to eliminate noise and get largest plane
-    vector<pcl::PointIndices> cluster_indices;
-    pcl::EuclideanClusterExtraction<PointT> ec;
-    ec.setClusterTolerance(tolerance);
-    ec.setMinClusterSize(MIN_NUMBER_PLANE_POINTS);
-    ec.setSearchMethod(tree);
-    ec.setInputCloud(in);
-    ec.extract(cluster_indices);
-
-    ROS_INFO("number of 'plane clouds' : %ld", cluster_indices.size());
-
-    if (cluster_indices.empty()) {
-        throw std::exception();
-    }
-
-    pcl::PointIndices largest_cluster_indices = *std::max_element(cluster_indices.begin(), cluster_indices.end(),
-                                                                  compare_cluster_size);
-
-    PointCloudT::Ptr largest_cluster(new PointCloudT(*in, largest_cluster_indices.indices));
-    return largest_cluster;
-}
 
 void move_to_frame(const PointCloudT::Ptr &input, const string &target_frame, PointCloudT::Ptr &output) {
     ROS_INFO("Transforming Input Point Cloud to %s frame...", target_frame.c_str());
@@ -343,7 +316,7 @@ bool find_horizontal_planes(bwi_perception::DetectHorizontalPlanes::Request &req
         // if no clusters are found, this is an invalid plane extraction
         try {
             double cluster_extraction_tolerance = CLUSTER_TOL;
-            cloud_plane = seg_largest_plane(cloud_plane, cluster_extraction_tolerance);
+            cloud_plane = bwi_perception::seg_largest_plane<PointT>(cloud_plane, cluster_extraction_tolerance, MIN_NUMBER_PLANE_POINTS);
             ROS_INFO("    Extracted Plane Cloud Size: %zu", cloud_plane->size());
 
             if (cloud_plane->size() < MIN_NUMBER_PLANE_POINTS) {

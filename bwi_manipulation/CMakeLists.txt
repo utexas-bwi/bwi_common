@@ -30,12 +30,12 @@ include_directories(
 )
 
 catkin_package(
-        CATKIN_DEPENDS actionlib actionlib_msgs bwi_moveit_utils geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
+        CATKIN_DEPENDS actionlib actionlib_msgs agile_grasp bwi_moveit_utils geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
         INCLUDE_DIRS include
         LIBRARIES manipulation_utilities
 )
 
-add_library(manipulation_utilities src/grasp_utils.cpp src/GraspCartesianCommand.cpp)
+add_library(manipulation_utilities src/grasp_utils.cpp src/GraspCartesianCommand.cpp src/ArmPositionDB.cpp)
 target_link_libraries(manipulation_utilities ${catkin_LIBRARIES})
 
 

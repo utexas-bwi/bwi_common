@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_perception)
 
+add_compile_options(-std=c++11)
+
 find_package( OpenCV REQUIRED)
 
 find_package(catkin REQUIRED
@@ -67,7 +69,7 @@ target_link_libraries(bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(bwi_perception bwi_perception_gencpp)
 
 add_executable(horizontal_surface_detector src/horizontal_surface_detector.cpp)
-add_dependencies(horizontal_surface_detector bwi_perception_gencpp)
+add_dependencies(horizontal_surface_detector bwi_perception bwi_perception_gencpp)
 target_link_libraries(horizontal_surface_detector bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(image_logging_server src/image_logging_server.cpp)
@@ -82,14 +84,13 @@ add_executable(pointcloud_feature_server src/pointcloud_feature_server.cpp)
 add_dependencies(pointcloud_feature_server bwi_perception_gencpp)
 target_link_libraries(pointcloud_feature_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(table_object_detection_node src/table_object_detection_node.cpp)
-add_dependencies(table_object_detection_node bwi_perception_gencpp)
-target_link_libraries(table_object_detection_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(tabletop_scene_perception_node src/tabletop_scene_perception_node.cpp)
+add_dependencies(tabletop_scene_perception_node bwi_perception bwi_perception_gencpp)
+target_link_libraries(tabletop_scene_perception_node bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(table_change_detection_node src/table_change_detection_node.cpp)
-add_dependencies(table_change_detection_node bwi_perception_gencpp)
-target_link_libraries(table_change_detection_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
+add_dependencies(table_change_detection_node bwi_perception bwi_perception_gencpp)
+target_link_libraries(table_change_detection_node bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(button_detection_srv_node src/button_detection_srv_node.cpp)
 target_link_libraries(button_detection_srv_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
