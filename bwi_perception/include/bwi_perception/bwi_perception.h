@@ -39,7 +39,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 
 #include <pcl/kdtree/kdtree.h>
-#include <bwi_perception/TabletopPerception.h>
+#include <bwi_perception/PerceiveTabletopScene.h>
 
 namespace bwi_perception {
 
@@ -201,12 +201,12 @@ namespace bwi_perception {
 		return largest_pc_index;
 	}
 
-    bwi_perception::TabletopPerception::Response getTabletopScene(ros::NodeHandle n) {
+    bwi_perception::PerceiveTabletopScene::Response getTabletopScene(ros::NodeHandle n) {
 
-        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::TabletopPerception>(
+        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::PerceiveTabletopScene>(
                 "perceive_tabletop_scene");
 
-        bwi_perception::TabletopPerception srv;
+        bwi_perception::PerceiveTabletopScene srv;
         if (client_tabletop_perception.call(srv)) {
             return srv.response;
         } else {

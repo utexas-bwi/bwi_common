@@ -57,15 +57,13 @@ PointCloudT::Ptr cloud (new PointCloudT);
 PointCloudT::Ptr cloud_aggregated (new PointCloudT);
 PointCloudT::Ptr cloud_plane (new PointCloudT);
 PointCloudT::Ptr cloud_blobs (new PointCloudT);
-PointCloudT::Ptr empty_cloud (new PointCloudT);
 //the change cloud
-		PointCloudT::Ptr filtered_cloud;
-std::vector<PointCloudT::Ptr > clusters;
-std::vector<PointCloudT::Ptr > clusters_on_plane;
+PointCloudT::Ptr filtered_cloud;
+
 
 sensor_msgs::PointCloud2 cloud_ros;
 
-pcl::octree::OctreePointCloudChangeDetector<PointT> *octree;
+boost::shared_ptr<pcl::octree::OctreePointCloudChangeDetector<PointT>> octree;
 
 
 ros::Publisher cloud_pub;
@@ -104,20 +102,22 @@ cloud_cb (const sensor_msgs::PointCloud2ConstPtr& input)
 		octree->setInputCloud (cloud);
 
 		// add points from cloud to octree
-		octree->addPointsFromInputCloud ();
-		
-		boost::shared_ptr<std::vector<int> > newPointIdxVector (new std::vector<int>);
-		
-		// get a vector of new points, which did not exist in previous buffer 
-		octree->getPointIndicesFromNewVoxels (*newPointIdxVector, 7); //the last argument is "noise_filter"
+        octree->addPointsFromInputCloud();
+
+
+        std::vector<int> newPointIdxVector;
+
+        // get a vector of new points, which did not exist in previous buffer
+
+        octree->getPointIndicesFromNewVoxels(newPointIdxVector, 7); //the last argument is "noise_filter"
 
 		
 
 		filtered_cloud.reset (new PointCloudT);
 
-        filtered_cloud->points.reserve(newPointIdxVector->size());
-		for (std::vector<int>::iterator it = newPointIdxVector->begin (); it != newPointIdxVector->end (); ++it)
-            filtered_cloud->points.push_back(cloud->points[*it]);
+        filtered_cloud->points.reserve(newPointIdxVector.size());
+        for (int &it : newPointIdxVector)
+            filtered_cloud->points.push_back(cloud->points[it]);
 
 		//publish change only after 1st frame
 		if (!firstRun){
@@ -138,7 +138,8 @@ cloud_cb (const sensor_msgs::PointCloud2ConstPtr& input)
 
 bool start_service_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
-	octree = new pcl::octree::OctreePointCloudChangeDetector<PointT>(OCTREE_RESOLUTION);
+    octree = boost::shared_ptr<pcl::octree::OctreePointCloudChangeDetector<PointT>>(
+            new pcl::octree::OctreePointCloudChangeDetector<PointT>(OCTREE_RESOLUTION));
 	
 	computeChange = true;
 	firstRun = true;
@@ -151,7 +152,7 @@ bool start_service_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &
 bool stop_service_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
 	computeChange = false;
-	delete octree;
+    octree = boost::shared_ptr<pcl::octree::OctreePointCloudChangeDetector<PointT>>();
 	
 	return true;
 }
@@ -177,21 +178,9 @@ int main (int argc, char** argv)
 	signal(SIGINT, sig_handler);
 
 	//create octree structure
-	octree = new pcl::octree::OctreePointCloudChangeDetector<PointT>(OCTREE_RESOLUTION);
-
-	//refresh rate
-	double ros_rate = 10.0;
-	ros::Rate r(ros_rate);
+    octree = boost::shared_ptr<pcl::octree::OctreePointCloudChangeDetector<PointT>>(
+            new pcl::octree::OctreePointCloudChangeDetector<PointT>(OCTREE_RESOLUTION));
 
 	ros::spin();
 
-	// Main loop:
-	/*while (!g_caught_sigint && ros::ok())
-	{
-		//collect messages
-		ros::spinOnce();
-
-		r.sleep();
-
-	}*/
 };

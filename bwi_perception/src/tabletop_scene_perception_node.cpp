@@ -42,8 +42,7 @@
 
 #include <pcl/kdtree/kdtree.h>
 
-#include "bwi_perception/TabletopPerception.h"
-#include "bwi_perception/TabletopReorder.h"
+#include "bwi_perception/PerceiveTabletopScene.h"
 #include "bwi_perception/GetCloud.h"
 #include "bwi_perception/GetPCD.h"
 #include <mutex>
@@ -165,7 +164,7 @@ void aggregate_clouds(uint n, PointCloudT::Ptr &out) {
 
 }
 
-bool seg_cb(bwi_perception::TabletopPerception::Request &req, bwi_perception::TabletopPerception::Response &res) {
+bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception::PerceiveTabletopScene::Response &res) {
     ROS_INFO("Request received...starting pipeline.");
 
     PointCloudT::Ptr cloud_plane(new PointCloudT);

@@ -10,13 +10,13 @@ find_package(catkin REQUIRED
 		cv_bridge
 		geometry_msgs
 		message_generation
-	pcl_ros
-	pcl_conversions
+		pcl_ros
+		pcl_conversions
 		roscpp
 		rospy
-	sensor_msgs
-	std_msgs
-	std_srvs
+		sensor_msgs
+		std_msgs
+		std_srvs
 		visualization_msgs
 )
 
@@ -24,15 +24,13 @@ add_service_files(
 		FILES
 		ButtonDetection.srv
 		DetectHorizontalPlanes.srv
-		PlanarSegmentation.srv
-		TableDetectionObjectExtraction.srv
+		ExtractTabletopScene.srv
 		FeatureExtraction.srv
-		TabletopPerception.srv
-		TabletopReorder.srv
-		SetObstacles.srv
 		GetCloud.srv
 		GetPCD.srv
+		PerceiveTabletopScene.srv
 		ProcessVision.srv
+		SetObstacles.srv
 )
 
 generate_messages(

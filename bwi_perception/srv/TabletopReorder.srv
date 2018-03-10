@@ -1,4 +1,0 @@
-string coord
-bool forward
----
-sensor_msgs/PointCloud2[] ordered_cloud_clusters
