@@ -1,3 +1,5 @@
+#include <tf/LinearMath/Quaternion.h>
+#include <tf/transform_datatypes.h>
 #include "bwi_manipulation/ArmPositionDB.h"
 
 #define NUM_JOINTS_ARMONLY 6
@@ -17,10 +19,13 @@ namespace bwi_manipulation {
 
         for (int i = 0; i < num_entries_j; i++) {
             char name_i[80];
-            vector<float> p_i;
-            p_i.resize(NUM_JOINTS_ARMONLY);
+            vector<float> p_i(NUM_JOINTS_ARMONLY);
 
-            fscanf(fp_j, "%s\t%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5]);
+            int count = fscanf(fp_j, "%s\t%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5]);
+
+            if (count != NUM_JOINTS_ARMONLY) {
+                ROS_ERROR("Read only %f values for entry index %d. Database will be malformed.", count, i);
+            }
 
             string name_i_s(name_i);
             j_positions.emplace(name_i_s, p_i);
@@ -35,20 +40,27 @@ namespace bwi_manipulation {
 
         for (int i = 0; i < num_entries_c; i++) {
             char name_i[80];
-            vector<float> p_i;
-            p_i.resize(7);
+            vector<float> p_i(7);
 
-            fscanf(fp_c, "%s\t%f,%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5],
+            int count = fscanf(fp_c, "%s\t%f,%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5],
                    &p_i[6]);
 
+            if (count != 7) {
+                ROS_ERROR("Read only %f values for entry index %d. Database will be malformed.", count, i);
+            }
             geometry_msgs::Pose pose_i;
             pose_i.position.x = p_i[0];
             pose_i.position.y = p_i[1];
             pose_i.position.z = p_i[2];
-            pose_i.orientation.x = p_i[3];
-            pose_i.orientation.y = p_i[4];
-            pose_i.orientation.z = p_i[5];
-            pose_i.orientation.w = p_i[6];
+
+
+            tf::Quaternion quat;
+            quat.setX(p_i[3]);
+            quat.setY(p_i[4]);
+            quat.setZ(p_i[5]);
+            quat.setW(p_i[6]);
+            quat.normalize();
+            tf::quaternionTFToMsg(quat, pose_i.orientation);
 
             string name_i_s(name_i);
             t_positions.emplace(name_i_s, pose_i);
