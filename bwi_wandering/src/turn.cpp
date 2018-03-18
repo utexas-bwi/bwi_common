@@ -17,24 +17,26 @@
 #include "Eigen/Geometry"
 #include "Eigen/Dense"
 
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 class TurnToObj
 {
+private:
   ros::NodeHandle nh_;
   tf::TransformListener tf_l;
   ros::Subscriber vis_sub;
-  actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac;
+  MoveBaseClient ac;
   bool obj_seen;
   visualization_msgs::Marker current_vis_msg; //pose info of tag detected
   geometry_msgs::PoseStamped tag_base_link_pose; //transformed pose of tag wrt base_link
   geometry_msgs::PoseStamped camera_pose; //casting marker type to posestamped type
 
 public:
-  TurnToObj()
+  TurnToObj():
+    ac("move_base",true)
   {
     obj_seen = false;
-    ac("move_base",true);
-    vis_sub = n.subscribe("/visualization_marker", 1, &TurnToObj::vis_cb);
+    vis_sub = nh_.subscribe("/visualization_marker", 1, &TurnToObj::vis_cb, this);
   }
 
   /* Method to convert a vector into a 4x4 matrix */
@@ -52,9 +54,9 @@ public:
   }
 
   void vis_cb(const visualization_msgs::Marker::ConstPtr& msg) {
-    if (!marker_seen)
+    if (!obj_seen)
     {
-      marker_seen = true;
+      obj_seen = true;
       current_vis_msg = *msg;
 
       ros::spinOnce();
@@ -91,10 +93,10 @@ public:
 
       ac.sendGoal(goal);
       ac.waitForResult();
-      marker_seen = false;
+      obj_seen = false;
     }
   }
-}
+};
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "turning");
