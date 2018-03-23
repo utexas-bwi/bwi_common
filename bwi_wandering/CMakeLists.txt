@@ -53,8 +53,13 @@ target_link_libraries(wandering
 
 
 add_executable(turning src/turn.cpp )
-add_dependencies(wandering ${catkin_EXPORTED_TARGETS})
+add_dependencies(turning ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turning
+    ${catkin_LIBRARIES})
+
+add_executable(safety src/safety.cpp )
+add_dependencies(safety ${catkin_EXPORTED_TARGETS})
+target_link_libraries(safety
     ${catkin_LIBRARIES})
 
 #############
