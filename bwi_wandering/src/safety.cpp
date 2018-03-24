@@ -26,31 +26,20 @@ int main(int argc, char **argv) {
     ros::Publisher safe_pub = nh_.advertise<std_msgs::Bool>("/cmd_safe",1000);    
 
     ros::Time start_time = ros::Time::now();
-    ros::Duration timeout(2.0);
-    ROS_INFO("Spinning for 2 seconds");
+    ros::Duration timeout(0.5);
+    ROS_INFO("Spinning for 0.5 seconds");
     while(ros::Time::now()-start_time < timeout)
       ros::spinOnce();
 
     geometry_msgs::Twist twist_msg; 
     std_msgs::Bool is_poss_msg;
+    // arbitrary value for now
     twist_msg.linear.x = 0.50;
     twist_msg.angular.z = 0;
 
     // assuming that this value is not arbritary, checking if it is okay to proceed
     while(ros::ok()){
       ros::spinOnce();
-      // try{
-      //   ROS_INFO("Transform twist angular to laser's frame");
-      //   geometry_msgs::Vector3Stamped stamped_in;
-      //   stamped_in.vector = twist_msg.angular;
-      //   stamped_in.header.frame_id = "/base_link";
-      //   geometry_msgs::Vector3Stamped stamped_out;
-      //   // tf_l.waitForTransform(laser_msg.header.frame_id, "/base_link", ros::Time(0), ros::Duration(2));
-      //   tf_l.transformVector(laser_msg.header.frame_id, stamped_in , stamped_out);
-      // }
-      // catch (tf::TransformException ex) {
-      //   ROS_INFO ("%s", ex.what());
-      // }
 
       float z = twist_msg.angular.z;
       float rad_index = 0;
