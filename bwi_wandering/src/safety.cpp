@@ -2,8 +2,6 @@
 #include "sensor_msgs/LaserScan.h"
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/Bool.h"
-#include <tf/tf.h>
-#include <tf/transform_listener.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <cmath>
 
@@ -19,7 +17,6 @@ int main(int argc, char **argv) {
     ROS_INFO("Started");
     ros::init(argc, argv, "safety");
     ros::NodeHandle nh_;
-    tf::TransformListener tf_l;
 
     ros::Subscriber laser_sub = nh_.subscribe("/scan_filtered", 1000, laser_cb);
     ros::Publisher twist_pub = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
