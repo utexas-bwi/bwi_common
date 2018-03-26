@@ -62,6 +62,11 @@ add_dependencies(safety ${catkin_EXPORTED_TARGETS})
 target_link_libraries(safety
     ${catkin_LIBRARIES})
 
+add_executable(move src/move.cpp )
+add_dependencies(move ${catkin_EXPORTED_TARGETS})
+target_link_libraries(move
+    ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
