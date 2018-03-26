@@ -38,11 +38,10 @@ int main(int argc, char **argv) {
 
 
     geometry_msgs::Twist twist_msg; 
-    geometry_msgs::TwistStamped temp_msg;
     twist_msg.linear.x = inc_val;
     twist_msg.angular.z = 0;
 
-    twist_pub.publish(temp_msg);
+    temp_pub.publish(twist_msg);
 
     ros::Duration timeout2(2.0);
     ROS_INFO("Spinning for 0.5 seconds");

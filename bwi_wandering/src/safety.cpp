@@ -15,6 +15,7 @@ void laser_cb(const sensor_msgs::LaserScan::ConstPtr& msg) {
 
 //Callback that checks if the move direction is valid
 void vel_cb(const geometry_msgs::Twist::ConstPtr& msg) {
+  ROS_INFO("Reached Here");
   geometry_msgs::Twist vel_msg = *msg;
   std_msgs::Bool is_poss_msg;
   float z = vel_msg.angular.z;
@@ -33,9 +34,12 @@ void vel_cb(const geometry_msgs::Twist::ConstPtr& msg) {
     is_poss_msg.data = true;
 
     for (int i = index_min; i <= index_max; i++) {
-      float dist = laser_msg.ranges[rad_index];
+      float dist = laser_msg.ranges[i];
+      ROS_INFO("Index: %d", i);
       ROS_INFO("Distance from laser is %f", dist);
-      if (!(dist > vel_msg.linear.x && !std::isinf(dist)))
+      if (std::isinf(dist))
+        continue;
+      if (!(dist > vel_msg.linear.x))
         is_poss_msg.data = false;
     }
 
