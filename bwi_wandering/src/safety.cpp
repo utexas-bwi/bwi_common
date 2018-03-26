@@ -7,10 +7,11 @@
 
 sensor_msgs::LaserScan laser_msg;
 geometry_msgs::Twist meas_mes;
+geometry_msgs::Twist vel_msg;
 
 ros::Publisher safe_pub;
-ros::Subscriber meas_sub;
 ros::Subscriber laser_sub;
+ros::Subscriber twist_sub;
 
 void laser_cb(const sensor_msgs::LaserScan::ConstPtr& msg) {
   ROS_INFO("Laser Data Received\n");
@@ -18,10 +19,10 @@ void laser_cb(const sensor_msgs::LaserScan::ConstPtr& msg) {
 }
 
 //Callback that checks if the move direction is valid
-void meas_cb(const geometry_msgs::Twist::ConstPtr& msg) {
-  meas_mes = *msg;
+void vel_cb(const geometry_msgs::Twist::ConstPtr& msg) {
+  vel_msg = *msg;
   std_msgs::Bool is_poss_msg;
-  float z = meas_mes.angular.z;
+  float z = vel_msg.angular.z;
   float rad_index = 0;
   if (z < laser_msg.range_min && z > laser_msg.range_max) {
     ROS_INFO ("Range out of bound");
@@ -34,16 +35,16 @@ void meas_cb(const geometry_msgs::Twist::ConstPtr& msg) {
     float dist = laser_msg.ranges[rad_index];
     ROS_INFO("Distance from laser is %f", dist);
 
-    if (dist > meas_mes.linear.x && !std::isinf(dist)) {
+    if (dist > vel_msg.linear.x && !std::isinf(dist)) {
       ROS_INFO ("Valid Twist Message. No obstacle detected by laser.");
       is_poss_msg.data = true;
-      safe_pub.publish(is_poss_msg);
+
     }
     else {
       ROS_INFO ("Obstacle detected. Can't proceed");
       is_poss_msg.data = false;
-      safe_pub.publish(is_poss_msg);
     }
+    safe_pub.publish(is_poss_msg);
   }
 }
 
@@ -52,8 +53,8 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "safety");
     ros::NodeHandle nh_;
 
+    twist_sub = nh_.subscribe("/cmd_vel", 1000, vel_cb);
     laser_sub = nh_.subscribe("/scan_filtered", 1000, laser_cb);
-    meas_sub = nh_.subscribe("/safety_meas", 1000, meas_cb);
     safe_pub = nh_.advertise<std_msgs::Bool>("/cmd_safe",1000);
 
     ros::Time start_time = ros::Time::now();
