@@ -16,6 +16,7 @@
     <depend>actionlib_msgs</depend>
     <depend>agile_grasp</depend>
     <depend>bwi_moveit_utils</depend>
+    <depend>bwi_perception</depend>
     <depend>geometry_msgs</depend>
     <depend>moveit_ros_planning_interface</depend>
     <depend>moveit_msgs</depend>

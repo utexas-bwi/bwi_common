@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib
         actionlib_msgs
         agile_grasp
+        bwi_perception
         geometry_msgs
         pcl_ros
         pcl_conversions
@@ -30,7 +31,7 @@ include_directories(
 )
 
 catkin_package(
-        CATKIN_DEPENDS actionlib actionlib_msgs agile_grasp bwi_moveit_utils geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
+        CATKIN_DEPENDS actionlib actionlib_msgs agile_grasp bwi_moveit_utils bwi_perception geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
         INCLUDE_DIRS include
         LIBRARIES manipulation_utilities
 )

@@ -7,9 +7,80 @@
 #include <bwi_manipulation/GraspCartesianCommand.h>
 #include <pcl/common/common.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
+#include <bwi_perception/BoundingBox.h>
+#include <bwi_manipulation/grasp_utils.h>
+
+using namespace std;
 
 namespace bwi_manipulation {
     namespace grasp_utils {
+
+        void generate_poses_along_line(const string &frame_id,
+                                       const Eigen::Vector4f &min,
+                                       const Eigen::Vector4f &max,
+                                       vector<geometry_msgs::PoseStamped> &poses,
+                                       const geometry_msgs::Quaternion &orientation, int num_poses = 10) {
+            Eigen::Vector4f range = max - min;
+            Eigen::Vector4f step_size = range / num_poses;
+
+            geometry_msgs::PoseStamped grasp_pose;
+
+            grasp_pose.header.frame_id = frame_id;
+            grasp_pose.pose.orientation = orientation;
+
+            for (int i = 0; i < num_poses; ++i) {
+                Eigen::Vector4f position = min + step_size * i;
+                grasp_pose.pose.position.x = position.x();
+                grasp_pose.pose.position.y = position.y();
+                grasp_pose.pose.position.z = position.z();
+                poses.push_back(grasp_pose);
+            }
+        }
+
+
+        void
+        generate_grasps_varying_orientation(const string &frame_id, const geometry_msgs::Quaternion &center_orientation,
+                                            const double angle_radius, const Eigen::Vector4f &position,
+                                            vector<geometry_msgs::PoseStamped> &poses) {
+            tf::Quaternion q;
+            tf::quaternionMsgToTF(center_orientation, q);
+            tf::Matrix3x3 m(q);
+
+            // Get the min RPY values
+            double b_r, b_p, b_y;
+            m.getRPY(b_r, b_p, b_y);
+            b_r -= angle_radius;
+            b_p -= angle_radius;
+            b_y -= angle_radius;
+
+            int steps = 3;
+
+            double step_size = angle_radius * 2.0 / steps;
+
+            geometry_msgs::PoseStamped grasp_pose;
+
+            grasp_pose.header.frame_id = frame_id;
+            grasp_pose.pose.position.x = position.x();
+            grasp_pose.pose.position.y = position.y();
+            grasp_pose.pose.position.z = position.z();
+
+            tf::Stamped<tf::Quaternion> quat;
+            quat.frame_id_ = frame_id;
+
+            geometry_msgs::QuaternionStamped quat_stamped;
+
+            for (int i = 0; i < steps; ++i) {
+                for (int j = 0; j < steps; ++j) {
+                    for (int k = 0; k < steps; ++k) {
+                        quat.setRPY(b_r + i * step_size, b_p * j * step_size, b_y * step_size);
+                        tf::quaternionStampedTFToMsg(quat, quat_stamped);
+                        grasp_pose.pose.orientation = quat_stamped.quaternion;
+                        poses.push_back(grasp_pose);
+                    }
+                }
+
+            }
+        }
 
 
         Eigen::Matrix3d reorderHandAxes(const Eigen::Matrix3d &Q) {
