@@ -223,8 +223,9 @@ namespace bwi_perception {
 
     template<typename T>
     void order_clouds(std::vector<typename pcl::PointCloud<T>::Ptr> &clusters_on_plane, Axis comparison_axis, bool forward = true) {
+        typedef typename pcl::PointCloud<T> PointCloudT;
         // get representative coordinates for each cluster
-        std::vector<std::pair<float, typename pcl::PointCloud<T>::Ptr>> clouds_by_coord;
+        std::vector<std::pair<float, typename PointCloudT::Ptr>> clouds_by_coord;
         for (auto c : clusters_on_plane) {
             T p = c->points.at(0);
             switch (comparison_axis) {
@@ -258,6 +259,7 @@ namespace bwi_perception {
 
     template<typename T>
     typename pcl::PointCloud<T>::Ptr seg_largest_plane(const typename pcl::PointCloud<T>::Ptr &in, double tolerance, size_t min_num_points){
+        typedef typename pcl::PointCloud<T> PointCloudT;
         typename pcl::search::KdTree<T>::Ptr tree (new typename pcl::search::KdTree<T>);
         tree->setInputCloud (in);
         ROS_INFO("point cloud size of 'plane cloud' : %ld", in->size());
@@ -279,7 +281,7 @@ namespace bwi_perception {
 
         pcl::PointIndices largest_cluster_indices = *std::max_element(cluster_indices.begin(), cluster_indices.end(), compare_cluster_size);
 
-        return typename pcl::PointCloud<T>::Ptr (new typename pcl::PointCloud<T>(*in, largest_cluster_indices.indices));
+        return typename PointCloudT::Ptr (new PointCloudT(*in, largest_cluster_indices.indices));
     }
 
     template<typename T>
@@ -321,6 +323,7 @@ namespace bwi_perception {
     }
     template<typename T>
     void compute_clusters(const typename pcl::PointCloud<T>::Ptr &in, std::vector<typename pcl::PointCloud<T>::Ptr> &out, double tolerance) {
+        typedef typename pcl::PointCloud<T> PointCloudT;
         typename pcl::search::KdTree<T>::Ptr tree(new typename pcl::search::KdTree<T>);
         tree->setInputCloud(in);
 
@@ -336,7 +339,7 @@ namespace bwi_perception {
         out.clear();
 
         for (auto &indices : cluster_indices) {
-            typename pcl::PointCloud<T>::Ptr cloud_cluster(new typename pcl::PointCloud<T>(*in, indices.indices));
+            typename PointCloudT::Ptr cloud_cluster(new PointCloudT(*in, indices.indices));
             cloud_cluster->width = cloud_cluster->points.size();
             cloud_cluster->height = 1;
             cloud_cluster->is_dense = true;
