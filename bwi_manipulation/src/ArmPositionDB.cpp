@@ -23,8 +23,9 @@ namespace bwi_manipulation {
 
             int count = fscanf(fp_j, "%s\t%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5]);
 
-            if (count != NUM_JOINTS_ARMONLY) {
-                ROS_ERROR("Read only %f values for entry index %d. Database will be malformed.", count, i);
+            // Joints + name
+            if (count != NUM_JOINTS_ARMONLY + 1) {
+                ROS_ERROR("Read only %d values for entry index %d. Database will be malformed.", count, i);
             }
 
             string name_i_s(name_i);
@@ -45,8 +46,9 @@ namespace bwi_manipulation {
             int count = fscanf(fp_c, "%s\t%f,%f,%f,%f,%f,%f,%f\n", name_i, &p_i[0], &p_i[1], &p_i[2], &p_i[3], &p_i[4], &p_i[5],
                    &p_i[6]);
 
-            if (count != 7) {
-                ROS_ERROR("Read only %f values for entry index %d. Database will be malformed.", count, i);
+            // 3 for position, 4 for orientation, 1 for name
+            if (count != 8) {
+                ROS_ERROR("Read only %d values for entry index %d. Database will be malformed.", count, i);
             }
             geometry_msgs::Pose pose_i;
             pose_i.position.x = p_i[0];
