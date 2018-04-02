@@ -33,7 +33,6 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-
 #include <pcl/ModelCoefficients.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
@@ -43,6 +42,7 @@
 #include <pcl/kdtree/kdtree.h>
 
 #include "bwi_perception/PerceiveTabletopScene.h"
+#include "bwi_perception/PerceiveLargestHorizontalPlane.h"
 #include "bwi_perception/GetCloud.h"
 #include "bwi_perception/GetPCD.h"
 #include <mutex>
@@ -51,11 +51,12 @@
 
 using namespace std;
 //how many frames to stitch into a single cloud
-#define WAIT_CLOUD_K 25
+int num_clouds;
 
 //default Z filter
-#define Z_MIN_DEFAULT 0.00
-#define Z_MAX_DEFAULT 1.15
+double z_filter_min, z_filter_max;
+
+double cluster_extraction_tolerance, plane_max_distance_tolerance, plane_distance_tolerance, eps_angle;
 
 /* define what kind of point clouds we're using */
 typedef pcl::PointXYZRGB PointT;
@@ -78,18 +79,6 @@ condition_variable cloud_count_cv;
 
 //true if Ctrl-C is pressed
 bool g_caught_sigint = false;
-
-//an object whose closest point to the plane is further than this is rejected
-double plane_distance_tolerance = 0.09;
-
-//an object whose furthers point to the plane is smaller than this is rejected
-double plane_max_distance_tolerance = 0.02;
-
-//how close to points outside the plane must go into the same object cluster
-double cluster_extraction_tolerance = 0.075;
-
-//epsilon angle for segmenting, value in radians
-#define EPS_ANGLE 0.09
 
 /* what happens when ctr-c is pressed */
 void sig_handler(int sig) {
@@ -179,12 +168,12 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     // would become the convenience wrapper
     //get the point cloud by aggregating k successive input clouds
     ROS_INFO("waiting for cloud...");
-    aggregate_clouds(WAIT_CLOUD_K, working);
+    aggregate_clouds(num_clouds, working);
 
     ROS_INFO("collected cloud success");
 
-    double min_z = Z_MIN_DEFAULT;
-    double max_z = Z_MAX_DEFAULT;
+    double min_z = z_filter_min;
+    double max_z = z_filter_max;
     if (req.override_filter_z) {
         min_z = req.min_z_value;
         max_z = req.max_z_value;
@@ -246,7 +235,7 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     ROS_INFO("sac axis value: %f, %f, %f", seg.getAxis()[0], seg.getAxis()[1], seg.getAxis()[2]);
 
     //set an epsilon that the table can differ from the axis above by
-    seg.setEpsAngle(EPS_ANGLE); //value in radians, corresponds to approximately 5 degrees
+    seg.setEpsAngle(eps_angle); //value in radians, corresponds to approximately 5 degrees
 
     ROS_INFO("epsilon value: %f", seg.getEpsAngle());
 
@@ -421,6 +410,125 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     return true;
 }
 
+bool get_plane(const PointCloudT::Ptr in, PointCloudT::Ptr out, Eigen::Vector4f &plane_coefficients) {
+
+    PointCloudT::Ptr cloud_plane(new PointCloudT);
+    PointCloudT::Ptr cloud_blobs(new PointCloudT);
+    PointCloudT::Ptr working(new PointCloudT);
+
+    //create listener for transforms
+    tf::TransformListener tf_listener;
+    // TODO: Separate perception and detection.
+    // There should be a service that accepts a pointcloud so that we can feed in stuff
+    // from an octomap. Filtering would be done by the caller. This service
+    // would become the convenience wrapper
+    //get the point cloud by aggregating k successive input clouds
+
+
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+    // Create the segmentation object
+    pcl::SACSegmentation<PointT> seg;
+    // Optional
+    seg.setOptimizeCoefficients(true);
+    // Mandatory
+    //look for a plane perpendicular to a given axis
+    seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    seg.setMaxIterations(1000);
+    seg.setDistanceThreshold(0.025);
+
+
+    //create the axis to use
+    geometry_msgs::Vector3Stamped ros_vec;
+    ros_vec.header.frame_id = "/base_link";
+    ros_vec.vector.x = 0.0;
+    ros_vec.vector.y = 0.0;
+    ros_vec.vector.z = 1.0;
+
+    ROS_INFO("Ros axis: %f, %f, %f",
+             ros_vec.vector.x, ros_vec.vector.y, ros_vec.vector.z);
+
+    //transform the vector to the camera frame of reference
+    tf_listener.transformVector(working->header.frame_id, ros::Time(0), ros_vec, "/base_link", ros_vec);
+
+    //set the axis to the transformed vector
+    Eigen::Vector3f axis = Eigen::Vector3f(ros_vec.vector.x, ros_vec.vector.y, ros_vec.vector.z);
+    seg.setAxis(axis);
+
+    ROS_INFO("sac axis value: %f, %f, %f", seg.getAxis()[0], seg.getAxis()[1], seg.getAxis()[2]);
+
+    //set an epsilon that the table can differ from the axis above by
+    seg.setEpsAngle(eps_angle); //value in radians, corresponds to approximately 5 degrees
+
+    ROS_INFO("epsilon value: %f", seg.getEpsAngle());
+
+    // Create the filtering object
+    pcl::ExtractIndices<PointT> extract;
+
+    // Segment the largest planar component from the remaining cloud
+    seg.setInputCloud(in);
+    seg.segment(*inliers, *coefficients);
+
+    // Extract the plane
+    extract.setInputCloud(in);
+    extract.setIndices(inliers);
+    extract.setNegative(false);
+    extract.filter(*cloud_plane);
+
+    pcl::VoxelGrid<PointT> vg;
+    //downsample the plane cloud and segment out noise
+    vg.setInputCloud(cloud_plane);
+    vg.setLeafSize(0.005f, 0.005f, 0.005f);
+    vg.filter(*cloud_plane);
+
+    //find the largest plane and segment out noise
+    cloud_plane = bwi_perception::seg_largest_plane<PointT>(cloud_plane, cluster_extraction_tolerance, 500);
+
+    if (cloud_plane->empty()) {
+        return false;
+    }
+
+
+
+    //get the plane coefficients
+    plane_coefficients(0) = coefficients->values[0];
+    plane_coefficients(1) = coefficients->values[1];
+    plane_coefficients(2) = coefficients->values[2];
+    plane_coefficients(3) = coefficients->values[3];
+
+    return true;
+}
+
+bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPlane::Request &req, bwi_perception::PerceiveLargestHorizontalPlane::Response &res) {
+
+    PointCloudT::Ptr cloud_plane(new PointCloudT);
+    PointCloudT::Ptr cloud_blobs(new PointCloudT);
+    PointCloudT::Ptr working(new PointCloudT);
+
+    //create listener for transforms
+    tf::TransformListener tf_listener;
+    // TODO: Separate perception and detection.
+    // There should be a service that accepts a pointcloud so that we can feed in stuff
+    // from an octomap. Filtering would be done by the caller. This service
+    // would become the convenience wrapper
+    //get the point cloud by aggregating k successive input clouds
+    ROS_INFO("waiting for cloud...");
+    aggregate_clouds(num_clouds, working);
+    Eigen::Vector4f plane_coefficients;
+    bool success = get_plane(working, cloud_plane, plane_coefficients);
+    if (!success) {
+        res.is_plane_found = false;
+        return true;
+    }
+    res.is_plane_found = true;
+    pcl::toROSMsg(*cloud_plane, res.cloud_plane);
+    res.cloud_plane.header.frame_id = cloud_plane->header.frame_id;
+    for (int i = 0; i < 4; i++) {
+        res.cloud_plane_coef[i] = plane_coefficients(i);
+    }
+    return true;
+}
 
 bool get_cloud_cb(bwi_perception::GetCloud::Request &req, bwi_perception::GetCloud::Response &res) {
     ROS_INFO("[table_object_detection_node.cpp] retrieving point cloud...");
@@ -446,11 +554,25 @@ int main(int argc, char **argv) {
     }
 
     std::string param_up_frame;
-    got_param = pnh.getParam("pointcloud_topic", param_up_frame);
+    got_param = pnh.getParam("up_frame", param_up_frame);
     if (!got_param) {
         ROS_ERROR("Could not retrieve up_frame argument.");
         exit(1);
     }
+
+    pnh.param("num_clouds", num_clouds, 5);
+    pnh.param("z_filter_min", z_filter_min, 0.55);
+    pnh.param("z_filter_max", z_filter_max, 1.15);
+
+    //an object whose closest point to the plane is further than this is rejected
+    pnh.param("plane_distance_tolerance", plane_distance_tolerance, 0.09);
+    //an object whose furthest point to the plane is nearer than this is rejected
+    pnh.param("plane_max_distance_tolerance", plane_max_distance_tolerance, 0.02);
+    //how close to points outside the plane must go into the same object cluster
+    pnh.param("cluster_extraction_tolerance", cluster_extraction_tolerance, 0.075);
+
+    pnh.param("eps_angle", eps_angle, 0.09);
+
     camera_cloud_sub = persistent_nh->subscribe(camera_cloud_topic, 100, cloud_cb);
 
     //debugging publisher
@@ -459,6 +581,8 @@ int main(int argc, char **argv) {
 
     //services
     ros::ServiceServer service = nh.advertiseService("perceive_tabletop_scene", seg_cb);
+
+    ros::ServiceServer get_largest_plane_service = nh.advertiseService("perceive_largest_horizontal_plane", get_largest_horizontal_plane_cb);
 
     ros::ServiceServer getcloud_service = nh.advertiseService("get_aggregated_cloud", get_cloud_cb);
 

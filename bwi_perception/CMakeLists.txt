@@ -28,6 +28,7 @@ add_service_files(
 		FeatureExtraction.srv
 		GetCloud.srv
 		GetPCD.srv
+		PerceiveLargestHorizontalPlane.srv
 		PerceiveTabletopScene.srv
 		ProcessVision.srv
 		SetObstacles.srv

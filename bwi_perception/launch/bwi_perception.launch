@@ -5,7 +5,7 @@
 
 	<group if="$(arg use_pointcloud)">
 		<!-- launch tabletop detection service -->
-		<node name="table_object_detection_node" pkg="bwi_perception" type="table_object_detection_node" output="screen">
+		<node name="tabletop_scene_perception_node" pkg="bwi_perception" type="tabletop_scene_perception_node" output="screen">
 			<param name="pointcloud_topic" value="$(arg pointcloud_topic)" />
 			<param name="up_frame" value="/base_link" />
 		</node>

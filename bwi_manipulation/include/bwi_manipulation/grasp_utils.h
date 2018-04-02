@@ -22,7 +22,7 @@ namespace bwi_manipulation {
                                        const Eigen::Vector4f &min,
                                        const Eigen::Vector4f &max,
                                        std::vector<geometry_msgs::PoseStamped> &poses,
-                                       const geometry_msgs::Quaternion &orientation, int num_poses);
+                                       const geometry_msgs::Quaternion &orientation, int num_poses=10);
 
         void generate_grasps_varying_orientation(const std::string &frame_id,
                                                  const geometry_msgs::Quaternion &center_orientation,

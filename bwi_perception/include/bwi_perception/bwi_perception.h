@@ -40,6 +40,7 @@
 
 #include <pcl/kdtree/kdtree.h>
 #include <bwi_perception/PerceiveTabletopScene.h>
+#include <bwi_perception/PerceiveLargestHorizontalPlane.h>
 
 namespace bwi_perception {
 
@@ -210,21 +211,41 @@ namespace bwi_perception {
         if (client_tabletop_perception.call(srv)) {
             return srv.response;
         } else {
-            ROS_ERROR("Failed to call service tabletop perception service");
+            ROS_ERROR("Failed to call perceive_tabletop_scene service");
+            return srv.response;
+        }
+    }
+
+    bwi_perception::PerceiveLargestHorizontalPlane::Response perceiveLargestHorizontalPlane(ros::NodeHandle n) {
+
+        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::PerceiveLargestHorizontalPlane>(
+                "perceive_largest_horizontal_plane");
+
+        bwi_perception::PerceiveLargestHorizontalPlane srv;
+        if (client_tabletop_perception.call(srv)) {
+            return srv.response;
+        } else {
+            ROS_ERROR("Failed to call perceive_largest_horizontal_plane service");
             return srv.response;
         }
     }
 
 
-// re-orders detected, non-overlapping clusters according to given coordinate and direction
-    bool compare_by_second(const std::pair<int, float> &lhs, const std::pair<int, float> &rhs) {
+
+template <typename T, typename U>
+    bool compare_by_second(const std::pair<T, U> &lhs, const std::pair<T, U> &rhs) {
         return lhs.second > rhs.second;
     }
+    template <typename T, typename U>
+    bool compare_by_first(const std::pair<T, U> &lhs, const std::pair<T, U> &rhs) {
+        return lhs.first > rhs.first;
+    }
 
+// re-orders detected, non-overlapping clusters according to given coordinate and direction
     template<typename T>
     void order_clouds(std::vector<typename pcl::PointCloud<T>::Ptr> &clusters_on_plane, Axis comparison_axis, bool forward = true) {
-        typedef typename pcl::PointCloud<T> PointCloudT;
         // get representative coordinates for each cluster
+        typedef typename pcl::PointCloud<T> PointCloudT;
         std::vector<std::pair<float, typename PointCloudT::Ptr>> clouds_by_coord;
         for (auto c : clusters_on_plane) {
             T p = c->points.at(0);
@@ -243,9 +264,9 @@ namespace bwi_perception {
 
         // determine new order based on specified direction
         if (forward) {
-            std::sort(clouds_by_coord.begin(), clouds_by_coord.end(), compare_by_second);
+            std::sort(clouds_by_coord.begin(), clouds_by_coord.end(), compare_by_first<float, typename PointCloudT::Ptr>);
         } else {
-            std::sort(clouds_by_coord.end(), clouds_by_coord.begin(), compare_by_second);
+            std::sort(clouds_by_coord.end(), clouds_by_coord.begin(), compare_by_first<float, typename PointCloudT::Ptr>);
         }
         clusters_on_plane.clear();
         for (auto &pair : clouds_by_coord) {
@@ -330,7 +351,7 @@ namespace bwi_perception {
         std::vector<pcl::PointIndices> cluster_indices;
         pcl::EuclideanClusterExtraction<T> ec;
         ec.setClusterTolerance(tolerance);
-        ec.setMinClusterSize(200);
+        ec.setMinClusterSize(500);
         ec.setMaxClusterSize(25000);
         ec.setSearchMethod(tree);
         ec.setInputCloud(in);

@@ -19,7 +19,7 @@ namespace bwi_manipulation {
                                        const Eigen::Vector4f &min,
                                        const Eigen::Vector4f &max,
                                        vector<geometry_msgs::PoseStamped> &poses,
-                                       const geometry_msgs::Quaternion &orientation, int num_poses = 10) {
+                                       const geometry_msgs::Quaternion &orientation, int num_poses) {
             Eigen::Vector4f range = max - min;
             Eigen::Vector4f step_size = range / num_poses;
 
