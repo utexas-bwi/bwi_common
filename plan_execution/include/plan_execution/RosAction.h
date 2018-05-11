@@ -14,7 +14,7 @@ public:
 
     typedef actionlib::SimpleActionClient<T> ActionClient;
     explicit RosAction(const std::string& logical_name, const std::vector<std::string>& parameters) :
-            name(name),
+            name(logical_name),
             parameters(parameters),
             done(false),
             request_in_progress(false), ac(), mc() {}
