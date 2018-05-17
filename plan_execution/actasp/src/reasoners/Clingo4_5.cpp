@@ -196,7 +196,7 @@ struct RuleToGoalString4_5 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      ruleStream << rule.head[i].toString(timeStep);
+        ruleStream << rule.head[i].toString();
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -214,8 +214,12 @@ struct RuleToGoalString4_5 {
         ruleStream << ", ";
     }
 
-    if (!(rule.head.empty() && rule.body.empty()))
-      ruleStream << ", query(" << timeStep << ")." << endl;
+      if (!(rule.head.empty() && rule.body.empty())) {
+          if (!rule.body.empty()) {
+              ruleStream << ", ";
+          }
+          ruleStream << "query(" << timeStep << ")." << endl;
+      }
 
     return ruleStream.str();
   }
