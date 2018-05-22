@@ -316,7 +316,8 @@ bool find_horizontal_planes(bwi_perception::DetectHorizontalPlanes::Request &req
         // if no clusters are found, this is an invalid plane extraction
         try {
             double cluster_extraction_tolerance = CLUSTER_TOL;
-            cloud_plane = bwi_perception::seg_largest_plane<PointT>(cloud_plane, cluster_extraction_tolerance, MIN_NUMBER_PLANE_POINTS);
+            cloud_plane = bwi_perception::get_largest_component<PointT>(cloud_plane, cluster_extraction_tolerance,
+                                                                        MIN_NUMBER_PLANE_POINTS);
             ROS_INFO("    Extracted Plane Cloud Size: %zu", cloud_plane->size());
 
             if (cloud_plane->size() < MIN_NUMBER_PLANE_POINTS) {

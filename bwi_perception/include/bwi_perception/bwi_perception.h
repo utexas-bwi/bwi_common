@@ -1,3 +1,5 @@
+#ifndef LIBBWI_PERCEPTION_BWI_PERCEPTION_H
+#define LIBBWI_PERCEPTION_BWI_PERCEPTION_H
 #include <ros/ros.h>
 #include <signal.h>
 #include <iostream>
@@ -45,123 +47,121 @@
 namespace bwi_perception {
 
     enum Axis {
-    X,
+        X,
         Y,
         Z
     };
-	
-	pcl::PointCloud<pcl::Normal>::Ptr computeNormals(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double normals_search_radius) {
-		// Create the normal estimation class, and pass the input dataset to it
-		pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> ne;
-		ne.setInputCloud (cloud);
 
-		// Create an empty kdtree representation, and pass it to the normal estimation object.
-		// Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
-		pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB> ());
-		ne.setSearchMethod (tree);
+    pcl::PointCloud<pcl::Normal>::Ptr computeNormals(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double normals_search_radius) {
+        // Create the normal estimation class, and pass the input dataset to it
+        pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> ne;
+        ne.setInputCloud (cloud);
 
-		// Output datasets
-		pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+        // Create an empty kdtree representation, and pass it to the normal estimation object.
+        // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB> ());
+        ne.setSearchMethod (tree);
 
-		// Use all neighbors in a sphere of radius 3cm
-		ne.setRadiusSearch (normals_search_radius);
+        // Output datasets
+        pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
 
-		// Compute the features
-		ne.compute (*cloud_normals);
-		// Check for undefined values
-		for (int i = 0; i < cloud_normals->points.size(); i++)
-		{
-			if (!pcl::isFinite<pcl::Normal>(cloud_normals->points[i]))
-			{
-				PCL_WARN("normals[%d] is not finite\n", i);
-			}
-		}
+        // Use all neighbors in a sphere of radius 3cm
+        ne.setRadiusSearch (normals_search_radius);
 
-		return cloud_normals;
-	}
-	
-	std::vector<double> computeCVFH(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double normals_search_radius) {
-		pcl::PointCloud<pcl::Normal>::Ptr cloud_normals = computeNormals(cloud,normals_search_radius);
-		ROS_INFO("Computing CVFH...");
+        // Compute the features
+        ne.compute (*cloud_normals);
+        // Check for undefined values
+        for (int i = 0; i < cloud_normals->points.size(); i++) {
+            if (!pcl::isFinite<pcl::Normal>(cloud_normals->points[i])) {
+                PCL_WARN("normals[%d] is not finite\n", i);
+            }
+        }
 
-		// Create the CVFH estimation class, and pass the input dataset+normals to it
-		pcl::CVFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::VFHSignature308> cvfh;
-		cvfh.setInputCloud (cloud);
-		cvfh.setInputNormals (cloud_normals);
+        return cloud_normals;
+    }
 
-		// Create an empty kdtree representation, and pass it to the FPFH estimation object.
-		// Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
-		pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB> ());
-		cvfh.setSearchMethod (tree);
+    std::vector<double> computeCVFH(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double normals_search_radius) {
+        pcl::PointCloud<pcl::Normal>::Ptr cloud_normals = computeNormals(cloud,normals_search_radius);
+        ROS_INFO("Computing CVFH...");
 
-		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs (new pcl::PointCloud<pcl::VFHSignature308> ());
+        // Create the CVFH estimation class, and pass the input dataset+normals to it
+        pcl::CVFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::VFHSignature308> cvfh;
+        cvfh.setInputCloud (cloud);
+        cvfh.setInputNormals (cloud_normals);
 
-		cvfh.compute(*vfhs);
+        // Create an empty kdtree representation, and pass it to the FPFH estimation object.
+        // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB> ());
+        cvfh.setSearchMethod (tree);
 
-		// Convert into normalized vector
-		int histogram_sum = 0;
-		std::vector<double> histogram_double_vector (308);
-		for (int i = 0; i < histogram_double_vector.size(); i++) {
-			histogram_double_vector[i] = vfhs->points[0].histogram[i];
-			histogram_sum += vfhs->points[0].histogram[i];
-		}
-		for (int i = 0; i < histogram_double_vector.size(); i++) {
-			histogram_double_vector[i] /= (double)histogram_sum;
-		}
+        pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs (new pcl::PointCloud<pcl::VFHSignature308> ());
 
-		return histogram_double_vector;
-	}
-	
-	std::vector<double> computeFPFH(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double neighbor_radius, double donormal_search_radius) {
-		pcl::PointCloud<pcl::Normal>::Ptr cloud_normals = computeNormals(cloud,donormal_search_radius);
-		ROS_INFO("Computing FPFH...");
+        cvfh.compute(*vfhs);
 
-		// Create the FPFH estimation class, and pass the input dataset+normals to it
-		pcl::FPFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::FPFHSignature33> fpfh;
-		fpfh.setInputCloud (cloud);
-		fpfh.setInputNormals (cloud_normals);
-		// alternatively, if cloud is of tpe PointNormal, do fpfh.setInputNormals (cloud);
+        // Convert into normalized vector
+        int histogram_sum = 0;
+        std::vector<double> histogram_double_vector (308);
+        for (int i = 0; i < histogram_double_vector.size(); i++) {
+            histogram_double_vector[i] = vfhs->points[0].histogram[i];
+            histogram_sum += vfhs->points[0].histogram[i];
+        }
+        for (int i = 0; i < histogram_double_vector.size(); i++) {
+            histogram_double_vector[i] /= (double)histogram_sum;
+        }
 
-		// Create an empty kdtree representation, and pass it to the FPFH estimation object.
-		// Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
-		pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
+        return histogram_double_vector;
+    }
 
-		fpfh.setSearchMethod (tree);
+    std::vector<double> computeFPFH(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud, double neighbor_radius, double donormal_search_radius) {
+        pcl::PointCloud<pcl::Normal>::Ptr cloud_normals = computeNormals(cloud,donormal_search_radius);
+        ROS_INFO("Computing FPFH...");
 
-		// Output datasets
-		pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfhs (new pcl::PointCloud<pcl::FPFHSignature33> ());
+        // Create the FPFH estimation class, and pass the input dataset+normals to it
+        pcl::FPFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::FPFHSignature33> fpfh;
+        fpfh.setInputCloud (cloud);
+        fpfh.setInputNormals (cloud_normals);
+        // alternatively, if cloud is of tpe PointNormal, do fpfh.setInputNormals (cloud);
+
+        // Create an empty kdtree representation, and pass it to the FPFH estimation object.
+        // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
+
+        fpfh.setSearchMethod (tree);
+
+        // Output datasets
+        pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfhs (new pcl::PointCloud<pcl::FPFHSignature33> ());
 
 
-		// Use all neighbors in a sphere of radius 5cm
-		// IMPORTANT: the radius used here has to be larger than the radius used to estimate the surface normals!!!
-		fpfh.setRadiusSearch (neighbor_radius);
+        // Use all neighbors in a sphere of radius 5cm
+        // IMPORTANT: the radius used here has to be larger than the radius used to estimate the surface normals!!!
+        fpfh.setRadiusSearch (neighbor_radius);
 
-		// Compute the features
-		fpfh.compute (*fpfhs);
-		
-		// Convert into normalized vector
-		int histogram_sum = 0;
-		std::vector<double> histogram_double_vector (308);
-		for (int i = 0; i < histogram_double_vector.size(); i++) {
-			histogram_double_vector[i] = fpfhs->points[0].histogram[i];
-			histogram_sum += fpfhs->points[0].histogram[i];
-		}
-		for (double &i : histogram_double_vector) {
+        // Compute the features
+        fpfh.compute (*fpfhs);
+
+        // Convert into normalized vector
+        int histogram_sum = 0;
+        std::vector<double> histogram_double_vector (308);
+        for (int i = 0; i < histogram_double_vector.size(); i++) {
+            histogram_double_vector[i] = fpfhs->points[0].histogram[i];
+            histogram_sum += fpfhs->points[0].histogram[i];
+        }
+        for (double &i : histogram_double_vector) {
             i /= (double)histogram_sum;
-		}
+        }
 
-		return histogram_double_vector;
-		
-		// fpfhs->points.size() should have the same size as the input cloud->points.size ()*
-		// return fpfhs;      Put this back in the function definition if returning fpfhs---> pcl::PointCloud<pcl::FPFHSignature33>::Ptr 
-	}
-	
-	std::vector<std::vector<std::vector<uint> > > computeRGBColorHistogram(pcl::PointCloud<pcl::PointXYZRGB> &cloud, int dim) {
-     
-		//a 3D array
-		std::vector<std::vector<std::vector<uint> > > hist3;
-     
-		hist3.resize(dim);
+        return histogram_double_vector;
+
+        // fpfhs->points.size() should have the same size as the input cloud->points.size ()*
+        // return fpfhs;      Put this back in the function definition if returning fpfhs---> pcl::PointCloud<pcl::FPFHSignature33>::Ptr
+    }
+
+    std::vector<std::vector<std::vector<uint> > > computeRGBColorHistogram(pcl::PointCloud<pcl::PointXYZRGB> &cloud, int dim) {
+
+        //a 3D array
+        std::vector<std::vector<std::vector<uint> > > hist3;
+
+        hist3.resize(dim);
         for (int i = 0; i < dim; i++) {
             hist3[i].resize(dim);
             for (int j = 0; j < dim; j++) {
@@ -169,7 +169,7 @@ namespace bwi_perception {
                 std::fill( hist3[i][j].begin(), hist3[i][j].end(), 0 );
             }
         }
-     
+
         int cloud_size = cloud.points.size();
         for (int i = 0; i < cloud_size; i++) {
             // Max value of 255. We want 256 because we want the rgb division to result in
@@ -180,62 +180,33 @@ namespace bwi_perception {
             int b = (int)((double)(cloud.points[i].b) / round);
             hist3[r][g][b]++;
         }
-        
+
         return hist3;
     }
-	
-	int getLargestPointCloud(std::vector<sensor_msgs::PointCloud2> clouds_in){
-		//select the object with most points as the target object
-		int largest_pc_index = -1;
-		int largest_num_points = -1;
-		
-		for (unsigned int i = 0; i < clouds_in.size(); i++){
-			
-			int num_points_i = clouds_in[i].height*clouds_in[i].width;
-		
-			if (num_points_i > largest_num_points){
-				largest_num_points = num_points_i;
-				largest_pc_index = i;
-			}
-		}
-		
-		return largest_pc_index;
-	}
 
-    bwi_perception::PerceiveTabletopScene::Response getTabletopScene(ros::NodeHandle n) {
+    int getLargestPointCloud(std::vector<sensor_msgs::PointCloud2> clouds_in){
+        //select the object with most points as the target object
+        int largest_pc_index = -1;
+        int largest_num_points = -1;
 
-        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::PerceiveTabletopScene>(
-                "perceive_tabletop_scene");
+        for (unsigned int i = 0; i < clouds_in.size(); i++){
 
-        bwi_perception::PerceiveTabletopScene srv;
-        if (client_tabletop_perception.call(srv)) {
-            return srv.response;
-        } else {
-            ROS_ERROR("Failed to call perceive_tabletop_scene service");
-            return srv.response;
+            int num_points_i = clouds_in[i].height*clouds_in[i].width;
+
+            if (num_points_i > largest_num_points){
+                largest_num_points = num_points_i;
+                largest_pc_index = i;
+            }
         }
+
+        return largest_pc_index;
     }
 
-    bwi_perception::PerceiveLargestHorizontalPlane::Response perceiveLargestHorizontalPlane(ros::NodeHandle n) {
-
-        ros::ServiceClient client_tabletop_perception = n.serviceClient<bwi_perception::PerceiveLargestHorizontalPlane>(
-                "perceive_largest_horizontal_plane");
-
-        bwi_perception::PerceiveLargestHorizontalPlane srv;
-        if (client_tabletop_perception.call(srv)) {
-            return srv.response;
-        } else {
-            ROS_ERROR("Failed to call perceive_largest_horizontal_plane service");
-            return srv.response;
-        }
-    }
-
-
-
-template <typename T, typename U>
+    template <typename T, typename U>
     bool compare_by_second(const std::pair<T, U> &lhs, const std::pair<T, U> &rhs) {
         return lhs.second > rhs.second;
     }
+
     template <typename T, typename U>
     bool compare_by_first(const std::pair<T, U> &lhs, const std::pair<T, U> &rhs) {
         return lhs.first > rhs.first;
@@ -279,7 +250,8 @@ template <typename T, typename U>
     }
 
     template<typename T>
-    typename pcl::PointCloud<T>::Ptr seg_largest_plane(const typename pcl::PointCloud<T>::Ptr &in, double tolerance, size_t min_num_points){
+    typename pcl::PointCloud<T>::Ptr get_largest_component(const typename pcl::PointCloud<T>::Ptr &in, double tolerance,
+                                                           size_t min_num_points) {
         typedef typename pcl::PointCloud<T> PointCloudT;
         typename pcl::search::KdTree<T>::Ptr tree (new typename pcl::search::KdTree<T>);
         tree->setInputCloud (in);
@@ -294,10 +266,8 @@ template <typename T, typename U>
         ec.setInputCloud (in);
         ec.extract (cluster_indices);
 
-        ROS_INFO("number of 'plane clouds' : %ld", cluster_indices.size());
-
         if (cluster_indices.empty()) {
-            throw std::exception();
+            return typename PointCloudT::Ptr(new PointCloudT());
         }
 
         pcl::PointIndices largest_cluster_indices = *std::max_element(cluster_indices.begin(), cluster_indices.end(), compare_cluster_size);
@@ -342,6 +312,7 @@ template <typename T, typename U>
         return true;
 
     }
+
     template<typename T>
     void compute_clusters(const typename pcl::PointCloud<T>::Ptr &in, std::vector<typename pcl::PointCloud<T>::Ptr> &out, double tolerance) {
         typedef typename pcl::PointCloud<T> PointCloudT;
@@ -370,3 +341,5 @@ template <typename T, typename U>
 
 
 }
+
+#endif
