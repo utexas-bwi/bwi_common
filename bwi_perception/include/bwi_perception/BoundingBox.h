@@ -9,6 +9,7 @@
 #include <pcl/features/moment_of_inertia_estimation.h>
 #include <tf/transform_listener.h>
 
+
 namespace bwi_perception {
     struct BoundingBox {
     public:
@@ -25,11 +26,11 @@ namespace bwi_perception {
                     const Eigen::Quaternionf &orientation, const Eigen::Vector4f &position,
                     const std::string &frame_id);
 
-        template<typename T>
-        static BoundingBox from_cloud(const typename pcl::PointCloud<T>::Ptr &plane_cloud);
+        template<typename PointT>
+        static BoundingBox from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud);
 
-        template<typename T>
-        static BoundingBox oriented_from_cloud(const typename pcl::PointCloud<T>::Ptr &plane_cloud);
+        template<typename PointT>
+        static BoundingBox oriented_from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud);
 
         visualization_msgs::Marker to_marker(const int marker_index,
                                              const std::string &ns) const;
@@ -37,8 +38,8 @@ namespace bwi_perception {
         static void transform(const std::string &target_frame, const BoundingBox &in, BoundingBox &out, const tf::TransformListener &listener = tf::TransformListener());
     };
 
-    template<typename T>
-    BoundingBox BoundingBox::from_cloud(const typename pcl::PointCloud<T>::Ptr &plane_cloud) {
+    template<typename PointT>
+    BoundingBox BoundingBox::from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud) {
         Eigen::Vector4f centroid = Eigen::Vector4f::Zero();
         pcl::compute3DCentroid(*plane_cloud, centroid);
         Eigen::Vector4f min, max = Eigen::Vector4f::Zero();
@@ -49,16 +50,16 @@ namespace bwi_perception {
         return BoundingBox(min, max, centroid, Eigen::Quaternionf(0, 0, 0, 1), position, plane_cloud->header.frame_id);
     }
 
-    template<typename T>
-    BoundingBox BoundingBox::oriented_from_cloud(const typename pcl::PointCloud<T>::Ptr &plane_cloud) {
+    template<typename PointT>
+    BoundingBox BoundingBox::oriented_from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud) {
         Eigen::Vector4f centroid;
         pcl::compute3DCentroid(*plane_cloud, centroid);
 
-        pcl::MomentOfInertiaEstimation<T> feature_extractor;
+        pcl::MomentOfInertiaEstimation<PointT> feature_extractor;
         feature_extractor.setInputCloud(plane_cloud);
         feature_extractor.compute();
 
-        T min, max, position;
+        PointT min, max, position;
         Eigen::Matrix3f rotational_matrix;
         feature_extractor.getOBB(min, max, position, rotational_matrix);
         Eigen::Quaternionf quat(rotational_matrix);

@@ -47,7 +47,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   DEPENDS actionlib_msgs
-		LIBRARIES bwi_perception
+        LIBRARIES libbwi_perception
 )
 
 include_directories(
@@ -63,37 +63,37 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE)
 
 
-add_library(bwi_perception src/BoundingBox.cpp)
-target_link_libraries(bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-add_dependencies(bwi_perception bwi_perception_gencpp)
+add_library(libbwi_perception src/libbwi_perception/BoundingBox.cpp src/libbwi_perception/tabletop.cpp src/libbwi_perception/convenience.cpp)
+target_link_libraries(libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(libbwi_perception ${bwi_perception_EXPORTED_TARGETS})
 
 add_executable(horizontal_surface_detector src/horizontal_surface_detector.cpp)
-add_dependencies(horizontal_surface_detector bwi_perception bwi_perception_gencpp)
-target_link_libraries(horizontal_surface_detector bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(horizontal_surface_detector ${bwi_perception_EXPORTED_TARGETS})
+target_link_libraries(horizontal_surface_detector libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(image_logging_server src/image_logging_server.cpp)
-add_dependencies(image_logging_server bwi_perception_gencpp)
+add_dependencies(image_logging_server ${bwi_perception_EXPORTED_TARGETS})
 target_link_libraries(image_logging_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(obstacle_cloud_manager src/obstacle_cloud_manager.cpp)
-add_dependencies(obstacle_cloud_manager bwi_perception_gencpp)
+add_dependencies(obstacle_cloud_manager ${bwi_perception_EXPORTED_TARGETS})
 target_link_libraries(obstacle_cloud_manager ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(pointcloud_feature_server src/pointcloud_feature_server.cpp)
-add_dependencies(pointcloud_feature_server bwi_perception_gencpp)
+add_dependencies(pointcloud_feature_server ${bwi_perception_EXPORTED_TARGETS})
 target_link_libraries(pointcloud_feature_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(tabletop_scene_perception_node src/tabletop_scene_perception_node.cpp)
-add_dependencies(tabletop_scene_perception_node bwi_perception bwi_perception_gencpp)
-target_link_libraries(tabletop_scene_perception_node bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(tabletop_scene_perception_node ${bwi_perception_EXPORTED_TARGETS})
+target_link_libraries(tabletop_scene_perception_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(table_change_detection_node src/table_change_detection_node.cpp)
-add_dependencies(table_change_detection_node bwi_perception bwi_perception_gencpp)
-target_link_libraries(table_change_detection_node bwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(table_change_detection_node ${bwi_perception_EXPORTED_TARGETS})
+target_link_libraries(table_change_detection_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(button_detection_srv_node src/button_detection_srv_node.cpp)
 target_link_libraries(button_detection_srv_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-add_dependencies(button_detection_srv_node bwi_perception_gencpp)
+add_dependencies(button_detection_srv_node ${bwi_perception_EXPORTED_TARGETS})
 
 
 install(PROGRAMS
