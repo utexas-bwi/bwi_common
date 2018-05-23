@@ -47,7 +47,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   DEPENDS actionlib_msgs
-		LIBRARIES bwi_perception
+        LIBRARIES libbwi_perception
 )
 
 include_directories(
@@ -63,7 +63,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE)
 
 
-add_library(libbwi_perception src/libbwi_perception/BoundingBox.cpp src/libbwi_perception/tabletop.cpp)
+add_library(libbwi_perception src/libbwi_perception/BoundingBox.cpp src/libbwi_perception/tabletop.cpp src/libbwi_perception/convenience.cpp)
 target_link_libraries(libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(libbwi_perception ${bwi_perception_EXPORTED_TARGETS})
 

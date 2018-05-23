@@ -9,6 +9,7 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/voxel_grid.h>
 #include <bwi_perception/bwi_perception.h>
+#include <bwi_perception/filter.h>
 
 namespace bwi_perception {
 
@@ -28,7 +29,7 @@ namespace bwi_perception {
         // Mandatory
         //look for a plane perpendicular to a given axis
         seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
-        seg.setMethodType(pcl::SAC_RANSAC);
+        seg.setMethodType(pcl::SAC_PROSAC);
         seg.setMaxIterations(1000);
         seg.setDistanceThreshold(0.025);
 
@@ -68,22 +69,6 @@ namespace bwi_perception {
     }
 
 
-    void
-    filter_plane_selection(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr in, pcl::PointCloud<pcl::PointXYZRGB>::Ptr out,
-                           const double cluster_extraction_tolerance) {
-        typedef pcl::PointXYZRGB PointT;
-        typedef pcl::PointCloud<PointT> PointCloudT;
-
-        pcl::VoxelGrid<PointT> vg;
-        //downsample the plane cloud and segment out noise
-        vg.setInputCloud(in);
-        vg.setLeafSize(0.005f, 0.005f, 0.005f);
-        vg.filter(*out);
-
-        //find the largest plane and segment out noise
-        out = bwi_perception::get_largest_component<PointT>(out, cluster_extraction_tolerance, 500);
-    }
-
     bool segment_tabletop_scene(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &in_cloud,
                                 const double cluster_extraction_tolerance, const std::string &up_frame,
                                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr &table_cloud, Eigen::Vector4f plane_coefficients,
@@ -109,7 +94,7 @@ namespace bwi_perception {
         extract.setNegative(false);
         extract.filter(*working);
 
-        filter_plane_selection(working, table_cloud, cluster_extraction_tolerance);
+        filter_plane_selection<PointT>(working, table_cloud, cluster_extraction_tolerance);
 
         extract.setNegative(true);
         extract.filter(*cloud_blobs);
@@ -120,34 +105,29 @@ namespace bwi_perception {
         bwi_perception::compute_clusters<PointT>(cloud_blobs, clusters, cluster_extraction_tolerance);
 
         //if true, clouds on the other side of the plane will be rejected
-        bool check_below_plane = true;
         Eigen::Vector4f plane_centroid;
-
-        if (check_below_plane) {
+        {
             auto table_box_orig = BoundingBox::from_cloud<PointT>(table_cloud);
             auto centroid = table_box_orig.centroid;
             Eigen::Vector3f out_vector;
             Eigen::Vector3f in_vector(centroid.x(), centroid.y(), centroid.z());
             vector_to_frame(in_vector, table_box_orig.frame_id, up_frame, out_vector, tf_listener);
-
-
-            ROS_INFO("[table_object_detection_node.cpp] Plane xyz: %f, %f, %f", centroid(0), centroid(1),
-                     centroid(2));
+            plane_centroid = {out_vector.x(), out_vector.y(), out_vector.z(), 1};
         }
+
+        ROS_INFO("[table_object_detection_node.cpp] Plane xyz: %f, %f, %f", plane_centroid(0), plane_centroid(1),
+                 plane_centroid(2));
+
 
         for (auto &cluster: clusters) {
 
             // Check if the cluster is too far away
-            if (!bwi_perception::filter<PointT>(cluster, plane_coefficients, plane_distance_tolerance,
-                                                plane_max_distance_tolerance)) {
+            if (!bwi_perception::within_plane_margin<PointT>(cluster, plane_coefficients, plane_distance_tolerance,
+                                                             plane_max_distance_tolerance)) {
                 continue;
             }
 
             //next check which clusters are below and which are aboe the plane
-            if (!check_below_plane) {
-                table_object_clouds.push_back(cluster);
-                continue;
-            }
 
             auto cluster_box_orig = BoundingBox::from_cloud<PointT>(cluster);
             auto centroid = cluster_box_orig.centroid;

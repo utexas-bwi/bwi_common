@@ -31,7 +31,7 @@ typedef unsigned int uint;
 bool g_caught_sigint = false;
 
 pcl::visualization::PCLPlotter * plotter;
-ros::Publisher cloud_pub;
+ros::Publisher objects_cloud_pub;
 sensor_msgs::PointCloud2 cloud_ros;
 
 #define NORMALS_SEARCH_RADIUS 0.02
@@ -386,7 +386,7 @@ int main (int argc, char** argv) {
 	ros::ServiceServer service_shapehist_fpfh = nh.advertiseService("/bwi_perception/shape_fpfh_histogram_service", shapehist_fpfh_cb);
 
     // Debug cloud
-    cloud_pub = nh.advertise<sensor_msgs::PointCloud2>("feature_extraction_server/cloud", 10);
+    objects_cloud_pub = nh.advertise<sensor_msgs::PointCloud2>("feature_extraction_server/cloud", 10);
 
     ROS_INFO("Feature extraction server ready");
     ros::spin();

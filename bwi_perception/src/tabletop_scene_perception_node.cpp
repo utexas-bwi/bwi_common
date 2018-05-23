@@ -26,10 +26,12 @@
 #include "bwi_perception/PerceiveLargestHorizontalPlane.h"
 #include "bwi_perception/GetCloud.h"
 #include "bwi_perception/GetPCD.h"
+#include <bwi_perception/filter.h>
 #include <mutex>
 #include <condition_variable>
 #include <bwi_perception/bwi_perception.h>
 #include <bwi_perception/tabletop.h>
+#include <bwi_perception/plane.h>
 
 using namespace std;
 //how many frames to stitch into a single cloud
@@ -53,7 +55,7 @@ string camera_cloud_topic;
 mutex cloud_lock;
 PointCloudT::Ptr cloud(new PointCloudT);
 
-ros::Publisher cloud_pub;
+ros::Publisher objects_cloud_pub;
 ros::Publisher table_cloud_pub;
 
 uint64_t cloud_count = 0;
@@ -197,16 +199,15 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
         res.cloud_plane_coef[i] = plane_coefficients(i);
     }
 
-    //blobs on the plane
-    for (auto &i : table_objects) {
-        sensor_msgs::PointCloud2 cloud_ros;
-        pcl::toROSMsg(*i, cloud_ros);
-        cloud_ros.header.frame_id = cloud->header.frame_id;
-        res.cloud_clusters.push_back(cloud_ros);
-    }
+    transform(table_objects.begin(), table_objects.end(), back_inserter(res.cloud_clusters),
+              [](PointCloudT::Ptr pcl_cloud) {
+                  sensor_msgs::PointCloud2 ros_cloud;
+                  pcl::toROSMsg(*pcl_cloud, ros_cloud);
+                  return ros_cloud;
+              });
 
     sensor_msgs::PointCloud2 cloud_ros;
-    if (cloud_pub.getNumSubscribers() > 0) {
+    if (objects_cloud_pub.getNumSubscribers() > 0) {
         //for debugging purposes
         //now, put the clouds in cluster_on_plane in one cloud and publish it
         cloud_blobs->clear();
@@ -217,9 +218,8 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
         ROS_INFO("Publishing debug cloud...");
         pcl::toROSMsg(*cloud_blobs, cloud_ros);
         cloud_ros.header.frame_id = cloud->header.frame_id;
-        cloud_pub.publish(cloud_ros);
+        objects_cloud_pub.publish(cloud_ros);
     }
-
 
     if (table_cloud_pub.getNumSubscribers() > 0) {
         table_cloud_pub.publish(res.cloud_plane);
@@ -228,8 +228,6 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
 
     return true;
 }
-
-
 
 bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPlane::Request &req, bwi_perception::PerceiveLargestHorizontalPlane::Response &res) {
 
@@ -241,8 +239,15 @@ bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPl
 
     ROS_INFO("waiting for cloud...");
     aggregate_clouds(num_clouds, working);
+
     Eigen::Vector4f plane_coefficients;
     bool success = bwi_perception::get_largest_plane(working, plane_indices, plane_coefficients, up_frame, tf_listener);
+
+    if (!success) {
+        res.is_plane_found = false;
+        return true;
+    }
+
     // Create the filtering object
     pcl::ExtractIndices<PointT> extract;
     // Extract the plane
@@ -251,17 +256,18 @@ bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPl
     extract.setNegative(false);
     extract.filter(*working);
 
-    bwi_perception::filter_plane_selection(working, working, cluster_extraction_tolerance);
+    PointCloudT::Ptr filtered(new PointCloudT);
+    bwi_perception::filter_plane_selection<PointT>(working, filtered, cluster_extraction_tolerance);
 
-    if (!success) {
-        res.is_plane_found = false;
-        return true;
-    }
+
     res.is_plane_found = true;
-    pcl::toROSMsg(*working, res.cloud_plane);
-    res.cloud_plane.header.frame_id = working->header.frame_id;
+    pcl::toROSMsg(*filtered, res.cloud_plane);
     for (int i = 0; i < 4; i++) {
         res.cloud_plane_coef[i] = plane_coefficients(i);
+    }
+
+    if (table_cloud_pub.getNumSubscribers() > 0) {
+        table_cloud_pub.publish(res.cloud_plane);
     }
     return true;
 }
@@ -305,14 +311,14 @@ int main(int argc, char **argv) {
     //an object whose furthest point to the plane is nearer than this is rejected
     pnh.param("plane_max_distance_tolerance", plane_max_distance_tolerance, 0.02);
     //how close points outside the plane must be to go into the same object cluster
-    pnh.param("cluster_extraction_tolerance", cluster_extraction_tolerance, 0.075);
+    pnh.param("cluster_extraction_tolerance", cluster_extraction_tolerance, 0.05);
 
     pnh.param("eps_angle", eps_angle, 0.09);
 
     camera_cloud_sub = persistent_nh->subscribe(camera_cloud_topic, 100, cloud_cb);
 
     //debugging publisher
-    cloud_pub = pnh.advertise<sensor_msgs::PointCloud2>("objects_cloud", 1);
+    objects_cloud_pub = pnh.advertise<sensor_msgs::PointCloud2>("objects_cloud", 1);
     table_cloud_pub = pnh.advertise<sensor_msgs::PointCloud2>("plane_cloud", 1);
 
     //services

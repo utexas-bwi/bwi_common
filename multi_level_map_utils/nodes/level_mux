@@ -19,7 +19,7 @@ class LevelMultiplexer:
         rospy.init_node("map_mux")
 
         self.global_frame_id = rospy.get_param('~global_frame_id', 'level_mux_map')
-        self.default_current_level = rospy.get_param('~default_current_level', None)
+        self.default_current_level = rospy.get_param('~default_current_level', 2)
 
         # Subcribe to the multi level map data to get information about all the maps.
         self.multimap_available = False

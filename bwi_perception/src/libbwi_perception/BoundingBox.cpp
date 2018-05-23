@@ -5,11 +5,6 @@
 #include <visualization_msgs/Marker.h>
 #include "Eigen/Dense"
 
-
-/* define what kind of point clouds we're using */
-typedef pcl::PointXYZ PointT;
-typedef pcl::PointCloud<PointT> PointCloudT;
-
 using namespace std;
 
 namespace bwi_perception {
