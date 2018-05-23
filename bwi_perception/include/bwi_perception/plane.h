@@ -18,9 +18,60 @@ namespace bwi_perception {
 #define MIN_Z 0.05 // minimum z-value of point cloud in map frame to be considered
 #define MAX_Z 2.0 // maximum z-value of point cloud in map frame to be considered
 
-    bool get_largest_plane(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr in, const pcl::PointIndices::Ptr &plane_indices,
-                           Eigen::Vector4f &plane_coefficients,
-                           const std::string &up_frame, tf::TransformListener &listener);
+    template<typename PointT>
+    bool get_largest_plane(const typename pcl::PointCloud<PointT>::Ptr &in, const pcl::PointIndices::Ptr &plane_indices,
+                            Eigen::Vector4f &plane_coefficients,
+                            const std::string &up_frame, tf::TransformListener &listener) {
+
+        typedef typename pcl::PointCloud<PointT> PointCloudT;
+
+        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+
+        // Create the segmentation object
+        typename pcl::SACSegmentation<PointT> seg;
+        // Optional
+        seg.setOptimizeCoefficients(true);
+        // Mandatory
+        //look for a plane perpendicular to a given axis
+        seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
+        seg.setMethodType(pcl::SAC_PROSAC);
+        seg.setMaxIterations(1000);
+        seg.setDistanceThreshold(0.025);
+
+
+        //create the axis to use
+        geometry_msgs::Vector3Stamped ros_vec;
+        geometry_msgs::Vector3Stamped out_vec;
+        ros_vec.header.frame_id = up_frame;
+        ros_vec.vector.x = 0.0;
+        ros_vec.vector.y = 0.0;
+        ros_vec.vector.z = 1.0;
+
+        ROS_INFO("Ros axis: %f, %f, %f",
+                 ros_vec.vector.x, ros_vec.vector.y, ros_vec.vector.z);
+
+        //transform the vector to the camera frame of reference
+        vector_to_frame(ros_vec, in->header.frame_id, out_vec, listener);
+
+        //set the axis to the transformed vector
+        Eigen::Vector3f axis = Eigen::Vector3f(out_vec.vector.x, out_vec.vector.y, out_vec.vector.z);
+        seg.setAxis(axis);
+
+        //set an epsilon that the table can differ from the axis above by
+        seg.setEpsAngle(.09); //value in radians, corresponds to approximately 5 degrees
+
+        // Segment the largest planar component from the remaining cloud
+        seg.setInputCloud(in);
+        seg.segment(*plane_indices, *coefficients);
+
+        //get the plane coefficients
+        plane_coefficients(0) = coefficients->values[0];
+        plane_coefficients(1) = coefficients->values[1];
+        plane_coefficients(2) = coefficients->values[2];
+        plane_coefficients(3) = coefficients->values[3];
+
+        return true;
+    }
 
     template<typename PointT>
     void extract_horizontal_planes(const typename pcl::PointCloud<PointT>::Ptr in,

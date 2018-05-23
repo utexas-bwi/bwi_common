@@ -151,41 +151,26 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     aggregate_clouds(num_clouds, working);
 
     ROS_INFO("collected cloud success");
-
-    double min_z = z_filter_min;
-    double max_z = z_filter_max;
+    float x_min = -std::numeric_limits<float>::max();
+    float x_max = std::numeric_limits<float>::max();
+    float z_min = z_filter_min;
+    float z_max = z_filter_max;
     if (req.override_filter_z) {
-        min_z = req.min_z_value;
-        max_z = req.max_z_value;
+        z_min = req.min_z_value;
+        z_max = req.max_z_value;
     }
-
-    // Apply z filter -- we don't care for anything X m away in the z direction
-    pcl::PassThrough<PointT> pass;
-    pass.setInputCloud(working);
-    pass.setFilterFieldName("z");
-    pass.setFilterLimits(min_z, max_z);
-    pass.filter(*working);
-
-    // Apply x filter
     if (req.apply_x_box_filter) {
-        pass.setInputCloud(working);
-        pass.setFilterFieldName("x");
-        pass.setFilterLimits(req.x_min, req.x_max);
-        pass.filter(*working);
+        x_min = req.x_min;
+        x_max = req.x_max;
     }
-
-    // Create the filtering object: downsample the dataset using a leaf size of 1cm
-    pcl::VoxelGrid<PointT> vg;
-    pcl::PointCloud<PointT>::Ptr cloud_filtered(new pcl::PointCloud<PointT>);
-    vg.setInputCloud(working);
-    vg.setLeafSize(0.0025f, 0.0025f, 0.0025f);
-    vg.filter(*cloud_filtered);
+    bwi_perception::filter_cloud_region<PointT>(working, cloud_plane, up_frame, z_min, z_max, x_min, x_max, tf_listener);
+    working.swap(cloud_plane);
 
 
     PointCloudT::Ptr table_cloud(new PointCloudT);
     Eigen::Vector4f plane_coefficients;
     vector<PointCloudT::Ptr> table_objects;
-    bwi_perception::segment_tabletop_scene(cloud_filtered, cluster_extraction_tolerance, up_frame, table_cloud,
+    bwi_perception::segment_tabletop_scene(working, cluster_extraction_tolerance, up_frame, table_cloud,
                                            plane_coefficients, table_objects, plane_distance_tolerance,
                                            plane_max_distance_tolerance);
 
@@ -194,7 +179,6 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     //fill in responses
     //plane cloud and coefficient
     pcl::toROSMsg(*table_cloud, res.cloud_plane);
-    res.cloud_plane.header.frame_id = cloud->header.frame_id;
     for (int i = 0; i < 4; i++) {
         res.cloud_plane_coef[i] = plane_coefficients(i);
     }
@@ -217,7 +201,6 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
         }
         ROS_INFO("Publishing debug cloud...");
         pcl::toROSMsg(*cloud_blobs, cloud_ros);
-        cloud_ros.header.frame_id = cloud->header.frame_id;
         objects_cloud_pub.publish(cloud_ros);
     }
 
@@ -232,6 +215,7 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
 bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPlane::Request &req, bwi_perception::PerceiveLargestHorizontalPlane::Response &res) {
 
     PointCloudT::Ptr working(new PointCloudT);
+    PointCloudT::Ptr filtered(new PointCloudT);
 
     pcl::PointIndices::Ptr plane_indices(new pcl::PointIndices());
     //create listener for transforms
@@ -240,8 +224,23 @@ bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPl
     ROS_INFO("waiting for cloud...");
     aggregate_clouds(num_clouds, working);
 
+    float x_min = -std::numeric_limits<float>::max();
+    float x_max = std::numeric_limits<float>::max();
+    float z_min = z_filter_min;
+    float z_max = z_filter_max;
+    if (req.override_filter_z) {
+        z_min = req.min_z_value;
+        z_max = req.max_z_value;
+    }
+    if (req.apply_x_box_filter) {
+        x_min = req.x_min;
+        x_max = req.x_max;
+    }
+    bwi_perception::filter_cloud_region<PointT>(working, filtered, up_frame, z_min, z_max, x_min, x_max, tf_listener);
+    working.swap(filtered);
+
     Eigen::Vector4f plane_coefficients;
-    bool success = bwi_perception::get_largest_plane(working, plane_indices, plane_coefficients, up_frame, tf_listener);
+    bool success = bwi_perception::get_largest_plane<PointT>(working, plane_indices, plane_coefficients, up_frame, tf_listener);
 
     if (!success) {
         res.is_plane_found = false;
@@ -256,7 +255,7 @@ bool get_largest_horizontal_plane_cb(bwi_perception::PerceiveLargestHorizontalPl
     extract.setNegative(false);
     extract.filter(*working);
 
-    PointCloudT::Ptr filtered(new PointCloudT);
+
     bwi_perception::filter_plane_selection<PointT>(working, filtered, cluster_extraction_tolerance);
 
 

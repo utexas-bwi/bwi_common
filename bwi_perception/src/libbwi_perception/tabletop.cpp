@@ -10,64 +10,9 @@
 #include <pcl/filters/voxel_grid.h>
 #include <bwi_perception/bwi_perception.h>
 #include <bwi_perception/filter.h>
+#include <bwi_perception/plane.h>
 
 namespace bwi_perception {
-
-    bool get_largest_plane(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr in, const pcl::PointIndices::Ptr &plane_indices,
-                           Eigen::Vector4f &plane_coefficients,
-                           const std::string &up_frame, tf::TransformListener &listener) {
-
-        typedef pcl::PointXYZRGB PointT;
-        typedef pcl::PointCloud<PointT> PointCloudT;
-
-        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-
-        // Create the segmentation object
-        pcl::SACSegmentation<PointT> seg;
-        // Optional
-        seg.setOptimizeCoefficients(true);
-        // Mandatory
-        //look for a plane perpendicular to a given axis
-        seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
-        seg.setMethodType(pcl::SAC_PROSAC);
-        seg.setMaxIterations(1000);
-        seg.setDistanceThreshold(0.025);
-
-
-        //create the axis to use
-        geometry_msgs::Vector3Stamped ros_vec;
-        geometry_msgs::Vector3Stamped out_vec;
-        ros_vec.header.frame_id = up_frame;
-        ros_vec.vector.x = 0.0;
-        ros_vec.vector.y = 0.0;
-        ros_vec.vector.z = 1.0;
-
-        ROS_INFO("Ros axis: %f, %f, %f",
-                 ros_vec.vector.x, ros_vec.vector.y, ros_vec.vector.z);
-
-        //transform the vector to the camera frame of reference
-        vector_to_frame(ros_vec, in->header.frame_id, out_vec, listener);
-
-        //set the axis to the transformed vector
-        Eigen::Vector3f axis = Eigen::Vector3f(out_vec.vector.x, out_vec.vector.y, out_vec.vector.z);
-        seg.setAxis(axis);
-
-        //set an epsilon that the table can differ from the axis above by
-        seg.setEpsAngle(.09); //value in radians, corresponds to approximately 5 degrees
-
-        // Segment the largest planar component from the remaining cloud
-        seg.setInputCloud(in);
-        seg.segment(*plane_indices, *coefficients);
-
-        //get the plane coefficients
-        plane_coefficients(0) = coefficients->values[0];
-        plane_coefficients(1) = coefficients->values[1];
-        plane_coefficients(2) = coefficients->values[2];
-        plane_coefficients(3) = coefficients->values[3];
-
-        return true;
-    }
-
 
     bool segment_tabletop_scene(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &in_cloud,
                                 const double cluster_extraction_tolerance, const std::string &up_frame,
@@ -85,7 +30,7 @@ namespace bwi_perception {
         //create listener for transforms
         tf::TransformListener tf_listener;
 
-        get_largest_plane(in_cloud, table_indices, plane_coefficients, up_frame, tf_listener);
+        get_largest_plane<PointT>(in_cloud, table_indices, plane_coefficients, up_frame, tf_listener);
 
         pcl::ExtractIndices<PointT> extract;
         // Extract the plane

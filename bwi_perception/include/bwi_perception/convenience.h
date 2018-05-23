@@ -27,8 +27,7 @@ namespace bwi_perception {
 
     template <typename PointT>
     void cloud_to_frame(const typename pcl::PointCloud<PointT>::Ptr &input, const std::string &target_frame, typename pcl::PointCloud<PointT>::Ptr &output, tf::TransformListener &listener) {
-        ROS_INFO("Transforming Input Point Cloud to %s frame...", target_frame.c_str());
-        ROS_INFO("    Input Cloud Size: %zu", input->size());
+        ROS_INFO("Transforming cloud from %s to %s...", input->header.frame_id.c_str(), target_frame.c_str());
         if (input->header.frame_id == target_frame) {
             output = input;
             return;
@@ -51,7 +50,7 @@ namespace bwi_perception {
                 //keep trying until we get the transform
             catch (tf::TransformException &ex) {
                 ROS_ERROR_THROTTLE(1, "%s", ex.what());
-                ROS_WARN_THROTTLE(1, "    Waiting for transform from cloud frame (%s) to %s frame. Trying again",
+                ROS_WARN_THROTTLE(1, "    Waiting for transform from (%s) to %s. Trying again",
                                   input->header.frame_id.c_str(), target_frame.c_str());
                 continue;
             }

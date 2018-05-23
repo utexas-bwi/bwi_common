@@ -102,7 +102,28 @@ namespace bwi_perception {
 
 
         return true;
+    }
 
+    template<typename PointT>
+    void filter_cloud_region(const typename pcl::PointCloud<PointT>::Ptr &in, typename pcl::PointCloud<PointT>::Ptr &out, const std::string &region_frame, float z_min, float z_max, float x_min, float x_max, tf::TransformListener &listener) {
+
+        typename pcl::PointCloud<PointT>::Ptr temp(new pcl::PointCloud<PointT>());
+
+        cloud_to_frame<PointT>(in, region_frame, temp, listener);
+        // Crop the cloud
+        typename pcl::CropBox<PointT> pass;
+        pass.setInputCloud(temp);
+        pass.setMin({x_min, -std::numeric_limits<float>::max(), z_min, 1.f});
+        pass.setMax({x_max, std::numeric_limits<float>::max(), z_max, 1.f});
+        pass.filter(*out);
+        temp.swap(out);
+
+        // Create the filtering object: downsample the dataset using a leaf size of 1cm
+        typename pcl::VoxelGrid<PointT> vg;
+        typename pcl::PointCloud<PointT>::Ptr cloud_filtered(new typename pcl::PointCloud<PointT>());
+        vg.setInputCloud(temp);
+        vg.setLeafSize(0.0025f, 0.0025f, 0.0025f);
+        vg.filter(*out);
     }
 }
 #endif //BWI_PERCEPTION_PCL_FILTER_H

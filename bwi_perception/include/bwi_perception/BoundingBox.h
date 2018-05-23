@@ -8,6 +8,7 @@
 #include <pcl/common/centroid.h>
 #include <pcl/features/moment_of_inertia_estimation.h>
 #include <tf/transform_listener.h>
+#include <pcl/filters/crop_box.h>
 
 
 namespace bwi_perception {
@@ -31,6 +32,9 @@ namespace bwi_perception {
 
         template<typename PointT>
         static BoundingBox oriented_from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud);
+
+        template <typename PointT>
+        void crop_cloud(const typename pcl::PointCloud<PointT>::Ptr &in, typename pcl::PointCloud<PointT>::Ptr &out);
 
         visualization_msgs::Marker to_marker(const int marker_index,
                                              const std::string &ns) const;
@@ -70,6 +74,26 @@ namespace bwi_perception {
 
         return BoundingBox(min_vec, max_vec, centroid, quat, position_vec, plane_cloud->header.frame_id);
 
+    }
+
+    template<typename PointT>
+    void BoundingBox::crop_cloud(const typename pcl::PointCloud<PointT>::Ptr &in, typename pcl::PointCloud<PointT>::Ptr &out) {
+        typename pcl::CropBox<PointT> pass;
+        auto rot = orientation.toRotationMatrix();
+        tf::Quaternion quat;
+        quat.x() = orientation.x();
+        quat.y() = orientation.y();
+        quat.z() = orientation.z();
+        quat.w() = orientation.w();
+
+        // the tf::Quaternion has a method to acess roll pitch and yaw
+        double roll, pitch, yaw;
+        tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+        pass.setInputCloud(in);
+        pass.setRotation({roll, pitch, yaw});
+        pass.setMin(min);
+        pass.setMax(max);
+        pass.filter(*out);
     }
 
 }
