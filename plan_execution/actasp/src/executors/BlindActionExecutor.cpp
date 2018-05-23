@@ -64,8 +64,12 @@ namespace actasp {
 
     void BlindActionExecutor::computePlan() {
 
-        plan = planner->computePlan(goalRules).instantiateActions(actionMap);
-        actionCounter = 0;
+        isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
+
+        if (!isGoalReached) {
+          plan = planner->computePlan(goalRules).instantiateActions(actionMap);
+          actionCounter = 0;
+        }
 
         hasFailed = plan.empty();
 

@@ -203,7 +203,7 @@ struct RuleToGoalString4_5 {
         ruleStream << " | ";
     }
 
-    if (!(rule.head.empty() && rule.body.empty()))
+    if (!(rule.body.empty()))
       ruleStream << ":- ";
 
     //iterate over body
@@ -214,12 +214,12 @@ struct RuleToGoalString4_5 {
         ruleStream << ", ";
     }
 
-      if (!(rule.head.empty() && rule.body.empty())) {
-          if (!rule.body.empty()) {
-              ruleStream << ", ";
-          }
-          ruleStream << "query(" << timeStep << ")." << endl;
-      }
+    if (!rule.body.empty()) {
+        ruleStream << ", ";
+        ruleStream << "query(" << timeStep << ")";
+    }
+
+    ruleStream << "." << endl;
 
     return ruleStream.str();
   }
