@@ -47,7 +47,7 @@ void bwi_perception::quaternion_to_frame(const tf::Stamped<tf::Quaternion> &quat
         try {
             tf_listener.transformQuaternion(target_frame, quaternion, out_quaternion);
             break;
-        } catch (tf::TransformException ex) {
+        } catch (tf::TransformException &ex) {
             ROS_ERROR_THROTTLE(1, "%s", ex.what());
             ROS_WARN_THROTTLE(1, "Waiting for transform from %s to %s", quaternion.frame_id_.c_str(),
                               target_frame.c_str());
@@ -69,7 +69,7 @@ void bwi_perception::vector_to_frame(const geometry_msgs::Vector3Stamped &vector
         try {
             tf_listener.transformVector(target_frame, vector, out_vector);
             break;
-        } catch (tf::TransformException ex) {
+        } catch (tf::TransformException &ex) {
             ROS_ERROR_THROTTLE(1, "%s", ex.what());
             ROS_WARN_THROTTLE(1, "Waiting for transform from %s to %s", vector.header.frame_id.c_str(),
                               target_frame.c_str());
