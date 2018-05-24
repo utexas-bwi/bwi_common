@@ -12,11 +12,11 @@ namespace actasp {
 // 	satisfied(satisfied),
 // 	fluents(fluents.begin(),fluents.end())  {}
 
-bool AnswerSet::isSatisfied() const throw() {
+bool AnswerSet::isSatisfied() const noexcept {
 	return satisfied;
 }
 
-bool AnswerSet::contains(const actasp::AspFluent& fluent) const throw() {
+bool AnswerSet::contains(const actasp::AspFluent& fluent) const noexcept {
   
   pair<FluentSet::const_iterator, FluentSet::const_iterator> bounds = 
           equal_range(fluents.begin(), fluents.end(), fluent, TimeStepComparator());
@@ -25,26 +25,24 @@ bool AnswerSet::contains(const actasp::AspFluent& fluent) const throw() {
 	return element != bounds.second;
 }
 
-static void clearPlan(std::list<actasp::Action*>& plan) {
-	std::list<actasp::Action*>::iterator planIt = plan.begin();
-	for(; planIt != plan.end(); ++planIt)
-		delete (*planIt);
+static void clearPlan(std::list<actasp::Action::Ptr>& plan) {
+	plan.clear();
 }
 
-std::list<Action *> AnswerSet::instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const
+std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const
 									throw (std::logic_error) {
 
-	list<Action *> plan;
+	list<Action::Ptr> plan;
 	unsigned int maxTimeStep = 0;
 
 	FluentSet::const_iterator fluentIt = fluents.begin();
 
 	for (; fluentIt != fluents.end(); ++fluentIt) {
 		
-		map<string, Action * >::const_iterator actIt = actionMap.find(fluentIt->getName());
+		auto actIt = actionMap.find(fluentIt->getName());
 		
 		if (actIt != actionMap.end()) {
-			plan.push_back(actIt->second->cloneAndInit(*fluentIt));
+			plan.push_back(Action::Ptr(actIt->second->cloneAndInit(*fluentIt)));
 			maxTimeStep = std::max(maxTimeStep,fluentIt->getTimeStep());
 		} 
 		//if a fluent is not a known action, just ignore it.
@@ -58,7 +56,7 @@ std::list<Action *> AnswerSet::instantiateActions(const std::map<std::string, ac
 	return plan;
 }
 
-std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) const throw() {
+std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) const noexcept {
 	
 	//create fake fluent with the required time step
 	AspFluent fake("-",vector<string>(),timeStep);

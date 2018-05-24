@@ -23,11 +23,11 @@ PartialPolicyExecutor::PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, A
                     hasFailed(false),
                     actionCounter(0),
                     newAction(true),
-                    active(NULL),
+                    active(nullptr),
                     kr(kr),
                     planner(planner),
                     goalRules(),
-                    policy(NULL),
+                    policy(nullptr),
                     suboptimality(suboptimality),
                     selector(selector),
                     actionMap(),
@@ -43,7 +43,7 @@ PartialPolicyExecutor::~PartialPolicyExecutor() {
 }
   
   
-void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) throw() {
+void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept {
 
   this->goalRules = goalRules;
 
@@ -56,9 +56,9 @@ void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRul
     for_each(executionObservers.begin(),executionObservers.end(),bind2nd(mem_fun(&ExecutionObserver::policyChanged),policy));
   }
 
-  hasFailed = (policy!= NULL) && (policy->empty());
+  hasFailed = (policy!= nullptr) && (policy->empty());
   delete active;
-  active = NULL;
+  active = nullptr;
   actionCounter = 0;
   newAction = true;
   
@@ -66,10 +66,10 @@ void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRul
 
 }
 
-bool PartialPolicyExecutor::goalReached() const throw() {
+bool PartialPolicyExecutor::goalReached() const noexcept {
   return isGoalReached;
 }
-bool PartialPolicyExecutor::failed() const throw() {
+bool PartialPolicyExecutor::failed() const noexcept {
   return hasFailed;
 }
 
@@ -87,7 +87,7 @@ void PartialPolicyExecutor::executeActionStep() {
   if (isGoalReached || hasFailed)
     return;
   
-  if (active != NULL && !active->hasFinished()) {
+  if (active != nullptr && !active->hasFinished()) {
     
     if (newAction) {
       for_each(executionObservers.begin(),executionObservers.end(),NotifyActionStart(active->toFluent(actionCounter)));
@@ -99,7 +99,7 @@ void PartialPolicyExecutor::executeActionStep() {
   } else {
     
 
-    if (active != NULL) {
+    if (active != nullptr) {
       for_each(executionObservers.begin(),executionObservers.end(),NotifyActionTermination(active->toFluent(actionCounter++)));
     }
 
@@ -113,7 +113,7 @@ void PartialPolicyExecutor::executeActionStep() {
     set<AspFluent> state(currentState.getFluents().begin(), currentState.getFluents().end());
     ActionSet options = policy->actions(state);
 
-    if (options.empty() || (active != NULL &&  active->hasFailed())) {
+    if (options.empty() || (active != nullptr &&  active->hasFailed())) {
       //there's no action for this state, computing more plans
 
       //if the last action failed, we may want to have some more option
@@ -142,11 +142,11 @@ void PartialPolicyExecutor::executeActionStep() {
 
 }
 
-void PartialPolicyExecutor::addExecutionObserver(ExecutionObserver *observer) throw() {
+void PartialPolicyExecutor::addExecutionObserver(ExecutionObserver *observer) noexcept {
   executionObservers.push_back(observer);
 }
 
-void PartialPolicyExecutor::removeExecutionObserver(ExecutionObserver *observer) throw() {
+void PartialPolicyExecutor::removeExecutionObserver(ExecutionObserver *observer) noexcept {
   executionObservers.remove(observer);
 }
 

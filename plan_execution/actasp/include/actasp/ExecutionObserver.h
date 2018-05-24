@@ -13,13 +13,13 @@ class PartialPolicy;
 
 struct ExecutionObserver {
 
-  virtual void actionStarted(const AspFluent& action) throw() =0 ;
-  virtual void actionTerminated(const AspFluent& action) throw() =0;
+  virtual void actionStarted(const AspFluent& action) noexcept =0 ;
+  virtual void actionTerminated(const AspFluent& action) noexcept =0;
   
-  virtual void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() = 0;
+  virtual void goalChanged(std::vector<actasp::AspRule> newGoalRules) noexcept = 0;
   
   //TODO move this into a separate observer
-  virtual void policyChanged(PartialPolicy* policy) throw() = 0;
+  virtual void policyChanged(PartialPolicy* policy) noexcept = 0;
 
   virtual ~ExecutionObserver() {}
 };

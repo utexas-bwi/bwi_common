@@ -2,11 +2,12 @@
 #define actasp_ReplanningActionExecutor_h__guard
 
 
-#include <actasp/ActionExecutor.h>
+#include <actasp/PlanExecutor.h>
 
 #include <stdexcept>
 #include <list>
 #include <map>
+#include <actasp/Action.h>
 
 namespace actasp {
 
@@ -15,35 +16,35 @@ class Planner;
 class Action;
 class PlanningObserver;
 
-class ReplanningActionExecutor : public ActionExecutor {
+class ReplanningPlanExecutor : public PlanExecutor {
 
 public:
 	
-	ReplanningActionExecutor(actasp::AspKR* reasoner, 
+	ReplanningPlanExecutor(actasp::AspKR* reasoner,
 							 actasp::Planner *planner,
 							 const std::map<std::string, Action * > &actionMap
-							) throw (std::invalid_argument);
+							) noexcept(false);
 	
-  using ActionExecutor::setGoal;
-	void setGoal(const std::vector<actasp::AspRule>& goalRules) throw();
+  using PlanExecutor::setGoal;
+	void setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept;
 
-	bool goalReached() const throw() {
+	bool goalReached() const noexcept {
 		return isGoalReached;
 	}
 	
-	bool failed() const throw() {
+	bool failed() const noexcept {
 		return hasFailed;
 	}
 
 	void executeActionStep();
   
-  void addExecutionObserver(ExecutionObserver *observer) throw();
-  void removeExecutionObserver(ExecutionObserver *observer) throw();
+  void addExecutionObserver(ExecutionObserver *observer) noexcept;
+  void removeExecutionObserver(ExecutionObserver *observer) noexcept;
   
-  void addPlanningObserver(PlanningObserver *observer) throw();
-  void removePlanningObserver(PlanningObserver *observer) throw();
+  void addPlanningObserver(PlanningObserver *observer) noexcept;
+  void removePlanningObserver(PlanningObserver *observer) noexcept;
 	
-	~ReplanningActionExecutor();
+	~ReplanningPlanExecutor();
 	
 
 private:
@@ -52,7 +53,7 @@ private:
 	bool hasFailed;
 	std::map<std::string, Action * > actionMap;
 	
-	std::list<Action *> plan;
+	std::list<Action::Ptr> plan;
   unsigned int actionCounter;
   bool newAction;
   unsigned int failedActionCount;

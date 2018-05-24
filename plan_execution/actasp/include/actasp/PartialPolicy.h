@@ -12,12 +12,12 @@ class AnswerSet;
   
 struct PartialPolicy {
   
-  virtual ActionSet actions(const std::set<AspFluent>& state) const throw() = 0;
+  virtual ActionSet actions(const std::set<AspFluent>& state) const noexcept = 0;
   
   virtual void merge(const AnswerSet& plan) throw(std::logic_error) = 0;
   virtual void merge(const PartialPolicy* otherPolicy) = 0;
   
-  virtual bool empty() const throw() = 0;
+  virtual bool empty() const noexcept = 0;
   
   virtual ~PartialPolicy() {}
     

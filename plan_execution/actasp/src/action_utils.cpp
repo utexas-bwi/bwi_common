@@ -24,9 +24,9 @@ bool IsAnAction::operator()(const AspFluent& fluent) const {
   return actionNames.find(fluent.getName()) != actionNames.end();
 }
 
-AnswerSet planToAnswerSet(const std::list<Action*>& plan) {
+AnswerSet planToAnswerSet(const std::list<Action::Ptr>& plan) {
 
-  list<Action*>::const_iterator actIt = plan.begin();
+  auto actIt = plan.begin();
   set<AspFluent> fluents;
 
   for (int timeStep=0; actIt != plan.end(); ++actIt, ++timeStep) {

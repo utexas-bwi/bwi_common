@@ -7,15 +7,15 @@ namespace actasp {
 AspAtom::AspAtom(const std::string& formula) throw () :atom(formula) {}
 
 
-unsigned int AspAtom::arity() const throw() {
+unsigned int AspAtom::arity() const noexcept {
   return getParameters().size();
 }
 
-std::string AspAtom::getName() const throw() {
+std::string AspAtom::getName() const noexcept {
   return atom.substr(0,atom.find_first_of('('));
 }
   
-std::vector<std::string> AspAtom::getParameters() const throw() {
+std::vector<std::string> AspAtom::getParameters() const noexcept {
     
   size_t start = atom.find_first_of('(');
   size_t end = atom.find_last_of(')'); //should be the last character...

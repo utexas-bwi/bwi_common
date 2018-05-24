@@ -2,11 +2,12 @@
 #define actasp_BlindActionExecutor_h__guard
 
 
-#include <actasp/ActionExecutor.h>
+#include <actasp/PlanExecutor.h>
 
 #include <stdexcept>
 #include <list>
 #include <map>
+#include <actasp/Action.h>
 
 namespace actasp {
 
@@ -18,38 +19,38 @@ namespace actasp {
 
     class PlanningObserver;
 
-    class BlindActionExecutor : public ActionExecutor {
+    class BlindPlanExecutor : public PlanExecutor {
 
     public:
 
-        BlindActionExecutor(actasp::AspKR *reasoner,
+        BlindPlanExecutor(actasp::AspKR *reasoner,
                             actasp::Planner *planner,
                             const std::map<std::string, Action *> &actionMap
-        ) throw(std::invalid_argument);
+        ) noexcept(false);
 
-        using ActionExecutor::setGoal;
+        using PlanExecutor::setGoal;
 
-        void setGoal(const std::vector<actasp::AspRule> &goalRules) throw();
+        void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
 
-        bool goalReached() const throw() {
+        bool goalReached() const noexcept {
             return isGoalReached;
         }
 
-        bool failed() const throw() {
+        bool failed() const noexcept {
             return hasFailed;
         }
 
         void executeActionStep();
 
-        void addExecutionObserver(ExecutionObserver *observer) throw();
+        void addExecutionObserver(ExecutionObserver *observer) noexcept;
 
-        void removeExecutionObserver(ExecutionObserver *observer) throw();
+        void removeExecutionObserver(ExecutionObserver *observer) noexcept;
 
-        void addPlanningObserver(PlanningObserver *observer) throw();
+        void addPlanningObserver(PlanningObserver *observer) noexcept;
 
-        void removePlanningObserver(PlanningObserver *observer) throw();
+        void removePlanningObserver(PlanningObserver *observer) noexcept;
 
-        ~BlindActionExecutor();
+        ~BlindPlanExecutor();
 
 
     private:
@@ -58,10 +59,9 @@ namespace actasp {
         bool hasFailed;
         std::map<std::string, Action *> actionMap;
 
-        std::list<Action *> plan;
+        std::list<Action::Ptr> plan;
         unsigned int actionCounter;
         bool newAction;
-        unsigned int failedActionCount;
 
         AspKR *kr;
         Planner *planner;

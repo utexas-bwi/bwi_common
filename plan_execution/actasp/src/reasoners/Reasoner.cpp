@@ -22,7 +22,7 @@ namespace actasp {
 Reasoner::Reasoner(QueryGenerator *actualReasoner,unsigned int max_n,const ActionSet& allActions) :
             clingo(actualReasoner), max_n(max_n), allActions(allActions) {}
   
-ActionSet Reasoner::availableActions() const throw() {
+ActionSet Reasoner::availableActions() const noexcept {
   list<AnswerSet> actions = clingo->lengthRangePlanQuery(vector<AspRule>(),true,1,1,0);
 
   ActionSet computed;
@@ -35,7 +35,7 @@ ActionSet Reasoner::availableActions() const throw() {
   return computed;
 }
 
-AnswerSet Reasoner::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+AnswerSet Reasoner::currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
   return clingo->currentStateQuery(query);
 }
 
@@ -56,7 +56,7 @@ struct fluent2Rule {
   bool useTimeStep;
 };
 
-bool Reasoner::updateFluents(const std::vector<actasp::AspFluent> &observations) throw() {
+bool Reasoner::updateFluents(const std::vector<actasp::AspFluent> &observations) noexcept {
 
   //copy the observations in the heads of rules
   vector<AspRule> obsRules;
@@ -84,16 +84,16 @@ bool Reasoner::updateFluents(const std::vector<actasp::AspFluent> &observations)
   return true;
 }
 
- bool Reasoner::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw() {
+ bool Reasoner::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept {
 
   return !(clingo->monitorQuery(goal,plan).empty()); 
 }
 
-void Reasoner::resetCurrentState() throw() {
+void Reasoner::resetCurrentState() noexcept {
 clingo->setCurrentState(set<AspFluent>());
 }
 
-void Reasoner::setCurrentState(const std::set<actasp::AspFluent>& newState) throw() {
+void Reasoner::setCurrentState(const std::set<actasp::AspFluent>& newState) noexcept {
   clingo->setCurrentState(newState);
 }
 
@@ -340,7 +340,7 @@ void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, dou
   
 }
 
-std::list< std::list<AspAtom> > Reasoner::query(const std::string &queryString, unsigned int timestep) const throw() {
+std::list< std::list<AspAtom> > Reasoner::query(const std::string &queryString, unsigned int timestep) const noexcept {
   
   return clingo->genericQuery(queryString,timestep,"query_output",0);
 }

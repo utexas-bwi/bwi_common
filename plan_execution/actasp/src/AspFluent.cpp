@@ -49,26 +49,26 @@ AspFluent::AspFluent(const std::string &name, const std::vector<std::string> &va
 
 }
 
-unsigned int AspFluent::arity() const  throw() {
+unsigned int AspFluent::arity() const  noexcept {
 	return this->getParameters().size() + 1;
 }
 
-void AspFluent::setTimeStep(unsigned int timeStep) throw() {
+void AspFluent::setTimeStep(unsigned int timeStep) noexcept {
 	
 
 	this->timeStep = timeStep;
 	
 }
 
-unsigned int AspFluent::getTimeStep() const throw() {
+unsigned int AspFluent::getTimeStep() const noexcept {
 	return this->timeStep;
 }
 
-string AspFluent::getName() const throw() {
+string AspFluent::getName() const noexcept {
 	return cachedBase.substr(0,cachedBase.find_first_of('('));
 }
 
-vector<string> AspFluent::getParameters() const throw() {
+vector<string> AspFluent::getParameters() const noexcept {
   
   size_t start = cachedBase.find_first_of('(')+1;
   
@@ -85,7 +85,7 @@ vector<string> AspFluent::getParameters() const throw() {
 	return params;
 }
 
-bool AspFluent::operator<(const AspFluent& other) const throw(){
+bool AspFluent::operator<(const AspFluent& other) const noexcept{
 	if(this->timeStep < other.timeStep)
 		return true;
 
@@ -95,21 +95,21 @@ bool AspFluent::operator<(const AspFluent& other) const throw(){
 	return  this->cachedBase < other.cachedBase;
 }
 
-bool AspFluent::operator==(const AspFluent& other) const throw() {
+bool AspFluent::operator==(const AspFluent& other) const noexcept {
 	if(this->timeStep != other.timeStep)
 		return false;
 	
 	return this->cachedBase == other.cachedBase;
 }
 
-std::string AspFluent::toString(unsigned int timeStep) const throw() {
+std::string AspFluent::toString(unsigned int timeStep) const noexcept {
     
   stringstream ss;
   ss << timeStep << ")";
   return cachedBase + ss.str();
 }
 
-std::string AspFluent::toString(const string& timeStepVar) const throw() {   
+std::string AspFluent::toString(const string& timeStepVar) const noexcept {
   return cachedBase + timeStepVar + ")";
 }
 

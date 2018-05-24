@@ -13,16 +13,16 @@ public:
 
   AspAtom(const std::string& formula) throw ();
 
-  unsigned int arity() const throw();
+  unsigned int arity() const noexcept;
 
-  std::string getName() const throw();
+  std::string getName() const noexcept;
   
-  virtual std::vector<std::string> getParameters() const throw();
+  virtual std::vector<std::string> getParameters() const noexcept;
   
-  virtual bool operator<(const AspAtom& other) const throw() {return atom < other.atom;}
-  virtual bool operator==(const AspAtom& other) const throw(){return atom == other.atom;};
+  virtual bool operator<(const AspAtom& other) const noexcept {return atom < other.atom;}
+  virtual bool operator==(const AspAtom& other) const noexcept{return atom == other.atom;};
 
-  virtual std::string toString() const throw() {return atom;}
+  virtual std::string toString() const noexcept {return atom;}
   
   virtual operator std::string() const { return this->toString(); } 
 

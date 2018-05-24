@@ -8,11 +8,11 @@
 #include <knowledge_representation/MemoryConduit.h>
 namespace plan_exec {
 
-	template <typename T, typename U, typename V>
+	template <typename ROSAction, typename Goal, typename Result>
 class RosAction : public actasp::Action {
 public:
 
-    typedef actionlib::SimpleActionClient<T> ActionClient;
+    typedef actionlib::SimpleActionClient<ROSAction> ActionClient;
     explicit RosAction(const std::string& logical_name, const std::vector<std::string>& parameters) :
             name(logical_name),
             parameters(parameters),
@@ -36,7 +36,7 @@ public:
         ROS_ERROR("Called run without action topic name");
     }
 
-    typename boost::shared_ptr<const V> run(const std::string &action_topic_name, U goal) {
+    typename boost::shared_ptr<const Result> run(const std::string &action_topic_name, Goal goal) {
 
         ROS_DEBUG_STREAM("Executing " << name);
 
@@ -53,7 +53,7 @@ public:
 
         // If the action finished, need to do some work here.
         if (finished_before_timeout) {
-            boost::shared_ptr<const V> result = ac->getResult();
+            boost::shared_ptr<const Result> result = ac->getResult();
 
             //TODO: Call post-action perceivers to update
 

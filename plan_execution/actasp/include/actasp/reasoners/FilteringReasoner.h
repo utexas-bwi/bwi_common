@@ -21,27 +21,27 @@ struct FilteringReasoner : public FilteringKR, public Reasoner {
     return this->Reasoner::computeAllPlans(goal,suboptimality);
   }
 
-  ActionSet availableActions() const throw() {
+  ActionSet availableActions() const noexcept {
     return this->Reasoner::availableActions();
   }
 
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
     return  this->Reasoner::currentStateQuery(query);
   }
 
-  bool updateFluents(const std::vector<actasp::AspFluent> &observations) throw() {
+  bool updateFluents(const std::vector<actasp::AspFluent> &observations) noexcept {
     return this->Reasoner::updateFluents(observations);
   }
 
-  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw() {
+  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept {
     return this->Reasoner::isPlanValid(plan,goal);
   }
 
-  void resetCurrentState() throw() {
+  void resetCurrentState() noexcept {
     this->Reasoner::resetCurrentState();
   }
 
-  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const throw() {
+  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const noexcept {
     return this->Reasoner::query(queryString,timestep);
   }
   

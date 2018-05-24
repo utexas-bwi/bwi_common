@@ -14,7 +14,7 @@ namespace actasp {
 
 GraphPolicy::GraphPolicy(const ActionSet& actions) :  policy(), allActions(actions), plans(), planIndex() {}
 
-ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const throw() {
+ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const noexcept {
 
     std::map<set<AspFluent>, ActionSet >::const_iterator acts = policy.find(state);
 
@@ -27,7 +27,7 @@ ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const throw() {
 
 void GraphPolicy::merge(const PartialPolicy* otherPolicy) {
     const GraphPolicy *other = dynamic_cast<const GraphPolicy*>(otherPolicy);
-    if(other != NULL)
+    if(other != nullptr)
         merge(other);
     else
         throw runtime_error("method not implemented for a partial policy other than GraphPolicy");
@@ -132,11 +132,11 @@ void GraphPolicy::merge(const GraphPolicy* otherPolicy) {
 
 }
 
-bool GraphPolicy::empty() const throw() {
+bool GraphPolicy::empty() const noexcept {
     return policy.empty();
 }
 
-std::vector<actasp::AnswerSet> GraphPolicy::plansFrom(const std::set<AspFluent>& state) throw() {
+std::vector<actasp::AnswerSet> GraphPolicy::plansFrom(const std::set<AspFluent>& state) noexcept {
 
     vector<AnswerSet> result;
 

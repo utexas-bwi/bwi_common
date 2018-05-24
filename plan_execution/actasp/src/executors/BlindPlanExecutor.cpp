@@ -1,6 +1,6 @@
 
 
-#include <actasp/executors/BlindActionExecutor.h>
+#include <actasp/executors/BlindPlanExecutor.h>
 
 #include <actasp/AspKR.h>
 #include <actasp/AnswerSet.h>
@@ -21,10 +21,10 @@ using namespace std;
 namespace actasp {
 
 //TODO: Rename these to plan executors
-    BlindActionExecutor::BlindActionExecutor(actasp::AspKR *reasoner,
+    BlindPlanExecutor::BlindPlanExecutor(actasp::AspKR *reasoner,
                                              actasp::Planner *planner,
                                              const std::map<std::string, Action *> &actionMap
-    ) throw(std::invalid_argument) :
+    ) noexcept(false) :
             goalRules(),
             isGoalReached(false),
             hasFailed(false),
@@ -32,21 +32,20 @@ namespace actasp {
             plan(),
             actionCounter(0),
             newAction(true),
-            failedActionCount(0),
             kr(reasoner),
             planner(planner),
             executionObservers() {
-        if (reasoner == NULL)
-            throw invalid_argument("BlindActionExecutor: reasoner is NULL");
+        if (reasoner == nullptr)
+            throw invalid_argument("BlindPlanExecutor: reasoner is NULL");
 
-        if (planner == NULL)
-            throw invalid_argument("BlindActionExecutor: planner is NULL");
+        if (planner == nullptr)
+            throw invalid_argument("BlindPlanExecutor: planner is NULL");
 
         transform(actionMap.begin(), actionMap.end(), inserter(this->actionMap, this->actionMap.begin()),
                   ActionMapDeepCopy());
     }
 
-    BlindActionExecutor::~BlindActionExecutor() {
+    BlindPlanExecutor::~BlindPlanExecutor() {
         for_each(actionMap.begin(), actionMap.end(), ActionMapDelete());
     }
 
@@ -62,7 +61,7 @@ namespace actasp {
 
     };
 
-    void BlindActionExecutor::computePlan() {
+    void BlindPlanExecutor::computePlan() {
 
         isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
 
@@ -78,22 +77,20 @@ namespace actasp {
 
     }
 
-    void BlindActionExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) throw() {
+    void BlindPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
         this->goalRules = goalRules;
 
         computePlan();
-
-        failedActionCount = 0;
     }
 
 
-    void BlindActionExecutor::executeActionStep() {
+    void BlindPlanExecutor::executeActionStep() {
 
         if (isGoalReached || hasFailed)
             return;
 
 
-        Action *current = plan.front();
+        Action::Ptr current = plan.front();
 
         if (newAction) {
             for_each(executionObservers.begin(), executionObservers.end(),
@@ -117,42 +114,32 @@ namespace actasp {
             std::cout << "Remaining plan size: " << plan.size() << std::endl;
 
             if (plan.empty()) {
-
                 if (current->hasFailed()) {
-                    ++failedActionCount;
+                    hasFailed = true;
                 } else {
                     // Note: Really, this just means the plan is done. The goal may not be reached, but we have executed the plan.
                     isGoalReached = true;
                 }
 
-                if (failedActionCount >= 3) {
-                    std::cout << "FAILED TOO MANY TIMES. Aborting goal." << std::endl;
-                    hasFailed = true;
-                }
-            } else {
-                failedActionCount = 0;
             }
-
-            delete current;
 
         }
 
-
     }
 
-    void BlindActionExecutor::addExecutionObserver(ExecutionObserver *observer) throw() {
+    void BlindPlanExecutor::addExecutionObserver(ExecutionObserver *observer) noexcept {
         executionObservers.push_back(observer);
     }
 
-    void BlindActionExecutor::removeExecutionObserver(ExecutionObserver *observer) throw() {
+    void BlindPlanExecutor::removeExecutionObserver(ExecutionObserver *observer) noexcept {
         executionObservers.remove(observer);
     }
 
-    void BlindActionExecutor::addPlanningObserver(PlanningObserver *observer) throw() {
+    void BlindPlanExecutor::addPlanningObserver(PlanningObserver *observer) noexcept {
         planningObservers.push_back(observer);
     }
 
-    void BlindActionExecutor::removePlanningObserver(PlanningObserver *observer) throw() {
+    void BlindPlanExecutor::removePlanningObserver(PlanningObserver *observer) noexcept {
         planningObservers.remove(observer);
     }
 

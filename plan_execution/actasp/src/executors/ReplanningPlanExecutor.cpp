@@ -1,6 +1,6 @@
 
 
-#include <actasp/executors/ReplanningActionExecutor.h>
+#include <actasp/executors/ReplanningPlanExecutor.h>
 
 #include <actasp/AspKR.h>
 #include <actasp/AnswerSet.h>
@@ -20,10 +20,10 @@ using namespace std;
 
 namespace actasp {
 
-ReplanningActionExecutor::ReplanningActionExecutor(actasp::AspKR* reasoner,
+ReplanningPlanExecutor::ReplanningPlanExecutor(actasp::AspKR* reasoner,
     actasp::Planner *planner,
     const std::map<std::string, Action * > &actionMap
-                                                  ) throw (std::invalid_argument) :
+                                                  ) noexcept(false) :
   goalRules(),
   isGoalReached(true),
   hasFailed(false),
@@ -35,16 +35,16 @@ ReplanningActionExecutor::ReplanningActionExecutor(actasp::AspKR* reasoner,
   kr(reasoner),
   planner(planner),
   executionObservers(){
-  if (reasoner == NULL)
-    throw invalid_argument("ReplanningActionExecutor: reasoner is NULL");
+  if (reasoner == nullptr)
+    throw invalid_argument("ReplanningPlanExecutor: reasoner is NULL");
 
-  if (planner == NULL)
-    throw invalid_argument("ReplanningActionExecutor: planner is NULL");
+  if (planner == nullptr)
+    throw invalid_argument("ReplanningPlanExecutor: planner is NULL");
 
   transform(actionMap.begin(),actionMap.end(),inserter(this->actionMap,this->actionMap.begin()),ActionMapDeepCopy());
 }
 
-ReplanningActionExecutor::~ReplanningActionExecutor() {
+ReplanningPlanExecutor::~ReplanningPlanExecutor() {
   for_each(actionMap.begin(),actionMap.end(),ActionMapDelete());
 }
 
@@ -60,7 +60,7 @@ struct NotifyNewPlan {
 
 };
 
-void ReplanningActionExecutor::computePlan() {
+void ReplanningPlanExecutor::computePlan() {
   isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
 
   if (!isGoalReached) {
@@ -75,7 +75,7 @@ void ReplanningActionExecutor::computePlan() {
 
 }
 
-void ReplanningActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) throw() {
+void ReplanningPlanExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept {
   this->goalRules = goalRules;
 
   computePlan();
@@ -86,13 +86,13 @@ void ReplanningActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalR
 
 
 
-void ReplanningActionExecutor::executeActionStep() {
+void ReplanningPlanExecutor::executeActionStep() {
 
   if (isGoalReached || hasFailed)
     return;
 
 
-  Action *current = plan.front();
+  Action::Ptr current = plan.front();
 
   if(newAction) {
       for_each(executionObservers.begin(),executionObservers.end(),NotifyActionStart(current->toFluent(actionCounter)));
@@ -127,7 +127,6 @@ void ReplanningActionExecutor::executeActionStep() {
         std::cout << "PLAN VERIFICATION FAILED. Starting plan recomputation." << std::endl;
 
         //if not valid, replan
-        for_each(plan.begin(),plan.end(),ActionDeleter());
         plan.clear();
 
         computePlan();
@@ -138,27 +137,25 @@ void ReplanningActionExecutor::executeActionStep() {
       failedActionCount = 0;
     }
 
-    delete current;
-
   }
 
 
 
 }
 
-void ReplanningActionExecutor::addExecutionObserver(ExecutionObserver *observer) throw() {
+void ReplanningPlanExecutor::addExecutionObserver(ExecutionObserver *observer) noexcept {
   executionObservers.push_back(observer);
 }
 
-void ReplanningActionExecutor::removeExecutionObserver(ExecutionObserver *observer) throw() {
+void ReplanningPlanExecutor::removeExecutionObserver(ExecutionObserver *observer) noexcept {
   executionObservers.remove(observer);
 }
 
-void ReplanningActionExecutor::addPlanningObserver(PlanningObserver *observer) throw() {
+void ReplanningPlanExecutor::addPlanningObserver(PlanningObserver *observer) noexcept {
   planningObservers.push_back(observer);
 }
 
-void ReplanningActionExecutor::removePlanningObserver(PlanningObserver *observer) throw() {
+void ReplanningPlanExecutor::removePlanningObserver(PlanningObserver *observer) noexcept {
   planningObservers.remove(observer);
 }
 

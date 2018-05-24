@@ -23,7 +23,7 @@ Clingo3::Clingo3(const std::string& incrementalVar,
          const std::string& domainDir,
          const ActionSet& allActions,
          unsigned int max_time
-        ) throw() :
+        ) noexcept :
   incrementalVar(incrementalVar),
   max_time(max_time),
   queryDir(queryDir),
@@ -126,7 +126,7 @@ static string aspString(const std::vector<actasp::AspRule>& query, unsigned int 
   return aspString(query,vs.str());
 }
 
-static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) throw() {
+static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) noexcept {
 
   stringstream predicateLine(answerSetContent);
 
@@ -141,7 +141,7 @@ static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) 
 }
 
 
-static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) throw() {
+static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) noexcept {
 
   ifstream file(filePath.c_str());
 
@@ -177,7 +177,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
 }
 
 string Clingo3::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
-                                bool filterActions) const throw() {
+                                bool filterActions) const noexcept {
   stringstream goal;
   goal << "#volatile " << incrementalVar << "." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
@@ -194,7 +194,7 @@ string Clingo3::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
 std::list<actasp::AnswerSet> Clingo3::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules, filterActions);
 
@@ -217,7 +217,7 @@ std::list<actasp::AnswerSet> Clingo3::lengthRangePlanQuery(const std::vector<act
     bool filterActions,
     unsigned int min_plan_length,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules, filterActions);
 
@@ -232,7 +232,7 @@ std::list<actasp::AnswerSet> Clingo3::lengthRangePlanQuery(const std::vector<act
 
 }
 
-AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
   list<AnswerSet> sets = genericQuery(aspString(query,0),0,0,"stateQuery",1);
 
   return (sets.empty())? AnswerSet() : *(sets.begin());
@@ -241,13 +241,13 @@ AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) 
 std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::vector<actasp::AspRule>& query,
     unsigned int timeStep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
   return genericQuery(aspString(query,""),timeStep,timeStep,fileName,answerSetsNumber);
 
 }
 
 std::list<actasp::AnswerSet> Clingo3::monitorQuery(const std::vector<actasp::AspRule>& goalRules,
-    const AnswerSet& plan) const throw() {
+    const AnswerSet& plan) const noexcept {
 
   //   clock_t kr1_begin = clock();
 
@@ -275,7 +275,7 @@ std::string Clingo3::makeQuery(const std::string& query,
                                unsigned int initialTimeStep, 
                                unsigned int finalTimeStep, 
                                const std::string& fileName,
-                              unsigned int answerSetsNumber) const  throw() {
+                              unsigned int answerSetsNumber) const  noexcept {
   //this depends on our way of representing stuff.
   //iclingo starts from 1, while we needed the initial state and first action to be at time step 0
   initialTimeStep++;
@@ -312,7 +312,7 @@ std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::string& query,
     unsigned int initialTimeStep,
     unsigned int finalTimeStep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
 
   string outputFilePath = makeQuery(query,initialTimeStep,finalTimeStep,fileName,answerSetsNumber);
 
@@ -324,7 +324,7 @@ std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::string& query,
 std::list< std::list<AspAtom> > Clingo3::genericQuery(const std::string& query,
       unsigned int timestep,
       const std::string& fileName,
-      unsigned int answerSetsNumber) const throw() {
+      unsigned int answerSetsNumber) const noexcept {
         
 string outputFilePath = makeQuery(query,timestep,timestep,fileName,answerSetsNumber);
 

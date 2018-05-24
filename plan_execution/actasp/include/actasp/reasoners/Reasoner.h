@@ -15,17 +15,17 @@ struct Reasoner : public AspKR {
   
   Reasoner(QueryGenerator *actualReasoner,unsigned int max_n,const ActionSet& allActions);
   
-  ActionSet availableActions() const throw();
+  ActionSet availableActions() const noexcept;
   
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const throw();
+  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept;
   
-  bool updateFluents(const std::vector<actasp::AspFluent> &observations) throw();
+  bool updateFluents(const std::vector<actasp::AspFluent> &observations) noexcept;
   
-  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw();
+  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept;
   
-  void resetCurrentState() throw();
+  void resetCurrentState() noexcept;
 
-  void setCurrentState(const std::set<actasp::AspFluent>& newState) throw();
+  void setCurrentState(const std::set<actasp::AspFluent>& newState) noexcept;
   
   AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error) ;
   
@@ -35,9 +35,9 @@ struct Reasoner : public AspKR {
   
   virtual PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
   
-  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const throw();
+  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const noexcept;
   
-  void setMaxTimeStep(unsigned int max_n) throw() {
+  void setMaxTimeStep(unsigned int max_n) noexcept {
     this->max_n = max_n;
   }
   

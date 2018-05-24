@@ -11,12 +11,7 @@
 #include <functional>
 
 namespace actasp {
-	
-struct ActionDeleter {
-	void operator()(Action *act) const {
-		delete act;
-	}
-};
+
 
 struct ActionMapDeepCopy {
 	
@@ -42,7 +37,7 @@ struct IsAnAction : public std::unary_function<const AspFluent&,bool>{
   std::set<std::string> actionNames;
 };
 
-AnswerSet planToAnswerSet(const std::list<Action*>& plan);
+AnswerSet planToAnswerSet(const std::list<Action::Ptr>& plan);
 
 ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap);
 

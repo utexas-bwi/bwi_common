@@ -5,11 +5,13 @@
 
 #include <string>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 namespace actasp {
 
 struct Action {	
-	
+
+	typedef boost::shared_ptr<Action> Ptr;
 	virtual int paramNumber() const = 0;
 	
 	virtual std::string getName() const = 0;

@@ -13,7 +13,7 @@ struct Clingo4_2 : public FilteringQueryGenerator {
           const std::string& domainDir,
           const ActionSet& actions,
           unsigned int max_time = 0
-  ) throw();
+  ) noexcept;
 
   Clingo4_2(const std::string& incrementalVar,
           const std::string& queryDir,
@@ -21,30 +21,30 @@ struct Clingo4_2 : public FilteringQueryGenerator {
           const ActionSet& actions,
           const std::string& currentFilePath,
           unsigned int max_time = 0
-  ) throw();
+  ) noexcept;
 
   std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
       bool filterActions,
       unsigned int  max_plan_length,
-      unsigned int answerset_number) const throw();
+      unsigned int answerset_number) const noexcept;
 
   std::list<actasp::AnswerSet> lengthRangePlanQuery(const std::vector<actasp::AspRule>& goalRules,
       bool filterActions,
       unsigned int min_plan_length,
       unsigned int  max_plan_length,
-      unsigned int answerset_number) const throw();
+      unsigned int answerset_number) const noexcept;
 
   actasp::AnswerSet optimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
       bool filterActions,
       unsigned int  max_plan_length,
       unsigned int answerset_number,
-      bool minimum) const throw();
+      bool minimum) const noexcept;
 
   std::list<actasp::AnswerSet> monitorQuery(const std::vector<actasp::AspRule>& goalRules,
-      const AnswerSet& plan) const throw();
+      const AnswerSet& plan) const noexcept;
 
 
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const throw();
+  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept;
 
   void setCurrentState(const std::set<actasp::AspFluent>& newState);
   
@@ -53,12 +53,12 @@ struct Clingo4_2 : public FilteringQueryGenerator {
   std::list<actasp::AnswerSet> genericQuery(const std::vector<actasp::AspRule>& query,
       unsigned int timestep,
       const std::string& fileName,
-      unsigned int answerSetsNumber) const throw();
+      unsigned int answerSetsNumber) const noexcept;
 
   std::list< std::list<AspAtom> > genericQuery(const std::string& query,
       unsigned int timestep,
       const std::string& fileName,
-      unsigned int answerSetsNumber) const throw();
+      unsigned int answerSetsNumber) const noexcept;
 
 private:
 
@@ -67,7 +67,7 @@ private:
       unsigned int finalTimeStep,
       const std::string& fileName,
       unsigned int answerSetsNumber,
-      bool useCurrentState) const throw();
+      bool useCurrentState) const noexcept;
 
   std::string makeQuery(const std::string& query,
                                  unsigned int initialTimeStep,
@@ -75,11 +75,11 @@ private:
                                  const std::string& fileName,
                               unsigned int answerSetsNumber,
                               bool useCurrentState
-                       ) const throw();
+                       ) const noexcept;
 
-  std::string generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw();
+  std::string generatePlanQuery(std::vector<actasp::AspRule> goalRules) const noexcept;
   
-  std::string generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules, const AnswerSet& plan) const throw();
+  std::string generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules, const AnswerSet& plan) const noexcept;
 
   std::string incrementalVar;
   ActionSet allActions;

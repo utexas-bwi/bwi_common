@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <actasp/Action.h>
 
 namespace actasp {
 
@@ -22,21 +23,21 @@ public:
   AnswerSet() : satisfied(false), fluents() {}
   
   template <typename Iterator>
-  AnswerSet(Iterator from, Iterator to) throw() : satisfied(true), fluents(from,to) {
+  AnswerSet(Iterator from, Iterator to) noexcept : satisfied(true), fluents(from,to) {
     std::sort(fluents.begin(), fluents.end(), TimeStepComparator());
   }
 
   typedef std::vector<actasp::AspFluent> FluentSet;
 	
-	bool isSatisfied() const throw();
+	bool isSatisfied() const noexcept;
 	
-	bool contains(const actasp::AspFluent& fluent) const throw();
+	bool contains(const actasp::AspFluent& fluent) const noexcept;
 	
-	std::list<Action *> instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const throw(std::logic_error);
+	std::list<Action::Ptr> instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const throw(std::logic_error);
 	
-	const FluentSet& getFluents() const throw() { return fluents;}
+	const FluentSet& getFluents() const noexcept { return fluents;}
 	
-	std::set<actasp::AspFluent> getFluentsAtTime(unsigned int timeStep) const throw();
+	std::set<actasp::AspFluent> getFluentsAtTime(unsigned int timeStep) const noexcept;
   
   unsigned int maxTimeStep() const throw(std::logic_error);
 

@@ -1,7 +1,7 @@
 #ifndef actasp_MultiPolicyExecutor_h__guard
 #define actasp_MultiPolicyExecutor_h__guard
 
-#include <actasp/ActionExecutor.h>
+#include <actasp/PlanExecutor.h>
 #include <actasp/PartialPolicy.h>
 #include <actasp/AspRule.h>
 
@@ -18,22 +18,22 @@ class ActionSelector;
 class ExecutionObserver;
 class PlanningObserver;
 
-class PartialPolicyExecutor : public ActionExecutor {
+class PartialPolicyExecutor : public PlanExecutor {
 public:
 	
   PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, ActionSelector *selector, 
                       const std::map<std::string, Action * >& actionMap, double suboptimality);
   
-  using ActionExecutor::setGoal;
-  void setGoal(const std::vector<actasp::AspRule>& goalRules) throw();
+  using PlanExecutor::setGoal;
+  void setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept;
 
-	bool goalReached() const throw();
-	bool failed() const throw();
+	bool goalReached() const noexcept;
+	bool failed() const noexcept;
 
 	void executeActionStep();
   
-  void addExecutionObserver(ExecutionObserver *observer) throw();
-  void removeExecutionObserver(ExecutionObserver *observer) throw();
+  void addExecutionObserver(ExecutionObserver *observer) noexcept;
+  void removeExecutionObserver(ExecutionObserver *observer) noexcept;
   
   ~PartialPolicyExecutor();
  

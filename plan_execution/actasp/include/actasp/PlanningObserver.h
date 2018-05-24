@@ -9,7 +9,7 @@ class AnswerSet;
 
 struct PlanningObserver {
 
-  virtual void planChanged(const AnswerSet& newPlan) throw() =0 ;
+  virtual void planChanged(const AnswerSet& newPlan) noexcept =0 ;
 
   virtual ~PlanningObserver() {}
 };
