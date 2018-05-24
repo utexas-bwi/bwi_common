@@ -13,13 +13,12 @@
 #include <bwi_perception/bwi_perception.h>
 
 namespace bwi_perception {
-    template<typename T>
-    void filter_points_between(typename pcl::PointCloud<T>::ConstPtr input_cloud,
-                               typename pcl::PointCloud<T>::Ptr output_cloud, Eigen::Vector2f origin, float start_angle,
+    template<typename PointT>
+    void filter_points_between(typename pcl::PointCloud<PointT>::ConstPtr input_cloud,
+                               typename pcl::PointCloud<PointT>::Ptr output_cloud, Eigen::Vector2f origin, float start_angle,
                                float end_angle) {
 
-        typedef T PointT;
-        typedef typename pcl::PointCloud<T> PointCloudT;
+        typedef typename pcl::PointCloud<PointT> PointCloudT;
         ROS_INFO("Removing input cloud points between %f and %f", start_angle, end_angle);
 
 
@@ -36,11 +35,12 @@ namespace bwi_perception {
             Eigen::Vector2f origin_to_center = point_vec - origin;
             origin_to_center.normalize();
             float point_cosine = origin_to_center.dot(ignore_range_bisect);
-            if (acos(point_cosine) < half_ignore_size) {
+            if (acos(point_cosine) > half_ignore_size) {
                 continue;
             }
             output_cloud->push_back(point);
         }
+        output_cloud->header.frame_id = input_cloud->header.frame_id;
         ROS_INFO("Finished with %zu points", output_cloud->size());
     }
 
