@@ -17,7 +17,7 @@ public:
             name(logical_name),
             parameters(parameters),
             done(false),
-            request_in_progress(false), ac(), mc() {}
+            request_in_progress(false), ac() {}
 
     ~RosAction() {
         if (request_in_progress) {
@@ -36,7 +36,7 @@ public:
         ROS_ERROR("Called run without action topic name");
     }
 
-    V run(const std::string &action_topic_name, U goal) {
+    typename boost::shared_ptr<const V> run(const std::string &action_topic_name, U goal) {
 
         ROS_DEBUG_STREAM("Executing " << name);
 
@@ -63,7 +63,10 @@ public:
             // Cleanup the simple action client.
             request_in_progress = false;
             delete ac;
+            return result;
         }
+
+        return {};
 
     }
 	
@@ -87,9 +90,7 @@ protected:
 
 
   bool request_in_progress;
-  //HACK: This is a pointer to avoid messing up the default copy constructor. Maybe if mc
-    // were copyable, this would not be an issue.
-  knowledge_rep::MemoryConduit* mc;
+
 private:
     ActionClient* ac;
 
