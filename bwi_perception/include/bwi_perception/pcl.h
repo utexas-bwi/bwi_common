@@ -57,32 +57,38 @@ namespace bwi_perception {
     }
 
 
-    template<typename T>
+    template<typename PointT>
     void
-    compute_clusters(const typename pcl::PointCloud<T>::Ptr &in, std::vector<typename pcl::PointCloud<T>::Ptr> &out,
-                     double tolerance) {
-        typedef typename pcl::PointCloud<T> PointCloudT;
-        typename pcl::search::KdTree<T>::Ptr tree(new typename pcl::search::KdTree<T>);
+    compute_clusters(const typename pcl::PointCloud<PointT>::Ptr &in,
+                     std::vector<typename pcl::PointCloud<PointT>::Ptr> &out,
+                     double tolerance, double min_cluster_size = 500, double max_cluster_size = 25000) {
+        typedef typename pcl::PointCloud<PointT> PointCloudT;
+        typename pcl::search::KdTree<PointT>::Ptr tree(new typename pcl::search::KdTree<PointT>);
         tree->setInputCloud(in);
 
         std::vector<pcl::PointIndices> cluster_indices;
-        pcl::EuclideanClusterExtraction<T> ec;
+        compute_clusters(in, cluster_indices, tolerance, min_cluster_size, max_cluster_size);
+
+        transform(cluster_indices.begin(), cluster_indices.end(), back_inserter(out), [in](pcl::PointIndices indices) {
+            return typename PointCloudT::Ptr(new PointCloudT(*in, indices.indices));
+        });
+    }
+
+    template<typename PointT>
+    void
+    compute_clusters(const typename pcl::PointCloud<PointT>::Ptr &in, std::vector<pcl::PointIndices> &out,
+                     double tolerance, double min_cluster_size = 500, double max_cluster_size = 25000) {
+        typedef typename pcl::PointCloud<PointT> PointCloudT;
+        typename pcl::search::KdTree<PointT>::Ptr tree(new typename pcl::search::KdTree<PointT>);
+        tree->setInputCloud(in);
+
+        pcl::EuclideanClusterExtraction<PointT> ec;
         ec.setClusterTolerance(tolerance);
-        ec.setMinClusterSize(500);
-        ec.setMaxClusterSize(25000);
+        ec.setMinClusterSize(min_cluster_size);
+        ec.setMaxClusterSize(max_cluster_size);
         ec.setSearchMethod(tree);
         ec.setInputCloud(in);
-        ec.extract(cluster_indices);
-
-        out.clear();
-
-        for (auto &indices : cluster_indices) {
-            typename PointCloudT::Ptr cloud_cluster(new PointCloudT(*in, indices.indices));
-            cloud_cluster->width = cloud_cluster->points.size();
-            cloud_cluster->height = 1;
-            cloud_cluster->is_dense = true;
-            out.push_back(cloud_cluster);
-        }
+        ec.extract(out);
     }
 
 

@@ -18,7 +18,8 @@ namespace bwi_perception {
                                 const double cluster_extraction_tolerance, const std::string &up_frame,
                                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr &table_cloud, Eigen::Vector4f plane_coefficients,
                                 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> &table_object_clouds,
-                                const double plane_distance_tolerance, const double plane_max_distance_tolerance) {
+                                const double plane_distance_tolerance, const double plane_max_distance_tolerance,
+                                const double min_cluster_size, const double max_cluster_size) {
         /* define what kind of point clouds we're using */
         typedef pcl::PointXYZRGB PointT;
         typedef pcl::PointCloud<PointT> PointCloudT;
@@ -44,11 +45,18 @@ namespace bwi_perception {
         extract.setNegative(true);
         extract.filter(*cloud_blobs);
 
-        std::vector<PointCloudT::Ptr> clusters;
-
         //Step 3: Eucledian Cluster Extraction
-        bwi_perception::compute_clusters<PointT>(cloud_blobs, clusters, cluster_extraction_tolerance);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr structure_only(new pcl::PointCloud<pcl::PointXYZ>);
+        pcl::copyPointCloud(*cloud_blobs, *structure_only);
+        std::vector<pcl::PointIndices> cluster_indices;
+        bwi_perception::compute_clusters<pcl::PointXYZ>(structure_only, cluster_indices, cluster_extraction_tolerance,
+                                                        min_cluster_size, max_cluster_size);
 
+        std::vector<PointCloudT::Ptr> clusters;
+        transform(cluster_indices.begin(), cluster_indices.end(), back_inserter(clusters),
+                  [cloud_blobs](pcl::PointIndices indices) {
+                      return typename PointCloudT::Ptr(new PointCloudT(*cloud_blobs, indices.indices));
+                  });
         //if true, clouds on the other side of the plane will be rejected
         Eigen::Vector4f plane_centroid;
         {
@@ -60,12 +68,7 @@ namespace bwi_perception {
             plane_centroid = {out_vector.x(), out_vector.y(), out_vector.z(), 1};
         }
 
-        ROS_INFO("[table_object_detection_node.cpp] Plane xyz: %f, %f, %f", plane_centroid(0), plane_centroid(1),
-                 plane_centroid(2));
-
-
         for (auto &cluster: clusters) {
-
             // Check if the cluster is too far away
             if (!bwi_perception::within_plane_margin<PointT>(cluster, plane_coefficients, plane_distance_tolerance,
                                                              plane_max_distance_tolerance)) {
