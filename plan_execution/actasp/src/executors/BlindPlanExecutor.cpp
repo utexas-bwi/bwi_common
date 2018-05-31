@@ -79,6 +79,8 @@ namespace actasp {
 
     void BlindPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
         this->goalRules = goalRules;
+        
+        for_each(executionObservers.begin(),executionObservers.end(),NotifyGoalChanged(goalRules));
 
         computePlan();
     }
