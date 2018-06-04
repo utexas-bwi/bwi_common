@@ -20,7 +20,7 @@ using namespace std;
 
 namespace actasp {
 
-//TODO: Rename these to plan executors
+
     BlindPlanExecutor::BlindPlanExecutor(actasp::AspKR *reasoner,
                                              actasp::Planner *planner,
                                              const std::map<std::string, Action *> &actionMap

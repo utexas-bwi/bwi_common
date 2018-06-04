@@ -13,10 +13,10 @@ class RosAction : public actasp::Action {
 public:
 
     typedef actionlib::SimpleActionClient<ROSAction> ActionClient;
-    explicit RosAction(const std::string& logical_name, const std::vector<std::string>& parameters) :
-            name(logical_name),
-            parameters(parameters),
+
+    explicit RosAction() :
             done(false),
+            failed(false),
             request_in_progress(false), ac() {}
 
     ~RosAction() {
@@ -26,10 +26,10 @@ public:
             delete ac;
         }
     }
-	
-	int paramNumber() const {return 1;}
-	
-	std::string getName() const {return name;}
+
+    virtual int paramNumber() const = 0;
+
+    std::string getName() const = 0;
 
 
     virtual void run() {
@@ -37,8 +37,6 @@ public:
     }
 
     typename boost::shared_ptr<const Result> run(const std::string &action_topic_name, Goal goal) {
-
-        ROS_DEBUG_STREAM("Executing " << name);
 
         if (!request_in_progress) {
             //ac = std::unique_ptr<ActionClient>(new ActionClient(action_topic_name, true));
@@ -54,7 +52,10 @@ public:
         // If the action finished, need to do some work here.
         if (finished_before_timeout) {
             boost::shared_ptr<const Result> result = ac->getResult();
-
+            if (ac->getState() == actionlib::SimpleClientGoalState::ABORTED ||
+                ac->getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
+                failed = true;
+            }
             //TODO: Call post-action perceivers to update
 
             // Mark the request as completed.
@@ -72,21 +73,19 @@ public:
 	
 	bool hasFinished() const {return done;}
 
-	
-	virtual Action *clone() const {return new RosAction(*this);}
+    bool hasFailed() const { return failed; }
 
-    Action* cloneAndInit(const actasp::AspFluent & fluent) const {
-        return new RosAction(fluent.getName(),fluent.getParameters());
-    }
+    virtual Action *clone() const = 0;
+
+    virtual Action *cloneAndInit(const actasp::AspFluent &fluent) const = 0;
 
 
 protected:
-	
-	virtual std::vector<std::string> getParameters() const {return parameters;}
-	
-	std::string name;
-	std::vector<std::string> parameters;
+
+    virtual std::vector <std::string> getParameters() const = 0;
+
 	bool done;
+    bool failed;
 
 
   bool request_in_progress;
