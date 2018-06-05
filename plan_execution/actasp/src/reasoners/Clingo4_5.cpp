@@ -150,7 +150,7 @@ struct RuleToCumulativeString4_5 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      ruleStream << rule.head[i].toString(timeStep+"-1");
+      ruleStream << rule.head[i].toString(timeStep);
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -172,7 +172,7 @@ struct RuleToCumulativeString4_5 {
       if (!rule.body.empty())
         ruleStream << ", ";
 
-      ruleStream << timeStep << "=" << headTimeStep << "+1";
+      ruleStream << timeStep << "=" << headTimeStep;
     }
 
 
