@@ -24,17 +24,17 @@ ReplanningPlanExecutor::ReplanningPlanExecutor(actasp::AspKR* reasoner,
     actasp::Planner *planner,
     const std::map<std::string, Action * > &actionMap
                                                   ) noexcept(false) :
-  goalRules(),
-  isGoalReached(true),
-  hasFailed(false),
-  actionMap(),
-  plan(),
-  actionCounter(0),
-  newAction(true),
-  failedActionCount(0),
-  kr(reasoner),
-  planner(planner),
-  executionObservers(){
+        goalRules(),
+        isGoalReached(true),
+        hasFailed(false),
+        actionMap(),
+        plan(),
+        actionCounter(0),
+        newAction(true),
+        failureCount(0),
+        kr(reasoner),
+        planner(planner),
+        executionObservers(){
   if (reasoner == nullptr)
     throw invalid_argument("ReplanningPlanExecutor: reasoner is NULL");
 
@@ -82,7 +82,7 @@ void ReplanningPlanExecutor::setGoal(const std::vector<actasp::AspRule>& goalRul
 
   computePlan();
 
-  failedActionCount = 0;
+    failureCount = 0;
 }
 
 
@@ -117,11 +117,11 @@ void ReplanningPlanExecutor::executeActionStep() {
 
     if (plan.empty() || !kr->isPlanValid(planToAnswerSet(plan),goalRules)) {
 
-      if (current->hasFailed()) {
-        ++failedActionCount;
-      }
+        cout << "Failed action count: " << failureCount << endl;
 
-      if (failedActionCount >= 3) {
+        ++failureCount;
+
+        if (failureCount >= 3) {
         std::cout << "FAILED TOO MANY TIMES. Aborting goal." << std::endl;
         hasFailed = true;
       }
@@ -136,7 +136,7 @@ void ReplanningPlanExecutor::executeActionStep() {
       
     }
     else {
-      failedActionCount = 0;
+        failureCount = 0;
     }
 
   }
