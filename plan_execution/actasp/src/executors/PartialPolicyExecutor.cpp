@@ -100,7 +100,12 @@ void PartialPolicyExecutor::executeActionStep() {
     
 
     if (active != nullptr) {
-      for_each(executionObservers.begin(),executionObservers.end(),NotifyActionTermination(active->toFluent(actionCounter++)));
+        actionCounter += 1;
+        auto as_fluent = active->toFluent(actionCounter);
+        for_each(executionObservers.begin(), executionObservers.end(),
+                 [as_fluent, this](ExecutionObserver *observer) {
+                     observer->actionTerminated(as_fluent, active->hasFailed());
+                 });
     }
 
     isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
@@ -130,7 +135,7 @@ void PartialPolicyExecutor::executeActionStep() {
       }
     }
 
-    set<AspFluent>::const_iterator chosen = selector->choose(options);
+      auto chosen = selector->choose(options);
 
     delete active;
     active = instantiateAction(actionMap,*chosen);

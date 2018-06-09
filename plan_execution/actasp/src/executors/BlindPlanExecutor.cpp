@@ -106,8 +106,12 @@ namespace actasp {
         if (current->hasFinished()) {
             //destroy the action and pop a new one
 
+            actionCounter += 1;
+            auto as_fluent = current->toFluent(actionCounter);
             for_each(executionObservers.begin(), executionObservers.end(),
-                     NotifyActionTermination(current->toFluent(actionCounter++)));
+                     [as_fluent, current](ExecutionObserver *observer) {
+                         observer->actionTerminated(as_fluent, current->hasFailed());
+                     });
 
             plan.pop_front();
 

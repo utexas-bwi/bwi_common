@@ -1,3 +1,14 @@
 AspRule[] aspGoal
 ---
+int32 SUCCEEDED = 1
+int32 FAILED_TO_PLAN = 2
+int32 TOO_MANY_ACTION_FAILURES = 3
+int32 status
+AspFluent final_action
+AspFluent[] plan_remainder
 ---
+int32 PLAN_CHANGED_EVENT = 1
+int32 ACTION_STARTED_EVENT = 2
+int32 ACTION_ENDED_EVENT = 3
+int32 event_type
+AspFluent[] plan

@@ -7,19 +7,8 @@
 
 namespace actasp {
 
-  
-struct NotifyActionTermination {
-  
-  NotifyActionTermination(const AspFluent& action) : action(action) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->actionTerminated(action);
-  }
-  
-  AspFluent action;
-};
 
-struct NotifyActionStart {
+    struct NotifyActionStart {
   
   NotifyActionStart(const AspFluent& action) : action(action) {}
   
