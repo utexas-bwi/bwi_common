@@ -13,10 +13,12 @@ class RosAction : public actasp::Action {
 public:
 
     typedef actionlib::SimpleActionClient<ROSAction> ActionClient;
+    typedef typename boost::shared_ptr<const Result> ResultConstPtr;
 
-    explicit RosAction() :
+    explicit RosAction(const std::string &action_topic_name) :
             done(false),
             failed(false),
+            action_topic_name(action_topic_name),
             request_in_progress(false), ac() {}
 
     ~RosAction() {
@@ -27,26 +29,40 @@ public:
         }
     }
 
-    virtual int paramNumber() const = 0;
-
-    std::string getName() const = 0;
-
-
     virtual void run() {
-        ROS_ERROR("Called run without action topic name");
-    }
-
-    typename boost::shared_ptr<const Result> run(const std::string &action_topic_name, Goal goal) {
-
         if (!request_in_progress) {
-            //ac = std::unique_ptr<ActionClient>(new ActionClient(action_topic_name, true));
+            typename boost::optional<Goal> goal = prepareGoal();
+            if (!goal) {
+                onFinished(false, {});
+                done = true;
+            }
             ac = new ActionClient(action_topic_name, true);
             ac->waitForServer();
 
-            ac->sendGoal(goal);
+            ac->sendGoal(*goal);
             request_in_progress = true;
         }
 
+        ResultConstPtr result = checkForResult();
+        if (result) {
+            onFinished(!failed, result);
+            // Mark the request as completed.
+            done = true;
+        }
+
+    }
+
+    bool hasFinished() const { return done; }
+
+    bool hasFailed() const { return failed; }
+
+protected:
+
+    virtual boost::optional <Goal> prepareGoal() = 0;
+
+    virtual void onFinished(bool success, ResultConstPtr result) = 0;
+
+    ResultConstPtr checkForResult() {
         bool finished_before_timeout = ac->waitForResult(ros::Duration(0.5f));
 
         // If the action finished, need to do some work here.
@@ -56,10 +72,6 @@ public:
                 ac->getState() == actionlib::SimpleClientGoalState::PREEMPTED) {
                 failed = true;
             }
-            //TODO: Call post-action perceivers to update
-
-            // Mark the request as completed.
-            done = true;
 
             // Cleanup the simple action client.
             request_in_progress = false;
@@ -70,29 +82,15 @@ public:
         return {};
 
     }
-	
-	bool hasFinished() const {return done;}
-
-    bool hasFailed() const { return failed; }
-
-    virtual Action *clone() const = 0;
-
-    virtual Action *cloneAndInit(const actasp::AspFluent &fluent) const = 0;
 
 
-protected:
-
-    virtual std::vector <std::string> getParameters() const = 0;
-
-	bool done;
-    bool failed;
-
-
-  bool request_in_progress;
 
 private:
     ActionClient* ac;
-
+    const std::string action_topic_name;
+    bool done;
+    bool failed;
+    bool request_in_progress;
 };
 }
 
