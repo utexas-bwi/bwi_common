@@ -32,6 +32,7 @@
 #include <bwi_perception/bwi_perception.h>
 #include <bwi_perception/tabletop.h>
 #include <bwi_perception/plane.h>
+#include <bwi_perception/BoundingBox.h>
 
 using namespace std;
 //how many frames to stitch into a single cloud
@@ -172,7 +173,7 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     vector<PointCloudT::Ptr> table_objects;
     bwi_perception::segment_tabletop_scene(working, cluster_extraction_tolerance, up_frame, table_cloud,
                                            plane_coefficients, table_objects, plane_distance_tolerance,
-                                           plane_max_distance_tolerance);
+                                           plane_max_distance_tolerance, 50);
 
     ROS_INFO("Found %i clusters on the plane.", (int) table_objects.size());
 
@@ -183,6 +184,11 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
         res.cloud_plane_coef[i] = plane_coefficients(i);
     }
 
+    PointT min = PointT();
+    PointT max = PointT();
+    pcl::getMinMax3D(*table_cloud, min, max);
+    res.table_height = max.z;
+
     transform(table_objects.begin(), table_objects.end(), back_inserter(res.cloud_clusters),
               [](PointCloudT::Ptr pcl_cloud) {
                   sensor_msgs::PointCloud2 ros_cloud;
@@ -191,6 +197,12 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
               });
 
     sensor_msgs::PointCloud2 cloud_ros;
+
+    for (int i = 0; i < table_objects.size(); i++) {
+        const bwi_perception::BoundingBox &oriented_bbox_params = bwi_perception::BoundingBox::oriented_from_cloud<PointT>(table_objects[i]);
+        res.bounding_boxes.markers.push_back(oriented_bbox_params.to_marker(0, "map"));
+    }
+
     if (objects_cloud_pub.getNumSubscribers() > 0) {
         //for debugging purposes
         //now, put the clouds in cluster_on_plane in one cloud and publish it
@@ -303,7 +315,7 @@ int main(int argc, char **argv) {
 
     pnh.param("num_clouds", num_clouds, 1);
     pnh.param("z_filter_min", z_filter_min, 0.55);
-    pnh.param("z_filter_max", z_filter_max, 1.15);
+    pnh.param("z_filter_max", z_filter_max, 1.55);
 
     //an object whose closest point to the plane is further than this is rejected
     pnh.param("plane_distance_tolerance", plane_distance_tolerance, 0.09);
