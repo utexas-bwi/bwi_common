@@ -20,7 +20,7 @@ struct Action {
 	
 	virtual bool hasFinished() const = 0;
   
-  virtual bool hasFailed() const {return false;}
+    virtual bool hasFailed() const {return false;}
 	
 	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const =0;
 	
@@ -28,7 +28,7 @@ struct Action {
 	
 	std::string toASP(unsigned int timeStep) const;
   
-  AspFluent toFluent(unsigned int timeStep) const;
+    AspFluent toFluent(unsigned int timeStep) const;
 	
 	bool operator==(const Action *other) const {
 		return this->toASP(0) == other->toASP(0);

@@ -37,8 +37,15 @@ public:
                 done = true;
             }
             ac = new ActionClient(action_topic_name, true);
-            ac->waitForServer();
-
+            bool got_server = ac->waitForServer(ros::Duration(5));
+            if (!got_server) {
+                ROS_WARN("Could not get server for %s at %s", getName().c_str(), action_topic_name.c_str());
+                done = true;
+                failed = true;
+                onFinished(false, ResultConstPtr(new Result()));
+                delete ac;
+                return;
+            }
             ac->sendGoal(*goal);
             request_in_progress = true;
         }
