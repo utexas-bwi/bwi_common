@@ -167,13 +167,13 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
     bwi_perception::filter_cloud_region<PointT>(working, cloud_plane, up_frame, z_min, z_max, x_min, x_max, tf_listener);
     working.swap(cloud_plane);
 
-
+    double height;
     PointCloudT::Ptr table_cloud(new PointCloudT);
     Eigen::Vector4f plane_coefficients;
     vector<PointCloudT::Ptr> table_objects;
     bwi_perception::segment_tabletop_scene(working, cluster_extraction_tolerance, up_frame, table_cloud,
                                            plane_coefficients, table_objects, plane_distance_tolerance,
-                                           plane_max_distance_tolerance, 50);
+                                           plane_max_distance_tolerance, height, 50);
 
     ROS_INFO("Found %i clusters on the plane.", (int) table_objects.size());
 
@@ -184,10 +184,7 @@ bool seg_cb(bwi_perception::PerceiveTabletopScene::Request &req, bwi_perception:
         res.cloud_plane_coef[i] = plane_coefficients(i);
     }
 
-    PointT min = PointT();
-    PointT max = PointT();
-    pcl::getMinMax3D(*table_cloud, min, max);
-    res.table_height = max.z;
+    res.table_height = height;
 
     transform(table_objects.begin(), table_objects.end(), back_inserter(res.cloud_clusters),
               [](PointCloudT::Ptr pcl_cloud) {

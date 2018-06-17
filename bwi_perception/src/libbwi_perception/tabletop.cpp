@@ -18,7 +18,7 @@ namespace bwi_perception {
                                 const double cluster_extraction_tolerance, const std::string &up_frame,
                                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr &table_cloud, Eigen::Vector4f plane_coefficients,
                                 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> &table_object_clouds,
-                                const double plane_distance_tolerance, const double plane_max_distance_tolerance,
+                                const double plane_distance_tolerance, const double plane_max_distance_tolerance, double height,
                                 const double min_cluster_size, const double max_cluster_size) {
         /* define what kind of point clouds we're using */
         typedef pcl::PointXYZRGB PointT;
@@ -66,6 +66,7 @@ namespace bwi_perception {
             Eigen::Vector3f in_vector(centroid.x(), centroid.y(), centroid.z());
             vector_to_frame(in_vector, table_box_orig.frame_id, up_frame, out_vector, tf_listener);
             plane_centroid = {out_vector.x(), out_vector.y(), out_vector.z(), 1};
+	    height = out_vector.z();
         }
 
         for (auto &cluster: clusters) {
