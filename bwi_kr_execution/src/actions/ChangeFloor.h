@@ -2,13 +2,13 @@
 #define bwi_krexec_ChangeFloor_h__guard
 
 #include <boost/shared_ptr.hpp>
-
+#include <LogicalNavigation.h>
 #include "actasp/Action.h"
 #include "CallGUI.h"
 
 namespace bwi_krexec {
   
-struct ChangeFloor : public actasp::Action {
+struct ChangeFloor : public LogicalNavigation {
 
   ChangeFloor();
 

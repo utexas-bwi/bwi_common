@@ -3,7 +3,7 @@
 #define bwi_krexec_OpenDoor_h__guard
 
 #include "actasp/Action.h"
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 #include <ros/ros.h>
 
 #include <string>
@@ -15,7 +15,7 @@ public:
   OpenDoor();
 
   int paramNumber() const {return 1;}
-  
+
   std::string getName() const {return "opendoor";}
   
   void run();
@@ -39,7 +39,7 @@ private:
  bool failed;
  ros::Time startTime;
 
- plan_exec::LogicalAction* senseDoor;
+ LogicalNavigation* senseDoor;
  
 };
 

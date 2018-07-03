@@ -4,9 +4,10 @@
 #include "bwi_msgs/DoorHandlerInterface.h"
 
 #include "ActionFactory.h"
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 
 #include "actasp/AspFluent.h"
+#include "SenseLocation.h"
 
 #include <ros/ros.h>
 
@@ -37,7 +38,7 @@ void OpenSimulatedDoor::run() {
 
     vector<string> params;
     params.push_back(door);
-    senseDoor = new plan_exec::LogicalAction ("sensedoor",params);
+    senseDoor = new SenseLocation();
   }
 
   senseDoor->run();

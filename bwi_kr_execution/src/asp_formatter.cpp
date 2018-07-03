@@ -150,14 +150,14 @@ int main() {
 		
 		cout << "Plan" << endl;
 		
-		list<Action*> plan = sets[i].instantiateActions(actionMap);
-		list<Action*>::iterator pIt = plan.begin();
+		list<Action::Ptr> plan = sets[i].instantiateActions(actionMap);
+		list<Action::Ptr>::iterator pIt = plan.begin();
 		
 		for(int t=1; pIt != plan.end(); ++pIt, ++t)
 			if ((*pIt) != NULL)
 				cout << (*pIt)->toASP(t) << " ";
 		
-		for_each(plan.begin(),plan.end(),DeleteAction());
+		plan.clear();
 		
 		cout << endl << endl << "Fluents" << endl;
 		

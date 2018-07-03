@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+from knowledge_representation import LongTermMemoryConduit
+
+ltmc = LongTermMemoryConduit("127.0.0.1", 33060, "root", "", "villa_krr")
+apple = ltmc.add_entity()
+
+apple_con = ltmc.get_concept("apple")
+
+ltmc.add_entity_attribute(apple, "is_a", apple_con)
+ltmc.add_entity_attribute(1, "is_holding", apple)
+
+print("Done!")

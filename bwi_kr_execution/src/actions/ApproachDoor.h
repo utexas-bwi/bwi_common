@@ -1,27 +1,42 @@
 #ifndef bwi_actexec_ApproachDoor_h__guard
 #define bwi_actexec_ApproachDoor_h__guard
 
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 
 namespace bwi_krexec {
 
   
-class ApproachDoor : public plan_exec::LogicalAction {
+class ApproachDoor : public LogicalNavigation {
 public:  
-  explicit ApproachDoor(const std::string& doorName);
+  explicit ApproachDoor();
   
   void run();
   
   bool hasFailed() const {return failed;}
   
   Action *cloneAndInit(const actasp::AspFluent & fluent) const {
-    return new ApproachDoor(fluent.getParameters().at(0));
+    auto action = new ApproachDoor();
+    action->door_name = fluent.getParameters().at(0);
+    return action;
   }
   
   virtual Action *clone() const {return new ApproachDoor(*this);}
+
+  int paramNumber() const override {
+    return 1;
+  }
+
+  std::vector<std::string> getParameters() const override {
+    std::vector<std::string> parameters;
+    parameters.push_back(door_name);
+    return parameters;
+  }
+
+  std::vector<std::string> prepareGoalParameters() const override;
     
 private:
   bool failed;
+  std::string door_name;
 
 };  
 }

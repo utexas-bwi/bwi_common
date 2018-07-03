@@ -1,28 +1,38 @@
 #ifndef bwi_actexec_GotoObject_h__guard
 #define bwi_actexec_GotoObject_h__guard
 
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 
 namespace bwi_krexec {
 
   
-class GotoObject : public plan_exec::LogicalAction {
+class GotoObject : public LogicalNavigation {
 public:  
-  explicit GotoObject(const std::string& objectName);
+  explicit GotoObject();
   
-  void run();
+  void run() override;
   
-  bool hasFailed() const {return failed;}
+  bool hasFailed() const override {return failed;}
   
-  Action *cloneAndInit(const actasp::AspFluent & fluent) const {
-    return new GotoObject(fluent.getParameters().at(0));
+  Action *cloneAndInit(const actasp::AspFluent & fluent) const override {
+      auto action = new GotoObject();
+      action->location_id = std::stoi(fluent.getParameters().at(0));
+      return action;
   }
-  
-  virtual Action *clone() const {return new GotoObject(*this);}
+
+  Action *clone() const override {return new GotoObject(*this);}
+
+  int paramNumber() const override {
+    return 1;
+  }
+
+  std::vector<std::string> getParameters() const override;
+
+  std::vector<std::string> prepareGoalParameters() const override;
     
 private:
   bool failed;
-
+  int location_id;
 };  
 }
 

@@ -3,7 +3,7 @@
 #define bwi_krexec_OpenSimulatedDoor_h__guard
 
 #include "actasp/Action.h"
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 
 #include <string>
 
@@ -33,7 +33,7 @@ private:
  bool done;
  bool requestSent;
 
- plan_exec::LogicalAction* senseDoor;
+ LogicalNavigation* senseDoor;
  
 };
 

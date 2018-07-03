@@ -18,31 +18,17 @@ using namespace std;
 using namespace actasp;
 
 namespace bwi_krexec {
-  
-  static vector<string> createVector(const std::string& doorName) {
-    vector<string> paramVector(1);
-    paramVector[0] = doorName;
-    
-    return paramVector;
-  }
     
   
-ApproachDoor::ApproachDoor(const std::string& doorName): 
-              plan_exec::LogicalAction("approach",createVector(doorName)),
+ApproachDoor::ApproachDoor():
+              LogicalNavigation("approach"),
               failed(false){}
  
- 
- struct IsFluentAt {
-   
-   bool operator()(const plan_execution::AspFluent& fluent) {
-     return fluent.name == "at";
-   }
-   
- };
+
  
 void ApproachDoor::run()  {
   
-  plan_exec::LogicalAction::run();
+  LogicalNavigation::run();
 
   ros::NodeHandle n;
   ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
@@ -59,7 +45,13 @@ void ApproachDoor::run()  {
   
 }
 
-ActionFactory approachFactory(new ApproachDoor(""));
+std::vector<std::string> ApproachDoor::prepareGoalParameters() const {
+  vector<string> params;
+  params.push_back(door_name);
+  return params;
+}
+
+ActionFactory approachFactory(new ApproachDoor());
   
   
 }

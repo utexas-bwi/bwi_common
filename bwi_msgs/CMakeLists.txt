@@ -20,6 +20,7 @@ add_message_files(
     LEDAnimations.msg
     LEDStatus.msg
     LEDTestType.msg
+    LogicalLocation.msg
     StopBaseStatus.msg
     ScavStatus.msg
     WeekTime.msg
@@ -55,7 +56,7 @@ add_action_files(
   DIRECTORY action
   FILES
     LEDControl.action
-    LogicalAction.action
+    LogicalNav.action
 )
 
 generate_messages(

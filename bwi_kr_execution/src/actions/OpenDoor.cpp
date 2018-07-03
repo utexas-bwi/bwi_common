@@ -2,7 +2,7 @@
 
 
 #include "CallGUI.h"
-#include "plan_execution/LogicalAction.h"
+#include "LogicalNavigation.h"
 
 #include "ActionFactory.h"
 
@@ -11,6 +11,7 @@
 #include "plan_execution/CurrentStateQuery.h"
 #include "plan_execution/AspRule.h"
 #include "plan_execution/AspFluent.h"
+#include "SenseLocation.h"
 
 #include <ros/ros.h>
 
@@ -35,7 +36,7 @@ void OpenDoor::run() {
     startTime = ros::Time::now();
     vector<string> params;
     params.push_back(door);
-    senseDoor = new plan_exec::LogicalAction ("sensedoor",params);
+    senseDoor = new SenseLocation();
   }
   
   if(!open) {

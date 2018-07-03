@@ -12,54 +12,52 @@
 #include <algorithm>
 
 
-
-
 using namespace std;
 using namespace actasp;
 
 namespace bwi_krexec {
-  
-  static vector<string> createVector(const std::string& objectName) {
-    vector<string> paramVector(1);
-    paramVector[0] = objectName;
-    
-    return paramVector;
-  }
-    
-  
-GotoObject::GotoObject(const std::string& objectName): 
-              LogicalAction("goto",createVector(objectName)),
-              failed(false){}
- 
- 
- struct IsFluentAt {
-   
-   bool operator()(const plan_execution::AspFluent& fluent) {
-     return fluent.name == "at";
-   }
-   
- };
- 
-void GotoObject::run()  {
-  
-  plan_exec::LogicalAction::run();
 
-  ros::NodeHandle n;
-  ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
-  krClient.waitForExistence();
-  
-  plan_execution::CurrentStateQuery csq;
-  
-  krClient.call(csq);
-  
-  AnswerSet answer = plan_exec::TranslateAnswerSet()(csq.response.answer);
-  
-  failed = !answer.contains(AspFluent("facing",this->getParameters(),0));
-  
-  
+
+GotoObject::GotoObject() :
+        LogicalNavigation("goto"),
+        failed(false) {}
+
+
+void GotoObject::run() {
+
+    LogicalNavigation::run();
+
+    ros::NodeHandle n;
+    ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery>("current_state_query");
+    krClient.waitForExistence();
+
+    plan_execution::CurrentStateQuery csq;
+
+    krClient.call(csq);
+
+    AnswerSet answer = plan_exec::TranslateAnswerSet()(csq.response.answer);
+
+    failed = !answer.contains(AspFluent("facing", this->getParameters(), 0));
+
+
 }
 
-ActionFactory gotoFactory(new GotoObject(""));
-  
-  
+std::vector<std::string> GotoObject::getParameters() const {
+    std::vector<std::string> parameters;
+    parameters.push_back(to_string(location_id));
+    return parameters;
+}
+
+std::vector<std::string> GotoObject::prepareGoalParameters() const {
+    auto attrs = ltmc.get_entity_attributes(location_id, "map_name");
+    // FIXME: Fail more gracefully here
+    assert(attrs.size() == 1);
+    vector<string> parameters;
+    parameters.push_back(attrs.at(0).get_string_value());
+    return parameters;
+}
+
+ActionFactory gotoFactory(new GotoObject());
+
+
 }

@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+from knowledge_representation import LongTermMemoryConduit
+import argparse
+import sys
+import os
+import xml.etree.ElementTree as ET
+
+
+def room_parser(ltmc, root):
+    room_con = ltmc.get_concept("room")
+    location_con = ltmc.get_concept("location")
+
+    placement_con = ltmc.get_concept("placement")
+    beacon_con = ltmc.get_concept("beacon")
+    ltmc.add_entity_attribute(placement_con, "is_a", location_con)
+    ltmc.add_entity_attribute(beacon_con, "is_a", location_con)
+
+    for room in root:
+        specifc_room_concept = ltmc.get_concept(room.attrib['name'])
+        ltmc.add_entity_attribute(specifc_room_concept, "is_a", room_con)
+        room_id = ltmc.add_entity()
+        ltmc.add_entity_attribute(room_id, "is_a", specifc_room_concept)
+        ltmc.add_entity_attribute(room_id, "map_name", room.attrib['name'])
+
+        for location in room:
+            if location.tag != "location":
+                continue
+            location_name = location.attrib["name"]
+            location_id = ltmc.add_entity()
+            specific_location_concept = ltmc.get_concept(location_name)
+            ltmc.add_entity_attribute(specific_location_concept, "is_a", location_con)
+            ltmc.add_entity_attribute(location_id, "is_a", specific_location_concept)
+            ltmc.add_entity_attribute(location_id, "map_name", location_name)
+            ltmc.add_entity_attribute(location_id, "is_in", room_id)
+            if location.attrib.get("isPlacement"):
+                ltmc.add_entity_attribute(location_id, "is_a", placement_con)
+            if location.attrib.get("isBeacon"):
+                ltmc.add_entity_attribute(location_id, "is_a", beacon_con)
+
+
+def category_parser(ltmc, root):
+    object_con = ltmc.get_concept("object")
+    for category in root:
+        category_concept = ltmc.get_concept(category.attrib['name'])
+        default_location_concept = ltmc.get_concept(category.attrib['defaultLocation'])
+        # TODO: dump room information to continue searching if object is not at default location
+        ltmc.add_entity_attribute(category_concept, "is_a", object_con)
+        ltmc.add_entity_attribute(category_concept, "default_location", default_location_concept)
+
+        for obj in category:
+            if obj.tag != "object":
+                continue
+            object_name = obj.attrib["name"]
+            object_con_id = ltmc.get_concept(object_name)
+            ltmc.add_entity_attribute(object_con_id, "is_a", category_concept)
+
+
+type_to_parser = {"rooms": room_parser,
+                  "categories": category_parser,
+                  }
+
+
+def populate(ltmc, file_path):
+    file_name = os.path.basename(file_path)
+
+    if ".xml" in file_name:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        parser = type_to_parser[root.tag]
+        parser(ltmc, root)
+
+        #print("Not sure how to parse the top level tag: {}".format(root.tag))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file_paths", type=str, nargs="+")
+    args = parser.parse_args()
+    ltmc = LongTermMemoryConduit("127.0.0.1", 33060, "root", "", "villa_krr")
+    for file_path in args.file_paths:
+        populate(ltmc, file_path)
+
+
+if __name__ == "__main__":
+    main()
