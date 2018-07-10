@@ -53,6 +53,10 @@ add_executable(plan_executor_node ${spexec_SRC})
 target_link_libraries(plan_executor_node
   ${catkin_LIBRARIES} bwikractions)
 
+add_executable(test_action_executor_node src/test_action_executor_node.cpp)
+target_link_libraries(test_action_executor_node
+  ${catkin_LIBRARIES} bwikractions)
+
 #add_executable(any_plan_executor_node ${anyexec_SRC})
 #target_link_libraries(any_plan_executor_node
 #  ${catkin_LIBRARIES} bwikractions)
@@ -60,6 +64,16 @@ target_link_libraries(plan_executor_node
 #add_executable(learning_executor_node ${lexec_SRC})
 #target_link_libraries(learning_executor_node
 #  ${catkin_LIBRARIES} bwikractions)
+
+add_executable(kb_to_asp src/kb_to_asp.cpp)
+add_dependencies(kb_to_asp ${bwi_kr_execution_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(kb_to_asp
+        ${catkin_LIBRARIES})
+
+add_executable(test_plan_executor src/test_plan_executor_node.cpp)
+add_dependencies(test_plan_executor ${bwi_kr_execution_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(test_plan_executor
+        ${catkin_LIBRARIES})
 
 add_executable(asp_formatter src/asp_formatter.cpp)
 target_link_libraries(asp_formatter ${catkin_LIBRARIES})

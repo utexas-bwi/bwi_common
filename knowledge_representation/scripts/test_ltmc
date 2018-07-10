@@ -9,4 +9,4 @@ nsb_concept = ltmc.get_concept("never seen before")
 
 ltmc.get_entities_with_attribute_of_value("is_a", nsb_concept)
 
-print("Done!")
+print("Done!")j

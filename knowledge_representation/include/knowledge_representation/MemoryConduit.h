@@ -25,7 +25,7 @@ namespace knowledge_rep {
     public:
         static const int robot_id = 1;
         explicit MemoryConduit(const std::string &ltmi_adress = "127.0.0.1") : ltmc(ltmi_adress, 33060, "root", "",
-                                                                                    "villa_krr"), stmc() {
+                                                                                    "knowledge_base"), stmc() {
             _pnh = ros::NodeHandle("~");
            
 

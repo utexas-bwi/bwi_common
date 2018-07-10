@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+import knowledge_representation
+from knowledge_representation import LongTermMemoryConduit
+import argparse
+import sys
+import os
+import yaml
+
+def populate(ltmc, files_path):
+    map_name = os.path.basename(files_path)
+    connectivity_file_path = os.path.join(files_path, "connectivity.yaml")
+    if not os.path.isfile(connectivity_file_path):
+        print(
+                "Connectivity file not found at " + connectivity_file_path + ".")
+        exit(1)
+    doors_file_path = os.path.join(files_path, "doors.yaml")
+    if not os.path.isfile(doors_file_path):
+        print(
+                "Doors file not found at " + doors_file_path + ".")
+        exit(1)
+    connectivity_data = read_yaml_from_file(connectivity_file_path)
+    doors_data = read_yaml_from_file(doors_file_path)
+    door_con = ltmc.get_concept("door")
+    ltmc.add_entity_attribute(door_con, "is_a", ltmc.get_concept("location"))
+    room_con = ltmc.get_concept("room")
+
+    room_name_to_id = {}
+    for room, _ in connectivity_data.items():
+        room_id = ltmc.add_entity()
+        ltmc.add_entity_attribute(room_id, "is_a", room_con)
+        ltmc.add_entity_attribute(room_id, "map_name", room)
+        room_name_to_id[room] = room_id
+
+    # Rooms connected by doors are not directly connected. Remove
+    # them from the connectivity map
+    for door in doors_data:
+        room_one, room_two = door["approach"][0]["from"], door["approach"][1]["from"]
+        if room_two in connectivity_data[room_one]:
+            connectivity_data[room_one].remove(room_two)
+        else:
+            print("WARNING: {} is not connected to {}, even though there is a door between them. This is an error in region annotation".format(room_one, room_two))
+        if room_one in connectivity_data[room_two]:
+            connectivity_data[room_two].remove(room_one)
+        else:
+            print(
+                "WARNING: {} is not connected to {}, even though there is a door between them. This is an error in region annotation".format(
+                    room_two, room_one))
+        door_id = ltmc.add_entity()
+        ltmc.add_entity_attribute(door_id, "is_a", door_con)
+        ltmc.add_entity_attribute(door_id, "map_name", door["name"])
+
+        ltmc.add_entity_attribute(room_name_to_id[room_one], "has_door", door_id)
+        ltmc.add_entity_attribute(room_name_to_id[room_two], "has_door", door_id)
+
+    for room, neighbors in connectivity_data.items():
+        room_id = room_name_to_id[room]
+        for neighbor in neighbors:
+            neighbor_id = room_name_to_id[neighbor]
+            ltmc.add_entity_attribute(room_id, "is_connected", neighbor_id)
+
+
+
+def read_yaml_from_file(file_path):
+    with open(file_path, 'r') as stream:
+        try:
+            contents = yaml.load(stream)
+            return contents
+        except yaml.YAMLError:
+            print("File found at " + file_path + ", but cannot be parsed by YAML parser.")
+            exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("files_path", type=str)
+    args = parser.parse_args()
+    ltmc = knowledge_representation.get_default_ltmc()
+    dir(args)
+    populate(ltmc, args.files_path)
+
+
+if __name__ == "__main__":
+    main()

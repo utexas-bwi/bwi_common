@@ -89,13 +89,6 @@ add_executable(test_mc src/test_mc.cpp)
 add_dependencies(test_mc ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_mc libknowledge_rep ${catkin_LIBRARIES})
 
-add_executable(initialize_planner_test_configuration src/initialize_planner_test_configuration.cpp)
-add_dependencies(initialize_planner_test_configuration ${knowledge_representation_EXPORTED_TARGETS})
-target_link_libraries(initialize_planner_test_configuration libknowledge_rep ${catkin_LIBRARIES})
-
-add_executable(add_inspection_point src/add_inspection_point.cpp)
-add_dependencies(add_inspection_point ${knowledge_representation_EXPORTED_TARGETS})
-target_link_libraries(add_inspection_point libknowledge_rep ${catkin_LIBRARIES})
 
 add_executable(csv_reader src/csv_reader.cpp)
 target_link_libraries(csv_reader libknowledge_rep)
@@ -117,6 +110,5 @@ install(DIRECTORY include/${PROJECT_NAME}
         FILES_MATCHING PATTERN "*.h")
 
 install(TARGETS
-        initialize_planner_test_configuration
         test_ltmc
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

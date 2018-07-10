@@ -18,7 +18,8 @@ from .object_function import ObjectFunction
 from .utils import clearLayoutAndFixHeight, \
                    getDoorsFileLocationFromDataDirectory, \
                    getLocationsFileLocationFromDataDirectory, \
-                   getObjectsFileLocationFromDataDirectory
+                   getObjectsFileLocationFromDataDirectory, \
+                   getConnectivityFileLocationFromDataDirectory
 
 import rospy
 
@@ -77,6 +78,7 @@ class LogicalMarkerPlugin(Plugin):
         map_image_location = getImageFileLocation(self.map_yaml_file_str)
         map = loadMapFromFile(self.map_yaml_file_str)
         locations_file = getLocationsFileLocationFromDataDirectory(self.data_directory)
+        connectivity_file = getConnectivityFileLocationFromDataDirectory(self.data_directory)
         doors_file = getDoorsFileLocationFromDataDirectory(self.data_directory)
         objects_file = getObjectsFileLocationFromDataDirectory(self.data_directory)
 
@@ -132,6 +134,7 @@ class LogicalMarkerPlugin(Plugin):
         # Activate the functions
         self.functions = {}
         self.functions['Locations'] = LocationFunction(locations_file,
+                                                       connectivity_file,
                                                        map,
                                                        self.master_widget, 
                                                        self.subfunction_layout, 

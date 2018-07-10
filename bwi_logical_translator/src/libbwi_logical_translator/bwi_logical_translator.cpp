@@ -49,8 +49,13 @@
 #include <bwi_mapper/point_utils.h>
 
 #include <bwi_logical_translator/bwi_logical_translator.h>
+#include <pcl/point_cloud.h>
+#include <cmath>
+#include <pcl/impl/point_types.hpp>
 
 #define SCALAR 1.1
+
+using std::vector;
 
 namespace bwi_logical_translator {
 
@@ -69,12 +74,12 @@ namespace bwi_logical_translator {
     std::string map_file, data_directory;
     std::vector<std::string> required_parameters;
     if (!ros::param::get("~map_file", map_file)) {
-      required_parameters.push_back("~map_file");
+      required_parameters.emplace_back("~map_file");
     }
     if (!ros::param::get("~data_directory", data_directory)) {
-      required_parameters.push_back("~data_directory");
+      required_parameters.emplace_back("~data_directory");
     }
-    if (required_parameters.size() != 0) {
+    if (!required_parameters.empty()) {
       std::string message = "BwiLogicalTranslator: Required parameters [" +
         boost::algorithm::join(required_parameters, ", ") + "] missing!";
       ROS_FATAL_STREAM(message);
@@ -84,17 +89,37 @@ namespace bwi_logical_translator {
     std::string door_file = bwi_planning_common::getDoorsFileLocationFromDataDirectory(data_directory);
     ROS_INFO_STREAM("BwiLogicalTranslator: Reading door file: " + door_file);
     bwi_planning_common::readDoorFile(door_file, doors_);
-
-    std::string location_file = bwi_planning_common::getLocationsFileLocationFromDataDirectory(data_directory);
-    ROS_INFO_STREAM("BwiLogicalTranslator: Reading locations file: " + location_file);
-    bwi_planning_common::readLocationFile(location_file, locations_, location_map_);
-
-    std::string object_file = bwi_planning_common::getObjectsFileLocationFromDataDirectory(data_directory);
-    ROS_INFO_STREAM("BwiLogicalTranslator: Checking if objects file exists: " + object_file);
-    if (boost::filesystem::exists(object_file)) {
-      ROS_INFO_STREAM("BwiLogicalTranslator:   Objects file exists. Reading now!");
-      bwi_planning_common::readObjectApproachFile(object_file, object_approach_map_);
+    for (const auto& door: doors_) {
+        name_to_door.insert({door.name, door});
     }
+
+    std::string region_file = bwi_planning_common::getLocationsFileLocationFromDataDirectory(data_directory);
+    ROS_INFO_STREAM("BwiLogicalTranslator: Reading regions file: " + region_file);
+    bwi_planning_common::readLocationFile(region_file, regions_, region_map_);
+
+    std::string location_file = bwi_planning_common::getObjectsFileLocationFromDataDirectory(data_directory);
+    ROS_INFO_STREAM("BwiLogicalTranslator: Checking if locations file exists: " + location_file);
+    if (boost::filesystem::exists(location_file)) {
+      ROS_INFO_STREAM("BwiLogicalTranslator:   Locations file exists. Reading now!");
+      bwi_planning_common::readObjectApproachFile(location_file, location_approach_map_);
+    }
+    int i = 0;
+    location_points = pcl::PointCloud<pcl::PointXY>::Ptr(new pcl::PointCloud<pcl::PointXY>);
+    for (const auto& door: doors_) {
+      pcl::PointXY point = {door.door_center.x, door.door_center.y};
+      location_points->push_back(point);
+      index_to_name.insert({i, door.name});
+      i++;
+    }
+
+    for (const auto& location: location_approach_map_) {
+      auto pose = location.second;
+      pcl::PointXY point = {pose.position.x, pose.position.y};
+      location_points->push_back(point);
+      index_to_name.insert({i, location.first});
+      i++;
+    }
+    location_tree.setInputCloud(location_points);
 
     bwi_mapper::MapLoader mapper(map_file);
     mapper.getMap(map_);
@@ -115,21 +140,23 @@ namespace bwi_logical_translator {
     // necessary.
     door_approachable_space_1_.clear();
     door_approachable_space_2_.clear();
-    object_approachable_space_.clear();
+    location_approachable_space_.clear();
 
     initialized_ = true;
     return true;
   }
 
-  bool BwiLogicalTranslator::isDoorOpen(size_t idx) {
+  bool BwiLogicalTranslator::isDoorOpen(const std::string &door_name) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    if (idx > doors_.size()) {
-      return false;
+    if (name_to_door.find(door_name) == name_to_door.end()) {
+        ROS_ERROR_STREAM("Attempted to query openess of non-existent door: " << door_name);
+        assert (false);
+        return false;
     }
 
     enableStaticCostmap(false);
@@ -139,10 +166,11 @@ namespace bwi_logical_translator {
     bwi_mapper::Point2f start_pt, goal_pt;
     float start_yaw, goal_yaw;
 
-    start_pt = doors_[idx].approach_points[0];
-    goal_pt = doors_[idx].approach_points[1];
-    start_yaw = doors_[idx].approach_yaw[0];
-    goal_yaw = doors_[idx].approach_yaw[1];
+    auto door = name_to_door[door_name];
+    start_pt = door.approach_points[0];
+    goal_pt = door.approach_points[1];
+    start_yaw = door.approach_yaw[0];
+    goal_yaw = door.approach_yaw[1];
 
     nav_msgs::GetPlan srv;
     geometry_msgs::PoseStamped &start = srv.request.start;
@@ -177,14 +205,14 @@ namespace bwi_logical_translator {
     // planner returns paths through obstacles. This bug is true for both navfn and global_planner.
     for (int i = 0; i < 3; i++) {
       if (make_plan_client_.call(srv)) {
-        if (srv.response.plan.poses.size() != 0) {
+        if (!srv.response.plan.poses.empty()) {
           // Valid plan received. Check if plan distance seems reasonable
           float distance = 0;
           geometry_msgs::Point old_pt =
             srv.response.plan.poses[0].pose.position;
-          for (size_t i = 1; i < srv.response.plan.poses.size(); ++i) {
+          for (size_t j = 1; j < srv.response.plan.poses.size(); ++j) {
             geometry_msgs::Point current_pt =
-              srv.response.plan.poses[i].pose.position;
+              srv.response.plan.poses[j].pose.position;
             distance += sqrt(pow(current_pt.x - old_pt.x, 2) +
                              pow(current_pt.y - old_pt.y, 2));
             old_pt = current_pt;
@@ -213,52 +241,48 @@ namespace bwi_logical_translator {
 
     // TODO: set this to whatever state it was in.
     enableStaticCostmap(true);
-
-    if (counter == 3) {
-      // we have see the door open 3 consequitive times
-      return true;
-    } else {
-      return false;
-    }
+    // We have to see the door open three consecutive times
+      return counter == 3;
   }
 
-  bool BwiLogicalTranslator::getApproachPoint(size_t idx,
-      const bwi_mapper::Point2f& current_location,
-      bwi_mapper::Point2f& point, float &yaw) {
+  bool BwiLogicalTranslator::getApproachPoint(const std::string &door_name,
+                                              const bwi_mapper::Point2f &current_location,
+                                              bwi_mapper::Point2f &point, float &yaw) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    if (idx > doors_.size()) {
+    if (name_to_door.find(door_name) == name_to_door.end()) {
+      ROS_ERROR_STREAM("Attempted to get approach point of non-existent door: " << door_name);
+      assert (false);
       return false;
     }
-
+    const auto& door = name_to_door[door_name];
     // See if we've calculated the approachable space for this door.
-    if (door_approachable_space_1_.find(idx) == door_approachable_space_1_.end()) {
-      const bwi_planning_common::Door& door = doors_[idx];
+    if (door_approachable_space_1_.find(door_name) == door_approachable_space_1_.end()) {
+
       const bwi_mapper::Point2d approach_pt_1(bwi_mapper::toGrid(door.approach_points[0], info_));
-      door_approachable_space_1_[idx] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt_1));
+      door_approachable_space_1_[door_name] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt_1));
     }
-    if (door_approachable_space_2_.find(idx) == door_approachable_space_2_.end()) {
-      const bwi_planning_common::Door& door = doors_[idx];
+    if (door_approachable_space_2_.find(door_name) == door_approachable_space_2_.end()) {
       const bwi_mapper::Point2d approach_pt_2(bwi_mapper::toGrid(door.approach_points[1], info_));
-      door_approachable_space_2_[idx] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt_2));
+      door_approachable_space_2_[door_name] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt_2));
     }
 
     // Find the approach point to which we can find a path. If both approach points can be reached, fine the approach
     // point which is closer.
     bwi_mapper::Point2d grid(bwi_mapper::toGrid(current_location, info_));
-    int distance_1 = door_approachable_space_1_[idx]->getManhattanDistance(grid);
-    int distance_2 = door_approachable_space_2_[idx]->getManhattanDistance(grid);
+    int distance_1 = door_approachable_space_1_[door_name]->getManhattanDistance(grid);
+    int distance_2 = door_approachable_space_2_[door_name]->getManhattanDistance(grid);
     if (distance_1 >= 0 || distance_2 >= 0) {
       if (distance_1 >= 0 && (distance_1 < distance_2 || distance_2 < 0)) {
-        point = doors_[idx].approach_points[0];
-        yaw = doors_[idx].approach_yaw[0];
+        point = door.approach_points[0];
+        yaw = door.approach_yaw[0];
       } else {
-        point = doors_[idx].approach_points[1];
-        yaw = doors_[idx].approach_yaw[1];
+        point = door.approach_points[1];
+        yaw = door.approach_yaw[1];
       }
       return true;
     }
@@ -275,43 +299,47 @@ namespace bwi_logical_translator {
       return false;
     }
 
-    if (object_approachable_space_.find(object_name) == object_approachable_space_.end()) {
-      const geometry_msgs::Pose& object_pose = object_approach_map_[object_name];
+    if (location_approachable_space_.find(object_name) == location_approachable_space_.end()) {
+      const geometry_msgs::Pose& object_pose = location_approach_map_[object_name];
       const bwi_mapper::Point2d approach_pt(bwi_mapper::toGrid(bwi_mapper::Point2f(object_pose.position.x,
                                                                                    object_pose.position.y),
                                                                info_));
-      object_approachable_space_[object_name] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt));
+      location_approachable_space_[object_name] = boost::shared_ptr<bwi_mapper::PathFinder>(new bwi_mapper::PathFinder(inflated_map_with_doors_, approach_pt));
     }
 
     bwi_mapper::Point2d grid_pt(bwi_mapper::toGrid(current_location, info_));
-    return object_approachable_space_[object_name]->pathExists(grid_pt);
+    return location_approachable_space_[object_name]->pathExists(grid_pt);
   }
 
-  bool BwiLogicalTranslator::getThroughDoorPoint(size_t idx,
-      const bwi_mapper::Point2f& current_location,
-      bwi_mapper::Point2f& point, float& yaw) {
+  bool BwiLogicalTranslator::getThroughDoorPoint(const std::string &door_name,
+                                                 const bwi_mapper::Point2f &current_location,
+                                                 bwi_mapper::Point2f &point, float &yaw) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    if (idx > doors_.size()) {
+    if (name_to_door.find(door_name) == name_to_door.end()) {
+      ROS_ERROR_STREAM("Attempted to get through point of non-existent door: " << door_name);
+      assert (false);
       return false;
     }
+    const auto& door = name_to_door[door_name];
 
     bwi_mapper::Point2f approach_point;
 
+
     float unused_approach_yaw;
-    bool door_approachable = getApproachPoint(idx, current_location, approach_point, unused_approach_yaw);
+    bool door_approachable = getApproachPoint(door_name, current_location, approach_point, unused_approach_yaw);
     if (door_approachable) {
-      if (approach_point.x == doors_[idx].approach_points[0].x &&
-          approach_point.y == doors_[idx].approach_points[0].y) {
-        point = doors_[idx].approach_points[1];
-        yaw = doors_[idx].approach_yaw[1] + M_PI;
+      if (approach_point.x == door.approach_points[0].x &&
+          approach_point.y == door.approach_points[0].y) {
+        point = door.approach_points[1];
+        yaw = door.approach_yaw[1] + M_PI;
       } else {
-        point = doors_[idx].approach_points[0];
-        yaw = doors_[idx].approach_yaw[0] + M_PI;
+        point = door.approach_points[0];
+        yaw = door.approach_yaw[0] + M_PI;
       }
       return true;
     }
@@ -320,15 +348,22 @@ namespace bwi_logical_translator {
   }
 
   bool BwiLogicalTranslator::isRobotFacingDoor(
-      const bwi_mapper::Point2f& current_location,
-      float yaw, float threshold, size_t idx) {
+          const bwi_mapper::Point2f &current_location,
+          float yaw, float threshold, const std::string &door_name) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    bwi_mapper::Point2f& center_pt = doors_[idx].door_center;
+    if (name_to_door.find(door_name) == name_to_door.end()) {
+      ROS_ERROR_STREAM("Attempted to check if facing non-existent door: " << door_name);
+      assert (false);
+      return false;
+    }
+    const auto& door = name_to_door[door_name];
+
+    const bwi_mapper::Point2f& center_pt = door.door_center;
     if (bwi_mapper::getMagnitude(center_pt - current_location) >
         threshold) {
       return false;
@@ -338,46 +373,116 @@ namespace bwi_logical_translator {
     float orientation_to_door = atan2f(diff_pt.y, diff_pt.x);
     while (orientation_to_door > yaw + M_PI) orientation_to_door -= 2*M_PI;
     while (orientation_to_door <= yaw - M_PI) orientation_to_door += 2*M_PI;
-    if (fabs(orientation_to_door - yaw) > M_PI / 3) {
-      return false;
-    }
+    return std::fabs(orientation_to_door - yaw) <= M_PI / 3;
 
-    return true;
   }
 
   bool BwiLogicalTranslator::isRobotBesideDoor(
-      const bwi_mapper::Point2f& current_location,
-      float yaw, float threshold, size_t idx) {
+          const bwi_mapper::Point2f &current_location,
+          float yaw, float threshold, const std::string &door_name) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    bwi_mapper::Point2f& center_pt = doors_[idx].door_center;
-    if (bwi_mapper::getMagnitude(center_pt - current_location) >
+    if (name_to_door.find(door_name) == name_to_door.end()) {
+      ROS_ERROR_STREAM("Attempted to check if beside non-existent door: " << door_name);
+      assert (false);
+      return false;
+    }
+    const auto& door = name_to_door[door_name];
+
+    const bwi_mapper::Point2f& center_pt = door.door_center;
+    return bwi_mapper::getMagnitude(center_pt - current_location) <= threshold;
+
+  }
+
+  bool BwiLogicalTranslator::isRobotFacingLocation(
+          const bwi_mapper::Point2f &current_location,
+          float yaw, float threshold, std::string &location_name) {
+
+    if (!initialized_) {
+      ROS_ERROR_STREAM("VillaLogicalTranslator : requesting data without being initialized!");
+      return false;
+    }
+
+    if (location_approach_map_.find(location_name) ==
+      location_approach_map_.end()) {
+      return false; 
+    }
+
+    bwi_mapper::Point2f object_pt(location_approach_map_[location_name].position.x,
+                                                        location_approach_map_[location_name].position.y);
+    if (bwi_mapper::getMagnitude(object_pt - current_location) >
         threshold) {
       return false;
     }
 
-    return true;
+    float approach_orientation = tf::getYaw(location_approach_map_[location_name].orientation);
+    while (approach_orientation > yaw + M_PI) approach_orientation -= 2*M_PI;
+    while (approach_orientation <= yaw - M_PI) approach_orientation += 2*M_PI;
+    return std::fabs(approach_orientation - yaw) <= M_PI / 3;
+
   }
 
-  size_t BwiLogicalTranslator::getLocationIdx(
-      const bwi_mapper::Point2f& current_location) {
+  bool BwiLogicalTranslator::isRobotBesideObject(
+      const bwi_mapper::Point2f& current_location,
+      float yaw, float threshold, std::string& object_name) {
 
     if (!initialized_) {
-      ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
+      ROS_ERROR_STREAM("VillaLogicalTranslator : requesting data without being initialized!");
       return false;
     }
 
-    bwi_mapper::Point2f grid = bwi_mapper::toGrid(current_location, info_);
+    if (location_approach_map_.find(object_name) ==
+      location_approach_map_.end()) {
+      return false; 
+    }
+
+    bwi_mapper::Point2f object_pt(location_approach_map_[object_name].position.x,
+                                                        location_approach_map_[object_name].position.y);
+    return bwi_mapper::getMagnitude(object_pt - current_location) <= threshold;
+
+  }
+
+  size_t BwiLogicalTranslator::getRegionIdx(
+      const bwi_mapper::Point2f& region_pt) {
+
+    if (!initialized_) {
+      ROS_ERROR_STREAM("VillaLogicalTranslator : requesting data without being initialized!");
+      return false;
+    }
+
+    bwi_mapper::Point2f grid = bwi_mapper::toGrid(region_pt, info_);
     size_t map_idx = MAP_IDX(info_.width, (int) grid.x, (int) grid.y);
-    if (map_idx > location_map_.size()) {
+    if (map_idx > region_map_.size()) {
       return (size_t) -1;
     }
-    return (size_t) location_map_[map_idx];
+    return (size_t) region_map_[map_idx];
 
+  }
+
+  bool BwiLogicalTranslator::getRobotLocation(
+          const bwi::Point2f& current_location, 
+          float yaw, float threshold, std::string& location_name) {
+
+
+    location_name = "";
+
+    vector<int> indices;
+    vector<float> sq_distances;
+    location_tree.nearestKSearch({current_location.x, current_location.y},1, indices, sq_distances);
+    if (indices.empty()) {
+      return false;
+    }
+    // If the point is not within our threshold
+    if (sqrtf(sq_distances.at(0)) > threshold) {
+      location_name = "";
+      return false;
+    }
+    location_name = index_to_name[indices.at(0)];
+    return true;
   }
 
   void BwiLogicalTranslator::initializeStaticCostmapToggleService() {
@@ -399,5 +504,31 @@ namespace bwi_logical_translator {
     static_costmap_toggle.request.config.bools[0].value = value;
     static_costmap_toggle_client_.call(static_costmap_toggle);
   }
+
+    bool
+    BwiLogicalTranslator::getFacingDoor(const bwi::Point2f &current_location, float yaw, float threshold,
+                                        std::string &door_name) {
+        vector<int> indices;
+        vector<float> sq_distances;
+        location_tree.radiusSearch({current_location.x, current_location.y},threshold, indices, sq_distances);
+        if (indices.empty()) {
+            return false;
+        }
+
+        for (const auto index: indices) {
+            const auto& name = index_to_name[index];
+            // Is this point a door?
+            if (name_to_door.find(name) == name_to_door.end()) {
+                continue;
+            }
+            const auto& door = name_to_door[door_name];
+            bool is_facing = isRobotFacingDoor(current_location, yaw, threshold, door_name);
+            if (is_facing) {
+                return true;
+            }
+        }
+        door_name = "";
+      return false;
+    }
 
 } /* namespace bwi_logical_translator */

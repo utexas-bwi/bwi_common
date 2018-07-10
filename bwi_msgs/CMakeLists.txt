@@ -30,6 +30,7 @@ add_service_files(
   DIRECTORY srv
   FILES
     ActionUpdate.srv
+    CheckBool.srv
     DoorHandlerInterface.srv
     GetNextImage.srv
     ImageQuestion.srv
@@ -45,7 +46,6 @@ add_service_files(
     SemanticParser.srv
     StopBase.srv
     ScavHunt.srv
-    Trigger.srv
     UploadImage.srv
     UpdateObject.srv
     ActionUpdate.srv
