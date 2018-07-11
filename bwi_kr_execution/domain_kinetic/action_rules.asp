@@ -1,6 +1,5 @@
 #const self = 1.
 
-#include <incmode>.
 #program step(n).
 
 % action navigate_to

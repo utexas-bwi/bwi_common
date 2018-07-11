@@ -113,7 +113,7 @@ protected:
 
     bool goThroughDoor(const std::string &door_name, bwi_msgs::LogicalLocation &observations, std::string &error_message);
 
-    bool navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation observations, std::string &status);
+    bool navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation &observations, std::string &status);
 };
 
 #endif //BWI_LOGICAL_TRANSLATOR_BWI_LOGICAL_NAVIGATOR_H

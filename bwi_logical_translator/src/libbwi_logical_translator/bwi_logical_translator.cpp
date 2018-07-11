@@ -403,12 +403,17 @@ namespace bwi_logical_translator {
           float yaw, float threshold, std::string &location_name) {
 
     if (!initialized_) {
-      ROS_ERROR_STREAM("VillaLogicalTranslator : requesting data without being initialized!");
+      ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
       return false;
+    }
+
+    if (is_door(location_name)) {
+      return isRobotFacingDoor(current_location, yaw, threshold, location_name); 
     }
 
     if (location_approach_map_.find(location_name) ==
       location_approach_map_.end()) {
+      ROS_ERROR_STREAM("Attempted to check if beside non-existent location: " << location_name);
       return false; 
     }
 
@@ -457,6 +462,7 @@ namespace bwi_logical_translator {
     bwi_mapper::Point2f grid = bwi_mapper::toGrid(region_pt, info_);
     size_t map_idx = MAP_IDX(info_.width, (int) grid.x, (int) grid.y);
     if (map_idx > region_map_.size()) {
+      ROS_ERROR_STREAM("Queried region for out-of-bounds point " << region_pt);
       return (size_t) -1;
     }
     return (size_t) region_map_[map_idx];
@@ -474,13 +480,15 @@ namespace bwi_logical_translator {
     vector<float> sq_distances;
     location_tree.nearestKSearch({current_location.x, current_location.y},1, indices, sq_distances);
     if (indices.empty()) {
+      ROS_INFO_STREAM("The set of nearest locations is empty.");
       return false;
     }
     // If the point is not within our threshold
     if (sqrtf(sq_distances.at(0)) > threshold) {
-      location_name = "";
+      ROS_INFO_STREAM("The nearest location is beyond threshold.");
       return false;
     }
+
     location_name = index_to_name[indices.at(0)];
     return true;
   }

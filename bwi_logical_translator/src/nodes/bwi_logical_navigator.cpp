@@ -65,6 +65,7 @@ BwiLogicalNavigator::BwiLogicalNavigator() :
   ROS_INFO("BwiLogicalNavigator: Advertising services!");
 
   ros::param::param("~door_proximity_distance", door_proximity_distance_, 2.0);
+  ros::param::param("~location_proximity_distance", location_proximity_distance_, 2.0);
 
   // Make sure you publish the default map at least once so that navigation can start up! Ensure this pub is latched.
   ros::NodeHandle private_nh("~");
@@ -196,13 +197,19 @@ void BwiLogicalNavigator::publishNavigationMap(bool publish_map_with_doors, bool
 
 void BwiLogicalNavigator::senseState(bwi_msgs::LogicalLocation &observations) {
 
+  ROS_INFO_STREAM("sensing state");
+
   size_t region_idx = getRegionIdx({robot_x_, robot_y_});
   observations.room = getRegionString(region_idx);
+
+  ROS_INFO_STREAM(observations.room);
   getRobotLocation({robot_x_, robot_y_}, robot_yaw_,
                    location_proximity_distance_, observations.location);
+
+  ROS_INFO_STREAM(observations.location);
   observations.facing = isRobotFacingLocation({robot_x_, robot_y_}, robot_yaw_,
                                               location_proximity_distance_, observations.location);
-
+  ROS_INFO_STREAM("checked facing");
 }
 
 bool BwiLogicalNavigator::executeNavigationGoal(
@@ -282,7 +289,7 @@ bool BwiLogicalNavigator::approachDoor(const std::string &door_name,
     // Publish the observable fluents. Since we're likely going to sense the door, make sure the no-doors map was
     // published.
     publishNavigationMap(false, true);
-    //senseState(observations, door_idx);
+    senseState(observations);
 
     return success;
   } else {
@@ -526,6 +533,7 @@ void BwiLogicalNavigator::execute(const bwi_msgs::LogicalNavGoalConstPtr &goal) 
     senseState(res.observations);
   }
   ROS_INFO_STREAM("Status: " << status);
+  ROS_INFO_STREAM("Observations: " << res.observations);
   if (res.success) {
     execute_action_server_->setSucceeded(res);
   } else if (execute_action_server_->isPreemptRequested()) {
@@ -562,7 +570,7 @@ bool BwiLogicalNavigator::updateObject(bwi_msgs::UpdateObject::Request &req,
   }
 }
 
-bool BwiLogicalNavigator::navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation observations,
+bool BwiLogicalNavigator::navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation &observations,
                                      std::string &status) {
   if (is_door(location_name)) {
     return approachDoor(location_name, observations, status);

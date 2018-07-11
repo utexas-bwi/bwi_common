@@ -132,14 +132,18 @@ namespace bwi_logical_translator {
       }
 
       inline std::string getRegionString(size_t idx) const {
-        if (idx >= regions_.size())
+        if (idx >= regions_.size()) {
+          ROS_WARN_STREAM("Queried region name for non-existent index " << idx);
           return "";
+        }
         return regions_[idx];
       }
 
       inline std::string getDoorString(size_t idx) const {
-        if (idx >= doors_.size())
+        if (idx >= doors_.size()) {
+          ROS_WARN_STREAM("Queried door name for non-existent index " << idx);
           return "";
+        }
         return doors_[idx].name;
       }
 

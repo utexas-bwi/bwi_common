@@ -14,17 +14,15 @@ int main(int argc, char **argv) {
     plan_execution::AspFluent goal_fluent;
     if (argc < 3) {
         cout << "Please pass arguments" << endl;
-        cout << "Usage: action_name [param1 [...]]" << endl;
+        cout << "Usage: fluent_name [param1 [...]]" << endl;
         return 1;
     }
     goal_fluent.name = argv[1];
+    goal_fluent.name = "not " + goal_fluent.name;
     for (int i = 2; i < argc; ++i) {
         goal_fluent.variables.push_back(argv[i]);
     }
-    goal_fluent.timeStep = 1;
-    plan_execution::AspRule plan_rule;
-    plan_rule.head.push_back(goal_fluent);
-    goal.aspGoal.push_back(plan_rule);
+    
     plan_execution::AspRule goal_rule;
     goal_rule.body.push_back(goal_fluent);
     goal.aspGoal.push_back(goal_rule);
