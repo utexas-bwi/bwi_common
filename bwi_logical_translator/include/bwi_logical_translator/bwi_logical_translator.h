@@ -85,8 +85,8 @@ namespace bwi_logical_translator {
 
 
       bool isRobotFacingLocation(
-              const bwi::Point2f &current_location,
-              float yaw, float threshold, std::string &object_name);
+          const bwi::Point2f &current_location,
+          float yaw, float threshold, const std::string &object_name);
 
       bool isRobotBesideObject(
           const bwi::Point2f& current_location,
@@ -105,9 +105,8 @@ namespace bwi_logical_translator {
         return true;
       }
 
-      bool getRobotLocation(
-          const bwi::Point2f& current_location, 
-          float yaw, float threshold, std::string& location_name);
+      bool getNearbyLocations(const bwi::Point2f &near_to, float threshold,
+                              std::vector<std::string> &nearby_location_names);
 
       size_t getRegionIdx(
           const bwi::Point2f& region_pt);

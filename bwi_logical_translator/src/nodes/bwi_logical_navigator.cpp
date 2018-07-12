@@ -195,7 +195,7 @@ void BwiLogicalNavigator::publishNavigationMap(bool publish_map_with_doors, bool
   }
 }
 
-void BwiLogicalNavigator::senseState(bwi_msgs::LogicalLocation &observations) {
+void BwiLogicalNavigator::senseState(bwi_msgs::LogicalNavigationState &observations) {
 
   ROS_INFO_STREAM("sensing state");
 
@@ -203,13 +203,21 @@ void BwiLogicalNavigator::senseState(bwi_msgs::LogicalLocation &observations) {
   observations.room = getRegionString(region_idx);
 
   ROS_INFO_STREAM(observations.room);
-  getRobotLocation({robot_x_, robot_y_}, robot_yaw_,
-                   location_proximity_distance_, observations.location);
+  getNearbyLocations({robot_x_, robot_y_}, location_proximity_distance_, observations.nearby_locations);
 
-  ROS_INFO_STREAM(observations.location);
-  observations.facing = isRobotFacingLocation({robot_x_, robot_y_}, robot_yaw_,
-                                              location_proximity_distance_, observations.location);
-  ROS_INFO_STREAM("checked facing");
+  observations.facing.reserve(observations.nearby_locations.size());
+  // Check whether we're facing each of the locations we're near
+  std::transform(observations.nearby_locations.begin(),
+                 observations.nearby_locations.end(),
+                 std::back_inserter(observations.facing),
+                 boost::bind(&BwiLogicalTranslator::isRobotFacingLocation,
+                             this,
+                             bwi::Point2f(robot_x_, robot_y_),
+                             robot_yaw_,
+                             location_proximity_distance_,
+                             _1));
+
+
 }
 
 bool BwiLogicalNavigator::executeNavigationGoal(
@@ -262,7 +270,7 @@ void BwiLogicalNavigator::odometryHandler(
 }
 
 bool BwiLogicalNavigator::approachDoor(const std::string &door_name,
-                                       bwi_msgs::LogicalLocation &observations,
+                                       bwi_msgs::LogicalNavigationState &observations,
                                        std::string &error_message) {
   error_message = "";
 
@@ -301,7 +309,7 @@ bool BwiLogicalNavigator::approachDoor(const std::string &door_name,
 
 }
 
-bool BwiLogicalNavigator::goThroughDoor(const std::string &door_name, bwi_msgs::LogicalLocation &observations,
+bool BwiLogicalNavigator::goThroughDoor(const std::string &door_name, bwi_msgs::LogicalNavigationState &observations,
                                         std::string &error_message) {
   error_message = "";
 
@@ -345,7 +353,7 @@ bool BwiLogicalNavigator::goThroughDoor(const std::string &door_name, bwi_msgs::
 }
 
 bool BwiLogicalNavigator::approachObject(const std::string &object_name,
-                                         bwi_msgs::LogicalLocation &observations,
+                                         bwi_msgs::LogicalNavigationState &observations,
                                          std::string &error_message) {
 
   error_message = "";
@@ -458,7 +466,7 @@ bool BwiLogicalNavigator::resolveChangeFloorRequest(const std::string &new_room,
 
 bool BwiLogicalNavigator::changeFloor(const std::string &new_room,
                                       const std::string &facing_door,
-                                      bwi_msgs::LogicalLocation &observations,
+                                      bwi_msgs::LogicalNavigationState &observations,
                                       std::string &error_message) {
   //Just making sure it gets called correctly
   ROS_INFO_STREAM("BwiLogicalNavigator: changefloor called");
@@ -570,7 +578,7 @@ bool BwiLogicalNavigator::updateObject(bwi_msgs::UpdateObject::Request &req,
   }
 }
 
-bool BwiLogicalNavigator::navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation &observations,
+bool BwiLogicalNavigator::navigateTo(const std::string &location_name, bwi_msgs::LogicalNavigationState &observations,
                                      std::string &status) {
   if (is_door(location_name)) {
     return approachDoor(location_name, observations, status);

@@ -399,8 +399,8 @@ namespace bwi_logical_translator {
   }
 
   bool BwiLogicalTranslator::isRobotFacingLocation(
-          const bwi_mapper::Point2f &current_location,
-          float yaw, float threshold, std::string &location_name) {
+      const bwi_mapper::Point2f &current_location,
+      float yaw, float threshold, const std::string &location_name) {
 
     if (!initialized_) {
       ROS_ERROR_STREAM("BwiLogicalTranslator : requesting data without being initialized!");
@@ -466,30 +466,24 @@ namespace bwi_logical_translator {
       return (size_t) -1;
     }
     return (size_t) region_map_[map_idx];
-
   }
 
-  bool BwiLogicalTranslator::getRobotLocation(
-          const bwi::Point2f& current_location, 
-          float yaw, float threshold, std::string& location_name) {
+  bool BwiLogicalTranslator::getNearbyLocations(const bwi::Point2f &near_to, float threshold,
+                                                vector<std::string> &nearby_location_names) {
 
 
-    location_name = "";
 
     vector<int> indices;
     vector<float> sq_distances;
-    location_tree.nearestKSearch({current_location.x, current_location.y},1, indices, sq_distances);
+    location_tree.radiusSearch({near_to.x, near_to.y}, threshold, indices, sq_distances);
     if (indices.empty()) {
       ROS_INFO_STREAM("The set of nearest locations is empty.");
       return false;
     }
-    // If the point is not within our threshold
-    if (sqrtf(sq_distances.at(0)) > threshold) {
-      ROS_INFO_STREAM("The nearest location is beyond threshold.");
-      return false;
-    }
-
-    location_name = index_to_name[indices.at(0)];
+    nearby_location_names.clear();
+    nearby_location_names.reserve(indices.size());
+    std::transform(indices.begin(), indices.end(),
+                   std::back_inserter(nearby_location_names), [this](int index){return index_to_name[index];});
     return true;
   }
 

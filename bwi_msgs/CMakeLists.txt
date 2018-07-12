@@ -20,7 +20,7 @@ add_message_files(
     LEDAnimations.msg
     LEDStatus.msg
     LEDTestType.msg
-    LogicalLocation.msg
+    LogicalNavigationState.msg
     StopBaseStatus.msg
     ScavStatus.msg
     WeekTime.msg

@@ -1,5 +1,5 @@
 bwi_planning_common/PlannerAtom command
 ---
 bool success
-LogicalLocation observations
+LogicalNavigationState observations
 ---

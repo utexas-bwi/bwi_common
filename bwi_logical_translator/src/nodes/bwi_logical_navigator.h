@@ -4,7 +4,7 @@
 #include <bwi_msgs/ResolveChangeFloor.h>
 #include <bwi_msgs/LogicalNavAction.h>
 #include <bwi_msgs/UpdateObject.h>
-#include <bwi_msgs/LogicalLocation.h>
+#include <bwi_msgs/LogicalNavigationState.h>
 #include <bwi_msgs/CheckBool.h>
 #include <bwi_logical_translator/bwi_logical_translator.h>
 #include <actionlib/server/simple_action_server.h>
@@ -37,15 +37,15 @@ public:
 
 protected:
 
-    void senseState(bwi_msgs::LogicalLocation &observations);
+    void senseState(bwi_msgs::LogicalNavigationState &observations);
     bool approachDoor(const std::string& door_name,
-                      bwi_msgs::LogicalLocation &observations,
+                      bwi_msgs::LogicalNavigationState &observations,
                       std::string& error_message);
     bool senseDoor(bwi_msgs::CheckBool::Request &req,
                    bwi_msgs::CheckBool::Response &res);
 
     bool approachObject(const std::string& object_name,
-                        bwi_msgs::LogicalLocation &observations,
+                        bwi_msgs::LogicalNavigationState &observations,
                         std::string &error_message);
 
     bool resolveChangeFloorRequest(const std::string& new_room,
@@ -56,7 +56,7 @@ protected:
 
     bool changeFloor(const std::string& new_room,
                      const std::string& facing_door,
-                     bwi_msgs::LogicalLocation &observations,
+                     bwi_msgs::LogicalNavigationState &observations,
                      std::string& error_message);
 
     bool executeNavigationGoal(const geometry_msgs::PoseStamped& pose);
@@ -111,9 +111,9 @@ protected:
 
     bool robot_controller_available_;
 
-    bool goThroughDoor(const std::string &door_name, bwi_msgs::LogicalLocation &observations, std::string &error_message);
+    bool goThroughDoor(const std::string &door_name, bwi_msgs::LogicalNavigationState &observations, std::string &error_message);
 
-    bool navigateTo(const std::string &location_name, bwi_msgs::LogicalLocation &observations, std::string &status);
+    bool navigateTo(const std::string &location_name, bwi_msgs::LogicalNavigationState &observations, std::string &status);
 };
 
 #endif //BWI_LOGICAL_TRANSLATOR_BWI_LOGICAL_NAVIGATOR_H

@@ -87,6 +87,7 @@ insert into attributes(attribute_name) values('is_facing');
 insert into attributes(attribute_name) values('is_holding');
 insert into attributes(attribute_name) values('is_in');
 insert into attributes(attribute_name) values('is_located');
+insert into attributes(attribute_name) values('is_near');
 insert into attributes(attribute_name) values('is_placed');
 insert into attributes(attribute_name) values('map_name');
 insert into attributes(attribute_name) values('person_name');
