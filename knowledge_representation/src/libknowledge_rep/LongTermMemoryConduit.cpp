@@ -60,6 +60,19 @@ namespace knowledge_rep {
         return true;
     }
 
+    bool LongTermMemoryConduit::select_query(const std::string &sql_query, vector<EntityAttribute> &result) const {
+        try {
+            auto sql_result = sess->sql(sql_query).execute();
+            result = unwrap_attribute_rows(sql_result.fetchAll());
+            return true;
+        }
+        catch (const mysqlx::Error &err) {
+            cout << "ERROR: " << err << endl;
+            return false;
+        }
+
+    }
+
     /*
      * Deletes an entity and any other entities and relations that rely on it.
      */
@@ -77,7 +90,7 @@ namespace knowledge_rep {
         remover.execute();
     }
 
-	bool LongTermMemoryConduit::entity_exists(int id) {
+	bool LongTermMemoryConduit::entity_exists(int id) const {
 		Table entities = db->getTable("entities");
 		auto result = entities.select("entity_id").where("entity_id = :id").bind("id", id).execute();
 		return result.count() == 1;
@@ -107,7 +120,7 @@ namespace knowledge_rep {
             inserter.execute();
         }
         catch (const mysqlx::Error &err) {
-            cout << "Tried to add " << entity_id << " " << attribute_name << " " << bool_val;
+            cout << "Tried to add " << entity_id << " " << attribute_name << " " << bool_val << endl;
             cout << "ERROR: " << err << endl;
             return false;
         }
@@ -124,7 +137,7 @@ namespace knowledge_rep {
             inserter.execute();
         }
         catch (const mysqlx::Error &err) {
-            cout << "Tried to add " << entity_id << " " << attribute_name << " " << other_entity_id;
+            cout << "Tried to add " << entity_id << " " << attribute_name << " " << other_entity_id << endl;
             cout << "ERROR: " << err << endl;
             return false;
         }
@@ -336,7 +349,7 @@ namespace knowledge_rep {
         return false;
     }
 
-    bool LongTermMemoryConduit::attribute_exists(int id) {
+    bool LongTermMemoryConduit::attribute_exists(int id) const {
         return false;
     }
 

@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import knowledge_representation
+from knowledge_representation import LongTermMemoryConduit
+import argparse
+import sys
+import os
+import yaml
+
+def parse_attribute_entry():
+
+def populate(ltmc, file_path):
+    if not os.path.isfile(file_path):
+        print(
+                "File not found at " + file_path + ".")
+        exit(1)
+    data = read_yaml_from_file(file_path)
+    object_names = data["objects"].keys()
+    # Get the id for each named entity
+    object_name_to_id = {name: ltmc.get_entity_named(name) for name in object_names}
+    for name, attributes in data["objects"]:
+        for attribute in attributes:
+            ltmc.add_attribute(attribute["name"], attribute[])
+
+
+
+def read_yaml_from_file(file_path):
+    with open(file_path, 'r') as stream:
+        try:
+            contents = yaml.load(stream)
+            return contents
+        except yaml.YAMLError:
+            print("File found at " + file_path + ", but cannot be parsed by YAML parser.")
+            exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file_paths", type=str, nargs="+")
+    args = parser.parse_args()
+    ltmc = knowledge_representation.get_default_ltmc()
+    for path in args.file_paths:
+        populate(ltmc, path)
+
+
+if __name__ == "__main__":
+    main()

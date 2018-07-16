@@ -57,3 +57,7 @@ This will create the schema on your SQL server.
     
   
 6. Build the catkin package.
+
+## Development
+
+We access the MySQL backing store via the xdev API. See the [documentation](https://dev.mysql.com/doc/dev/connector-cpp/8.0/) for the official MySQL xdev API C++ library.

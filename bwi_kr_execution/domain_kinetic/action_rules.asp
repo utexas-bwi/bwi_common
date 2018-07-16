@@ -51,7 +51,7 @@ hand_empty(n) :- hand_empty(n - 1), not -hand_empty(n).
 is_delivered(O, P, n) :- is_delivered(O, P, n - 1).
 
 % allow passing concept name in goal query
-is_near_concept(self, L_concept, n) :- is_near(self, L_id, n), has_concept(L_id, L_concept).
+is_near_name(self, L_name, n) :- is_near(self, L_id, n), name(L_id, L_name).
 is_placed_concept(O_concept, L_concept, n) :- is_placed(O_id, L_id, n), has_concept(O_id, O_concept), has_concept(L_id, L_concept).
 is_in_concept(O_concept, R_concept, n) :- is_placed(O_id, L, n), is_in(L, R_id), has_concept(O_id, O_concept), has_concept(R_id, R_concept).
 is_delivered_concept(O_concept, P, n) :- is_delivered(O_id, P, n), has_concept(O_id, O_concept).
@@ -71,7 +71,7 @@ is_placed(O, L, 0) :- is_placed(O, L).
 is_facing(self, P, 0) :- is_facing(self, P).
 is_holding(self, O, 0) :- is_holding(self, O).
 is_delivered(O, P, 0) :- is_delivered(O, P).
-is_near_concept(self, L_concept, 0) :- is_near(self, L_id), has_concept(L_id, L_concept).
+is_near_name(self, L_name, 0) :- is_near(self, L_id), name(L_id, L_name).
 is_placed_concept(O_concept, L_concept, 0) :- is_placed(O_id, L_id), has_concept(O_id, O_concept), has_concept(L_id, L_concept).
 is_in_concept(O_concept, R_concept, 0) :- is_placed(O_id, L), is_in(L, R_id), has_concept(O_id, O_concept), has_concept(R_id, R_concept).
 is_delivered_concept(O_concept, P, 0) :- is_delivered(O_id, P), has_concept(O_id, O_concept).

@@ -12,6 +12,8 @@ CREATE TABLE attributes (
     PRIMARY KEY(attribute_name)
 );
 
+/******************* ENTITY ATTRIBUTES */
+
 CREATE TABLE entity_attributes_id (
     entity_id int NOT NULL,
     attribute_name varchar(24) NOT NULL,
@@ -43,8 +45,29 @@ CREATE TABLE entity_attributes_str (
     FOREIGN KEY(attribute_name)
         REFERENCES attributes(attribute_name)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT CHK_name_unique CHECK (NumSameNames() = 0)
 );
+
+
+/******************* FUNCTIONS */
+DELIMITER //
+/* Counts the number of entities that have the same name */
+CREATE FUNCTION NumSameNames()
+RETURNS int
+DETERMINISTIC
+BEGIN
+    DECLARE name_same_count INT unsigned DEFAULT 0;
+    SELECT count(*)
+    FROM entity_attributes_str l
+    INNER JOIN entity_attributes_str r
+    ON r.attribute_name = "name"
+        AND l.attribute_value = r.attribute_value
+    INTO name_same_count;
+    RETURN name_same_count;
+END//
+
+DELIMITER ;
 
 CREATE TABLE entity_attributes_float (
     entity_id int NOT NULL,
@@ -79,7 +102,7 @@ CREATE TABLE entity_attributes_bool (
 insert into attributes(attribute_name) values('answer_to');
 insert into attributes(attribute_name) values('concept');
 insert into attributes(attribute_name) values('default_location');
-insert into attributes(attribute_name) values('has_door');
+insert into attributes(attribute_name) values('has');
 insert into attributes(attribute_name) values('is_a');
 insert into attributes(attribute_name) values('is_connected');
 insert into attributes(attribute_name) values('is_delivered');
@@ -89,8 +112,7 @@ insert into attributes(attribute_name) values('is_in');
 insert into attributes(attribute_name) values('is_located');
 insert into attributes(attribute_name) values('is_near');
 insert into attributes(attribute_name) values('is_placed');
-insert into attributes(attribute_name) values('map_name');
-insert into attributes(attribute_name) values('person_name');
+insert into attributes(attribute_name) values('name');
 insert into attributes(attribute_name) values('question');
 insert into attributes(attribute_name) values('sensed');
 

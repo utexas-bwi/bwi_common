@@ -27,7 +27,7 @@ def populate(ltmc, files_path):
     for room, _ in connectivity_data.items():
         room_id = ltmc.add_entity()
         ltmc.add_entity_attribute(room_id, "is_a", room_con)
-        ltmc.add_entity_attribute(room_id, "map_name", room)
+        ltmc.add_entity_attribute(room_id, "name", room)
         room_name_to_id[room] = room_id
 
     # Rooms connected by doors are not directly connected. Remove
@@ -46,10 +46,10 @@ def populate(ltmc, files_path):
                     room_two, room_one))
         door_id = ltmc.add_entity()
         ltmc.add_entity_attribute(door_id, "is_a", door_con)
-        ltmc.add_entity_attribute(door_id, "map_name", door["name"])
+        ltmc.add_entity_attribute(door_id, "name", door["name"])
 
-        ltmc.add_entity_attribute(room_name_to_id[room_one], "has_door", door_id)
-        ltmc.add_entity_attribute(room_name_to_id[room_two], "has_door", door_id)
+        ltmc.add_entity_attribute(room_name_to_id[room_one], "has", door_id)
+        ltmc.add_entity_attribute(room_name_to_id[room_two], "has", door_id)
 
     for room, neighbors in connectivity_data.items():
         room_id = room_name_to_id[room]
@@ -74,7 +74,6 @@ def main():
     parser.add_argument("files_path", type=str)
     args = parser.parse_args()
     ltmc = knowledge_representation.get_default_ltmc()
-    dir(args)
     populate(ltmc, args.files_path)
 
 

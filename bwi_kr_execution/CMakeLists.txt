@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
 )
+
+catkin_python_setup()
  
 catkin_package(
   INCLUDE_DIRS 

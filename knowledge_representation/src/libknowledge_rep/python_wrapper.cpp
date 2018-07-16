@@ -35,7 +35,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
             .def("get_entities_with_attribute_of_value", 
                  static_cast<std::vector<int> (LTMC::*)(const std::string &, int) const>(&LTMC::get_entities_with_attribute_of_value))
             .def("delete_entity", static_cast<bool (LTMC::*)(int)>(&LTMC::delete_entity))
-            .def("entity_exists", static_cast<bool (LTMC::*)(int)>(&LTMC::entity_exists))
+            .def("entity_exists", static_cast<bool (LTMC::*)(int) const>(&LTMC::entity_exists))
             .def("delete_all_entities", static_cast<void (LTMC::*)()>(&LTMC::delete_all_entities))
                     //.def("add_entity_attribute",
                     //     static_cast<bool (LTMC::*)(int, const std::string &, const char[])>(&LTMC::add_entity_attribute))
@@ -47,6 +47,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
                     // anyways...
 //.def("add_entity_attribute",
 //                 static_cast<bool (LTMC::*)(int, const std::string &, float)>(&LTMC::add_entity_attribute))
+            .def("select_query", static_cast<bool (LTMC::*)(const std::string &, std::vector<LTMC::EntityAttribute> &) const>(&LTMC::select_query))
             .def("get_all_entities", static_cast<std::vector<int> (LTMC::*)() const>(&LTMC::get_all_entities))
             .def("get_concept", static_cast<int (LTMC::*)(const std::string &)>(&LTMC::get_concept))
             .def("remove_concept_references", static_cast<bool (LTMC::*)(const std::string &)>(&LTMC::remove_concept_references))

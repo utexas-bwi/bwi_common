@@ -78,14 +78,13 @@ namespace knowledge_rep {
 
         bool delete_entity(int id);
 
-        bool entity_exists(int id);
+        bool entity_exists(int id) const;
 
         bool delete_attribute(int id);
 
-        bool attribute_exists(int id);
+        bool attribute_exists(int id) const;
 
-        std::string get_entity_type(int id);
-
+        std::string get_entity_type(int id) const;
         ~LongTermMemoryConduit();
 
         void delete_all_entities();
@@ -94,9 +93,29 @@ namespace knowledge_rep {
 
         std::vector<int> get_all_entities() const;
 
+        bool select_query(const std::string &sql_query, std::vector<EntityAttribute> &result) const;
+
+        // TODO: Implement this
+        // TODO: Move this to a higher level location.
+        // This interface supports general purpose reasoning over the knowledge base
+        // Takes in some representation of constraints, outputs the parsed answer set
+        // bool asp_query(std::string &query, std::vector<std::string> result) {
+        //	// Dump knowledge
+        //
+        //	// Use actasp to query
+        //}
+        //
+        //bwi_door(D) :- door(D), has(bwi, P), has(P, R), has(R, D).
+        //bwi_door(D) :- door(D), has(bwi, R), has(R, D).
+        //
+        //#show bwi_door/1.
+        //
+        //#
+        //#bwi_door(d3_414b1). bwi_door(d3_414b2
+        bool asp_query(const std::vector<std::string> &query_elements, std::vector<std::string> &result) const;
+
         //// CONVENIENCE
         int get_concept(const std::string &name);
-
 
     private:
 

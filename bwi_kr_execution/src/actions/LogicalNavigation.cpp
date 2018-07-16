@@ -29,7 +29,7 @@ boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {
 void LogicalNavigation::onFinished(bool succeeded, ResultConstPtr result) {
     // Dump observations somewhere
     ltmc.remove_entity_attribute(1, "is_in");
-    ltmc.remove_entity_attribute(1, "is_located");
+    ltmc.remove_entity_attribute(1, "is_near");
     ltmc.remove_entity_attribute(1, "is_facing");
 
     ROS_INFO_STREAM(result->observations);

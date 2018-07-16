@@ -2,13 +2,14 @@
 #include <iostream>
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>
+#include <knowledge_representation/convenience.h>
 
 
 using namespace std;
 
 
 int main(int argc, const char *argv[]) {
-    knowledge_rep::LongTermMemoryConduit ltmc("127.0.0.1", 33060, "root", "", "villa_krr");
+    auto ltmc = knowledge_rep::get_default_ltmc();
 
     ltmc.delete_all_entities();
     // Robot should exist
@@ -96,6 +97,9 @@ int main(int argc, const char *argv[]) {
     assert(attrs.at(0).value.type() == typeid(bool));
     assert(boost::get<bool>(attrs.at(0).value) == true);
     ltmc.remove_entity_attribute(1, "sensed");*/
+
+    std::vector<knowledge_rep::LongTermMemoryConduit::EntityAttribute> query_result;
+    ltmc.select_query("SELECT * FROM entity_attributes_str", query_result);
 
     cout << "Done!" << endl;
 } 
