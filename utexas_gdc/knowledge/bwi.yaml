@@ -1,0 +1,37 @@
+objects:
+    yuqian: 
+    - name: "instance_of"
+      concept_name: "person"
+    - name: "has"
+      object_name: "o3_410f"
+    nick:
+    - name: "instance_of"
+      concept_name: "person"
+    - name: "has"
+      object_name: "o3_410f"
+    justin:
+    - name: "instance_of"
+      concept_name: "person"
+    - name: "has"
+      object_name: "l3_402"
+    o3_410f:
+    - name: "instance_of"
+      concept_name: "cubicle"
+    o3_702e:
+    - name: "instance_of"
+      concept_name: "cubicle"
+concepts:
+    bwi:
+    - name: "has"
+      object_name: "yuqian"
+    - name: "has"
+      object_name: "nick"
+    - name: "has"
+      object_name: "justin"
+    - name: "has"
+      object_name: "l3_414b"
+    - name: "has"
+      object_name: "l3_414a"
+    - name: "has"
+      object_name: "l3_414"
+      

@@ -2,7 +2,8 @@
 
 #include "actasp/AspFluent.h"
 #include <plan_execution/AspFluent.h>
-#include <knowledge_representation/convenience.h>
+#include <knowledge_representation/Entity.h>
+#include "../BwiResourceManager.h"
 
 #include <ros/ros.h>
 
@@ -11,12 +12,13 @@
 using namespace ros;
 using namespace std;
 using namespace actasp;
+using namespace knowledge_rep;
 
 namespace bwi_krexec {
 
 
 LogicalNavigation::LogicalNavigation(const std::string &logical_name) :
-        name(logical_name), ltmc(knowledge_rep::get_default_ltmc()),
+        name(logical_name), ltmc(std::ref(ltmc)),
         LogicalNavigationRosAction("execute_logical_action") {}
 
 boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {
@@ -28,25 +30,26 @@ boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {
 
 void LogicalNavigation::onFinished(bool succeeded, ResultConstPtr result) {
     // Dump observations somewhere
-    ltmc.remove_entity_attribute(1, "is_in");
-    ltmc.remove_entity_attribute(1, "is_near");
-    ltmc.remove_entity_attribute(1, "is_facing");
+    Entity self = ltmc.get().get_robot();
+    self.remove_attribute("is_in");
+    self.remove_attribute("is_near");
+    self.remove_attribute("is_facing");
 
     ROS_INFO_STREAM(result->observations);
 
     if (!result->observations.room.empty()) {
-        vector<int> room_ids = ltmc.get_entities_with_attribute_of_value("map_name", result->observations.room);
-        if (!room_ids.empty()) {
-            ltmc.add_entity_attribute(1, "is_in", room_ids[0]);
+        vector<Entity> rooms = ltmc.get().get_entities_with_attribute_of_value("name", result->observations.room);
+        if (!rooms.empty()) {
+            self.add_attribute("is_in", rooms[0]);
         }
     }
     for (int i = 0; i < result->observations.nearby_locations.size(); i++) {
         auto location_name = result->observations.nearby_locations.at(i);
-        vector<int> location_ids = ltmc.get_entities_with_attribute_of_value("map_name", location_name);
-        if (!location_ids.empty()) {
-            ltmc.add_entity_attribute(1, "is_near", location_ids[0]);
+        vector<Entity> locations = ltmc.get().get_entities_with_attribute_of_value("name", location_name);
+        if (!locations.empty()) {
+            self.add_attribute("is_near", locations[0]);
             if (result->observations.facing.at(i)) {
-                ltmc.add_entity_attribute(1, "is_facing", location_ids[0]);
+                self.add_attribute("is_facing", locations[0]);
             }
         } else {
             ROS_WARN_STREAM("Logical navigation state says robot is near " << location_name << " but no location with that map_name exists in the knowledge base.");
@@ -58,6 +61,11 @@ void LogicalNavigation::onFinished(bool succeeded, ResultConstPtr result) {
         //ROS_INFO_STREAM("Sent speech goal for unstuck");
         // TODO: Add speech here
     }
+}
+
+void LogicalNavigation::configureWithResources(ResourceManager *resource_manager) {
+  auto cast = dynamic_cast<BwiResourceManager*>(resource_manager);
+  this->ltmc = cast->ltmc;
 }
 
 

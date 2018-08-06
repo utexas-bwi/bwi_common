@@ -26,7 +26,7 @@ ActionFactory::ActionFactory(actasp::Action *act, bool simulation) {
 }
 
 
-Action* ActionFactory::byName(const std::string& name) throw (std::runtime_error) {
+Action* ActionFactory::byName(const std::string& name) noexcept(false) {
 	
 	map<string, Action*>::const_iterator actIt = bothActions().find(name);
 	

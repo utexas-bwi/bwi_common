@@ -63,7 +63,13 @@ include_directories(
 )
 
 
-add_library(libknowledge_rep src/libknowledge_rep/LongTermMemoryConduit.cpp src/libknowledge_rep/MemoryConduit.cpp src/libknowledge_rep/convenience.cpp)
+add_library(libknowledge_rep
+        src/libknowledge_rep/LongTermMemoryConduit.cpp
+        src/libknowledge_rep/MemoryConduit.cpp
+        src/libknowledge_rep/convenience.cpp
+        src/libknowledge_rep/Entity.cpp
+        src/libknowledge_rep/Concept.cpp)
+
 add_dependencies(libknowledge_rep ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(libknowledge_rep ${mysql} ${catkin_LIBRARIES})
 

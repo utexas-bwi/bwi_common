@@ -2,6 +2,7 @@
 #define BWI_KR_EXECUTION_OBSERVERS_H
 
 #include "actions/SenseLocation.h"
+#include <actasp/ResourceManager.h>
 
 namespace bwi_krexec {
 
@@ -9,7 +10,9 @@ namespace bwi_krexec {
 struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::PlanningObserver {
   std::function<void()> updater;
 
-  explicit KnowledgeUpdater(std::function<void()> knowledge_update_function): updater(std::move(knowledge_update_function)) {}
+  explicit KnowledgeUpdater(std::function<void()> knowledge_update_function, actasp::ResourceManager &resourceManager):
+    updater(std::move(knowledge_update_function)), 
+    resourceManager(resourceManager) {}
 
   void actionTerminated(const actasp::AspFluent &action, bool succeeded) noexcept override {
     updater();
@@ -18,6 +21,7 @@ struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::Plann
   void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
 
     SenseLocation senseLogicalLocation;
+    senseLogicalLocation.configureWithResources(&resourceManager);
     while (!senseLogicalLocation.hasFinished()) {
       senseLogicalLocation.run();
     }
@@ -27,7 +31,6 @@ struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::Plann
   void actionStarted(const actasp::AspFluent &action) noexcept override {
   }
 
-
   void planChanged(const actasp::AnswerSet &newPlan) noexcept {
   }
 
@@ -35,6 +38,9 @@ struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::Plann
   }
 
   void policyChanged(actasp::PartialPolicy *policy) noexcept {}
+
+private:
+  actasp::ResourceManager &resourceManager;
 
 };
 

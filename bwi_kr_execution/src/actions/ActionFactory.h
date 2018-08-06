@@ -16,7 +16,7 @@ struct ActionFactory {
 	explicit ActionFactory(actasp::Action *act); //both simulation and real world
 	ActionFactory(actasp::Action *act, bool simulation); //either simulation or real world
 	
-	static actasp::Action *byName(const std::string& name) throw (std::runtime_error);
+	static actasp::Action *byName(const std::string& name) noexcept(false);
 	static ActionMap actions();
 	
 	static void setSimulation(bool value);

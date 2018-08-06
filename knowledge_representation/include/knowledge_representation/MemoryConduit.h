@@ -35,7 +35,7 @@ namespace knowledge_rep {
 
         bool encode(std::vector<PointCloudT::Ptr> &objects, PointCloudT::Ptr &table);
 
-        std::vector<LongTermMemoryConduit::EntityAttribute> relevant_to(std::vector<int> objects);
+        std::vector<EntityAttribute> relevant_to(std::vector<int> objects);
 
        
     };

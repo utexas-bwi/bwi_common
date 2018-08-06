@@ -11,7 +11,7 @@ namespace bwi_krexec {
 std::string memoryConduitToAsp() {
   std::vector<int> relevant_objs;
   knowledge_rep::MemoryConduit memory;
-  std::vector <knowledge_rep::LongTermMemoryConduit::EntityAttribute> entity_attributes = memory.relevant_to(
+  std::vector <knowledge_rep::EntityAttribute> entity_attributes = memory.relevant_to(
       relevant_objs);
 
   std::set<int> all_objs;

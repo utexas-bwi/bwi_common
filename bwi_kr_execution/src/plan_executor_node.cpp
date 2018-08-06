@@ -15,7 +15,7 @@
 
 #include "observers.h"
 #include "utils.h"
-//#include "plan_execution/ActionFactory.h"
+#include "BwiResourceManager.h"
 #include "actions/ActionFactory.h"
 
 #include <actionlib/server/simple_action_server.h>
@@ -78,20 +78,26 @@ int main(int argc, char**argv) {
   privateNode.param<bool>("simulation",simulating,false);
   ActionFactory::setSimulation(simulating);
 
+  unique_ptr<BwiResourceManager> resourceManager = unique_ptr<BwiResourceManager>(new BwiResourceManager());
 
   vector<actasp::ExecutionObserver *> execution_observers;
   vector<actasp::PlanningObserver *> planning_observers;
   ConsoleObserver observer;
   std::function<void()> function = std::function<void()>(updateFacts);
-  KnowledgeUpdater updating_observer(function);
+  KnowledgeUpdater updating_observer(function, *resourceManager.get());
   execution_observers.push_back(&observer);
   planning_observers.push_back(&observer);
 
   execution_observers.push_back(&updating_observer);
   planning_observers.push_back(&updating_observer);
 
+  std::map<std::string, actasp::Action*> actions = ActionFactory::actions();
 
-  PlanExecutorNode node(domainDirectory, ActionFactory::actions(), execution_observers, planning_observers);
+  for (auto& action : actions) {
+    action.second->configureWithResources(resourceManager.get());
+  }
+
+  PlanExecutorNode node(domainDirectory, actions, execution_observers, planning_observers);
   working_memory_path = node.working_memory_path;
   ros::spin();
 

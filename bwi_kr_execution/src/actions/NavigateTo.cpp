@@ -4,6 +4,7 @@
 #include "plan_execution/msgs_utils.h"
 
 #include "actasp/AnswerSet.h"
+#include <knowledge_representation/Entity.h>
 
 #include "plan_execution/CurrentStateQuery.h"
 
@@ -34,7 +35,10 @@ namespace bwi_krexec {
     }
 
     std::vector<std::string> NavigateTo::prepareGoalParameters() const {
-        auto attrs = ltmc.get_entity_attributes(location_id, "map_name");
+        knowledge_rep::Entity location(location_id, ltmc);
+        // FIXME: Fail more gracefully here
+        assert(location.is_valid());
+        auto attrs = location.get_attributes("name");
         // FIXME: Fail more gracefully here
         assert(attrs.size() == 1);
         vector<string> parameters;

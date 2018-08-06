@@ -6,7 +6,32 @@ import sys
 import os
 import yaml
 
-def parse_attribute_entry():
+def add_attribute_entry(entity, entry, ltmc):
+    keys = entry.keys()
+    if "concept_name" in keys:
+        concept = ltmc.get_concept(entry["concept_name"])
+        entity.add_attribute(entry["name"], concept)
+    if "object_name" in keys:
+        object_entity = ltmc.get_object_named(entry["object_name"])
+        entity.add_attribute(entry["name"], object_entity)
+    if "value" in keys:
+        # Try to convert to int, catch
+        try:
+            value = int(entry["value"])
+            entity.add_attribute(entry["name"], value)
+            return
+        except ValueError:
+            pass
+
+        # Try to convert to float, catch
+        try:
+            value = float(entry["value"])
+            entity.add_attribute(entry["name"], value)
+            return
+        except ValueError:
+            pass
+
+        entity.add_attribute(entry["name"], entry["value"])
 
 def populate(ltmc, file_path):
     if not os.path.isfile(file_path):
@@ -16,11 +41,19 @@ def populate(ltmc, file_path):
     data = read_yaml_from_file(file_path)
     object_names = data["objects"].keys()
     # Get the id for each named entity
-    object_name_to_id = {name: ltmc.get_entity_named(name) for name in object_names}
-    for name, attributes in data["objects"]:
-        for attribute in attributes:
-            ltmc.add_attribute(attribute["name"], attribute[])
+    object_name_to_entity = {name: ltmc.get_object_named(name) for name in object_names}
 
+    for name, attributes in data["objects"].items():
+        for attribute in attributes:
+            add_attribute_entry(object_name_to_entity[name], attribute, ltmc)
+
+    concept_names = data["concepts"].keys()
+    # Get the id for each named entity
+    concept_name_to_entity = {name: ltmc.get_concept(name) for name in concept_names}
+
+    for name, attributes in data["concepts"].items():
+        for attribute in attributes:
+            add_attribute_entry(concept_name_to_entity[name], attribute, ltmc)
 
 
 def read_yaml_from_file(file_path):

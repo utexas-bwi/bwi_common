@@ -1,57 +1,79 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/noncopyable.hpp>
 #include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/Entity.h>
+#include <knowledge_representation/Concept.h>
 
 using namespace boost::python;
 using namespace knowledge_rep;
 
 BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
-    typedef LongTermMemoryConduit LTMC;
-    class_<std::vector<int> >("PyIntList")
-        .def(vector_indexing_suite<std::vector<int> >() );
+  typedef LongTermMemoryConduit LTMC;
 
-    class_<LTMC::EntityAttribute>("EntityAttribute", init<int, std::string, LTMC::ConceptValue>())
-        .def_readonly("entity_id", &LTMC::EntityAttribute::entity_id)
-        .def_readonly("attribute_name", &LTMC::EntityAttribute::attribute_name)
-        .def("get_int_value", &LTMC::EntityAttribute::get_int_value)
-        .def("get_float_value", &LTMC::EntityAttribute::get_float_value)
-        .def("get_bool_value", &LTMC::EntityAttribute::get_bool_value)
-        .def("get_string_value", &LTMC::EntityAttribute::get_string_value);
+  class_<Entity>("Entity", init<int, LTMC &>())
+      .def_readonly("entity_id", &Entity::entity_id)
+      .def("add_attribute", static_cast<bool (Entity::*)(const std::string &, const std::string &)>
+      (&Entity::add_attribute))
+      .def("add_attribute",
+           static_cast<bool (Entity::*)(const std::string &, int)>
+           (&Entity::add_attribute))
+      .def("add_attribute",
+           static_cast<bool (Entity::*)(const std::string &, float)>
+           (&Entity::add_attribute))
+      .def("add_attribute",
+           static_cast<bool (Entity::*)(const std::string &, bool)>
+           (&Entity::add_attribute))
+      .def("add_attribute",
+           static_cast<bool (Entity::*)(const std::string &, const Entity &)>
+           (&Entity::add_attribute))
+      .def("remove_attribute", &Entity::remove_attribute)
+      .def("get_attributes", static_cast<std::vector<EntityAttribute> (Entity::*)(const std::string &) const>
+      (&Entity::get_attributes))
+      .def("get_attributes",
+           static_cast<std::vector<EntityAttribute> (Entity::*) () const> (&Entity::get_attributes))
+      .def("delete_entity", &Entity::delete_entity)
+      .def("is_valid", &Entity::is_valid);
 
-    class_<std::vector<LTMC::EntityAttribute> >("PyAttributeList")
-        .def(vector_indexing_suite<std::vector<LTMC::EntityAttribute> >() );
+  class_<std::vector<Entity> >("PyEntityList")
+      .def(vector_indexing_suite<std::vector<Entity> >());
 
-    class_<LongTermMemoryConduit>("LongTermMemoryConduit",
-                                  init<std::string, uint, std::string, std::string, std::string>())
-            .def("add_entity", static_cast<int (LTMC::*)()>(&LTMC::add_entity))
-            .def("add_entity_attribute", static_cast<bool (LTMC::*)(int, const std::string &,
-                                                                    const std::string &)>(&LTMC::add_entity_attribute))
-            .def("remove_entity_attribute",
-                 static_cast<bool (LTMC::*)(int, const std::string &)>(&LTMC::remove_entity_attribute))
-            .def("get_entity_attributes", static_cast<std::vector<LTMC::EntityAttribute> (LTMC::*)(int,
-                                                                                                  const std::string &) const>(&LTMC::get_entity_attributes) )
-            .def("get_entity_attributes",
-                 static_cast<std::vector<LTMC::EntityAttribute> (LTMC::*)(int) const> (&LTMC::get_entity_attributes))
-            .def("get_entities_with_attribute_of_value", 
-                 static_cast<std::vector<int> (LTMC::*)(const std::string &, int) const>(&LTMC::get_entities_with_attribute_of_value))
-            .def("delete_entity", static_cast<bool (LTMC::*)(int)>(&LTMC::delete_entity))
-            .def("entity_exists", static_cast<bool (LTMC::*)(int) const>(&LTMC::entity_exists))
-            .def("delete_all_entities", static_cast<void (LTMC::*)()>(&LTMC::delete_all_entities))
-                    //.def("add_entity_attribute",
-                    //     static_cast<bool (LTMC::*)(int, const std::string &, const char[])>(&LTMC::add_entity_attribute))
-            .def("add_entity_attribute",
-                 static_cast<bool (LTMC::*)(int, const std::string &, int)>(&LTMC::add_entity_attribute))
-                    //.def("add_entity_attribute",
-                    //     static_cast<bool (LTMC::*)(int, const std::string &, bool)>(&LTMC::add_entity_attribute))
-                    // FIXME: If we make this available to python, we can't use the int one, which is the more common
-                    // anyways...
-//.def("add_entity_attribute",
-//                 static_cast<bool (LTMC::*)(int, const std::string &, float)>(&LTMC::add_entity_attribute))
-            .def("select_query", static_cast<bool (LTMC::*)(const std::string &, std::vector<LTMC::EntityAttribute> &) const>(&LTMC::select_query))
-            .def("get_all_entities", static_cast<std::vector<int> (LTMC::*)() const>(&LTMC::get_all_entities))
-            .def("get_concept", static_cast<int (LTMC::*)(const std::string &)>(&LTMC::get_concept))
-            .def("remove_concept_references", static_cast<bool (LTMC::*)(const std::string &)>(&LTMC::remove_concept_references))
-            .def("remove_entities_of_concept", static_cast<bool (LTMC::*)(const std::string &)>(&LTMC::remove_entities_of_concept))
-            .def("remove_children_of_entity", static_cast<bool (LTMC::*)(int)>(&LTMC::remove_children_of_entity));
+  class_<Concept, bases<Entity> >("Concept", init<int, LTMC &>())
+      .def("remove_instances", &Concept::remove_instances)
+      .def("get_instances", &Concept::get_instances)
+      .def("create_instance", static_cast<Entity (Concept::*) ()> (&Concept::create_instance));
+
+
+  class_<EntityAttribute>("EntityAttribute", init<int, std::string, AttributeValue>())
+      .def_readonly("entity_id", &EntityAttribute::entity_id)
+      .def_readonly("attribute_name", &EntityAttribute::attribute_name)
+      .def("get_int_value", &EntityAttribute::get_int_value)
+      .def("get_float_value", &EntityAttribute::get_float_value)
+      .def("get_bool_value", &EntityAttribute::get_bool_value)
+      .def("get_string_value", &EntityAttribute::get_string_value);
+
+  class_<std::vector<EntityAttribute> >("PyAttributeList")
+      .def(vector_indexing_suite<std::vector<EntityAttribute> >());
+
+  class_<LongTermMemoryConduit, boost::noncopyable>("LongTermMemoryConduit",
+                                init<const std::string &, uint, const std::string &, const std::string &, const std::string &>())
+      .def("add_entity", static_cast<Entity (LTMC::*)()>(&LTMC::add_entity))
+
+      .def("entity_exists", static_cast<bool (LTMC::*)(int) const>(&LTMC::entity_exists))
+      .def("entity_exists", static_cast<bool (LTMC::*)(const Entity&) const>(&LTMC::entity_exists))
+      .def("delete_all_entities", &LTMC::delete_all_entities)
+          //.def("add_entity_attribute",
+          //     static_cast<bool (LTMC::*)(int, const std::string &, const char[])>(&LTMC::add_entity_attribute))
+      .def("get_entities_with_attribute_of_value",
+           static_cast<std::vector<Entity> (LTMC::*)(const std::string &, const int)>
+           (&LTMC::get_entities_with_attribute_of_value))
+      .def("select_query_int", static_cast<bool (LTMC::*) (const std::string &, std::vector<EntityAttribute> &) const>(&LTMC::select_query_int))
+      .def("select_query_bool", static_cast<bool (LTMC::*) (const std::string &, std::vector<EntityAttribute> &) const>(&LTMC::select_query_bool))
+      .def("select_query_float", static_cast<bool (LTMC::*) (const std::string &, std::vector<EntityAttribute> &) const>(&LTMC::select_query_float))
+      .def("select_query_string", static_cast<bool (LTMC::*) (const std::string &, std::vector<EntityAttribute> &) const>(&LTMC::select_query_string))
+      .def("get_all_entities", &LTMC::get_all_entities)
+      .def("get_concept", &LTMC::get_concept)
+      .def("get_object_named", &LTMC::get_object_named)
+      .def("remove_concept_references", &LTMC::remove_concept_references);
 
 }

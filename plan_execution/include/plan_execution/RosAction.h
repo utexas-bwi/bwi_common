@@ -5,7 +5,6 @@
 
 #include <actionlib/client/simple_action_client.h>
 
-#include <knowledge_representation/MemoryConduit.h>
 namespace plan_exec {
 
 	template <typename ROSAction, typename Goal, typename Result>

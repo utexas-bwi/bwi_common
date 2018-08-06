@@ -15,6 +15,7 @@ namespace bwi_krexec {
         Action *cloneAndInit(const actasp::AspFluent & fluent) const override {
             auto action = new NavigateTo();
             action->location_id = std::atoi(fluent.getParameters().at(0).c_str());
+            action->ltmc = this->ltmc;
             return action;
         }
 

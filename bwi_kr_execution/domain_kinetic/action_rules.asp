@@ -9,7 +9,7 @@ is_facing(self, T, n) :- navigate_to(T, n).
 %for now assume everything is connected
 
 % action find_person
-is_located(P, L, n) :- find_person(P, n), is_located(self, L, n - 1).
+is_located(P, L, n) :- find_person(P, n), is_near(self, L, n - 1).
 is_facing(self, P, n) :- find_person(P, n).
 :- find_person(P, n), 0{is_near(self, L, n - 1) : can_be_located(P, L); is_near(self, L, n - 1) : is_located(P, L)}0.
 
@@ -60,8 +60,9 @@ is_holding_concept(self, O_concept, n) :- is_holding(self, O_id, n), has_concept
 
 #program base.
 
-has_concept(O_id, C) :- is_a(O_id, C_id), concept(C_id, C).
-has_concept(O1_id, C) :- is_a(O1_id, O2_id), has_concept(O2_id, C).
+is_a(C1, C3) :- is_a(C1, C2), is_a(C2, C3).
+instance_of(O, C1) :- instance_of(O, C2), is_a(C2, C1). 
+has_concept(O, C) :- instance_of(O, C_id), name(C_id, C).
 
 %% Support non-fluent to fluent promotion for basic attributes
 
@@ -82,12 +83,15 @@ scanned(S, 0) :- has_concept(S, "scanned").
 hand_empty(0) :- has_concept(self, "empty_handed").
 
 % Silence warnings
+default_location(O, L) :- default_location(O, L).
 is_facing(self, P) :- is_facing(self, P).
 is_near(self, L) :- is_near(self, L).
 is_holding(self, O) :- is_holding(self, O).
+is_in(L, R) :- is_in(L, R).
 is_placed(O, L) :- is_placed(O, L).
 is_located(P, L) :- is_located(P, L).
 is_delivered(O, P) :- is_delivered(O, P).
+-is_located(P, L, n) :- -is_located(P, L, n).
 can_be_located_concept(O, L, 0) :- can_be_located_concept(O, L, 0).
 can_be_placed_concept(O, L, 0) :- can_be_placed_concept(O, L, 0).
 

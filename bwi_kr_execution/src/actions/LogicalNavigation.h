@@ -3,6 +3,7 @@
 
 #include "actasp/Action.h"
 #include <plan_execution/RosAction.h>
+#include <knowledge_representation/LongTermMemoryConduit.h>
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalNavAction.h>
@@ -18,15 +19,18 @@ public:
 
 	virtual std::vector<std::string> prepareGoalParameters() const = 0;
 
+  void configureWithResources(actasp::ResourceManager *resource_manager);
+
 	
 protected:
 
     std::string name;
-    knowledge_rep::LongTermMemoryConduit ltmc;
+    std::reference_wrapper<knowledge_rep::LongTermMemoryConduit> ltmc;
 
 	boost::optional<bwi_msgs::LogicalNavGoal> prepareGoal() final;
 
 	void onFinished(bool succeeded, ResultConstPtr result) override;
+
 };
 }
 

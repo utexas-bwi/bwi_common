@@ -7,6 +7,7 @@ import os
 import yaml
 
 def populate(ltmc, files_path):
+    map_name = os.path.basename(files_path)
     connectivity_file_path = os.path.join(files_path, "connectivity.yaml")
     if not os.path.isfile(connectivity_file_path):
         print(
@@ -17,18 +18,31 @@ def populate(ltmc, files_path):
         print(
                 "Doors file not found at " + doors_file_path + ".")
         exit(1)
+    # FIXME: This file's name is outdated. It should eventually be changed to locations.yaml when the 
+    # annotation tool is updated
+    locations_file_path = os.path.join(files_path, "objects.yaml")
+    if not os.path.isfile(locations_file_path):
+        print(
+                "Locations file not found at " + locations_file_path + ".")
+        exit(1)
     connectivity_data = read_yaml_from_file(connectivity_file_path)
     doors_data = read_yaml_from_file(doors_file_path)
+    locations_data = read_yaml_from_file(locations_file_path)
     door_con = ltmc.get_concept("door")
-    ltmc.add_entity_attribute(door_con, "is_a", ltmc.get_concept("location"))
+    location_con = ltmc.get_concept("location")
+    door_con.add_attribute("is_a", location_con)
     room_con = ltmc.get_concept("room")
 
-    room_name_to_id = {}
+    for location in locations_data:
+        location_entity = location_con.create_instance()
+        location_entity.add_attribute("name", location["name"])
+
+    room_name_to_entity = {}
     for room, _ in connectivity_data.items():
-        room_id = ltmc.add_entity()
-        ltmc.add_entity_attribute(room_id, "is_a", room_con)
-        ltmc.add_entity_attribute(room_id, "name", room)
-        room_name_to_id[room] = room_id
+        room_entity = room_con.create_instance()
+
+        room_entity.add_attribute("name", room)
+        room_name_to_entity[room] = room_entity
 
     # Rooms connected by doors are not directly connected. Remove
     # them from the connectivity map
@@ -44,18 +58,17 @@ def populate(ltmc, files_path):
             print(
                 "WARNING: {} is not connected to {}, even though there is a door between them. This is an error in region annotation".format(
                     room_two, room_one))
-        door_id = ltmc.add_entity()
-        ltmc.add_entity_attribute(door_id, "is_a", door_con)
-        ltmc.add_entity_attribute(door_id, "name", door["name"])
+        door_entity = door_con.create_instance()
+        door_entity.add_attribute("name", door["name"])
 
-        ltmc.add_entity_attribute(room_name_to_id[room_one], "has", door_id)
-        ltmc.add_entity_attribute(room_name_to_id[room_two], "has", door_id)
+        room_name_to_entity[room_one].add_attribute("has", door_entity)
+        room_name_to_entity[room_two].add_attribute("has", door_entity)
 
     for room, neighbors in connectivity_data.items():
-        room_id = room_name_to_id[room]
+        room_entity = room_name_to_entity[room]
         for neighbor in neighbors:
-            neighbor_id = room_name_to_id[neighbor]
-            ltmc.add_entity_attribute(room_id, "is_connected", neighbor_id)
+            neighbor_entity = room_name_to_entity[neighbor]
+            room_entity.add_attribute("is_connected", neighbor_entity)
 
 
 
@@ -74,6 +87,7 @@ def main():
     parser.add_argument("files_path", type=str)
     args = parser.parse_args()
     ltmc = knowledge_representation.get_default_ltmc()
+    dir(args)
     populate(ltmc, args.files_path)
 
 

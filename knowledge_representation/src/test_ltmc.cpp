@@ -3,9 +3,15 @@
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
+#include <knowledge_representation/Concept.h>
 
 
-using namespace std;
+using std::vector;
+using std::string;
+using std::cout;
+using std::endl;
+using knowledge_rep::EntityAttribute;
+using knowledge_rep::Concept;
 
 
 int main(int argc, const char *argv[]) {
@@ -15,40 +21,48 @@ int main(int argc, const char *argv[]) {
     // Robot should exist
     assert(ltmc.entity_exists(1));
 
-    int coke = ltmc.add_entity();
-    assert(ltmc.entity_exists(coke));
+    knowledge_rep::Entity coke = ltmc.add_object();
+    assert(ltmc.entity_exists(coke.entity_id));
 
     // Get concept returns the one true concept id
-    int soda = ltmc.get_concept("soda");
-    assert(soda == ltmc.get_concept("soda"));
+    Concept soda = ltmc.get_concept("soda");
+    assert(soda.entity_id == ltmc.get_concept("soda").entity_id);
+
+    Concept pitcher_con = ltmc.get_concept("soylent pitcher");
+    knowledge_rep::Entity pitcher = ltmc.get_object_named("soylent pitcher");
+    assert(ltmc.get_object_named("soylent pitcher").entity_id != pitcher_con.entity_id);
+    assert(ltmc.entity_exists(pitcher.entity_id));
+
+    // Named entity returns the only entity by that name
+    assert(ltmc.get_object_named("soylent pitcher") == pitcher);
 
     // Get concept should return high number ids because it creates new entities and auto increments the key
-    assert(coke < ltmc.get_concept("never seen before"));
+    assert(coke.entity_id < ltmc.get_concept("never seen before").entity_id);
 
-    int drinkable = ltmc.get_concept("drinkable");
-    int can = ltmc.add_entity();
+    knowledge_rep::Entity drinkable = ltmc.get_concept("drinkable");
+    knowledge_rep::Entity can = ltmc.add_entity();
 
-
-    ltmc.add_entity_attribute(soda, "is_a", drinkable);
+    soda.add_attribute("is_a", drinkable);
     // Adding a second time should fail
     //assert(ltmc.add_entity_attribute(soda, "is_a", drinkable) == false);
-    ltmc.add_entity_attribute(can, "is_a", "navigable");
-    ltmc.add_entity_attribute(can, "is_a", soda);
+    can.add_attribute("is_a", soda);
     //assert(ltmc.add_entity_attribute(can, "not a real attribute", coke) == false);
 
     // Concept is an attribute, so we should be able to poke at it through here
-    auto attributes = ltmc.get_entity_attributes(soda, "concept");
-    auto at = attributes[0];
-    assert(boost::get<std::string>(at.value) == string("soda"));
-    auto attrs = ltmc.get_entity_attributes(can, "is_a");
-    assert(attrs.size() == 2);
+    auto attrs = soda.get_attributes("is_concept");
+
+    auto at = attrs[0];
+    assert(boost::get<bool>(at.value) == true);
+
+    attrs = can.get_attributes("is_a");
+    assert(attrs.size() == 1);
 
     // The concrete object should vanish...
-    ltmc.delete_entity(can);
-    assert(!ltmc.entity_exists(can));
+    can.delete_entity();
+    assert(!ltmc.entity_exists(can.entity_id));
 
     // Along with its attributes
-    attrs = ltmc.get_entity_attributes(can);
+    attrs = can.get_attributes();
     assert(attrs.empty());
 
     auto all_objs = ltmc.get_all_entities();
@@ -57,49 +71,56 @@ int main(int argc, const char *argv[]) {
     all_objs = ltmc.get_all_entities();
     // The robot itself is always in the knowledge base
     assert(all_objs.size() == 2);
-    assert(all_objs.at(0) == 1);
+    assert(all_objs.at(0).entity_id == 1);
 
     
     //test recursive remove
-    int sensed_con = ltmc.get_concept("sensed");
-    int parent = ltmc.add_entity();
-    ltmc.add_entity_attribute(parent, "is_a", sensed_con);
-    int child = ltmc.add_entity();
-    ltmc.add_entity_attribute(child, "is_a", parent);
-    ltmc.remove_entities_of_concept("sensed");
-    all_objs = ltmc.get_all_entities();
-    assert(all_objs.size() == 3);
+    Concept parent = ltmc.get_concept("parent concept");
+    Concept child = ltmc.get_concept("child concept");
+    child.add_attribute("is_a", parent);
+    knowledge_rep::Entity object = ltmc.add_entity();
+    object.add_attribute("instance_of", child);
+    parent.remove_instances();
+    assert(!object.is_valid());
+
+    {
+        auto some_object = ltmc.get_object_named("test object");
+        some_object.add_attribute("sensed", 1);
+        attrs = some_object.get_attributes("sensed");
+        assert(attrs.at(0).value.type() == typeid(int));
+        assert(boost::get<int>(attrs.at(0).value) == 1);
+        some_object.remove_attribute("sensed");
+
+        some_object.add_attribute("sensed", 1.0f);
+        attrs = some_object.get_attributes("sensed");
+        assert(attrs.at(0).value.type() == typeid(float));
+        assert(boost::get<float>(attrs.at(0).value) == 1.0f);
+        some_object.remove_attribute("sensed");
+
+        some_object.add_attribute("sensed", "test");
+        attrs = some_object.get_attributes("sensed");
+        assert(attrs.at(0).value.type() == typeid(string));
+        assert(boost::get<string>(attrs.at(0).value) == "test");
+        some_object.remove_attribute("sensed");
+
+        some_object.add_attribute("sensed", true);
+        attrs = some_object.get_attributes("sensed");
+        assert(attrs.at(0).value.type() == typeid(bool));
+        assert(boost::get<bool>(attrs.at(0).value) == true);
+        some_object.remove_attribute("sensed");
+
+        some_object.add_attribute("sensed", false);
+        attrs = some_object.get_attributes("sensed");
+        assert(attrs.at(0).value.type() == typeid(bool));
+        assert(boost::get<bool>(attrs.at(0).value) == false);
+        some_object.remove_attribute("sensed");
+    }
 
 
-    /*
-    ltmc.add_entity_attribute(1, "sensed", 1);
-    attrs = ltmc.get_entity_attributes(1, "sensed");
-    assert(attrs.at(0).value.type() == typeid(int));
-    assert(boost::get<int>(attrs.at(0).value) == 1);
-    ltmc.remove_entity_attribute(1, "sensed");
 
-    ltmc.add_entity_attribute(1, "sensed", 1.0f);
-    attrs = ltmc.get_entity_attributes(1, "sensed");
-    assert(attrs.at(0).value.type() == typeid(float));
-    assert(boost::get<float>(attrs.at(0).value) == 1.0f);
-    ltmc.remove_entity_attribute(1, "sensed");
 
-    ltmc.add_entity_attribute(1, "sensed", "test");
-    attrs = ltmc.get_entity_attributes(1, "sensed");
-    assert(attrs.at(0).value.type() == typeid(string));
-    assert(boost::get<string>(attrs.at(0).value) == "test");
-    ltmc.remove_entity_attribute(1, "sensed");
-    */
-
-    // TODO: This is bugged. Bool attributes are not stored correctly. They'll come out as ints.
-    /*ltmc.add_entity_attribute(1, "sensed", true);
-    attrs = ltmc.get_entity_attribute(1, "sensed");
-    assert(attrs.at(0).value.type() == typeid(bool));
-    assert(boost::get<bool>(attrs.at(0).value) == true);
-    ltmc.remove_entity_attribute(1, "sensed");*/
-
-    std::vector<knowledge_rep::LongTermMemoryConduit::EntityAttribute> query_result;
-    ltmc.select_query("SELECT * FROM entity_attributes_str", query_result);
+    vector<EntityAttribute> query_result;
+    ltmc.select_query<string>("SELECT * FROM entity_attributes_str", query_result);
 
     cout << "Done!" << endl;
 } 

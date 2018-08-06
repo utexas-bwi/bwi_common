@@ -49,7 +49,6 @@ CREATE TABLE entity_attributes_str (
     CONSTRAINT CHK_name_unique CHECK (NumSameNames() = 0)
 );
 
-
 /******************* FUNCTIONS */
 DELIMITER //
 /* Counts the number of entities that have the same name */
@@ -100,10 +99,11 @@ CREATE TABLE entity_attributes_bool (
 );
 
 insert into attributes(attribute_name) values('answer_to');
-insert into attributes(attribute_name) values('concept');
 insert into attributes(attribute_name) values('default_location');
 insert into attributes(attribute_name) values('has');
+insert into attributes(attribute_name) values('instance_of');
 insert into attributes(attribute_name) values('is_a');
+insert into attributes(attribute_name) values('is_concept');
 insert into attributes(attribute_name) values('is_connected');
 insert into attributes(attribute_name) values('is_delivered');
 insert into attributes(attribute_name) values('is_facing');
@@ -120,5 +120,6 @@ insert into attributes(attribute_name) values('sensed');
 
 insert into entities(entity_id) values(1);
 insert into entities(entity_id) values(2);
-insert into entity_attributes_str(entity_id, attribute_name, attribute_value) values(2, 'concept', 'robot');
-insert into entity_attributes_id(entity_id, attribute_name, attribute_value) values(1, 'is_a', 2);
+insert into entity_attributes_str(entity_id, attribute_name, attribute_value) values(2, 'name', 'robot');
+insert into entity_attributes_bool(entity_id, attribute_name, attribute_value) values(2, 'is_concept', TRUE);
+insert into entity_attributes_id(entity_id, attribute_name, attribute_value) values(1, 'instance_of', 2);

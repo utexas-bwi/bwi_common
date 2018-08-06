@@ -1,15 +1,27 @@
 #!/usr/bin/env python
 from knowledge_representation import LongTermMemoryConduit, PyAttributeList
+import knowledge_representation
 
-ltmc = LongTermMemoryConduit("127.0.0.1", 33060, "root", "", "villa_krr")
+ltmc = knowledge_representation.get_default_ltmc()
+
 coke = ltmc.add_entity()
+assert coke.is_valid()
 assert ltmc.entity_exists(coke)
 
-nsb_concept = ltmc.get_concept("never seen before")
 
-ltmc.get_entities_with_attribute_of_value("is_a", nsb_concept)
+nsb_concept = ltmc.get_concept("never seen before")
+nsb_concept.remove_instances()
+
+assert len(nsb_concept.get_instances()) == 0
+instance = nsb_concept.create_instance()
+
+instance_list = ltmc.get_entities_with_attribute_of_value("instance_of", nsb_concept.entity_id)
+assert len(instance_list) == 1
+
+nsb_concept.remove_instances()
+assert len(nsb_concept.get_instances()) == 0
 
 result_list = PyAttributeList()
-ltmc.select_query("SELECT * FROM entity_attributes_str", result_list)
-print result_list
+ltmc.select_query_string("SELECT * FROM entity_attributes_str", result_list)
+
 print("Done!")

@@ -2,6 +2,7 @@
 #define actasp_Action_h__guard
 
 #include <actasp/AspFluent.h>
+#include <actasp/ResourceManager.h>
 
 #include <string>
 #include <vector>
@@ -21,9 +22,11 @@ struct Action {
 	virtual bool hasFinished() const = 0;
   
     virtual bool hasFailed() const {return false;}
-	
-	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const =0;
-	
+
+	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const = 0;
+
+	virtual void configureWithResources(ResourceManager *resourceManager) {}
+
 	virtual Action *clone() const =0;
 	
 	std::string toASP(unsigned int timeStep) const;
