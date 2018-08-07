@@ -23,6 +23,9 @@ public:
   std::string get_name();
 
   std::vector<Entity> get_instances() const;
+
+  std::vector<Concept> get_children() const;
+
 };
 }
 

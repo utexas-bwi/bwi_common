@@ -25,7 +25,7 @@ struct Action {
 
 	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const = 0;
 
-	virtual void configureWithResources(ResourceManager *resourceManager) {}
+	virtual void configureWithResources(ResourceManager &resourceManager) {}
 
 	virtual Action *clone() const =0;
 	

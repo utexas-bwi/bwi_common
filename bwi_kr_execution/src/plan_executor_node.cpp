@@ -84,7 +84,7 @@ int main(int argc, char**argv) {
   vector<actasp::PlanningObserver *> planning_observers;
   ConsoleObserver observer;
   std::function<void()> function = std::function<void()>(updateFacts);
-  KnowledgeUpdater updating_observer(function, *resourceManager.get());
+  KnowledgeUpdater updating_observer(function, *resourceManager);
   execution_observers.push_back(&observer);
   planning_observers.push_back(&observer);
 
@@ -94,7 +94,7 @@ int main(int argc, char**argv) {
   std::map<std::string, actasp::Action*> actions = ActionFactory::actions();
 
   for (auto& action : actions) {
-    action.second->configureWithResources(resourceManager.get());
+    action.second->configureWithResources(*resourceManager);
   }
 
   PlanExecutorNode node(domainDirectory, actions, execution_observers, planning_observers);

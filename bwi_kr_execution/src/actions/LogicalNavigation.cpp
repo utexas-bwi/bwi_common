@@ -63,9 +63,9 @@ void LogicalNavigation::onFinished(bool succeeded, ResultConstPtr result) {
     }
 }
 
-void LogicalNavigation::configureWithResources(ResourceManager *resource_manager) {
-  auto cast = dynamic_cast<BwiResourceManager*>(resource_manager);
-  this->ltmc = cast->ltmc;
+void LogicalNavigation::configureWithResources(ResourceManager &resource_manager) {
+  auto& cast = dynamic_cast<BwiResourceManager&>(resource_manager);
+  this->ltmc = cast.ltmc;
 }
 
 

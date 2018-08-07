@@ -38,6 +38,8 @@ public:
   std::vector<EntityAttribute> get_attributes(const std::string &attribute_name) const;
 
   bool add_attribute(const std::string &attribute_name, const char string_val[]);
+  
+  bool make_instance_of(const Concept &concept);
 
   bool delete_entity();
 

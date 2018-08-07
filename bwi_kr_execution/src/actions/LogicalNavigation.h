@@ -19,7 +19,7 @@ public:
 
 	virtual std::vector<std::string> prepareGoalParameters() const = 0;
 
-  void configureWithResources(actasp::ResourceManager *resource_manager);
+  void configureWithResources(actasp::ResourceManager &resource_manager);
 
 	
 protected:
