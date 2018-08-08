@@ -33,13 +33,16 @@ public:
 	
 	bool contains(const actasp::AspFluent& fluent) const noexcept;
 	
-	std::list<Action::Ptr> instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const throw(std::logic_error);
+	std::list<Action::Ptr> instantiateActions(const std::map<std::string, actasp::ActionFactory> &actionMap, actasp::ResourceManager &resourceManager) const noexcept(false);
+
+    // DEPRECATED
+	std::list<Action::Ptr> instantiateActions(const std::map<std::string, actasp::Action *> &actionMap) const noexcept(false);
 	
 	const FluentSet& getFluents() const noexcept { return fluents;}
 	
 	std::set<actasp::AspFluent> getFluentsAtTime(unsigned int timeStep) const noexcept;
   
-  unsigned int maxTimeStep() const throw(std::logic_error);
+  unsigned int maxTimeStep() const noexcept(false);
 
 private:
   

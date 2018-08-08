@@ -33,8 +33,39 @@ static void clearPlan(std::list<actasp::Action::Ptr>& plan) {
 	plan.clear();
 }
 
-std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::Action*> &actionMap) const
-									throw (std::logic_error) {
+std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::ActionFactory> &actionMap, ResourceManager &resourceManager) const
+noexcept(false) {
+
+  list<Action::Ptr> plan;
+  unsigned int maxTimeStep = 0;
+
+
+  for (const auto &fluent: fluents) {
+
+    auto actIt = actionMap.find(fluent.getName());
+
+    if (actIt != actionMap.end()) {
+      plan.emplace_back(actIt->second(fluent, resourceManager));
+      maxTimeStep = std::max(maxTimeStep,fluent.getTimeStep());
+    }
+    //if a fluent is not a known action, just ignore it.
+  }
+
+  if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
+    AnswerSet as = planToAnswerSet(plan);
+    stringstream planStream;
+    copy(as.getFluents().begin(), as.getFluents().end(), ostream_iterator<string>(planStream, " "));
+    std::cout << planStream.str() << std::endl;
+    clearPlan(plan);
+    throw logic_error(
+        "AnswerSet: the plan is missing an action for some time step. Check the list of actions shown in the plan query.");
+  }
+
+  return plan;
+}
+
+std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::Action *> &actionMap) const
+									noexcept(false) {
 
 	list<Action::Ptr> plan;
 	unsigned int maxTimeStep = 0;
@@ -75,7 +106,7 @@ std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) c
     return set<AspFluent>(bounds.first,bounds.second);
 }
 
-unsigned int AnswerSet::maxTimeStep() const throw(std::logic_error) {
+unsigned int AnswerSet::maxTimeStep() const noexcept(false) {
   if(fluents.empty())
     throw logic_error("maxTimeStep() invoked on an  empty answer set, which therefore has not time step at all");
 

@@ -23,18 +23,20 @@ namespace actasp {
 
     ReplanningPlanExecutor::ReplanningPlanExecutor(actasp::AspKR *reasoner,
                                                    actasp::Planner *planner,
-                                                   const std::map<std::string, Action *> &actionMap
+                                                   const std::map<std::string, ActionFactory> &actionMap,
+                                                   ResourceManager &resourceManager
     ) noexcept(false) :
             goalRules(),
             isGoalReached(true),
             hasFailed(false),
-            actionMap(),
+            actionMap(actionMap),
             plan(),
             actionCounter(0),
             newAction(true),
             failureCount(0),
             kr(reasoner),
             planner(planner),
+            resourceManager(resourceManager),
             executionObservers() {
         if (reasoner == nullptr)
             throw invalid_argument("ReplanningPlanExecutor: reasoner is NULL");
@@ -42,13 +44,10 @@ namespace actasp {
         if (planner == nullptr)
             throw invalid_argument("ReplanningPlanExecutor: planner is NULL");
 
-        transform(actionMap.begin(), actionMap.end(), inserter(this->actionMap, this->actionMap.begin()),
-                  ActionMapDeepCopy());
+
     }
 
-    ReplanningPlanExecutor::~ReplanningPlanExecutor() {
-        for_each(actionMap.begin(), actionMap.end(), ActionMapDelete());
-    }
+    ReplanningPlanExecutor::~ReplanningPlanExecutor() = default;
 
     struct NotifyNewPlan {
 
@@ -66,7 +65,7 @@ namespace actasp {
         isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
 
         if (!isGoalReached) {
-            plan = planner->computePlan(goalRules).instantiateActions(actionMap);
+            plan = planner->computePlan(goalRules).instantiateActions(actionMap, resourceManager);
             actionCounter = 0;
         } else {
             return;

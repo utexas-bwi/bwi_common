@@ -23,10 +23,10 @@ struct Action {
   
     virtual bool hasFailed() const {return false;}
 
+    // DEPRECATED
 	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const = 0;
 
-	virtual void configureWithResources(ResourceManager &resourceManager) {}
-
+    // DEPRECATED
 	virtual Action *clone() const =0;
 	
 	std::string toASP(unsigned int timeStep) const;
@@ -47,6 +47,9 @@ private:
 	
  virtual std::vector<std::string> getParameters() const = 0;
 };
+
+typedef std::function<std::unique_ptr<actasp::Action>(const actasp::AspFluent &, actasp::ResourceManager &)> ActionFactory;
+
 
 }
 

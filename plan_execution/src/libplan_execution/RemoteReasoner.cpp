@@ -24,19 +24,19 @@ namespace plan_exec {
 RemoteReasoner::RemoteReasoner(actasp::FilteringQueryGenerator *actualReasoner,unsigned int max_n,const actasp::ActionSet& allActions) :
   local(actualReasoner,max_n,allActions) {}
 
-actasp::AnswerSet RemoteReasoner::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+actasp::AnswerSet RemoteReasoner::currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
   return local.currentStateQuery(query);
 }
 
-actasp::ActionSet RemoteReasoner::availableActions() const throw() {
+actasp::ActionSet RemoteReasoner::availableActions() const noexcept {
   return local.availableActions();
 }
 
-std::list< std::list<actasp::AspAtom> > RemoteReasoner::query(const std::string &queryString, unsigned int timeStep) const throw() {
+std::list< std::list<actasp::AspAtom> > RemoteReasoner::query(const std::string &queryString, unsigned int timeStep) const noexcept {
   return local.query(queryString,timeStep);
 }
 
-bool RemoteReasoner::updateFluents(const std::vector<actasp::AspFluent> &observations) throw() {
+bool RemoteReasoner::updateFluents(const std::vector<actasp::AspFluent> &observations) noexcept {
   NodeHandle n;
   ros::ServiceClient updateClient = n.serviceClient<plan_execution::UpdateFluents> ("update_fluents");
   updateClient.waitForExistence();
@@ -57,7 +57,7 @@ actasp::AnswerSet RemoteReasoner::computePlan(const std::vector<actasp::AspRule>
 }
 
 
-bool RemoteReasoner::isPlanValid(const actasp::AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw() {
+bool RemoteReasoner::isPlanValid(const actasp::AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept {
   return local.isPlanValid(plan,goal);
 
 }
@@ -82,7 +82,7 @@ actasp::AnswerSet RemoteReasoner::filterState(const std::vector<actasp::AnswerSe
 
 
 
-void RemoteReasoner::resetCurrentState() throw() {
+void RemoteReasoner::resetCurrentState() noexcept {
   NodeHandle n;
   ros::ServiceClient resetClient = n.serviceClient<std_srvs::Empty> ("reset_state");
   resetClient.waitForExistence();

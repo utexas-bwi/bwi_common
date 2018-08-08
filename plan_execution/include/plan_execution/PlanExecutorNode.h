@@ -5,8 +5,13 @@ namespace plan_exec {
 class PlanExecutorNode {
 
   typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
+
 public:
-  PlanExecutorNode(const std::string &domain_directory, std::map<std::string, actasp::Action *> action_map, std::vector<actasp::ExecutionObserver*> execution_observers, std::vector<actasp::PlanningObserver *> planning_observers);
+  PlanExecutorNode(const std::string &domain_directory,
+                     std::map<std::string, actasp::ActionFactory> action_map,
+                     actasp::ResourceManager &resourceManager,
+                     std::vector<actasp::ExecutionObserver *> execution_observers,
+                     std::vector<actasp::PlanningObserver *> planning_observers);
   ~PlanExecutorNode();
   
   std::string working_memory_path;

@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-prepare_knowledge() {
+prepare_knowledge_bwi() {
     knowledge_rep_path=$(rospack find knowledge_representation) &&
     # Drop tables and establish schema
     mysql -u root -p -e "source $knowledge_rep_path/sql/create_database.sql" &&

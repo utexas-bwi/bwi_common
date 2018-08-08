@@ -91,13 +91,9 @@ int main(int argc, char**argv) {
   execution_observers.push_back(&updating_observer);
   planning_observers.push_back(&updating_observer);
 
-  std::map<std::string, actasp::Action*> actions = ActionFactory::actions();
+  std::map<std::string, actasp::ActionFactory> actions = {};
 
-  for (auto& action : actions) {
-    action.second->configureWithResources(*resourceManager);
-  }
-
-  PlanExecutorNode node(domainDirectory, actions, execution_observers, planning_observers);
+  PlanExecutorNode node(domainDirectory, actions, *resourceManager, execution_observers, planning_observers);
   working_memory_path = node.working_memory_path;
   ros::spin();
 

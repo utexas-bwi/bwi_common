@@ -39,7 +39,9 @@ struct IsAnAction : public std::unary_function<const AspFluent&,bool>{
 
 AnswerSet planToAnswerSet(const std::list<Action::Ptr>& plan);
 
+// DEPRECATED
 ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap);
+ActionSet actionMapToSet(const std::map<std::string, ActionFactory>& actionMap);
 
 }
 

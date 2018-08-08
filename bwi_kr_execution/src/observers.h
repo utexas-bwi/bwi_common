@@ -11,7 +11,7 @@ struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::Plann
   std::function<void()> updater;
 
   explicit KnowledgeUpdater(std::function<void()> knowledge_update_function, actasp::ResourceManager &resourceManager):
-    updater(std::move(knowledge_update_function)), 
+    updater(std::move(knowledge_update_function)),
     resourceManager(resourceManager) {}
 
   void actionTerminated(const actasp::AspFluent &action, bool succeeded) noexcept override {

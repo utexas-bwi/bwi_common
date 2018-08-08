@@ -36,6 +36,17 @@ AnswerSet planToAnswerSet(const std::list<Action::Ptr>& plan) {
   return AnswerSet(fluents.begin(), fluents.end());
 }
 
+ActionSet actionMapToSet(const std::map<std::string, ActionFactory>& actionMap) {
+
+  ActionSet fluents;
+
+  for (const auto &pair: actionMap) {
+    // Put the real name in and a fake number of parameters
+    fluents.insert(AspFluent(pair.first, {2,""}));
+  }
+  return fluents;
+}
+
 ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap) {
 
   ActionSet fluents;
