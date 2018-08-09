@@ -1,3 +1,4 @@
+#include <utility>
 
 #ifndef actasp_execution_observer_utiles_h__guard
 #define actasp_execution_observer_utiles_h__guard
@@ -8,26 +9,26 @@
 namespace actasp {
 
 
-    struct NotifyActionStart {
-  
-  NotifyActionStart(const AspFluent& action) : action(action) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->actionStarted(action);
+struct NotifyActionStart {
+
+  NotifyActionStart(AspFluent action) : action(std::move(action)) {}
+
+  void operator()(ExecutionObserver &observer) {
+    observer.actionStarted(action);
   }
-  
+
   AspFluent action;
 };
 
 struct NotifyGoalChanged {
-  
-  NotifyGoalChanged(const std::vector<actasp::AspRule>& goalRules) : goalRules(goalRules) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->goalChanged(goalRules);
+
+  NotifyGoalChanged(const std::vector<actasp::AspRule> &goalRules) : goalRules(goalRules) {}
+
+  void operator()(ExecutionObserver &observer) {
+    observer.goalChanged(goalRules);
   }
-  
-  const std::vector<actasp::AspRule>& goalRules;
+
+  const std::vector<actasp::AspRule> &goalRules;
 };
 
 

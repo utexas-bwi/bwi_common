@@ -17,62 +17,62 @@ using namespace actasp;
 class SimpleAction : public actasp::Action {
 public:
 
-	SimpleAction() : done(false) {}
+    SimpleAction() : done(false) {}
 
-	int paramNumber() const {
-		return 0;
-	}
+    int paramNumber() const {
+      return 0;
+    }
 
-	std::string getName() const {
-		return name;
-	}
+    std::string getName() const {
+      return name;
+    }
 
-	void run() {
-		std::cout << "running " << name << std::endl;
-		done = true;
-	}
+    void run() {
+      std::cout << "running " << name << std::endl;
+      done = true;
+    }
 
-	bool hasFinished() const {
-		return done;
-	}
+    bool hasFinished() const {
+      return done;
+    }
 
-	virtual actasp::Action *cloneAndInit(const actasp::AspFluent &f) const {
-		SimpleAction *newAction = new SimpleAction(*this);
-		newAction->name = f.getName();
-		newAction->params = f.getParameters();
-		return newAction;
-	}
-	
-	virtual actasp::Action *clone() const {
-		return new SimpleAction(*this);
-	}
+    virtual actasp::Action *cloneAndInit(const actasp::AspFluent &f) const {
+      SimpleAction *newAction = new SimpleAction(*this);
+      newAction->name = f.getName();
+      newAction->params = f.getParameters();
+      return newAction;
+    }
+
+    virtual actasp::Action *clone() const {
+      return new SimpleAction(*this);
+    }
 
 private:
-	std::string name;
-	std::vector<std::string> params;
-	bool done;
+    std::string name;
+    std::vector<std::string> params;
+    bool done;
 
-	std::vector<std::string> getParameters() const {
-		return params;
-	}
+    std::vector<std::string> getParameters() const {
+      return params;
+    }
 
 };
 
 struct DeleteAction {
-	
-	void operator()(Action *act) {
-		delete act;
-	}
+
+    void operator()(Action *act) {
+      delete act;
+    }
 };
 
 struct CreateFluent {
-	AspFluent operator()(const std::string & fluentDescription) {
-		return AspFluent(fluentDescription);
-	}
+    AspFluent operator()(const std::string &fluentDescription) {
+      return AspFluent(fluentDescription);
+    }
 };
 
 
-static std::set<actasp::AspFluent> parseAnswerSet(const std::string& answerSetContent) {
+static std::set<actasp::AspFluent> parseAnswerSet(const std::string &answerSetContent) {
 
   stringstream predicateLine(answerSetContent);
 
@@ -81,7 +81,7 @@ static std::set<actasp::AspFluent> parseAnswerSet(const std::string& answerSetCo
   //split the line based on spaces
   transform(istream_iterator<string>(predicateLine),
             istream_iterator<string>(),
-            inserter(predicates,predicates.begin()),
+            inserter(predicates, predicates.begin()),
             CreateFluent());
 
   return predicates;
@@ -89,101 +89,99 @@ static std::set<actasp::AspFluent> parseAnswerSet(const std::string& answerSetCo
 }
 
 static std::vector<actasp::AnswerSet> readAnswerSets(istream &input) {
-	
-	string line;
-	string answerSetContent;
-	while (input) {
-		getline(input, line);
-		answerSetContent += line;
-		answerSetContent += "\n";
-	}
 
-	bool satisfiable = answerSetContent.find("UNSATISFIABLE") == string::npos;
+  string line;
+  string answerSetContent;
+  while (input) {
+    getline(input, line);
+    answerSetContent += line;
+    answerSetContent += "\n";
+  }
 
-	vector<AnswerSet> allSets;
+  bool satisfiable = answerSetContent.find("UNSATISFIABLE") == string::npos;
 
-	if (satisfiable) {
+  vector<AnswerSet> allSets;
 
-		stringstream content(answerSetContent);
+  if (satisfiable) {
 
-		string firstLine;
-		string eachAnswerset;
+    stringstream content(answerSetContent);
 
-		while (content) {
+    string firstLine;
+    string eachAnswerset;
 
-			getline(content,firstLine);
-			if (firstLine.find("Answer") != string::npos) {
-				getline(content,eachAnswerset);
+    while (content) {
 
-				set<AspFluent> fluents = parseAnswerSet(eachAnswerset);
+      getline(content, firstLine);
+      if (firstLine.find("Answer") != string::npos) {
+        getline(content, eachAnswerset);
 
-				allSets.push_back(AnswerSet(fluents.begin(), fluents.end()));
-			}
-		}
-	}
+        set<AspFluent> fluents = parseAnswerSet(eachAnswerset);
 
-	return allSets;
-	
+        allSets.push_back(AnswerSet(fluents.begin(), fluents.end()));
+      }
+    }
+  }
+
+  return allSets;
+
 }
 
 int main() {
-	
-	std::map<std::string, actasp::Action *> actionMap;
 
-	actionMap.insert(std::make_pair(std::string("approach"), new SimpleAction()));
-	actionMap.insert(std::make_pair(std::string("gothrough"), new SimpleAction()));
-	actionMap.insert(std::make_pair(std::string("goto"), new SimpleAction()));
-	actionMap.insert(std::make_pair(std::string("opendoor"), new SimpleAction()));
-	actionMap.insert(std::make_pair(std::string("searchroom"), new SimpleAction()));
-	actionMap.insert(std::make_pair(std::string("askperson"), new SimpleAction()));	
-	actionMap.insert(std::make_pair(std::string("changefloor"), new SimpleAction()));
-    actionMap.insert(std::make_pair(std::string("callelevator"), new SimpleAction()));
-    actionMap.insert(std::make_pair(std::string("remind"), new SimpleAction()));
-	
-	vector<AnswerSet> sets = readAnswerSets(cin);
-	
-	cout << endl << "Number of answer sets: " << sets.size() << endl;
-	
-	for(int i=0; i<sets.size(); ++i) {
-		
-		cout <<  "------------------------------" << endl;
-		
-		cout << "Plan" << endl;
-		
-		list<Action::Ptr> plan = sets[i].instantiateActions(actionMap);
-		list<Action::Ptr>::iterator pIt = plan.begin();
-		
-		for(int t=1; pIt != plan.end(); ++pIt, ++t)
-			if ((*pIt) != NULL)
-				cout << (*pIt)->toASP(t) << " ";
-		
-		plan.clear();
-		
-		cout << endl << endl << "Fluents" << endl;
-		
-		
-		//fluents in an answer set are ordered by time step.
+  std::map<std::string, actasp::Action *> actionMap;
 
-		unsigned int lastTimeStep = sets[i].maxTimeStep();
-		
-		for(int t = 0; t <= lastTimeStep; ++t) {
-			
-		set<AspFluent> fluentsAtTimeT = sets[i].getFluentsAtTime(t);
-		set<AspFluent>::const_iterator flu = fluentsAtTimeT.begin();
+  actionMap.insert(std::make_pair(std::string("approach"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("gothrough"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("goto"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("opendoor"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("searchroom"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("askperson"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("changefloor"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("callelevator"), new SimpleAction()));
+  actionMap.insert(std::make_pair(std::string("remind"), new SimpleAction()));
 
-		
-		
-		for(; flu != fluentsAtTimeT.end(); ++flu)
-			cout << flu->toString() << " ";
-		
-		cout << endl << endl;
-		}
-		
-		cout << endl;
-		
-	}
-	
-	
-	
-	return 0;
+  vector<AnswerSet> sets = readAnswerSets(cin);
+
+  cout << endl << "Number of answer sets: " << sets.size() << endl;
+
+  for (int i = 0; i < sets.size(); ++i) {
+
+    cout << "------------------------------" << endl;
+
+    cout << "Plan" << endl;
+
+    list<unique_ptr<Action>> plan = sets[i].instantiateActions(actionMap);
+    auto pIt = plan.begin();
+
+    for (int t = 1; pIt != plan.end(); ++pIt, ++t)
+      if ((*pIt) != nullptr)
+        cout << (*pIt)->toASP(t) << " ";
+
+    plan.clear();
+
+    cout << endl << endl << "Fluents" << endl;
+
+
+    //fluents in an answer set are ordered by time step.
+
+    unsigned int lastTimeStep = sets[i].maxTimeStep();
+
+    for (int t = 0; t <= lastTimeStep; ++t) {
+
+      set<AspFluent> fluentsAtTimeT = sets[i].getFluentsAtTime(t);
+      auto flu = fluentsAtTimeT.begin();
+
+
+      for (; flu != fluentsAtTimeT.end(); ++flu)
+        cout << flu->toString() << " ";
+
+      cout << endl << endl;
+    }
+
+    cout << endl;
+
+  }
+
+
+  return 0;
 }

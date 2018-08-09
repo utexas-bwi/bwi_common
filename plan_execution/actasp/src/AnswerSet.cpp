@@ -1,11 +1,8 @@
 #include <actasp/AnswerSet.h>
 
-#include <actasp/Action.h>
-
-#include <algorithm>
-#include <actasp/action_utils.h>
 #include <iterator>
 #include <sstream>
+#include <actasp/action_utils.h>
 #include <iostream>
 
 using namespace std;
@@ -29,14 +26,12 @@ bool AnswerSet::contains(const actasp::AspFluent& fluent) const noexcept {
 	return element != bounds.second;
 }
 
-static void clearPlan(std::list<actasp::Action::Ptr>& plan) {
-	plan.clear();
-}
 
-std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::ActionFactory> &actionMap, ResourceManager &resourceManager) const
+std::list<std::unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, actasp::ActionFactory> &actionMap,
+                                                                 ResourceManager &resourceManager) const
 noexcept(false) {
 
-  list<Action::Ptr> plan;
+  list<std::unique_ptr<Action>> plan;
   unsigned int maxTimeStep = 0;
 
 
@@ -56,7 +51,8 @@ noexcept(false) {
     stringstream planStream;
     copy(as.getFluents().begin(), as.getFluents().end(), ostream_iterator<string>(planStream, " "));
     std::cout << planStream.str() << std::endl;
-    clearPlan(plan);
+    // Wipe out instances
+    plan.clear();
     throw logic_error(
         "AnswerSet: the plan is missing an action for some time step. Check the list of actions shown in the plan query.");
   }
@@ -64,10 +60,10 @@ noexcept(false) {
   return plan;
 }
 
-std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string, actasp::Action *> &actionMap) const
+std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, actasp::Action *> &actionMap) const
 									noexcept(false) {
 
-	list<Action::Ptr> plan;
+  list<unique_ptr<Action>> plan;
 	unsigned int maxTimeStep = 0;
 
     auto fluentIt = fluents.begin();
@@ -88,7 +84,7 @@ std::list<Action::Ptr> AnswerSet::instantiateActions(const std::map<std::string,
         stringstream planStream;
         copy(as.getFluents().begin(), as.getFluents().end(), ostream_iterator<string>(planStream, " "));
         std::cout << planStream.str() << std::endl;
-        clearPlan(plan);
+      plan.clear();
         throw logic_error(
                 "AnswerSet: the plan is missing an action for some time step. Check the list of actions shown in the plan query.");
 	}

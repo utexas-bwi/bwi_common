@@ -1,29 +1,21 @@
 #include "plan_execution/msgs_utils.h"
 #include "plan_execution/RemoteReasoner.h"
 
-#include "actasp/action_utils.h"
 #include "actasp/executors/ReplanningPlanExecutor.h"
 #include "actasp/executors/BlindPlanExecutor.h"
 #include "actasp/ExecutionObserver.h"
 #include "actasp/PlanningObserver.h"
-#include "actasp/AnswerSet.h"
-#include <actasp/reasoners/Clingo.h>
 
 #include "plan_execution/ExecutePlanAction.h"
 
 #include <actionlib/server/simple_action_server.h>
 
-#include <ros/ros.h>
-#include <ros/package.h>
-#include <ros/console.h>
-
 #include <boost/filesystem.hpp>
 
-#include <string>
-
-#include <fstream>
 #include <plan_execution/observers.h>
 #include <plan_execution/PlanExecutorNode.h>
+#include <actasp/action_utils.h>
+#include <actasp/reasoners/Clingo.h>
 
 
 using namespace std;
@@ -37,11 +29,10 @@ const static std::string queryDirectory = string("/tmp/plan_execution/");
 const static std::string memory_log_path = string("/tmp/plan_execution_logs/");
 
 
-
-PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, actasp::ActionFactory> action_map,
+PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, ActionFactory> action_map,
                                    actasp::ResourceManager &resourceManager,
-                                   vector<actasp::ExecutionObserver *> execution_observers,
-                                   vector<actasp::PlanningObserver *> planning_observers) :
+                                   vector<reference_wrapper<ExecutionObserver>> execution_observers,
+                                   vector<reference_wrapper<PlanningObserver>> planning_observers) :
         server({"~"}, "execute_plan", boost::bind(&PlanExecutorNode::executePlan, this, _1), false),
         ros_observer(server), working_memory_path("/tmp/current.asp") {
   ros::NodeHandle n;
@@ -60,19 +51,19 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, a
   //StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
   {
     //need a pointer to the specific type for the observer
-    auto replanner = new ReplanningPlanExecutor(reasoner, reasoner, action_map, resourceManager);
+    auto replanner = new ReplanningPlanExecutor(*reasoner, *reasoner, action_map, resourceManager);
     //BlindPlanExecutor *replanner = new BlindPlanExecutor(reasoner, reasoner, ActionFactory::actions());
-    for (const auto &observer: planning_observers) {
+    for (auto &observer: planning_observers) {
       replanner->addPlanningObserver(observer);
     }
 
     executor = std::unique_ptr<actasp::PlanExecutor>(replanner);
 
-    executor->addExecutionObserver(&ros_observer);
-    replanner->addPlanningObserver(&ros_observer);
+    executor->addExecutionObserver(ros_observer);
+    replanner->addPlanningObserver(ros_observer);
   }
 
-  for (const auto &observer: execution_observers) {
+  for (auto &observer: execution_observers) {
     executor->addExecutionObserver(observer);
   }
 

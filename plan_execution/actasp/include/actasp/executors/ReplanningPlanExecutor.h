@@ -23,8 +23,8 @@ class ReplanningPlanExecutor : public PlanExecutor {
 
 public:
 
-  ReplanningPlanExecutor(actasp::AspKR *reasoner,
-                         actasp::Planner *planner,
+  ReplanningPlanExecutor(AspKR &reasoner,
+                         Planner &planner,
                          const std::map<std::string, ActionFactory> &actionMap,
                          actasp::ResourceManager &resourceManager
   ) noexcept(false);
@@ -41,15 +41,16 @@ public:
     return hasFailed;
   }
 
-  void executeActionStep();
+  void executeActionStep() override;
 
-  void addExecutionObserver(ExecutionObserver *observer) noexcept;
+  void addExecutionObserver(ExecutionObserver &observer) noexcept override;
 
-  void removeExecutionObserver(ExecutionObserver *observer) noexcept;
+  void removeExecutionObserver(ExecutionObserver &observer) noexcept override;
 
-  void addPlanningObserver(PlanningObserver *observer) noexcept;
+  void addPlanningObserver(PlanningObserver &observer) noexcept;
 
-  void removePlanningObserver(PlanningObserver *observer) noexcept;
+  void removePlanningObserver(PlanningObserver &observer) noexcept;
+
 
   ~ReplanningPlanExecutor();
 
@@ -60,17 +61,17 @@ private:
   bool hasFailed;
   std::map<std::string, ActionFactory> actionMap;
 
-  std::list<Action::Ptr> plan;
+  std::list<std::unique_ptr<Action>> plan;
   unsigned int actionCounter;
   bool newAction;
   unsigned int failureCount;
 
-  AspKR *kr;
-  Planner *planner;
+  AspKR &kr;
+  Planner &planner;
   ResourceManager &resourceManager;
 
-  std::list<ExecutionObserver *> executionObservers;
-  std::list<PlanningObserver *> planningObservers;
+  std::list<std::reference_wrapper<ExecutionObserver>> executionObservers;
+  std::list<std::reference_wrapper<PlanningObserver>> planningObservers;
 
   void computePlan();
 

@@ -11,68 +11,70 @@
 
 namespace actasp {
 
-    class AspKR;
+class AspKR;
 
-    class Planner;
+class Planner;
 
-    class Action;
+class Action;
 
-    class PlanningObserver;
+class PlanningObserver;
 
-    class BlindPlanExecutor : public PlanExecutor {
+class ExecutionObserver;
 
-    public:
+class BlindPlanExecutor : public PlanExecutor {
 
-        BlindPlanExecutor(actasp::AspKR *reasoner,
-                            actasp::Planner *planner,
-                            const std::map<std::string, Action *> &actionMap
-        ) noexcept(false);
+public:
 
-        using PlanExecutor::setGoal;
+  BlindPlanExecutor(AspKR &reasoner,
+                    Planner &planner,
+                    const std::map<std::string, Action *> &actionMap
+  ) noexcept(false);
 
-        void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
+  using PlanExecutor::setGoal;
 
-        bool goalReached() const noexcept {
-            return isGoalReached;
-        }
+  void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept override;
 
-        bool failed() const noexcept {
-            return hasFailed;
-        }
+  bool goalReached() const noexcept override {
+    return isGoalReached;
+  }
 
-        void executeActionStep();
+  bool failed() const noexcept override {
+    return hasFailed;
+  }
 
-        void addExecutionObserver(ExecutionObserver *observer) noexcept;
+  void executeActionStep() override;
 
-        void removeExecutionObserver(ExecutionObserver *observer) noexcept;
+  void addExecutionObserver(ExecutionObserver &observer) noexcept override;
 
-        void addPlanningObserver(PlanningObserver *observer) noexcept;
+  void removeExecutionObserver(ExecutionObserver &observer) noexcept override;
 
-        void removePlanningObserver(PlanningObserver *observer) noexcept;
+  void addPlanningObserver(PlanningObserver &observer) noexcept;
 
-        ~BlindPlanExecutor();
+  void removePlanningObserver(PlanningObserver &observer) noexcept;
 
-
-    private:
-        std::vector<actasp::AspRule> goalRules;
-        bool isGoalReached;
-        bool hasFailed;
-        std::map<std::string, Action *> actionMap;
-
-        std::list<Action::Ptr> plan;
-        unsigned int actionCounter;
-        bool newAction;
-
-        AspKR *kr;
-        Planner *planner;
-
-        std::list<ExecutionObserver *> executionObservers;
-        std::list<PlanningObserver *> planningObservers;
-
-        void computePlan();
+  ~BlindPlanExecutor() override;
 
 
-    };
+private:
+  std::vector<actasp::AspRule> goalRules;
+  bool isGoalReached;
+  bool hasFailed;
+  std::map<std::string, Action *> actionMap;
+
+  std::list<std::unique_ptr<Action>> plan;
+  unsigned int actionCounter;
+  bool newAction;
+
+  AspKR &kr;
+  Planner &planner;
+
+  std::list<std::reference_wrapper<ExecutionObserver>> executionObservers;
+  std::list<std::reference_wrapper<PlanningObserver>> planningObservers;
+
+  void computePlan();
+
+
+};
 
 
 }

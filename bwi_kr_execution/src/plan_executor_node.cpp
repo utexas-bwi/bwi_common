@@ -80,16 +80,16 @@ int main(int argc, char**argv) {
 
   unique_ptr<BwiResourceManager> resourceManager = unique_ptr<BwiResourceManager>(new BwiResourceManager());
 
-  vector<actasp::ExecutionObserver *> execution_observers;
-  vector<actasp::PlanningObserver *> planning_observers;
+  vector<std::reference_wrapper<actasp::ExecutionObserver>> execution_observers;
+  vector<std::reference_wrapper<actasp::PlanningObserver>> planning_observers;
   ConsoleObserver observer;
   std::function<void()> function = std::function<void()>(updateFacts);
   KnowledgeUpdater updating_observer(function, *resourceManager);
-  execution_observers.push_back(&observer);
-  planning_observers.push_back(&observer);
+  execution_observers.emplace_back(observer);
+  planning_observers.emplace_back(observer);
 
-  execution_observers.push_back(&updating_observer);
-  planning_observers.push_back(&updating_observer);
+  execution_observers.emplace_back(updating_observer);
+  planning_observers.emplace_back(updating_observer);
 
   std::map<std::string, actasp::ActionFactory> actions = {};
 

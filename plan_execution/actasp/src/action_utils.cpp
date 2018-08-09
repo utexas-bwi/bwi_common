@@ -1,7 +1,6 @@
 #include <actasp/action_utils.h>
 
 
-#include <algorithm>
 #include <iterator>
 
 using namespace std;
@@ -24,8 +23,7 @@ bool IsAnAction::operator()(const AspFluent& fluent) const {
   return actionNames.find(fluent.getName()) != actionNames.end();
 }
 
-AnswerSet planToAnswerSet(const std::list<Action::Ptr>& plan) {
-
+AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan) {
   auto actIt = plan.begin();
   set<AspFluent> fluents;
 
@@ -50,10 +48,8 @@ ActionSet actionMapToSet(const std::map<std::string, ActionFactory>& actionMap) 
 ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap) {
 
   ActionSet fluents;
-
-  std::map<std::string, Action *>::const_iterator mapIt = actionMap.begin();
-  for (; mapIt != actionMap.end(); ++mapIt)
-    fluents.insert(AspFluent(mapIt->second->toFluent(0)));
+  for (const auto &pair: actionMap)
+    fluents.insert(AspFluent(pair.second->toFluent(0)));
 
   return fluents;
 }

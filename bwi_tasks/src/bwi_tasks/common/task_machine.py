@@ -36,6 +36,7 @@ class FormulateGoal(State):
     def formulate_goal(self, userdata, goal):
         raise NotImplementedError()
 
+
 def set_task_sm_defaults():
     control_flow.inject_userdata_auto("_SET_DEFAULT_NEW_GOAL", "new_goal", None)
     control_flow.inject_userdata_auto("_SET_DEFAULT_MSG_FOR_OPERATOR", "msg_for_operator", None)
@@ -75,14 +76,12 @@ def get_recover_from_failure_sm(ltmc):
     return sm
 
 
-
-
 def get_execute_sm():
     # This state machine is large, so we will only instantiate once and point references to one copy
     global shared_execute_sm
     if shared_execute_sm:
         return shared_execute_sm
-    shared_execute_sm = StateMachine(outcomes=["succeeded", "aborted"], input_keys=["goal"],
+    shared_execute_sm = StateMachine(outcomes=["succeeded", "preempted", "aborted"], input_keys=["goal"],
                                      output_keys=["msg_for_operator"])
     with shared_execute_sm:
         control_flow.inject_userdata_auto("_SET_DEFAULT_MSG_FOR_OPERATOR", "msg_for_operator", "")

@@ -22,11 +22,12 @@ struct PlanExecutor {
 	virtual bool failed() const noexcept = 0;
 
 	virtual void executeActionStep() = 0;
-  
-  virtual void addExecutionObserver(ExecutionObserver *observer) noexcept = 0;
-  virtual void removeExecutionObserver(ExecutionObserver *observer) noexcept =0;
 
-	virtual ~PlanExecutor() {}
+  virtual void addExecutionObserver(ExecutionObserver &observer) noexcept = 0;
+
+  virtual void removeExecutionObserver(ExecutionObserver &observer) noexcept = 0;
+
+  virtual ~PlanExecutor() = default;
 };
 
 }
