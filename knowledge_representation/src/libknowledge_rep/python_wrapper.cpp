@@ -13,18 +13,19 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
 
   class_<Entity>("Entity", init<int, LTMC &>())
       .def_readonly("entity_id", &Entity::entity_id)
-      .def("add_attribute", static_cast<bool (Entity::*)(const std::string &, const std::string &)>
-      (&Entity::add_attribute))
-      .def("add_attribute",
+      .def("add_attribute_str",
+           static_cast<bool (Entity::*)(const std::string &, const std::string &)>
+           (&Entity::add_attribute))
+      .def("add_attribute_int",
            static_cast<bool (Entity::*)(const std::string &, int)>
            (&Entity::add_attribute))
-      .def("add_attribute",
+      .def("add_attribute_float",
            static_cast<bool (Entity::*)(const std::string &, float)>
            (&Entity::add_attribute))
-      .def("add_attribute",
+      .def("add_attribute_bool",
            static_cast<bool (Entity::*)(const std::string &, bool)>
            (&Entity::add_attribute))
-      .def("add_attribute",
+      .def("add_attribute_entity",
            static_cast<bool (Entity::*)(const std::string &, const Entity &)>
            (&Entity::add_attribute))
       .def("remove_attribute", &Entity::remove_attribute)
@@ -33,6 +34,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("get_attributes",
            static_cast<std::vector<EntityAttribute> (Entity::*) () const> (&Entity::get_attributes))
       .def("delete_entity", &Entity::delete_entity)
+      .def("make_instance_of", &Entity::make_instance_of)
       .def("is_valid", &Entity::is_valid);
 
   class_<std::vector<Entity> >("PyEntityList")
@@ -41,6 +43,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
   class_<Concept, bases<Entity> >("Concept", init<int, LTMC &>())
       .def("remove_instances", &Concept::remove_instances)
       .def("get_instances", &Concept::get_instances)
+      .def("get_name", &Concept::get_name)
       .def("create_instance", static_cast<Entity (Concept::*) ()> (&Concept::create_instance));
 
 

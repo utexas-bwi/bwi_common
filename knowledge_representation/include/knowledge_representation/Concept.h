@@ -9,7 +9,6 @@ class Concept : public Entity {
   std::string name;
 public:
 
-
   Concept(int entity_id, const std::string &name, LongTermMemoryConduit &ltmc) : name(name), Entity(entity_id, ltmc) {}
 
   Concept(int entity_id, LongTermMemoryConduit &ltmc) : Entity(entity_id, ltmc) {}
@@ -20,7 +19,7 @@ public:
 
   bool remove_instances();
 
-  std::string get_name();
+  std::string get_name() const;
 
   std::vector<Entity> get_instances() const;
 

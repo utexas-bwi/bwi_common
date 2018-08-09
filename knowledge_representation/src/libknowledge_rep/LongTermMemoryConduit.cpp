@@ -4,13 +4,25 @@
 #include <string>
 #include <knowledge_representation/Concept.h>
 
-using namespace ::mysqlx;
-using namespace std;
+using ::mysqlx::SessionSettings;
+using ::mysqlx::Error;
+using ::mysqlx::Session;
+using ::mysqlx::Schema;
+using ::mysqlx::Table;
+using ::mysqlx::RowResult;
+using ::mysqlx::Row;
+using ::mysqlx::TableRemove;
+using ::mysqlx::Result;
+using std::vector;
+using std::string;
+using std::cout;
+using std::endl;
+using std::unique_ptr;
 
 namespace knowledge_rep {
 
-LongTermMemoryConduit::LongTermMemoryConduit(const std::string &addr, const uint port, const std::string &usr,
-                                             const std::string &password, const std::string &db_name) {
+LongTermMemoryConduit::LongTermMemoryConduit(const string &addr, const uint port, const string &usr,
+                                             const string &password, const string &db_name) {
 
   try {
     SessionSettings from_options(addr, port, usr, password, db_name);
@@ -44,7 +56,7 @@ bool LongTermMemoryConduit::add_entity(int id) {
   return true;
 }
 
-bool LongTermMemoryConduit::add_attribute(const std::string &name) {
+bool LongTermMemoryConduit::add_attribute(const string &name) {
   Table entities = db->getTable("attributes");
   Result result = entities.insert("attribute_name").values(name).execute();
   return true;
@@ -63,16 +75,16 @@ bool LongTermMemoryConduit::entity_exists(const Entity& entity) const {
 }
 
 
-bool LongTermMemoryConduit::remove_concept_references(const std::string &concept_name) {
-  Entity concept = get_concept(concept_name);
+bool LongTermMemoryConduit::remove_concept_references(const string &concept_name) {
+  Concept concept = get_concept(concept_name);
+  // Rely on the schema to clear out the childern via cascading delete
   concept.delete_entity();
-  Entity new_concept = add_entity();
-  new_concept.add_attribute("concept", concept_name);
-
+  // Recreate it by getting it...
+  Concept new_concept = get_concept(concept_name);
   return true;
 }
 
-vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const std::string &attribute_name,
+vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                         const int other_entity_id) {
   Table entity_attributes = db->getTable("entity_attributes_id");
   RowResult result = entity_attributes.select("*").where(
@@ -89,7 +101,7 @@ vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const
   return return_result;
 }
 
-vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const std::string &attribute_name,
+vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                         const bool bool_val) {
   Table entity_attributes = db->getTable("entity_attributes_bool");
   RowResult result = entity_attributes.select("*").where(
@@ -107,8 +119,8 @@ vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const
 }
 
 
-vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const std::string &attribute_name,
-                                                                        const std::string &string_val) {
+vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const string &attribute_name,
+                                                                        const string &string_val) {
   Table entity_attributes = db->getTable("entity_attributes_str");
   RowResult result = entity_attributes.select("*").where(
       "attribute_value = :val and attribute_name = :attr").bind("val",
@@ -156,8 +168,8 @@ bool LongTermMemoryConduit::attribute_exists(int id) const {
   return false;
 }
 
-Concept LongTermMemoryConduit::get_concept(const std::string &name) {
-  std::string query =
+Concept LongTermMemoryConduit::get_concept(const string &name) {
+  string query =
       "SELECT * FROM entity_attributes_str AS eas "
       "INNER JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
       "WHERE eas.attribute_name = 'name' "
@@ -165,7 +177,7 @@ Concept LongTermMemoryConduit::get_concept(const std::string &name) {
       "AND eab.attribute_name = 'is_concept' "
       "AND eab.attribute_value = true";
   std::vector<EntityAttribute> result;
-  select_query_args<std::string>(query, result, name);
+  select_query_args<string>(query, result, name);
   if (result.empty()) {
     Entity new_concept = add_entity();
     new_concept.add_attribute("name", name);
@@ -176,8 +188,8 @@ Concept LongTermMemoryConduit::get_concept(const std::string &name) {
   }
 }
 
-Entity LongTermMemoryConduit::get_object_named(const std::string &name) {
-  std::string query =
+Entity LongTermMemoryConduit::get_object_named(const string &name) {
+  string query =
       "SELECT * FROM entity_attributes_str AS eas "
       "LEFT JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
       "WHERE eas.attribute_name = 'name' "
@@ -185,7 +197,7 @@ Entity LongTermMemoryConduit::get_object_named(const std::string &name) {
       "AND ((eab.attribute_name = 'is_concept' AND eab.attribute_value = false) "
       "     OR (eab.entity_id is NULL))";
   std::vector<EntityAttribute> result;
-  select_query_args<std::string>(query, result, name);
+  select_query_args<string>(query, result, name);
   if (result.empty()) {
     Entity new_entity = add_entity();
     new_entity.add_attribute("name", name);

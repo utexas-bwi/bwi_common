@@ -43,7 +43,8 @@ bool Entity::add_attribute(const std::string &attribute_name,
     inserter.execute();
   }
   catch (const mysqlx::Error &err) {
-    cout << "ERROR: " << err << endl;
+    cerr << "Tried to add attribute " << attribute_name << " with value " << float_val << endl;
+    cerr << "ERROR: " << err << endl;
     return false;
   }
   return true;
@@ -59,8 +60,8 @@ Entity::add_attribute(const std::string &attribute_name, const bool bool_val) {
     inserter.execute();
   }
   catch (const mysqlx::Error &err) {
-    cout << "Tried to add " << entity_id << " " << attribute_name << " " << bool_val << endl;
-    cout << "ERROR: " << err << endl;
+    cerr << "Tried to add " << entity_id << " " << attribute_name << " " << bool_val << endl;
+    cerr << "ERROR: " << err << endl;
     return false;
   }
   return true;
@@ -76,8 +77,8 @@ bool Entity::add_attribute(const std::string &attribute_name,
     inserter.execute();
   }
   catch (const mysqlx::Error &err) {
-    cout << "Tried to add " << entity_id << " " << attribute_name << " " << other_entity_id << endl;
-    cout << "ERROR: " << err << endl;
+    cerr << "Tried to add attribute " << attribute_name << " with value " << other_entity_id << endl;
+    cerr << "ERROR: " << err << endl;
     return false;
   }
 
@@ -97,7 +98,8 @@ bool Entity::add_attribute(const std::string &attribute_name,
     inserter.execute();
   }
   catch (const mysqlx::Error &err) {
-    cout << "ERROR: " << err << endl;
+    cerr << "Tried to add attribute " << attribute_name << " with value " << string_val;
+    cerr << "Message: " << err << endl;
     return false;
   }
 }

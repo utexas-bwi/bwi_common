@@ -2,6 +2,7 @@
 #include <knowledge_representation/LongTermMemoryConduit.h>
 #include <knowledge_representation/Concept.h>
 using std::vector;
+using std::string;
 
 namespace knowledge_rep {
 
@@ -47,6 +48,12 @@ vector<Concept> Concept::get_children() const {
       return Concept(entity_id, ltmc);
     });
     return as_concept;
+}
+
+string Concept::get_name() const {
+  if (name.size() > 0) {
+    return name;
+  }
 }
 
 }
