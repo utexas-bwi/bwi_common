@@ -7,3 +7,7 @@ save_knowledge() {
     fi
     mysqldump -u root -p --databases knowledge_base > knowledge_$(stamp).sql
 }
+
+show_me() {
+    rosrun knowledge_representation show_me $@
+}

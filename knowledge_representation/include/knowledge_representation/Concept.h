@@ -19,7 +19,7 @@ public:
 
   bool remove_instances();
 
-  std::string get_name() const;
+    std::string get_name();
 
   std::vector<Entity> get_instances() const;
 

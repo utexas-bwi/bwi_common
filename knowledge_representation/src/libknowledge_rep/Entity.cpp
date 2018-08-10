@@ -5,10 +5,15 @@
 #include <knowledge_representation/EntityAttribute.h>
 #include <string>
 
-using namespace ::mysqlx;
-using namespace std;
-
-
+using mysqlx::RowResult;
+using mysqlx::Table;
+using mysqlx::TableInsert;
+using mysqlx::TableRemove;
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
 
 namespace knowledge_rep {
 
@@ -163,6 +168,15 @@ bool Entity::is_valid() const {
   return ltmc.get().entity_exists(entity_id);
 }
 
+boost::optional<std::string> Entity::get_name() const {
+  // There should only be one
+  auto name_attrs = get_attributes("name");
+  if (!name_attrs.empty()) {
+    return boost::get<string>(name_attrs[0].value);
+  } else {
+    return {};
+  }
+}
 
 
 }

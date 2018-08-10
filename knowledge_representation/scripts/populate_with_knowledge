@@ -6,19 +6,20 @@ import sys
 import os
 import yaml
 
+
 def add_attribute_entry(entity, entry, ltmc):
     keys = entry.keys()
     if "concept_name" in keys:
         concept = ltmc.get_concept(entry["concept_name"])
-        entity.add_attribute(entry["name"], concept)
+        entity.add_attribute_entity(entry["name"], concept)
     if "object_name" in keys:
         object_entity = ltmc.get_object_named(entry["object_name"])
-        entity.add_attribute(entry["name"], object_entity)
+        entity.add_attribute_entity(entry["name"], object_entity)
     if "value" in keys:
         # Try to convert to int, catch
         try:
             value = int(entry["value"])
-            entity.add_attribute(entry["name"], value)
+            entity.add_attribute_int(entry["name"], value)
             return
         except ValueError:
             pass
@@ -26,12 +27,12 @@ def add_attribute_entry(entity, entry, ltmc):
         # Try to convert to float, catch
         try:
             value = float(entry["value"])
-            entity.add_attribute(entry["name"], value)
+            entity.add_attribute_float(entry["name"], value)
             return
         except ValueError:
             pass
 
-        entity.add_attribute(entry["name"], entry["value"])
+        entity.add_attribute_str(entry["name"], entry["value"])
 
 def populate(ltmc, file_path):
     if not os.path.isfile(file_path):

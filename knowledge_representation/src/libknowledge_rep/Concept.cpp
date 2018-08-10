@@ -50,8 +50,14 @@ vector<Concept> Concept::get_children() const {
     return as_concept;
 }
 
-string Concept::get_name() const {
-  if (name.size() > 0) {
+string Concept::get_name() {
+  if (!name.empty()) {
+    return name;
+  }
+  // There should only be one
+  auto name_attrs = get_attributes("name");
+  if (!name_attrs.empty()) {
+    name = boost::get<string>(name_attrs[0].value);
     return name;
   }
 }

@@ -95,6 +95,10 @@ add_executable(test_mc src/test_mc.cpp)
 add_dependencies(test_mc ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_mc libknowledge_rep ${catkin_LIBRARIES})
 
+add_executable(show_me src/show_me.cpp)
+add_dependencies(show_me ${knowledge_representation_EXPORTED_TARGETS})
+target_link_libraries(show_me libknowledge_rep ${catkin_LIBRARIES})
+
 set_target_properties(_libknowledge_rep_wrapper_cpp PROPERTIES
         PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}

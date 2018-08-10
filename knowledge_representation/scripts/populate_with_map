@@ -30,18 +30,18 @@ def populate(ltmc, files_path):
     locations_data = read_yaml_from_file(locations_file_path)
     door_con = ltmc.get_concept("door")
     location_con = ltmc.get_concept("location")
-    door_con.add_attribute("is_a", location_con)
+    door_con.add_attribute_entity("is_a", location_con)
     room_con = ltmc.get_concept("room")
 
     for location in locations_data:
         location_entity = location_con.create_instance()
-        location_entity.add_attribute("name", location["name"])
+        location_entity.add_attribute_str("name", location["name"])
 
     room_name_to_entity = {}
     for room, _ in connectivity_data.items():
         room_entity = room_con.create_instance()
 
-        room_entity.add_attribute("name", room)
+        room_entity.add_attribute_str("name", room)
         room_name_to_entity[room] = room_entity
 
     # Rooms connected by doors are not directly connected. Remove
@@ -59,16 +59,16 @@ def populate(ltmc, files_path):
                 "WARNING: {} is not connected to {}, even though there is a door between them. This is an error in region annotation".format(
                     room_two, room_one))
         door_entity = door_con.create_instance()
-        door_entity.add_attribute("name", door["name"])
+        door_entity.add_attribute_str("name", door["name"])
 
-        room_name_to_entity[room_one].add_attribute("has", door_entity)
-        room_name_to_entity[room_two].add_attribute("has", door_entity)
+        room_name_to_entity[room_one].add_attribute_entity("has", door_entity)
+        room_name_to_entity[room_two].add_attribute_entity("has", door_entity)
 
     for room, neighbors in connectivity_data.items():
         room_entity = room_name_to_entity[room]
         for neighbor in neighbors:
             neighbor_entity = room_name_to_entity[neighbor]
-            room_entity.add_attribute("is_connected", neighbor_entity)
+            room_entity.add_attribute_entity("is_connected", neighbor_entity)
 
 
 
