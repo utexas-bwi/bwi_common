@@ -128,6 +128,7 @@ bool Entity::remove_attribute(const std::string &attribute_name) {
                                                                                            attribute_name);
     remover.execute();
   }
+    return true;
 }
 
 

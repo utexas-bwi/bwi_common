@@ -87,7 +87,7 @@ target_link_libraries(memory_conduit_proxy_node libknowledge_rep ${catkin_LIBRAR
 
 ### TEST TARGETS
 
-add_executable(test_ltmc src/test_ltmc.cpp)
+catkin_add_gtest(test_ltmc test/ltmc.cpp)
 add_dependencies(test_ltmc ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_ltmc libknowledge_rep ${catkin_LIBRARIES})
 

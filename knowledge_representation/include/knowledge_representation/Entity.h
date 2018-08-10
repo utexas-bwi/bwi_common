@@ -47,7 +47,7 @@ public:
 
   bool is_valid() const;
 
-  bool operator==(const Entity &other) {
+    bool operator==(const Entity &other) const {
     return this->entity_id == other.entity_id;
   }
 
