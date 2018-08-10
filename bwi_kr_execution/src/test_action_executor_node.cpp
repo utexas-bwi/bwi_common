@@ -2,8 +2,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <plan_execution/ExecutePlanAction.h>
 #include <actasp/AspFluent.h>
-#include "actions/ActionFactory.h"
 #include "utils.h"
+#include "actions/action_registry.h"
 #include <actasp/Action.h>
 
 using namespace std;
@@ -17,9 +17,9 @@ int main(int argc, char **argv) {
         cout << "Usage: action_name [param1 [...]]" << endl;
         return 1;
     }
-    actasp::Action *action_template;
+    actasp::ActionFactory action_template;
     try {
-        action_template = bwi_krexec::ActionFactory::byName(argv[1]);
+        action_template = bwi_krexec::real_actions[argv[1]];
     } catch (runtime_error &e) {
         cout << "Couldn't find an action for " << argv[1] << endl;
         cout << "Are you sure it's registered?" << endl;
@@ -27,8 +27,9 @@ int main(int argc, char **argv) {
     }
     vector<string> params(argv + 2, argv + argc);
     actasp::AspFluent action_fluent(argv[1], params);
+    BwiResourceManager resourceManager;
 
-    auto action = action_template->cloneAndInit(action_fluent);
+    auto action = action_template(action_fluent, resourceManager);
 
     ros::Rate r(10);
     while (!action->hasFinished() && ros::ok()) {

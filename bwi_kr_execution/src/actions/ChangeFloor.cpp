@@ -2,39 +2,28 @@
 
 #include <boost/foreach.hpp>
 
-#include "ActionFactory.h"
-#include "plan_execution/StaticFacts.h"
-
-#include "plan_execution/UpdateFluents.h"
 #include "ros/console.h"
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalActionAction.h>
+#include <actasp/AspAtom.h>
 
 namespace bwi_krexec {
 
-ChangeFloor::ChangeFloor() :
+ChangeFloor::ChangeFloor(const std::string &dest_room, knowledge_rep::LongTermMemoryConduit &ltmc) : dest_room(dest_room),
              done(false),
              asked(false),
-             failed(false) {}
+             failed(false), LogicalNavigation("change_floor", ltmc) {}
 
+             /*
 void ChangeFloor::run() {
   
   if(!asked) {
 
-    // Get the doors for this elevator.
+    // TODO: Get the doors for this elevator.
     std::string dest_floor;
-    std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts(); 
-    BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-      if (fact.getName() == "floor") {
-        std::vector<std::string> params = fact.getParameters();
-        if (params[0] == dest_room) {
-          dest_floor = params[1];
-          break;
-        }
-      }
-    }
+
 
     if (dest_floor.empty()) {
       ROS_ERROR_STREAM("Unable to retrieve floor for destination " << dest_room << ". Cannot complete action!");
@@ -60,17 +49,7 @@ void ChangeFloor::run() {
 
         // Get the doors for this elevator.
         std::string facing_door;
-        std::list<actasp::AspAtom> static_facts = plan_exec::StaticFacts::staticFacts(); 
-        BOOST_FOREACH(const actasp::AspAtom fact, static_facts) {
-          if (fact.getName() == "hasdoor") {
-            std::vector<std::string> params = fact.getParameters();
-            if (params[0] == dest_room) {
-              // NOTE: This makes the assumption that an elevator room only has a single door, which is true for GDC.
-              facing_door = params[1];
-              break;
-            }
-          }
-        }
+        //TODO: Get the door we're facing
 
         if (facing_door.empty()) {
           ROS_ERROR_STREAM("Unable to retrieve door we're facing for destination " << dest_room << ". Cannot complete action!");
@@ -91,31 +70,7 @@ void ChangeFloor::run() {
 
           // TODO incorporate the return of the changefloor command as well.
           ros::NodeHandle n;
-          ros::ServiceClient krClient = n.serviceClient<plan_execution::UpdateFluents> ( "update_fluents" );
-          krClient.waitForExistence();
-          plan_execution::UpdateFluents uf;
-
-          plan_execution::AspFluent open_door;
-          open_door.name = "open";
-          open_door.variables.push_back(facing_door);
-
-          plan_execution::AspFluent face_door;
-          face_door.name = "facing";
-          face_door.variables.push_back(facing_door);
-
-          plan_execution::AspFluent beside_door;
-          beside_door.name = "beside";
-          beside_door.variables.push_back(facing_door);
-
-          plan_execution::AspFluent at_loc;
-          at_loc.name = "at";
-          at_loc.variables.push_back(dest_room);
-
-          uf.request.fluents.push_back(open_door);
-          uf.request.fluents.push_back(face_door);
-          uf.request.fluents.push_back(beside_door);
-          uf.request.fluents.push_back(at_loc);
-          krClient.call(uf);
+          //TODO: Update the robot's state in the knowledgebase via sensestate?
 
           CallGUI thanks("thanks", CallGUI::DISPLAY,  "Thanks! Could you keep the door open while I exit the elevator?");
           thanks.run();
@@ -128,28 +83,23 @@ void ChangeFloor::run() {
     }
   }
  
-}
-
-bool ChangeFloor::hasFinished() const {
-  return done;
-}
-
-bool ChangeFloor::hasFailed() const {
-  return failed;
-}
+}*/
 
 actasp::Action *ChangeFloor::cloneAndInit(const actasp::AspFluent & fluent) const {
-  ChangeFloor *other = new ChangeFloor();
-  other->dest_room = fluent.getParameters().at(0);
-  return other;
+  return nullptr;
 }
 
 std::vector<std::string> ChangeFloor::getParameters() const {
-  return std::vector<std::string>(1,dest_room);
+  return {dest_room};
 }
 
-//if you want the action to be available only in simulation, or only
-//on the robot, use the constructor that also takes a boolean.
-ActionFactory changeFloor(new ChangeFloor(), false);
+std::vector<std::string> ChangeFloor::prepareGoalParameters() const {
+  // Get the doors for this elevator.
+  std::string facing_door;
+  //TODO: Get the door we're facing
+
+  return {dest_room, facing_door};
+}
+
 
 }

@@ -2,7 +2,6 @@
 
 #include <boost/foreach.hpp>
 
-#include "ActionFactory.h"
 
 #include "plan_execution/CurrentStateQuery.h"
 #include "plan_execution/UpdateFluents.h"
@@ -138,8 +137,5 @@ std::vector<std::string> CallElevator::getParameters() const {
   return params;
 }
 
-//if you want the action to be available only in simulation, or only
-//on the robot, use the constructor that also takes a boolean.
-ActionFactory callElevator(new CallElevator(), false);
 
 }

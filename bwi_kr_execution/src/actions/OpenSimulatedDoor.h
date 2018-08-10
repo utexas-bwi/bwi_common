@@ -11,7 +11,7 @@ namespace bwi_krexec {
 
 class OpenSimulatedDoor : public actasp::Action{
 public:
-  OpenSimulatedDoor();
+  OpenSimulatedDoor(const std::string &door_name, knowledge_rep::LongTermMemoryConduit &ltmc);
 
   int paramNumber() const {return 1;}
   
@@ -23,7 +23,7 @@ public:
   
   actasp::Action *cloneAndInit(const actasp::AspFluent & fluent) const;
   
-  virtual actasp::Action *clone() const {return new OpenSimulatedDoor(*this);}
+  virtual actasp::Action *clone() const {return nullptr;}
   
 private:
   
@@ -33,11 +33,12 @@ private:
  bool done;
  bool requestSent;
 
- LogicalNavigation* senseDoor;
+ std::unique_ptr<LogicalNavigation> senseDoor;
+
+ knowledge_rep::LongTermMemoryConduit &ltmc;
  
 };
 
 }
  
 #endif
- 

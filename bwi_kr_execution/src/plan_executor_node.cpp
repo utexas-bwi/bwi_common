@@ -16,7 +16,6 @@
 #include "observers.h"
 #include "utils.h"
 #include "BwiResourceManager.h"
-#include "actions/ActionFactory.h"
 
 #include <actionlib/server/simple_action_server.h>
 
@@ -30,6 +29,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "actions/action_registry.h"
 
 using namespace plan_exec;
 using namespace bwi_krexec;
@@ -76,7 +76,6 @@ int main(int argc, char**argv) {
 
   bool simulating;
   privateNode.param<bool>("simulation",simulating,false);
-  ActionFactory::setSimulation(simulating);
 
   unique_ptr<BwiResourceManager> resourceManager = unique_ptr<BwiResourceManager>(new BwiResourceManager());
 
@@ -91,9 +90,12 @@ int main(int argc, char**argv) {
   execution_observers.emplace_back(updating_observer);
   planning_observers.emplace_back(updating_observer);
 
-  std::map<std::string, actasp::ActionFactory> actions = {};
+  map<string, actasp::ActionFactory> &map = bwi_krexec::real_actions;
+  if (simulating) {
+    map = bwi_krexec::simulated_actions;
+  }
 
-  PlanExecutorNode node(domainDirectory, actions, *resourceManager, execution_observers, planning_observers);
+  PlanExecutorNode node(domainDirectory, map, *resourceManager, execution_observers, planning_observers);
   working_memory_path = node.working_memory_path;
   ros::spin();
 

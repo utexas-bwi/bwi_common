@@ -1,13 +1,12 @@
 
 
 SET( bwikractions_SRC ${KREXEC_SRC}
-	${CMAKE_CURRENT_SOURCE_DIR}/ActionFactory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AskPerson.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/DeliverMessage.cpp
 	#${CMAKE_CURRENT_SOURCE_DIR}/CallElevator.cpp
 	#${CMAKE_CURRENT_SOURCE_DIR}/CallSimulatedElevator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CallGUI.cpp
-	#${CMAKE_CURRENT_SOURCE_DIR}/ChangeFloor.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ChangeFloor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GoThrough.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/NavigateTo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Knock.cpp

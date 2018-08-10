@@ -2,30 +2,34 @@
 #define bwi_krexec_NavigateTo_h_guard
 
 #include "LogicalNavigation.h"
+#include "../BwiResourceManager.h"
 
 namespace bwi_krexec {
 
 
     class NavigateTo : public LogicalNavigation {
     public:
-        explicit NavigateTo();
+        NavigateTo(int location_id, knowledge_rep::LongTermMemoryConduit &ltmc);
 
         void run() override;
 
         Action *cloneAndInit(const actasp::AspFluent & fluent) const override {
-            auto action = new NavigateTo();
-            action->location_id = std::atoi(fluent.getParameters().at(0).c_str());
-            action->ltmc = this->ltmc;
-            return action;
+            return nullptr;
         }
 
-        Action *clone() const override {return new NavigateTo(*this);}
+        Action *clone() const override {return nullptr;}
 
         int paramNumber() const override {return 1;};
 
         std::vector<std::string> getParameters() const override;
 
         std::vector<std::string> prepareGoalParameters() const;
+
+        static std::unique_ptr<actasp::Action> create(const actasp::AspFluent & fluent, actasp::ResourceManager &resource_manager) {
+          auto location = std::atoi(fluent.getParameters().at(0).c_str());
+          auto& resource_manager_cast = dynamic_cast<BwiResourceManager&>(resource_manager);
+          return std::unique_ptr<actasp::Action>(new bwi_krexec::NavigateTo(location, resource_manager_cast.ltmc));
+        }
 
     private:
         int location_id;

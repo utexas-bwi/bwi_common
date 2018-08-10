@@ -20,10 +20,9 @@ struct KnowledgeUpdater : public actasp::ExecutionObserver, public actasp::Plann
 
   void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
 
-    SenseLocation senseLogicalLocation;
-    senseLogicalLocation.configureWithResources(resourceManager);
-    while (!senseLogicalLocation.hasFinished()) {
-      senseLogicalLocation.run();
+    auto senseLogicalLocation = SenseLocation::create(resourceManager);
+    while (!senseLogicalLocation->hasFinished()) {
+      senseLogicalLocation->run();
     }
     updater();
   }

@@ -1,6 +1,5 @@
 #include "NavigateTo.h"
 
-#include "ActionFactory.h"
 #include "plan_execution/msgs_utils.h"
 
 #include "actasp/AnswerSet.h"
@@ -18,9 +17,9 @@ using namespace actasp;
 namespace bwi_krexec {
 
 
-    NavigateTo::NavigateTo():
-            LogicalNavigation("navigate_to"),
-            location_id(-1) {
+    NavigateTo:: NavigateTo(int location_id, knowledge_rep::LongTermMemoryConduit &ltmc):
+LogicalNavigation("navigate_to", ltmc),
+            location_id(location_id) {
     }
 
 
@@ -45,8 +44,6 @@ namespace bwi_krexec {
         parameters.push_back(attrs.at(0).get_string_value());
         return parameters;
     }
-
-    ActionFactory navigateToFactory(new NavigateTo());
 
 
 }

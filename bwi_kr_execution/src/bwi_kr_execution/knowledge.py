@@ -116,10 +116,12 @@ class GetRandomBwiLocation(State):
         self.ltmc.select_query_string(query, attributes)
 
         locations = [attribute.get_string_value() for attribute in attributes]
-        locations.remove("d3_414a3")
-        locations.remove("d3_414b3")
-        print(locations)
-        locations = ["o3_410f"]
+
+        # These doors are inside the lab spaces. We don't want the robot trying to reach them.
+        dont_go = ["d3_414a3", "d3_414b3"]
+        for door in dont_go:
+            if dont_go in locations:
+                locations.remove(door)
 
         if locations:
             name_attrs = random.choice(locations)

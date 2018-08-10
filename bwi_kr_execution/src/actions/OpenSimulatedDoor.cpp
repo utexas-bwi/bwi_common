@@ -3,7 +3,6 @@
 #include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
 
-#include "ActionFactory.h"
 #include "LogicalNavigation.h"
 
 #include "actasp/AspFluent.h"
@@ -17,7 +16,7 @@ using namespace ros;
 namespace bwi_krexec {
 
 
-OpenSimulatedDoor::OpenSimulatedDoor() : door(), done(false),requestSent(false) {}
+OpenSimulatedDoor::OpenSimulatedDoor(const std::string &door_name, knowledge_rep::LongTermMemoryConduit &ltmc) : ltmc(ltmc), door(), done(false),requestSent(false) {}
 
 void OpenSimulatedDoor::run() {
   NodeHandle n;
@@ -38,7 +37,7 @@ void OpenSimulatedDoor::run() {
 
     vector<string> params;
     params.push_back(door);
-    senseDoor = new SenseLocation();
+    senseDoor = unique_ptr<SenseLocation>(new SenseLocation(ltmc));
   }
 
   senseDoor->run();
@@ -63,18 +62,11 @@ void OpenSimulatedDoor::run() {
 
 
 actasp::Action* OpenSimulatedDoor::cloneAndInit(const actasp::AspFluent& fluent) const {
-  OpenSimulatedDoor *newAction = new OpenSimulatedDoor();
-  newAction->door = fluent.getParameters().at(0);
-
-  return newAction;
+  return nullptr;
 }
 
 std::vector<std::string> OpenSimulatedDoor::getParameters() const {
-  vector<string> param;
-  param.push_back(door);
-  return param;
+  return {door};
 }
-
-ActionFactory simulatedOpenDoor(new OpenSimulatedDoor(), true);
 
 }

@@ -17,8 +17,8 @@ using namespace knowledge_rep;
 namespace bwi_krexec {
 
 
-LogicalNavigation::LogicalNavigation(const std::string &logical_name) :
-        name(logical_name), ltmc(std::ref(ltmc)),
+LogicalNavigation::LogicalNavigation(const std::string &logical_name, knowledge_rep::LongTermMemoryConduit &ltmc) :
+        name(logical_name), ltmc(ltmc),
         LogicalNavigationRosAction("execute_logical_action") {}
 
 boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {

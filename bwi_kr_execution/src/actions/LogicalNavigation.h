@@ -13,7 +13,7 @@ typedef plan_exec::RosAction<bwi_msgs::LogicalNavAction, bwi_msgs::LogicalNavGoa
 class LogicalNavigation : public LogicalNavigationRosAction {
 public:
 
-    explicit LogicalNavigation(const std::string &logical_name);
+    explicit LogicalNavigation(const std::string &logical_name, knowledge_rep::LongTermMemoryConduit &ltmc);
 
 	std::string getName() const final {return name;}
 

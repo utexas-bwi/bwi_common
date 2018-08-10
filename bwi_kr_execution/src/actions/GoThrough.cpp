@@ -1,7 +1,5 @@
 #include "GoThrough.h"
 
-#include "ActionFactory.h"
-
 #include "plan_execution/CurrentStateQuery.h"
 
 #include <ros/console.h>
@@ -13,10 +11,8 @@ using namespace std;
 
 namespace bwi_krexec {
 
-  
-GoThrough::GoThrough():
-              LogicalNavigation("gothrough"),
-              failed(false){}
+GoThrough::GoThrough(const std::string &door_name, knowledge_rep::LongTermMemoryConduit &ltmc) : door_name(door_name),
+              LogicalNavigation("gothrough", ltmc){}
 
 
 std::vector<std::string> GoThrough::getParameters() const {
@@ -24,8 +20,6 @@ std::vector<std::string> GoThrough::getParameters() const {
   parameters.push_back(door_name);
   return parameters;
 }
-
-bool GoThrough::hasFailed() const {return failed;}
 
 std::vector<std::string> GoThrough::prepareGoalParameters() const {
   vector<string> params;
@@ -39,7 +33,5 @@ void GoThrough::onFinished(bool success, ResultConstPtr result) {
   // TODO: Check that we're in a different place than when we started
 }
 
-ActionFactory gothroughFactory(new GoThrough());
-  
   
 }
