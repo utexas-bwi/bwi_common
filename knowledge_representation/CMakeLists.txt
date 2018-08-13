@@ -64,13 +64,21 @@ include_directories(
         ${Eigen3_INCLUDE_DIRS}
 )
 
+BISON_TARGET(parser src/libknowledge_rep/parser.yy ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/Parser.cpp COMPILE_FLAGS --defines=${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/Parser.h)
+FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/Lexer.cpp)
+
+
+ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 
 add_library(libknowledge_rep
         src/libknowledge_rep/LongTermMemoryConduit.cpp
         src/libknowledge_rep/MemoryConduit.cpp
         src/libknowledge_rep/convenience.cpp
         src/libknowledge_rep/Entity.cpp
-        src/libknowledge_rep/Concept.cpp)
+        src/libknowledge_rep/Concept.cpp
+        src/libknowledge_rep/Compiler.cpp
+        ${BISON_parser_OUTPUTS}
+        ${FLEX_scanner_OUTPUTS} )
 
 add_dependencies(libknowledge_rep ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(libknowledge_rep ${mysql} ${catkin_LIBRARIES})
@@ -87,28 +95,23 @@ add_executable(memory_conduit_proxy_node src/memory_conduit_proxy_node.cpp)
 add_dependencies(memory_conduit_proxy_node ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(memory_conduit_proxy_node libknowledge_rep ${catkin_LIBRARIES})
 
+add_executable(show_me src/show_me.cpp)
+add_dependencies(show_me ${knowledge_representation_EXPORTED_TARGETS})
+target_link_libraries(show_me libknowledge_rep ${catkin_LIBRARIES})
+
 ### TEST TARGETS
 
 catkin_add_gtest(test_ltmc test/ltmc.cpp)
 add_dependencies(test_ltmc ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_ltmc libknowledge_rep ${catkin_LIBRARIES})
 
-add_executable(test_mc src/test_mc.cpp)
+catkin_add_gtest(test_mc test/mc.cpp)
 add_dependencies(test_mc ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_mc libknowledge_rep ${catkin_LIBRARIES})
 
-add_executable(show_me src/show_me.cpp)
-add_dependencies(show_me ${knowledge_representation_EXPORTED_TARGETS})
-target_link_libraries(show_me libknowledge_rep ${catkin_LIBRARIES})
-
-### BISON FLEX
-
-BISON_TARGET(parser src/libknowledge_rep/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cpp COMPILE_FLAGS -d)
-FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
-ADD_FLEX_BISON_DEPENDENCY(scanner parser)
-add_executable(syntax_checker src/libknowledge_rep/syntax_checker.cpp src/libknowledge_rep/parser_types.c ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS})
-add_dependencies(syntax_checker ${knowledge_representation_EXPORTED_TARGETS})
-target_link_libraries(syntax_checker libknowledge_rep ${catkin_LIBRARIES})
+catkin_add_gtest(test_parser test/parser.cpp)
+add_dependencies(test_parser ${knowledge_representation_EXPORTED_TARGETS})
+target_link_libraries(test_parser libknowledge_rep ${catkin_LIBRARIES})
 
 ###
 
