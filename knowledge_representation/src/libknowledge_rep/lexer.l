@@ -33,5 +33,5 @@ true|false         { return Parser::make_BOOL(atoi(yytext), loc); }
     return Parser::make_STRING(std::string(strdup(yytext)), loc);
 }
 \n { ++line_num; }
-
+<<EOF>> {std::cout << "ended of file" << std::endl; return yyterminate();}
 %%

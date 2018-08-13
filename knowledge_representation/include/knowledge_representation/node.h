@@ -7,6 +7,7 @@ namespace knowledge_rep {
 
 class Node {
 public:
+  Node(){}
   virtual ~Node() {}
 };
 

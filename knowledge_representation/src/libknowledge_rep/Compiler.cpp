@@ -10,11 +10,11 @@ namespace knowledge_rep {
 
   bool Compiler::parse_stream(std::istream &in) {
     Lexer lexer(*this, &in);
-    //scanner.set_debug(trace_scanning);
+    lexer.set_debug(trace_scanning);
     this->lexer = &lexer;
 
     Parser parser(lexer, *this);
-    //parser.set_debug_level(trace_parsing);
+    parser.set_debug_level(trace_parsing);
     return (parser.parse() == 0);
   }
 
@@ -28,5 +28,14 @@ namespace knowledge_rep {
     std::istringstream iss(input);
     return parse_stream(iss);
   }
+
+void Compiler::set_root(Node &root) {
+    this->root = &root;
+
+}
+
+Node *Compiler::get_root() {
+    return root;
+}
 
 }

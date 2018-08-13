@@ -12,6 +12,9 @@ class Compiler
 public:
   friend class Parser;
   friend class Lexer;
+
+  bool trace_scanning;
+  bool trace_parsing;
   Compiler();
 
   std::string file;
@@ -23,8 +26,9 @@ public:
 
   bool parseString(const std::string& text);
 
-  void setRoot(Node* root);
+  void set_root(Node& root);
 
+  Node *get_root();
 
   bool parse_stream(std::istream &in);
 
@@ -35,6 +39,7 @@ public:
 
 private:
 
+  Node *root;
   std::vector<Node> m_commands;  // Example AST
   unsigned int m_location; // Used by scanner
   //Node* getRoot() { return root.get(); }

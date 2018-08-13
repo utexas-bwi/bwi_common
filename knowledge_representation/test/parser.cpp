@@ -25,7 +25,12 @@ protected:
 };
 
 TEST_F(ParserTest, CompilerWorks) {
-  compiler.parse_string("? dummy hi");
+  compiler.parse_string("? dummy 1");
+  ASSERT_NE(nullptr, compiler.get_root());
+}
+
+TEST_F(ParserTest, EmptyProgramParses) {
+  compiler.parse_string("");
 }
 
 

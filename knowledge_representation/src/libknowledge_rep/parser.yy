@@ -69,7 +69,7 @@
 %type <Idable> idable
 %type <QueryId> query_id
 %type <QueryValue> query_value
-
+%type <Node> program
 %%
 
 // the first rule defined is the highest-level rule, which in our
@@ -77,7 +77,7 @@
 // case is just the concept of a whole "snazzle file":
 
 program:
-    queries { cout << "done" << endl; }
+    queries END { compiler.set_root($$); cout << "done" << endl; }
     ;
 queries:
     queries query
@@ -85,19 +85,19 @@ queries:
     ;
 valuable:
     STRING | BOOL | id | FLOAT
-    | '(' query_value ')' | '(' query_id ')'
+    | LPAREN query_value RPAREN | LPAREN query_id RPAREN
     ;
 id:
     INT {$$ = $1;}
     ;
 idable:
-    id | '(' query_id ')'
+    id | LPAREN query_id RPAREN
     ;
 attribute_name:
     STRING {$$ = AttributeName($1.value);}
 query:
     query_value | query_id
-    | '(' query_value ')' | '(' query_id ')'
+    | LPAREN query_value RPAREN | LPAREN query_id RPAREN
     ;
 query_id:
     FREE attribute_name valuable { cout << "q- id:<free>\tattr:" << $2.name << "\tvalue:" << "VALUABLE" << endl; }
