@@ -3,6 +3,8 @@ project(knowledge_representation)
 
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(BISON)
+find_package(FLEX)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -98,6 +100,18 @@ target_link_libraries(test_mc libknowledge_rep ${catkin_LIBRARIES})
 add_executable(show_me src/show_me.cpp)
 add_dependencies(show_me ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(show_me libknowledge_rep ${catkin_LIBRARIES})
+
+### BISON FLEX
+
+BISON_TARGET(parser src/libknowledge_rep/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cpp COMPILE_FLAGS -d)
+FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+ADD_FLEX_BISON_DEPENDENCY(scanner parser)
+add_executable(syntax_checker src/libknowledge_rep/syntax_checker.cpp src/libknowledge_rep/parser_types.c ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS})
+add_dependencies(syntax_checker ${knowledge_representation_EXPORTED_TARGETS})
+target_link_libraries(syntax_checker libknowledge_rep ${catkin_LIBRARIES})
+
+###
+
 
 set_target_properties(_libknowledge_rep_wrapper_cpp PROPERTIES
         PREFIX ""
