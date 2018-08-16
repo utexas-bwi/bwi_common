@@ -4,6 +4,7 @@
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
 #include <knowledge_representation/Concept.h>
+#include <knowledge_representation/Instance.h>
 
 #include <gtest/gtest.h>
 
@@ -31,7 +32,7 @@ class EntityTest : public ::testing::Test {
 protected:
 
     EntityTest() : ltmc(knowledge_rep::get_default_ltmc()), entity(ltmc.add_entity()),
-                   concept(ltmc.get_concept("test concept")) {
+                   concept(ltmc.get_concept("test concept")), instance(ltmc.add_entity().entity_id, ltmc) {
 
     }
 
@@ -46,6 +47,7 @@ protected:
     knowledge_rep::LongTermMemoryConduit ltmc;
     knowledge_rep::Entity entity;
     knowledge_rep::Concept concept;
+    knowledge_rep::Instance instance;
 };
 
 
@@ -99,9 +101,9 @@ TEST_F(EntityTest, DeleteEntityWorks) {
 }
 
 TEST_F(EntityTest, RemoveInstancesWorks) {
-    entity.make_instance_of(concept);
+  instance.make_instance_of(concept);
     concept.remove_instances();
-    EXPECT_FALSE(entity.is_valid());
+  EXPECT_FALSE(instance.is_valid());
     EXPECT_EQ(0, concept.get_instances().size());
 }
 
@@ -120,42 +122,42 @@ TEST_F(EntityTest, AddEntityWorks) {
 }
 
 TEST_F(EntityTest, StringAttributeWorks) {
-    entity.add_attribute("sensed", "test");
-    auto attrs = entity.get_attributes("sensed");
+  entity.add_attribute("is_concept", "test");
+  auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(string), attrs.at(0).value.type());
     EXPECT_EQ("test", boost::get<string>(attrs.at(0).value));
-    EXPECT_TRUE(entity.remove_attribute("sensed"));
+  EXPECT_TRUE(entity.remove_attribute("is_concept"));
 }
 
 
 TEST_F(EntityTest, IntAttributeWorks) {
-    entity.add_attribute("sensed", 1);
-    auto attrs = entity.get_attributes("sensed");
+  entity.add_attribute("is_concept", 1);
+  auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(int), attrs.at(0).value.type());
     EXPECT_EQ(1, boost::get<int>(attrs.at(0).value));
-    EXPECT_TRUE(entity.remove_attribute("sensed"));
+  EXPECT_TRUE(entity.remove_attribute("is_concept"));
 }
 
 TEST_F(EntityTest, FloatAttributeWorks) {
-    entity.add_attribute("sensed", 1.f);
-    auto attrs = entity.get_attributes("sensed");
+  entity.add_attribute("is_concept", 1.f);
+  auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(float), attrs.at(0).value.type());
     EXPECT_EQ(1, boost::get<float>(attrs.at(0).value));
-    EXPECT_TRUE(entity.remove_attribute("sensed"));
+  EXPECT_TRUE(entity.remove_attribute("is_concept"));
 }
 
 TEST_F(EntityTest, BoolAttributeWorks) {
-    entity.add_attribute("sensed", true);
-    auto attrs = entity.get_attributes("sensed");
+  entity.add_attribute("is_concept", true);
+  auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(bool), attrs.at(0).value.type());
     EXPECT_TRUE(boost::get<bool>(attrs.at(0).value));
-    EXPECT_TRUE(entity.remove_attribute("sensed"));
+  EXPECT_TRUE(entity.remove_attribute("is_concept"));
 
-    entity.add_attribute("sensed", false);
-    attrs = entity.get_attributes("sensed");
+  entity.add_attribute("is_concept", false);
+  attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(bool), attrs.at(0).value.type());
     EXPECT_FALSE(boost::get<bool>(attrs.at(0).value));
-    EXPECT_TRUE(entity.remove_attribute("sensed"));
+  EXPECT_TRUE(entity.remove_attribute("is_concept"));
 
 }
 

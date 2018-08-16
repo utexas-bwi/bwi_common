@@ -9,6 +9,7 @@ CREATE TABLE entities (
 
 CREATE TABLE attributes (
     attribute_name varchar(24) NOT NULL,
+    type varchar(24) NOT NULL,
     PRIMARY KEY(attribute_name)
 );
 
@@ -49,24 +50,7 @@ CREATE TABLE entity_attributes_str (
     CONSTRAINT CHK_name_unique CHECK (NumSameNames() = 0)
 );
 
-/******************* FUNCTIONS */
-DELIMITER //
-/* Counts the number of entities that have the same name */
-CREATE FUNCTION NumSameNames()
-RETURNS int
-DETERMINISTIC
-BEGIN
-    DECLARE name_same_count INT unsigned DEFAULT 0;
-    SELECT count(*)
-    FROM entity_attributes_str l
-    INNER JOIN entity_attributes_str r
-    ON r.attribute_name = "name"
-        AND l.attribute_value = r.attribute_value
-    INTO name_same_count;
-    RETURN name_same_count;
-END//
 
-DELIMITER ;
 
 CREATE TABLE entity_attributes_float (
     entity_id int NOT NULL,
@@ -98,25 +82,66 @@ CREATE TABLE entity_attributes_bool (
         ON UPDATE CASCADE
 );
 
-insert into attributes(attribute_name) values('answer_to');
-insert into attributes(attribute_name) values('default_location');
-insert into attributes(attribute_name) values('has');
-insert into attributes(attribute_name) values('instance_of');
-insert into attributes(attribute_name) values('is_a');
-insert into attributes(attribute_name) values('is_concept');
-insert into attributes(attribute_name) values('is_connected');
-insert into attributes(attribute_name) values('is_delivered');
-insert into attributes(attribute_name) values('is_facing');
-insert into attributes(attribute_name) values('is_holding');
-insert into attributes(attribute_name) values('is_in');
-insert into attributes(attribute_name) values('is_located');
-insert into attributes(attribute_name) values('is_near');
-insert into attributes(attribute_name) values('is_placed');
-insert into attributes(attribute_name) values('name');
-insert into attributes(attribute_name) values('question');
-insert into attributes(attribute_name) values('sensed');
+/******************* FUNCTIONS */
+DELIMITER //
+/* Counts the number of entities that have the same name */
+CREATE FUNCTION NumSameNames()
+RETURNS int
+DETERMINISTIC
+BEGIN
+    DECLARE name_same_count INT unsigned DEFAULT 0;
+    SELECT count(*)
+    FROM entity_attributes_str l
+    INNER JOIN entity_attributes_str r
+    ON r.attribute_name = "name"
+        AND l.attribute_value = r.attribute_value
+    INTO name_same_count;
+    RETURN name_same_count;
+END//
+
+CREATE PROCEDURE get_concepts(IN object INT)
+BEGIN
+WITH RECURSIVE
+  cteConcepts (ID)
+  AS
+  (
+    SELECT attribute_value
+    FROM entity_attributes_id
+    WHERE attribute_name="instance_of"
+    AND entity_id = object
+    
+    UNION ALL
+    
+    SELECT a.attribute_value
+    FROM entity_attributes_id a
+      INNER JOIN cteConcepts b
+        ON a.attribute_name="instance_of"
+        AND a.entity_id=b.ID
+        
+  )
+SELECT ID FROM cteConcepts;
+END//
+
+DELIMITER ;
 
 /***** DEFAULT VALUES */
+
+insert into attributes(attribute_name, type) values('answer_to', 'int');
+insert into attributes(attribute_name, type) values('default_location', 'int');
+insert into attributes(attribute_name, type) values('has', 'int');
+insert into attributes(attribute_name, type) values('instance_of', 'int');
+insert into attributes(attribute_name, type) values('is_a', 'int');
+insert into attributes(attribute_name, type) values('is_concept', 'bool');
+insert into attributes(attribute_name, type) values('is_connected', 'int');
+insert into attributes(attribute_name, type) values('is_delivered', 'int');
+insert into attributes(attribute_name, type) values('is_facing', 'int');
+insert into attributes(attribute_name, type) values('is_holding', 'int');
+insert into attributes(attribute_name, type) values('is_in', 'int');
+insert into attributes(attribute_name, type) values('is_located', 'int');
+insert into attributes(attribute_name, type) values('is_near', 'int');
+insert into attributes(attribute_name, type) values('is_placed', 'int');
+insert into attributes(attribute_name, type) values('name', 'string');
+
 
 insert into entities(entity_id) values(1);
 insert into entities(entity_id) values(2);

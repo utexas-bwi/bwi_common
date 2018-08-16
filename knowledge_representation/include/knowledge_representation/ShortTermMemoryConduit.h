@@ -17,7 +17,7 @@ namespace knowledge_rep {
             ros::NodeHandle nh = ros::NodeHandle();
             correspondences_service = nh.serviceClient<knowledge_representation::ResolveObjectCorrespondences>(
                     "/resolve_object_correspondences");
-            add_service = nh.serviceClient<knowledge_representation::AddObject>("/add_object");
+          add_service = nh.serviceClient<knowledge_representation::AddObject>("/add_instance");
             remove_service = nh.serviceClient<knowledge_representation::RemoveObject>("/remove_object");
         }
 

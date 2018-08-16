@@ -75,6 +75,7 @@ add_library(libknowledge_rep
         src/libknowledge_rep/MemoryConduit.cpp
         src/libknowledge_rep/convenience.cpp
         src/libknowledge_rep/Entity.cpp
+        src/libknowledge_rep/Instance.cpp
         src/libknowledge_rep/Concept.cpp
         src/libknowledge_rep/Compiler.cpp
         ${BISON_parser_OUTPUTS}

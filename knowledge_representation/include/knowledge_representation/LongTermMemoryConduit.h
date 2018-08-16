@@ -8,14 +8,15 @@
 #include <boost/variant.hpp>
 #include <boost/optional.hpp>
 #include <utility>
-#include <knowledge_representation/EntityAttribute.h>
 #include <typeindex>
+#include "EntityAttribute.h"
 
 namespace knowledge_rep {
 
 class Concept;
 class Entity;
 
+class Instance;
 
 static const std::vector<std::string> table_names = {
     "entity_attributes_id",
@@ -72,6 +73,12 @@ public:
   void delete_all_entities();
 
   std::vector<Entity> get_all_entities();
+
+    std::vector<Concept> get_all_concepts();
+
+    std::vector<Instance> get_all_instances();
+
+    std::vector<std::pair<std::string, std::string>> get_all_attribute_names() const;
 
 
   template<typename T, typename... Types>
@@ -143,8 +150,6 @@ public:
   Entity get_object_named(const std::string &name);
 
   Entity get_robot();
-
-  Entity add_object();
 
   Entity add_entity();
 

@@ -1,6 +1,7 @@
 #include <vector>
 #include <knowledge_representation/LongTermMemoryConduit.h>
 #include <knowledge_representation/Concept.h>
+#include <knowledge_representation/Instance.h>
 using std::vector;
 using std::string;
 
@@ -23,10 +24,10 @@ bool Concept::remove_instances() {
   return true;
 }
 
-Entity Concept::create_instance() {
+Instance Concept::create_instance() {
   auto instance = ltmc.get().add_entity();
   instance.add_attribute("instance_of", this->entity_id);
-  return instance;
+  return {instance.entity_id, ltmc.get()};
 }
 
 boost::optional<Entity> Concept::create_instance(const std::string& name) {

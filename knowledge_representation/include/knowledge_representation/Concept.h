@@ -13,7 +13,7 @@ public:
 
   Concept(int entity_id, LongTermMemoryConduit &ltmc) : Entity(entity_id, ltmc) {}
 
-  Entity create_instance();
+    Instance create_instance();
 
   boost::optional<Entity> create_instance(const std::string& name);
 

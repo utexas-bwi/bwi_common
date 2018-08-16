@@ -3,6 +3,7 @@
 #include <mysqlx/xdevapi.h>
 #include <string>
 #include <knowledge_representation/Concept.h>
+#include <knowledge_representation/Instance.h>
 
 using ::mysqlx::SessionSettings;
 using ::mysqlx::Error;
@@ -222,12 +223,6 @@ Entity LongTermMemoryConduit::get_robot() {
   return robot;
 }
 
-Entity LongTermMemoryConduit::add_object() {
-  Entity new_entity = add_entity();
-  new_entity.add_attribute("is_concept", false);
-  return new_entity;
-}
-
 /*
 * Inserts a new entity into the database. Returns the entity's ID so
 * it can be manipulated with other methods.
@@ -236,6 +231,42 @@ Entity LongTermMemoryConduit::add_entity() {
   Table entities = db->getTable("entities");
   Result result = entities.insert("entity_id").values(NULL).execute();
   return {(int)result.getAutoIncrementValue(), *this};
+}
+
+std::vector<Concept> LongTermMemoryConduit::get_all_concepts() {
+  vector<Concept> concepts;
+  string query =
+    "SELECT * FROM entity_attributes_bool "
+    "WHERE attribute_name = 'is_concept' "
+    "AND attribute_value = true ";
+  std::vector<EntityAttribute> result;
+  select_query<bool>(query, result);
+  transform(result.begin(), result.end(), back_inserter(concepts),
+            [this](EntityAttribute &attr) { return Concept(attr.entity_id, *this); });
+  return concepts;
+}
+
+std::vector<Instance> LongTermMemoryConduit::get_all_instances() {
+  vector<Instance> concepts;
+  string query =
+    "SELECT * FROM entity_attributes_bool "
+    "WHERE attribute_name = 'is_concept' "
+    "AND attribute_value = false ";
+  std::vector<EntityAttribute> result;
+  select_query<bool>(query, result);
+  transform(result.begin(), result.end(), back_inserter(concepts),
+            [this](EntityAttribute &attr) { return Instance(attr.entity_id, *this); });
+  return concepts;
+}
+
+vector<std::pair<string, string> > LongTermMemoryConduit::get_all_attribute_names() const {
+  vector<std::pair<string, string> > attribute_names;
+  Table entities = db->getTable("attributes");
+  RowResult rows = entities.select("*").execute();
+  transform(rows.begin(), rows.end(), back_inserter(attribute_names), [this](Row row) {
+      return std::make_pair(row[0], row[1]);
+  });
+  return attribute_names;
 }
 
 

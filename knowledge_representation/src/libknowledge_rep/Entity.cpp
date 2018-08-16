@@ -103,7 +103,7 @@ bool Entity::add_attribute(const std::string &attribute_name,
     inserter.execute();
   }
   catch (const mysqlx::Error &err) {
-    cerr << "Tried to add attribute " << attribute_name << " with value " << string_val;
+    cerr << "Tried to add attribute " << attribute_name << " with value " << string_val << endl;
     cerr << "Message: " << err << endl;
     return false;
   }
@@ -112,10 +112,6 @@ bool Entity::add_attribute(const std::string &attribute_name,
 bool Entity::add_attribute(const std::string &attribute_name,
                            const char string_val[]) {
   return add_attribute(attribute_name, std::string(string_val));
-}
-
-bool Entity::make_instance_of(const knowledge_rep::Concept &concept) {
-    return add_attribute("instance_of", concept.entity_id);
 }
 
 bool Entity::remove_attribute(const std::string &attribute_name) {
