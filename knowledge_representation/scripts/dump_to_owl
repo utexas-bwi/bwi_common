@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import lxml.etree as etree
+import knowledge_representation
+
+ltmc = knowledge_representation.get_default_ltmc()
+root = etree.Element("Ontology")
+
+entities = ltmc.get_all_entities()
+concepts = ltmc.get_all_concepts()
+instances = ltmc.get_all_instances()
+attributes = ltmc.get_all_attribute_names()
+attributes_list = list(attributes)
+
+for attribute in attributes_list:
+    if attribute.second == "int":
+        decl = etree.SubElement(root, "Declaration")
+        etree.SubElement(decl, "ObjectProperty", {"IRI": "#" + attribute.first})
+
+for concept in concepts:
+    decl = etree.SubElement(root, "Declaration")
+    etree.SubElement(decl, "Class", {"IRI": "#" + concept.get_name()})
+
+for instance in instances:
+    decl = etree.SubElement(root, "Declaration")
+    etree.SubElement(decl, "NamedIndividual", {"IRI": "#" + instance.get_name()})
+
+for entity in entities:
+    entity_attributes = entity.get_attributes()
+    for attribute in entity_attributes:
+        if attribute.attribute_name == "is_a":
+            subclass = etree.SubElement(root, "SubClassOf")
+            this_concept = knowledge_representation.Concept(entity.entity_id, ltmc)
+            etree.SubElement(subclass, "Class", {"IRI": "#" + this_concept.get_name()})
+            other_concept = knowledge_representation.Concept(attribute.get_int_value(), ltmc)
+            etree.SubElement(subclass, "Class", {"IRI": "#" + other_concept.get_name()})
+        if attribute.attribute_name == "instance_of":
+            instance_of = etree.SubElement(root, "ClassAssertion")
+            this_instance = knowledge_representation.Instance(entity.entity_id, ltmc)
+            etree.SubElement(instance_of, "NamedIndividual", {"IRI": "#" + this_instance.get_name()})
+            other_concept = knowledge_representation.Concept(attribute.get_int_value(), ltmc)
+            etree.SubElement(instance_of, "Class", {"IRI": "#" + other_concept.get_name()})
+
+etree.ElementTree(root).write("test.xml", pretty_print=True)

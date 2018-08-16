@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+import pronto
+
+import pronto
+nmr = pronto.Ontology('http://nmrml.org/cv/v1.1.0/nmrCV.owl')
+#nmr = pronto.Ontology('/home/nick/workspaces/bwi_ws/src/bwi_common/utexas_gdc/knowledge/nmrCV.owl')
+
+# TODO: Actually populate the knowledge base with an OWL file
