@@ -13,6 +13,9 @@ from bwi_kr_execution import goal_formulators, knowledge
 
 def main():
     rospy.init_node("visit_door_list_smach")
+    target_door = rospy.get_param("door", None)
+    if not target_door:
+        print("Please provide a door: door:=d3_414b1")
 
     simulation = rospy.get_param("~simulation", False)
     introspect = rospy.get_param("~introspect", False)
@@ -29,7 +32,7 @@ def main():
         # Add states
         StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomBwiLocation(ltmc), ["succeeded"])
         StateMachine.add('GOTO_DOOR', task_machine.generate_goal_based_task_sm(
-                              goal_formulators.GoToLocationName(), ["location"]),
+            goal_formulators.GoToLocationName(), ["location"]),
                          transitions={"succeeded": "DECIDE_DESTINATION",
                                       'aborted': 'DECIDE_DESTINATION'})
 
