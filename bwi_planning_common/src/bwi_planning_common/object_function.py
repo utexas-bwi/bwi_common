@@ -5,6 +5,7 @@ import math
 import os.path
 import rospy
 import yaml
+from operator import itemgetter
 
 from python_qt_binding.QtCore import QPoint, QPointF, QRect, Qt
 from python_qt_binding.QtGui import QPainter, QPolygon
@@ -114,6 +115,7 @@ class ObjectFunction(object):
             out_list.append(object_dict)
 
         stream = open(self.object_file, 'w')
+        out_list = sorted(out_list, key=itemgetter('name'))
         yaml.dump(out_list, stream)
         stream.close()
 

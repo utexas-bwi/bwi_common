@@ -137,7 +137,8 @@ class LocationFunction(object):
         poly_to_name = {poly: name for name, poly in self.locations.items()}
 
         for location_poly, neighbor_poly in connectivity.items():
-            out_dict[poly_to_name[location_poly]] = [poly_to_name[p] for p in neighbor_poly]
+            sorted_list = sorted([poly_to_name[p] for p in neighbor_poly])
+            out_dict[poly_to_name[location_poly]] = sorted_list
 
         stream = open(self.connectivity_file, 'w')
         yaml.dump(out_dict, stream)
@@ -148,6 +149,7 @@ class LocationFunction(object):
 
         out_dict = {}
         out_dict["locations"] = self.locations.keys()
+        out_dict["locations"] = sorted(out_dict["locations"])
         out_dict["polygons"] = []
         for index, location in enumerate(self.locations):
             out_dict["polygons"].append([])
