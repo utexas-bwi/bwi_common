@@ -9,9 +9,10 @@ is_facing(self, T, n) :- navigate_to(T, n).
 %for now assume everything is connected
 
 % action find_person
-is_located(P, L, n) :- find_person(P, n), is_near(self, L, n - 1).
-is_facing(self, P, n) :- find_person(P, n).
-:- find_person(P, n), 0{is_near(self, L, n - 1) : can_be_located(P, L); is_near(self, L, n - 1) : is_located(P, L)}0.
+is_located(P, L, n) :- find_person(P, L, n).
+is_facing(self, P, n) :- find_person(P, L, n).
+:- find_person(P, L, n), is_near(self, L, n - 1).
+:- find_person(P, L, n), 0{can_be_located(P, L); is_located(P, L)}0.
 
 % action pick_up
 is_holding(self, O, n) :- pick_up(O, L, n).
@@ -30,10 +31,11 @@ hand_empty(n) :- put_down(O, L, n).
 :- put_down(O, L, n), not is_holding(self, O, n - 1).
 
 % action perceive_surface
-scanned(L, n) :- perceive_surface(L, n).
-is_placed(O, L, n) :- perceive_surface(L, n), can_be_placed(O, L).
-:- perceive_surface(L, n), not is_facing(self, L, n - 1).
-:- perceive_surface(L, n), scanned(L, n - 1).
+scanned(L, n) :- perceive_surface(O, L, n).
+is_placed(O, L, n) :- perceive_surface(O, L, n).
+:- perceive_surface(O, L, n), can_be_placed(O, L).
+:- perceive_surface(O, L, n), not is_facing(self, L, n - 1).
+:- perceive_surface(O, L, n), scanned(L, n - 1).
 
 % action hand_over
 is_delivered(O, P, n) :- hand_over(O, P, n).

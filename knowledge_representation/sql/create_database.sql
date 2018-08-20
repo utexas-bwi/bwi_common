@@ -137,7 +137,6 @@ insert into attributes(attribute_name, type) values('is_delivered', 'int');
 insert into attributes(attribute_name, type) values('is_facing', 'int');
 insert into attributes(attribute_name, type) values('is_holding', 'int');
 insert into attributes(attribute_name, type) values('is_in', 'int');
-insert into attributes(attribute_name, type) values('is_located', 'int');
 insert into attributes(attribute_name, type) values('is_near', 'int');
 insert into attributes(attribute_name, type) values('is_placed', 'int');
 insert into attributes(attribute_name, type) values('name', 'string');

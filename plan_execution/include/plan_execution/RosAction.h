@@ -31,9 +31,12 @@ public:
     virtual void run() {
         if (!request_in_progress) {
             typename boost::optional<Goal> goal = prepareGoal();
+            // The subclass didn't provide a goal. This is usually an error
             if (!goal) {
+                ROS_ERROR_STREAM("Ran " << getName() <<  " but did not return a goal from prepareGoal()");
                 onFinished(false, {});
                 done = true;
+                return;
             }
             ac = new ActionClient(action_topic_name, true);
             bool got_server = ac->waitForServer(ros::Duration(7));
@@ -41,7 +44,7 @@ public:
                 ROS_WARN("Could not get server for %s at %s", getName().c_str(), action_topic_name.c_str());
                 done = true;
                 failed = true;
-                onFinished(false, ResultConstPtr(new Result()));
+                onFinished(false, {});
                 delete ac;
                 return;
             }

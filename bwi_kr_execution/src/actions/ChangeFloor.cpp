@@ -6,7 +6,7 @@
 #include "ros/ros.h"
 
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_msgs/LogicalActionAction.h>
+#include <bwi_msgs/LogicalNavAction.h>
 #include <actasp/AspAtom.h>
 
 namespace bwi_krexec {

@@ -189,7 +189,7 @@ Concept LongTermMemoryConduit::get_concept(const string &name) {
   }
 }
 
-Entity LongTermMemoryConduit::get_object_named(const string &name) {
+Instance LongTermMemoryConduit::get_object_named(const string &name) {
   string query =
       "SELECT * FROM entity_attributes_str AS eas "
       "LEFT JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
@@ -200,7 +200,7 @@ Entity LongTermMemoryConduit::get_object_named(const string &name) {
   std::vector<EntityAttribute> result;
   select_query_args<string>(query, result, name);
   if (result.empty()) {
-    Entity new_entity = add_entity();
+    Instance new_entity = Instance(add_entity().entity_id, *this);
     new_entity.add_attribute("name", name);
     new_entity.add_attribute("is_concept", false);
     return new_entity;

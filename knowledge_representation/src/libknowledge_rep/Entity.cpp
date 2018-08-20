@@ -127,6 +127,15 @@ bool Entity::remove_attribute(const std::string &attribute_name) {
     return true;
 }
 
+bool Entity::remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity) {
+
+  Table entity_attributes = ltmc.get().db->getTable("entity_attributes_id");
+  TableRemove remover = entity_attributes.remove();
+  remover.where("entity_id = :id and attribute_name = :name and attribute_value = :value").bind("id", entity_id).bind("name",
+                                                                                         attribute_name).bind("value", other_entity.entity_id);
+  remover.execute();
+}
+
 
 vector<EntityAttribute>
 Entity::get_attributes() const {

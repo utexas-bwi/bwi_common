@@ -33,6 +33,8 @@ public:
 
   bool remove_attribute(const std::string &attribute_name);
 
+  bool remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity);
+
   std::vector<EntityAttribute> get_attributes() const;
 
   std::vector<EntityAttribute> get_attributes(const std::string &attribute_name) const;

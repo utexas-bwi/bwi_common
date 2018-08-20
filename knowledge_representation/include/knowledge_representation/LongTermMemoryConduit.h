@@ -147,7 +147,7 @@ public:
 //// CONVENIENCE
   Concept get_concept(const std::string &name);
 
-  Entity get_object_named(const std::string &name);
+  Instance get_object_named(const std::string &name);
 
   Entity get_robot();
 

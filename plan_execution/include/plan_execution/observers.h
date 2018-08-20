@@ -1,3 +1,5 @@
+#include <utility>
+
 #ifndef PLAN_EXECUTION_OBSERVERS_H
 #define PLAN_EXECUTION_OBSERVERS_H
 
@@ -5,6 +7,7 @@
 #include <actasp/ExecutionObserver.h>
 #include <actasp/PlanningObserver.h>
 #include <utility>
+#include <boost/filesystem.hpp>
 
 namespace plan_exec {
 
@@ -105,8 +108,49 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
 
     void policyChanged(actasp::PartialPolicy *policy) noexcept {}
 
+};
+
+void recursive_copy(const boost::filesystem::path &src, const boost::filesystem::path &dst)
+{
+  if (boost::filesystem::exists(dst)){
+    throw std::runtime_error(dst.generic_string() + " exists");
+  }
+
+  if (boost::filesystem::is_directory(src)) {
+    boost::filesystem::create_directories(dst);
+    for (boost::filesystem::directory_entry& item : boost::filesystem::directory_iterator(src)) {
+      recursive_copy(item.path(), dst/item.path().filename());
+    }
+  }
+  else if (boost::filesystem::is_regular_file(src)) {
+    boost::filesystem::copy(src, dst);
+  }
+  else {
+    throw std::runtime_error(dst.generic_string() + " not dir or file");
+  }
+}
+
+
+struct QueryLoggingObserver : public actasp::PlanningObserver {
+
+  const std::string log_path;
+  const std::string query_path;
+
+  explicit QueryLoggingObserver(std::string log_path, const std::string &query_path): log_path(std::move(log_path)), query_path(query_path) {}
+
+
+  void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
+      auto t = std::time(nullptr);
+      auto tm = *std::localtime(&t);
+      std::stringstream stampstream;
+      stampstream << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
+      recursive_copy(query_path, log_path + stampstream.str());
+  }
+
 
 };
+
 }
+
 
 #endif //PLAN_EXECUTION_OBSERVERS_H
