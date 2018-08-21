@@ -151,10 +151,11 @@ class LocationFunction(object):
         out_dict["locations"] = self.locations.keys()
         out_dict["locations"] = sorted(out_dict["locations"])
         out_dict["polygons"] = []
-        for index, location in enumerate(self.locations):
+        for index, key in enumerate(sorted(self.locations)):
             out_dict["polygons"].append([])
-            for i in range(self.locations[location].size()):
-                pt = self.locations[location].point(i)
+            polygon = self.locations[key]
+            for i in range(polygon.size()):
+                pt = polygon.point(i)
                 scaled_pt = scalePoint(pt, self.image_size, self.map_size)
                 out_dict["polygons"][index].append(scaled_pt.x())
                 out_dict["polygons"][index].append(scaled_pt.y())
@@ -167,12 +168,12 @@ class LocationFunction(object):
         location_image = QImage(self.map_size, QImage.Format_RGB32)
         location_image.fill(Qt.white)
         painter = QPainter(location_image) 
-        for index, location in enumerate(self.locations):
+        for index, key in enumerate(self.locations):
             if index > 254:
                 rospy.logerr("You have more than 254 locations, which is unsupported by the bwi_planning_common C++ code!")
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(index, index, index))
-            scaled_polygon = scalePolygon(self.locations[location], self.image_size, self.map_size)
+            scaled_polygon = scalePolygon(self.locations[key], self.image_size, self.map_size)
             painter.drawPolygon(scaled_polygon)
         painter.end()
         location_image.save(image_file)

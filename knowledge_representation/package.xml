@@ -14,7 +14,6 @@
     <depend>flex</depend>
     <depend>libmysqlclient-dev</depend>
     <depend>libmysqlcppconn-dev</depend>
-    <depend>mysql-shell</depend>
     <depend>pcl_conversions</depend>
     <depend>pcl_ros</depend>
     <depend>roscpp</depend>
