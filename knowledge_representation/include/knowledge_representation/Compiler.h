@@ -1,5 +1,4 @@
-#ifndef KNOWLEDGE_REPRESENTATION_COMPILER_H
-#define KNOWLEDGE_REPRESENTATION_COMPILER_H
+#pragma once
 #include <knowledge_representation/Parser.h>
 #include <knowledge_representation/location.hh>
 
@@ -46,4 +45,3 @@ private:
   Lexer *lexer;
 };
 }
-#endif //KNOWLEDGE_REPRESENTATION_COMPILER_H

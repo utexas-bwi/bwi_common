@@ -73,11 +73,11 @@ TEST_F(LTMCTest, SQLQueryWorks) {
 TEST_F(LTMCTest, ObjectAndConceptNameSpacesAreSeparate) {
 
     Concept pitcher_con = ltmc.get_concept("soylent pitcher");
-    knowledge_rep::Entity pitcher = ltmc.get_object_named("soylent pitcher");
-    EXPECT_NE(ltmc.get_object_named("soylent pitcher").entity_id, pitcher_con.entity_id);
+    knowledge_rep::Entity pitcher = ltmc.get_instance_named("soylent pitcher");
+    EXPECT_NE(ltmc.get_instance_named("soylent pitcher").entity_id, pitcher_con.entity_id);
     EXPECT_TRUE(ltmc.entity_exists(pitcher.entity_id));
     // Named entity returns the only entity by that name
-    EXPECT_EQ(pitcher, ltmc.get_object_named("soylent pitcher"));
+    EXPECT_EQ(pitcher, ltmc.get_instance_named("soylent pitcher"));
 }
 
 TEST_F(LTMCTest, CanOnlyAddAttributeOnce) {
@@ -121,6 +121,14 @@ TEST_F(EntityTest, AddEntityWorks) {
     ASSERT_TRUE(entity.is_valid());
 }
 
+TEST_F(EntityTest, CreateInstanceWorks) {
+  auto instance = concept.create_instance();
+  EXPECT_TRUE(instance.is_valid());
+  auto named_instance = concept.create_instance("named");
+  ASSERT_TRUE(named_instance.is_initialized());
+  EXPECT_TRUE(named_instance->is_valid());
+}
+
 TEST_F(EntityTest, StringAttributeWorks) {
   entity.add_attribute("is_concept", "test");
   auto attrs = entity.get_attributes("is_concept");
@@ -159,6 +167,12 @@ TEST_F(EntityTest, BoolAttributeWorks) {
     EXPECT_FALSE(boost::get<bool>(attrs.at(0).value));
   EXPECT_TRUE(entity.remove_attribute("is_concept"));
 
+}
+
+TEST_F(EntityTest, CantRemoveEntityAttributeTwice) {
+  entity.add_attribute("is_concept", true);
+  ASSERT_TRUE(entity.remove_attribute("is_concept"));
+  ASSERT_FALSE(entity.remove_attribute("is_concept"));
 }
 
 // Run all the tests

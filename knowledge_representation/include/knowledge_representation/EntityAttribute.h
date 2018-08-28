@@ -1,6 +1,4 @@
-#ifndef KNOWLEDGE_REPRESENTATION_ENTITYATTRIBUTE_H
-#define KNOWLEDGE_REPRESENTATION_ENTITYATTRIBUTE_H
-
+#pragma once
 #include <string>
 
 namespace knowledge_rep {
@@ -32,13 +30,13 @@ struct EntityAttribute {
                                                                                        attribute_name)),
                                                                                    value(value) {}
 
-  int get_int_value() { return boost::get<int>(value); }
+  int get_int_value() const { return boost::get<int>(value); }
 
-  float get_float_value() { return boost::get<float>(value); }
+  float get_float_value() const { return boost::get<float>(value); }
 
-  bool get_bool_value() { return boost::get<bool>(value); }
+  bool get_bool_value() const { return boost::get<bool>(value); }
 
-  std::string get_string_value() { return boost::get<std::string>(value); }
+  std::string get_string_value() const { return boost::get<std::string>(value); }
 
   bool operator==(const EntityAttribute &other) {
     return (this->entity_id == other.entity_id)
@@ -49,4 +47,3 @@ struct EntityAttribute {
 };
 }
 
-#endif //KNOWLEDGE_REPRESENTATION_ENTITYATTRIBUTE_H

@@ -1,6 +1,4 @@
-#ifndef KNOWLEDGE_REPRESENTATION_NODE_H
-#define KNOWLEDGE_REPRESENTATION_NODE_H
-
+#pragma once
 #include <string>
 
 namespace knowledge_rep {
@@ -85,4 +83,3 @@ public:
 };
 
 }
-#endif //KNOWLEDGE_REPRESENTATION_NODE_H

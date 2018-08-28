@@ -1,6 +1,4 @@
-#ifndef VILLA_WORLD_MODEL_WORLDMODELINTERFACE_H
-#define VILLA_WORLD_MODEL_WORLDMODELINTERFACE_H
-
+#pragma once
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/io.h>
@@ -42,4 +40,3 @@ namespace knowledge_rep {
 
 }
 
-#endif //VILLA_WORLD_MODEL_WORLDMODELINTERFACE_H

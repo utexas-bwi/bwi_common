@@ -22,21 +22,25 @@ Entity& Entity::operator =(const Entity &that) {
   this->ltmc = that.ltmc;
 }
 
-/*
- * Deletes an entity and any other entities and relations that rely on it.
+/**
+ * @brief Deletes an entity and any other entities and relations that rely on it.
+ * @return true if the entity was deleted. False if it could not be, or already was
  */
 bool Entity::delete_entity() {
 
   // TODO: Handle failure
   // TODO: Recursively remove entities that are members of directional relations
-  // First, removing all references to the entity
-
+  if (!is_valid()) {
+  return false;
+  }
   // Because we've all references to this entity have foreign key relationships with cascade set,
   // this should clear out any references to this entity in other tables as well
   Table table = ltmc.get().db->getTable("entities");
   TableRemove remover = table.remove();
   remover.where("entity_id=:id").bind("id", entity_id);
   remover.execute();
+  // TODO: Actually check that we deleted something
+  return true;
 }
 
 bool Entity::add_attribute(const std::string &attribute_name,
@@ -107,6 +111,7 @@ bool Entity::add_attribute(const std::string &attribute_name,
     cerr << "Message: " << err << endl;
     return false;
   }
+  return true;
 }
 
 bool Entity::add_attribute(const std::string &attribute_name,
@@ -114,26 +119,29 @@ bool Entity::add_attribute(const std::string &attribute_name,
   return add_attribute(attribute_name, std::string(string_val));
 }
 
-bool Entity::remove_attribute(const std::string &attribute_name) {
-
+int Entity::remove_attribute(const std::string &attribute_name) {
+  int removed_count = 0;
   for (const auto &table_name: table_names) {
     // TODO: Rewrite this as SQL query to delete from a join across attribute_name
     Table entity_attributes = ltmc.get().db->getTable(table_name);
     TableRemove remover = entity_attributes.remove();
     remover.where("entity_id = :id and attribute_name = :name").bind("id", entity_id).bind("name",
                                                                                            attribute_name);
-    remover.execute();
+    auto result = remover.execute();
+    removed_count += result.getAffectedItemsCount();
+
   }
-    return true;
+  return removed_count;
 }
 
-bool Entity::remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity) {
+int Entity::remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity) {
 
   Table entity_attributes = ltmc.get().db->getTable("entity_attributes_id");
   TableRemove remover = entity_attributes.remove();
   remover.where("entity_id = :id and attribute_name = :name and attribute_value = :value").bind("id", entity_id).bind("name",
                                                                                          attribute_name).bind("value", other_entity.entity_id);
-  remover.execute();
+  auto result = remover.execute();
+  return result.getAffectedItemsCount();
 }
 
 
@@ -170,10 +178,19 @@ Entity::get_attributes(const std::string &attribute_name) const {
   return attributes;
 }
 
+/**
+ * @brief Verifies that the entity still exists in the LTMC
+ * An entity can be invalidated if it is explicitly deleted from the LTMC, or if
+ * it is removed as a result of other helpers that delete entities.
+ * @return whether the entity is valid
+ */
 bool Entity::is_valid() const {
   return ltmc.get().entity_exists(entity_id);
 }
 
+/**
+ * @return the name of the entity, if one exists
+ */
 boost::optional<std::string> Entity::get_name() const {
   // There should only be one
   auto name_attrs = get_attributes("name");

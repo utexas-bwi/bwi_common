@@ -4,6 +4,7 @@
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
 #include <knowledge_representation/Concept.h>
+#include <knowledge_representation/Instance.h>
 
 
 using std::vector;
@@ -13,6 +14,7 @@ using std::endl;
 using knowledge_rep::EntityAttribute;
 using knowledge_rep::Entity;
 using knowledge_rep::Concept;
+using knowledge_rep::Instance;
 
 static auto ltmc = knowledge_rep::get_default_ltmc();
 
@@ -23,7 +25,17 @@ void about_id(const int id) {
     }
     auto attributes = entity.get_attributes();
     for (const auto &attr: attributes) {
-        cout << attr.attribute_name << "\t" << knowledge_rep::to_string(attr.value) << endl;
+        if (attr.value.type() == typeid(int)) {
+            Entity target(attr.get_int_value(), ltmc);
+            string name_to_print = "-";
+            auto name = target.get_name();
+            if (name) {
+                name_to_print = *name;
+            }
+            cout << attr.attribute_name << "\t" << std::to_string(target.entity_id) << " (" << name_to_print << ")" << endl;
+        } else {
+            cout << attr.attribute_name << "\t" << knowledge_rep::to_string(attr.value) << endl;
+        }
     }
 }
 
@@ -32,7 +44,7 @@ void concept_instances(const std::string &concept_name) {
     auto instances = concept.get_instances();
     cout << instances.size() << " instances of " << concept_name << endl;
     cout << "ID \t Name" << endl;
-    for (const auto &instance: instances) {
+    for (auto &instance: instances) {
         auto name = instance.get_name();
         string name_to_print = "-";
         if (name) {
@@ -44,7 +56,7 @@ void concept_instances(const std::string &concept_name) {
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
-        cout << "Please provide a concept name" << endl;
+        cout << "Please provide a concept name or entity id" << endl;
         exit(1);
     }
 

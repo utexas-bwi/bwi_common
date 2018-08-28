@@ -1,5 +1,4 @@
-#ifndef KNOWLEDGE_REPRESENTATION_LEXER_H
-#define KNOWLEDGE_REPRESENTATION_LEXER_H
+#pragma once
 
 
 #undef YY_DECL
@@ -29,4 +28,3 @@ private:
 };
 
 }
-#endif

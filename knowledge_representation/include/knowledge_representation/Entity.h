@@ -1,6 +1,4 @@
-#ifndef KNOWLEDGE_REPRESENTATION_ENTITY_H
-#define KNOWLEDGE_REPRESENTATION_ENTITY_H
-
+#pragma once
 #include <string>
 #include <vector>
 #include <knowledge_representation/LongTermMemoryConduit.h>
@@ -31,15 +29,15 @@ public:
 
   bool add_attribute(const std::string &attribute_name, const Entity &other_entity);
 
-  bool remove_attribute(const std::string &attribute_name);
+  int remove_attribute(const std::string &attribute_name);
 
-  bool remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity);
+  int remove_attribute_of_value(const std::string &attribute_name, const Entity &other_entity);
 
   std::vector<EntityAttribute> get_attributes() const;
 
   std::vector<EntityAttribute> get_attributes(const std::string &attribute_name) const;
 
-    boost::optional<std::string> get_name() const;
+  boost::optional<std::string> get_name() const;
 
   bool add_attribute(const std::string &attribute_name, const char string_val[]);
 
@@ -67,4 +65,3 @@ protected:
 
 
 
-#endif //KNOWLEDGE_REPRESENTATION_ENTITY_H

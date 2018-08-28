@@ -57,33 +57,26 @@ bool LongTermMemoryConduit::add_entity(int id) {
   return true;
 }
 
-bool LongTermMemoryConduit::add_attribute(const string &name) {
+/**
+ * @brief Add a new attribute
+ * @param name the name of the attribute
+ * @param allowed_types a bitmask representing the types allowed for the attribute
+ * @return whether the attribute was added. Note that addition will fail if the attribute already exists.
+ */
+bool LongTermMemoryConduit::add_attribute(const string &name, const int allowed_types) {
+  // TODO: Implement allowed_types parameter
   Table entities = db->getTable("attributes");
   Result result = entities.insert("attribute_name").values(name).execute();
   return true;
 }
 
+/// \return true if an entity exists with the given ID
 bool LongTermMemoryConduit::entity_exists(int id) const {
   Table entities = db->getTable("entities");
   auto result = entities.select("entity_id").where("entity_id = :id").bind("id", id).execute();
   return result.count() == 1;
 }
 
-bool LongTermMemoryConduit::entity_exists(const Entity& entity) const {
-  Table entities = db->getTable("entities");
-  auto result = entities.select("entity_id").where("entity_id = :id").bind("id", entity.entity_id).execute();
-  return result.count() == 1;
-}
-
-
-bool LongTermMemoryConduit::remove_concept_references(const string &concept_name) {
-  Concept concept = get_concept(concept_name);
-  // Rely on the schema to clear out the childern via cascading delete
-  concept.delete_entity();
-  // Recreate it by getting it...
-  Concept new_concept = get_concept(concept_name);
-  return true;
-}
 
 vector<Entity> LongTermMemoryConduit::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                         const int other_entity_id) {
@@ -146,6 +139,9 @@ std::vector<Entity> LongTermMemoryConduit::get_all_entities() {
   return all_obj_ids;
 }
 
+/**
+ * @brief Remove all entities and all entity attributes except for the robot
+ */
 void LongTermMemoryConduit::delete_all_entities() {
   Table table = db->getTable("entities");
   TableRemove remover = table.remove();
@@ -159,16 +155,22 @@ void LongTermMemoryConduit::delete_all_entities() {
   assert(entity_exists(1));
 }
 
-bool LongTermMemoryConduit::delete_attribute(int id) {
+bool LongTermMemoryConduit::delete_attribute(string name) {
   // TODO: Write
   return false;
 }
 
-bool LongTermMemoryConduit::attribute_exists(int id) const {
+bool LongTermMemoryConduit::attribute_exists(string name) const {
   // TODO: Write this
   return false;
 }
 
+/**
+ * @brief Retrieves a concept of the given name, or creates one with the name if no such instance exists
+ * @param name
+ * @return the existing concept, or the newly created one. In either case, the instance will at least have the name
+ *         passed as a parameter.
+ */
 Concept LongTermMemoryConduit::get_concept(const string &name) {
   string query =
       "SELECT * FROM entity_attributes_str AS eas "
@@ -189,7 +191,13 @@ Concept LongTermMemoryConduit::get_concept(const string &name) {
   }
 }
 
-Instance LongTermMemoryConduit::get_object_named(const string &name) {
+/**
+ * @brief Retrieves an instance of the given name, or creates one with the name if no such instance exists
+ * @param name
+ * @return the existing instance, or the newly created one. In either case, the instance will at least have the name
+ *         passed as a parameter.
+ */
+Instance LongTermMemoryConduit::get_instance_named(const string &name) {
   string query =
       "SELECT * FROM entity_attributes_str AS eas "
       "LEFT JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
@@ -209,30 +217,42 @@ Instance LongTermMemoryConduit::get_object_named(const string &name) {
   }
 }
 
-bool LongTermMemoryConduit::get_entity(int entity_id, Entity &entity) {
+/**
+ * @brief Returns an entity with the given ID, if it exists
+ * @param entity_id the ID of the entity to fetch
+ * @return the entity requested, or an empty optional if no such entity exists
+ */
+boost::optional<Entity> LongTermMemoryConduit::get_entity(int entity_id) {
   if (entity_exists(entity_id)) {
-    entity = {entity_id, *this};
-    return true;
+    return Entity{entity_id, *this};
   }
-  return false;
+  return {};
 }
 
-Entity LongTermMemoryConduit::get_robot() {
-  Entity robot = Entity(1, *this);
+/**
+ * @brief Gets the instance representing the robot
+ * @return an instance representing the robot the LTMC is running on
+ */
+Instance LongTermMemoryConduit::get_robot() {
+  Instance robot = Instance(1, *this);
   assert(robot.is_valid());
   return robot;
 }
 
-/*
-* Inserts a new entity into the database. Returns the entity's ID so
-* it can be manipulated with other methods.
-*/
+/**
+ * @brief Inserts a new entity into the database. Returns the entity's ID so it can be manipulated with other methods.
+ * @return the new entity
+ */
 Entity LongTermMemoryConduit::add_entity() {
   Table entities = db->getTable("entities");
   Result result = entities.insert("entity_id").values(NULL).execute();
   return {(int)result.getAutoIncrementValue(), *this};
 }
 
+/**
+ * @brief Queries for all entities that are marked as concepts
+ * @return all concepts in the LTMC
+ */
 std::vector<Concept> LongTermMemoryConduit::get_all_concepts() {
   vector<Concept> concepts;
   string query =
@@ -245,7 +265,10 @@ std::vector<Concept> LongTermMemoryConduit::get_all_concepts() {
             [this](EntityAttribute &attr) { return Concept(attr.entity_id, *this); });
   return concepts;
 }
-
+/**
+ * @brief Queries for all entities that are identified as instances
+ * @return all instances in the LTMC
+ */
 std::vector<Instance> LongTermMemoryConduit::get_all_instances() {
   vector<Instance> concepts;
   string query =
@@ -259,8 +282,13 @@ std::vector<Instance> LongTermMemoryConduit::get_all_instances() {
   return concepts;
 }
 
-vector<std::pair<string, string> > LongTermMemoryConduit::get_all_attribute_names() const {
-  vector<std::pair<string, string> > attribute_names;
+/**
+ * @brief Retrieves all attributes
+ * @return a list of tuples. First element of each is the attribute name, the second is a bitmask representing acceptable
+ * types for that attribute
+ */
+vector<std::pair<string, int> > LongTermMemoryConduit::get_all_attributes() const {
+  vector<std::pair<string, int> > attribute_names;
   Table entities = db->getTable("attributes");
   RowResult rows = entities.select("*").execute();
   transform(rows.begin(), rows.end(), back_inserter(attribute_names), [this](Row row) {

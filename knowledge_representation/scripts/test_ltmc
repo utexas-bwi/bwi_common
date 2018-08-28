@@ -24,4 +24,6 @@ assert len(nsb_concept.get_instances()) == 0
 result_list = PyAttributeList()
 ltmc.select_query_string("SELECT * FROM entity_attributes_str", result_list)
 
+instance = nsb_concept.create_instance("nsb")
+assert instance
 print("Done!")

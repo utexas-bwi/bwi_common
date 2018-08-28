@@ -9,7 +9,7 @@ CREATE TABLE entities (
 
 CREATE TABLE attributes (
     attribute_name varchar(24) NOT NULL,
-    type varchar(24) NOT NULL,
+    type SET('bool', 'int', 'id', 'string', 'float') NOT NULL,
     PRIMARY KEY(attribute_name)
 );
 
@@ -129,6 +129,7 @@ DELIMITER ;
 insert into attributes(attribute_name, type) values('answer_to', 'int');
 insert into attributes(attribute_name, type) values('default_location', 'int');
 insert into attributes(attribute_name, type) values('has', 'int');
+insert into attributes(attribute_name, type) values('height', 'float');
 insert into attributes(attribute_name, type) values('instance_of', 'int');
 insert into attributes(attribute_name, type) values('is_a', 'int');
 insert into attributes(attribute_name, type) values('is_concept', 'bool');

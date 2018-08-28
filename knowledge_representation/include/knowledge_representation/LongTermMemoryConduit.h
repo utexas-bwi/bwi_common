@@ -1,6 +1,4 @@
-#ifndef LONG_TERM_MEMORY_CONDUIT_H
-#define LONG_TERM_MEMORY_CONDUIT_H
-
+#pragma once
 #include <iostream>
 #include <mysqlx/xdevapi.h>
 #include <string>
@@ -35,23 +33,19 @@ public:
   std::unique_ptr<mysqlx::Session> sess;
   std::unique_ptr<mysqlx::Schema> db;
 
-  LongTermMemoryConduit(const std::string &addr, const uint port, const std::string &usr,
+  LongTermMemoryConduit(const std::string &addr, uint port, const std::string &usr,
                         const std::string &password, const std::string &db_name);
 
   LongTermMemoryConduit(LongTermMemoryConduit &&that) = default;
 
-  //LongTermMemoryConduit(LongTermMemoryConduit &&that) = default;
-
   ~LongTermMemoryConduit();
 
-  LongTermMemoryConduit& operator=(LongTermMemoryConduit &&that) {
+  LongTermMemoryConduit& operator=(LongTermMemoryConduit &&that) noexcept {
     std::swap(sess, that.sess);
     std::swap(db, that.db);
   }
 
-  bool add_attribute(const std::string &name);
-
-  bool remove_concept_references(const std::string &concept_name);
+  bool add_attribute(const std::string &name, int allowed_types);
 
   std::vector<Entity>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const int other_entity_id);
@@ -64,11 +58,9 @@ public:
 
   bool entity_exists(int id) const;
 
-  bool entity_exists(const Entity& entity) const;
+  bool delete_attribute(std::string name);
 
-  bool delete_attribute(int id);
-
-  bool attribute_exists(int id) const;
+  bool attribute_exists(std::string name) const;
 
   void delete_all_entities();
 
@@ -78,7 +70,7 @@ public:
 
     std::vector<Instance> get_all_instances();
 
-    std::vector<std::pair<std::string, std::string>> get_all_attribute_names() const;
+    std::vector<std::pair<std::string, int>> get_all_attributes() const;
 
 
   template<typename T, typename... Types>
@@ -142,20 +134,20 @@ public:
 //
 //#
 //#bwi_door(d3_414b1). bwi_door(d3_414b2
-  bool asp_query(const std::vector<std::string> &query_elements, std::vector<std::string> &result) const;
+
 
 //// CONVENIENCE
   Concept get_concept(const std::string &name);
 
-  Instance get_object_named(const std::string &name);
+  Instance get_instance_named(const std::string &name);
 
-  Entity get_robot();
+  Instance get_robot();
 
   Entity add_entity();
 
   bool add_entity(int id);
 
-  bool get_entity(int entity_id, Entity &entity);
+  boost::optional<Entity> get_entity(int entity_id);
 
 private:
   template <typename T>
@@ -171,7 +163,7 @@ private:
     return result_map;
   }
 
-  std::vector<EntityAttribute> unwrap_attribute_rows(const std::string &table_name, std::list<mysqlx::Row> rows) const {
+  std::vector<EntityAttribute> unwrap_attribute_rows(const std::string &table_name, const std::list<mysqlx::Row> &rows) const {
 
     if (table_name == "entity_attributes_str") {
       return unwrap_attribute_rows<std::string>(rows);
@@ -189,5 +181,4 @@ template bool LongTermMemoryConduit::select_query<int>(const std::string &sql_qu
 
 }
 
-#endif
 

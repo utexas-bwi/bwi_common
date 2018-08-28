@@ -1,5 +1,5 @@
-#ifndef KNOWLEDGE_REPRESENTATION_INSTANCE_H
-#define KNOWLEDGE_REPRESENTATION_INSTANCE_H
+#pragma once
+#include <utility>
 
 #include <knowledge_representation/Entity.h>
 
@@ -9,12 +9,12 @@ class Instance : public Entity {
     std::string name;
 public:
 
-    Instance(int entity_id, const std::string &name, LongTermMemoryConduit &ltmc) : name(name),
+    Instance(int entity_id, std::string name, LongTermMemoryConduit &ltmc) : name(std::move(name)),
                                                                                     Entity(entity_id, ltmc) {}
 
     Instance(int entity_id, LongTermMemoryConduit &ltmc) : Entity(entity_id, ltmc) {}
 
-    std::string get_name();
+    boost::optional<std::string> get_name();
 
     bool make_instance_of(const Concept &concept);
 
@@ -25,4 +25,3 @@ public:
 
 }
 
-#endif //KNOWLEDGE_REPRESENTATION_INSTANCE_H

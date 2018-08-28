@@ -1,6 +1,4 @@
-#ifndef VILLA_WORLD_MODEL_SHORTTERMMEMORYINTERFACE_H
-#define VILLA_WORLD_MODEL_SHORTTERMMEMORYINTERFACE_H
-
+#pragma once
 #include <ros/ros.h>
 #include <knowledge_representation/ResolveObjectCorrespondences.h>
 #include <knowledge_representation/AddObject.h>
@@ -31,4 +29,3 @@ namespace knowledge_rep {
     };
 
 }
-#endif //VILLA_WORLD_MODEL_SHORTTERMMEMORYINTERFACE_H

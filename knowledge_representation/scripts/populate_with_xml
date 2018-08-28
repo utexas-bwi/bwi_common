@@ -13,14 +13,14 @@ def room_parser(ltmc, root):
     placement_con = ltmc.get_concept("placement")
     beacon_con = ltmc.get_concept("beacon")
     placement_con.add_attribute_entity("is_a", location_con)
-    beacon_con.add_attribute_entity( "is_a", location_con)
+    beacon_con.add_attribute_entity("is_a", location_con)
 
     for room_node in root:
         room_name = room_node.attrib['name']
         specifc_room_concept = ltmc.get_concept(room_name)
         specifc_room_concept.add_attribute_entity("is_a", room_con)
 
-        room = ltmc.get_object_named(room_name)
+        room = ltmc.get_instance_named(room_name)
         room.make_instance_of(specifc_room_concept)
 
         for location_node in room_node:
@@ -30,7 +30,7 @@ def room_parser(ltmc, root):
 
             specific_location_concept = ltmc.get_concept(location_name)
             specific_location_concept.add_attribute_entity("is_a", location_con)
-            location = ltmc.get_object_named(location_name)
+            location = ltmc.get_instance_named(location_name)
             location.make_instance_of(specific_location_concept)
             location.add_attribute_entity("is_in", room)
             if location_node.attrib.get("isPlacement"):
@@ -68,7 +68,9 @@ def populate(ltmc, file_path):
         return False
     tree = ET.parse(file_path)
     root = tree.getroot()
-    parser = type_to_parser[root.tag]
+    parser = type_to_parser.get(root.tag)
+    if not parser:
+        return False
     parser(ltmc, root)
     return True
         #print("Not sure how to parse the top level tag: {}".format(root.tag))
@@ -84,7 +86,8 @@ def main():
     success = False
     for file_path in args.file_paths:
         success = populate(ltmc, file_path)
-    exit(success)
+    exit_code = 0 if success else 1
+    exit(exit_code)
 
 if __name__ == "__main__":
     main()
