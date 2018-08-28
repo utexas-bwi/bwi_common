@@ -1,13 +1,15 @@
-#include <utility>
+#pragma once
 
-#ifndef PLAN_EXECUTION_OBSERVERS_H
-#define PLAN_EXECUTION_OBSERVERS_H
+#include <utility>
 
 #include <ros/ros.h>
 #include <actasp/ExecutionObserver.h>
 #include <actasp/PlanningObserver.h>
+#include <actasp/QueryGenerator.h>
+#include <actasp/AnswerSet.h>
 #include <utility>
 #include <boost/filesystem.hpp>
+#include <iostream>
 
 namespace plan_exec {
 
@@ -21,7 +23,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
         ROS_INFO_STREAM("Terminating execution: " << action.toString() << " Success:" << succeeded);
     }
 
-    void planChanged(const actasp::AnswerSet &newPlan) noexcept {
+    void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
         std::stringstream planStream;
 
         ROS_INFO_STREAM("plan size: " << newPlan.getFluents().size());
@@ -31,7 +33,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
         ROS_INFO_STREAM(planStream.str());
     }
 
-    void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action, const actasp::AnswerSet &plan_remainder) noexcept {
+    void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action, const actasp::AnswerSet &plan_remainder) noexcept override {
         std::stringstream planStream;
 
         planStream << "Plan execution terminated. Status: " << planStatusToString(status) << ". ";
@@ -48,7 +50,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
     void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
     }
 
-    void policyChanged(actasp::PartialPolicy *policy) noexcept {}
+    void policyChanged(actasp::PartialPolicy *policy) noexcept override {}
 
 };
 
@@ -77,7 +79,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
         //ros::spinOnce();
     }
 
-    void planChanged(const actasp::AnswerSet &newPlan) noexcept {
+    void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
         feedback.plan.clear();
         feedback.event_type = plan_execution::ExecutePlanFeedback::PLAN_CHANGED_EVENT;
         std::vector<actasp::AspFluent> fluents = newPlan.getFluents();
@@ -86,7 +88,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
         //ros::spinOnce();
     }
 
-    void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action, const actasp::AnswerSet &plan_remainder) noexcept {
+    void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action, const actasp::AnswerSet &plan_remainder) noexcept override {
        switch (status) {
            case SUCCEEDED:
                result.status = plan_execution::ExecutePlanResult::SUCCEEDED;
@@ -106,51 +108,63 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
     void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
     }
 
-    void policyChanged(actasp::PartialPolicy *policy) noexcept {}
+    void policyChanged(actasp::PartialPolicy *policy) noexcept override {}
 
 };
 
-void recursive_copy(const boost::filesystem::path &src, const boost::filesystem::path &dst)
-{
-  if (boost::filesystem::exists(dst)){
-    throw std::runtime_error(dst.generic_string() + " exists");
-  }
+struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterfaceObserver {
 
-  if (boost::filesystem::is_directory(src)) {
-    boost::filesystem::create_directories(dst);
-    for (boost::filesystem::directory_entry& item : boost::filesystem::directory_iterator(src)) {
-      recursive_copy(item.path(), dst/item.path().filename());
+  std::unique_ptr<actasp::QueryGenerator> explainer;
+  std::vector<actasp::AspRule> goalRules;
+
+  ExplainingRosActionServerInterfaceObserver(actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> &server, std::unique_ptr<actasp::QueryGenerator> explainer)
+      :  explainer(std::move(explainer)), RosActionServerInterfaceObserver(server){}
+
+
+
+  void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action,
+                      const actasp::AnswerSet &plan_remainder) noexcept override {
+    RosActionServerInterfaceObserver::planTerminated(status, final_action, plan_remainder);
+    if (status == FAILED_TO_PLAN) {
+      std::vector<actasp::AspRule> hypotheses;
+      // Hypotheticals are rules in the head of the goal
+      std::copy_if(goalRules.begin(), goalRules.end(), std::back_inserter(hypotheses),
+      [](actasp::AspRule & rule){
+        return !rule.head.empty();
+      });
+
+      std::stringstream fluentsString, minimizeString;
+
+      for (const auto &rule : hypotheses) {
+        fluentsString << "0{" << rule.head[0].toString() << "}1." << std::endl;
+        minimizeString  << ":~ " << rule.head[0].toString() << ". [-1, 1]" << std::endl;
+      }
+
+      std::stringstream query;
+      query << fluentsString.str() << std::endl << minimizeString.str() << std::endl;
+      actasp::AnswerSet answer = explainer->optimizationQuery(query.str(), "diagnoticQuery");
+
+      std::vector<actasp::AspRule> failedHypotheses;
+      for (const auto &rule : hypotheses) {
+        if (!answer.contains(rule.head[0].toString())) {
+          failedHypotheses.push_back(rule);
+        }
+      }
+
+      if (!failedHypotheses.empty()) {
+        result.message = "Failed due to " + failedHypotheses.at(0).toString();
+      }
     }
+
+
   }
-  else if (boost::filesystem::is_regular_file(src)) {
-    boost::filesystem::copy(src, dst);
-  }
-  else {
-    throw std::runtime_error(dst.generic_string() + " not dir or file");
-  }
+
+  void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
+    goalRules.clear();
+    std::copy(newGoalRules.begin(), newGoalRules.end(), std::back_inserter(goalRules));
 }
-
-
-struct QueryLoggingObserver : public actasp::PlanningObserver {
-
-  const std::string log_path;
-  const std::string query_path;
-
-  explicit QueryLoggingObserver(std::string log_path, const std::string &query_path): log_path(std::move(log_path)), query_path(query_path) {}
-
-
-  void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
-      auto t = std::time(nullptr);
-      auto tm = *std::localtime(&t);
-      std::stringstream stampstream;
-      stampstream << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
-      recursive_copy(query_path, log_path + stampstream.str());
-  }
-
 
 };
 
+
 }
-
-
-#endif //PLAN_EXECUTION_OBSERVERS_H

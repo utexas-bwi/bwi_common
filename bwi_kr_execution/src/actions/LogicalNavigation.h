@@ -29,7 +29,7 @@ protected:
 
 	boost::optional<bwi_msgs::LogicalNavGoal> prepareGoal() final;
 
-	void onFinished(bool succeeded, ResultConstPtr result) override;
+	void onFinished(bool succeeded, const bwi_msgs::LogicalNavResult &result) override;
 
 };
 }

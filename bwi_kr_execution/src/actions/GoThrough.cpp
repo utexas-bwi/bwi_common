@@ -27,7 +27,7 @@ std::vector<std::string> GoThrough::prepareGoalParameters() const {
   return params;
 }
 
-void GoThrough::onFinished(bool success, ResultConstPtr result) {
+void GoThrough::onFinished(bool success, const bwi_msgs::LogicalNavResult &result) {
   // Allow super to update the knowledge base
   LogicalNavigation::onFinished(success, result);
   // TODO: Check that we're in a different place than when we started

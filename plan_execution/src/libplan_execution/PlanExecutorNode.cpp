@@ -1,6 +1,8 @@
 #include "plan_execution/msgs_utils.h"
 #include "plan_execution/RemoteReasoner.h"
 
+#include <actasp/action_utils.h>
+#include <actasp/reasoners/Clingo.h>
 #include "actasp/executors/ReplanningPlanExecutor.h"
 #include "actasp/executors/BlindPlanExecutor.h"
 #include "actasp/ExecutionObserver.h"
@@ -14,8 +16,7 @@
 
 #include <plan_execution/observers.h>
 #include <plan_execution/PlanExecutorNode.h>
-#include <actasp/action_utils.h>
-#include <actasp/reasoners/Clingo.h>
+
 
 
 using namespace std;
@@ -25,35 +26,32 @@ namespace plan_exec {
 
 const int MAX_N = 30;
 const int PLANNER_TIMEOUT = 10; //seconds
-const static std::string queryDirectory = string("/tmp/plan_execution/");
-const static std::string log_path = string("/tmp/plan_execution_logs/");
 
 
 PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, ActionFactory> action_map,
                                    actasp::ResourceManager &resourceManager,
                                    vector<reference_wrapper<ExecutionObserver>> execution_observers,
                                    vector<reference_wrapper<PlanningObserver>> planning_observers) :
-        server({"~"}, "execute_plan", boost::bind(&PlanExecutorNode::executePlan, this, _1), false),
-        ros_observer(server), working_memory_path({"/tmp/current.asp"}) {
-  boost::filesystem::remove_all(queryDirectory);
+    server({"~"}, "execute_plan", boost::bind(&PlanExecutorNode::executePlan, this, _1), false), working_memory_path("/tmp/current.asp") {
   ros::NodeHandle n;
 
   ros::NodeHandle privateNode("~");
 
 
-  boost::filesystem::create_directories(queryDirectory);
-  boost::filesystem::create_directories(log_path);
-
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", queryDirectory, domain_directory,
+  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
                                                                  actionMapToSet(action_map),
-                                                                 working_memory_path,
                                                                  PLANNER_TIMEOUT);
-  AspKR *reasoner = new RemoteReasoner(generator, MAX_N, actionMapToSet(action_map));
-  logging_observer = std::unique_ptr<PlanningObserver>(new QueryLoggingObserver(log_path, queryDirectory));
+  planningReasoner = unique_ptr<actasp::AspKR>(new RemoteReasoner(generator, MAX_N, actionMapToSet(action_map)));
+  auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
+  if (boost::filesystem::is_directory(diagnosticsPath)) {
+    auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator("n", diagnosticsPath.string(), {working_memory_path}, {}, PLANNER_TIMEOUT));
+    ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new ExplainingRosActionServerInterfaceObserver(server, std::move(diagnosticReasoner)));
+  } else {
+    ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new RosActionServerInterfaceObserver(server));
+  }
   {
     //need a pointer to the specific type for the observer
-    auto replanner = new ReplanningPlanExecutor(*reasoner, *reasoner, action_map, resourceManager);
-    replanner->addPlanningObserver(*logging_observer);
+    auto replanner = new ReplanningPlanExecutor(*planningReasoner, *planningReasoner, action_map, resourceManager);
     //BlindPlanExecutor *replanner = new BlindPlanExecutor(reasoner, reasoner, ActionFactory::actions());
     for (auto &observer: planning_observers) {
       replanner->addPlanningObserver(observer);
@@ -61,8 +59,8 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
 
     executor = std::unique_ptr<actasp::PlanExecutor>(replanner);
 
-    executor->addExecutionObserver(ros_observer);
-    replanner->addPlanningObserver(ros_observer);
+    executor->addExecutionObserver(*ros_observer);
+    replanner->addPlanningObserver(*ros_observer);
   }
 
   for (auto &observer: execution_observers) {
@@ -75,7 +73,7 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
 
 PlanExecutorNode::~PlanExecutorNode() = default;
 
-    void PlanExecutorNode::executePlan(const plan_execution::ExecutePlanGoalConstPtr &plan) {
+void PlanExecutorNode::executePlan(const plan_execution::ExecutePlanGoalConstPtr &plan) {
   plan_execution::ExecutePlanResult result;
   vector<AspRule> goalRules;
 
@@ -85,7 +83,7 @@ PlanExecutorNode::~PlanExecutorNode() = default;
   try {
     executor->setGoal(goalRules);
   } catch (std::logic_error &e) {
-    server.setAborted(ros_observer.result);
+    server.setAborted(ros_observer->result);
     return;
   }
 
@@ -96,7 +94,7 @@ PlanExecutorNode::~PlanExecutorNode() = default;
       executor->executeActionStep();
     } else {
 
-      server.setPreempted(ros_observer.result);
+      server.setPreempted(ros_observer->result);
 
       if (executor->goalReached())
         ROS_INFO("Preempted, but execution succeeded");
@@ -111,7 +109,7 @@ PlanExecutorNode::~PlanExecutorNode() = default;
         try {
           executor->setGoal(goalRules);
         } catch (std::logic_error &e) {
-          server.setAborted(ros_observer.result);
+          server.setAborted(ros_observer->result);
           return;
         }
       }
@@ -124,11 +122,11 @@ PlanExecutorNode::~PlanExecutorNode() = default;
   if (executor->goalReached()) {
     ROS_INFO("Execution succeeded");
     if (server.isActive())
-      server.setSucceeded(ros_observer.result);
+      server.setSucceeded(ros_observer->result);
   } else {
     ROS_INFO("Execution failed");
     if (server.isActive()) {
-      server.setAborted(ros_observer.result);
+      server.setAborted(ros_observer->result);
     }
   }
 

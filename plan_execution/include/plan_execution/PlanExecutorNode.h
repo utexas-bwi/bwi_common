@@ -18,10 +18,10 @@ public:
 private:
   void executePlan(const plan_execution::ExecutePlanGoalConstPtr &plan);
   std::unique_ptr<actasp::PlanExecutor> executor;
-  std::unique_ptr<actasp::PlanningObserver> logging_observer;
+  std::unique_ptr<actasp::AspKR> planningReasoner;
   Server server;
 
-  RosActionServerInterfaceObserver ros_observer;
+  std::unique_ptr<RosActionServerInterfaceObserver> ros_observer;
 
 };
 }

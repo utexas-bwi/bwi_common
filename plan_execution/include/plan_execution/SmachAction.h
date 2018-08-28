@@ -1,5 +1,4 @@
-#ifndef PLAN_EXECUTION_SMACHACTION_H
-#define PLAN_EXECUTION_SMACHACTION_H
+#pragma once
 
 #include <plan_execution/RosAction.h>
 #include <plan_execution/ExecuteSmachStateMachineAction.h>
@@ -21,4 +20,3 @@ protected:
 };
 
 }
-#endif //PLAN_EXECUTION_SMACHACTION_H

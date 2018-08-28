@@ -1,6 +1,4 @@
-
-#ifndef bwi_krexec_RemoteReasoner_h__guard
-#define bwi_krexec_RemoteReasoner_h__guard
+#pragma once
 
 #include "actasp/AspAtom.h"
 #include "actasp/AspKR.h"
@@ -40,5 +38,3 @@ namespace plan_exec {
   
   };
 }
-
-#endif

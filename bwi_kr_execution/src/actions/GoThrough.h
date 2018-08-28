@@ -34,7 +34,7 @@ public:
 private:
   const std::string &door_name;
 
-  void onFinished(bool success, ResultConstPtr result) override;
+  void onFinished(bool success, const bwi_msgs::LogicalNavResult &result) override;
 };
 }
 
