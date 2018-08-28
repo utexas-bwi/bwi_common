@@ -1,5 +1,4 @@
-#ifndef actasp_MultiPolicyExecutor_h__guard
-#define actasp_MultiPolicyExecutor_h__guard
+#pragma once
 
 #include <actasp/PlanExecutor.h>
 #include <actasp/PartialPolicy.h>
@@ -73,4 +72,4 @@ private:
 
 }
 
-#endif 
+

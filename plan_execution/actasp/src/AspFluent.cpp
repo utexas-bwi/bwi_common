@@ -8,7 +8,7 @@ using namespace std;
 namespace actasp {
 
 
-AspFluent::AspFluent(const std::string& formula) throw (std::invalid_argument) :
+AspFluent::AspFluent(const std::string& formula) noexcept(false) :
       timeStep(),
 			cachedBase(){
         
@@ -34,7 +34,8 @@ AspFluent::AspFluent(const std::string& formula) throw (std::invalid_argument) :
   
 }
 
-AspFluent::AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep) throw () : 
+AspFluent::AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep) noexcept
+    :
 		timeStep(timeStep),
 		cachedBase() {
   stringstream ss;
@@ -113,7 +114,7 @@ std::string AspFluent::toString(const string& timeStepVar) const noexcept {
   return cachedBase + timeStepVar + ")";
 }
 
-std::string AspFluent::toString() const throw () {
+std::string AspFluent::toString() const noexcept {
 	return this->toString(this->timeStep);
 }
 

@@ -1,6 +1,4 @@
-
-#ifndef actasp_Clingo3_h__guard
-#define actasp_Clingo3_h__guard
+#pragma once
 
 #include <actasp/QueryGenerator.h>
 
@@ -9,12 +7,11 @@ namespace actasp {
 struct Clingo3 : public QueryGenerator {
 
   Clingo3(const std::string& incrementalVar,
-          const std::string& queryDir,
-          const std::string& domainDir,
+          const std::vector<std::string>& linkFiles,
+          const std::vector<std::string>& copyFiles,
           const ActionSet& actions,
           unsigned int max_time = 0
-         ) noexcept;
-
+  ) noexcept;
   std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
       bool filterActions,
       unsigned int  max_plan_length,
@@ -31,8 +28,6 @@ struct Clingo3 : public QueryGenerator {
 
 
   AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept;
-
-  void setCurrentState(const std::set<actasp::AspFluent>& newState);
 
 
   std::list<actasp::AnswerSet> genericQuery(const std::vector<actasp::AspRule>& query,
@@ -65,12 +60,12 @@ private:
   std::string incrementalVar;
   std::string actionFilter;
   unsigned int max_time;
-  std::string queryDir;
-  std::string domainDir;
+  std::vector<std::string> linkFiles;
+  std::vector<std::string> copyFiles;
 
 
 };
 
 }
 
-#endif
+

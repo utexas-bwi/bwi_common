@@ -19,15 +19,15 @@ using namespace std;
 
 namespace actasp {
   
-Reasoner::Reasoner(QueryGenerator *actualReasoner,unsigned int max_n,const ActionSet& allActions) :
-            clingo(actualReasoner), max_n(max_n), allActions(allActions) {}
+Reasoner::Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions) :
+            clingo(queryGenerator), max_n(max_n), allActions(allActions) {}
   
 ActionSet Reasoner::availableActions() const noexcept {
   list<AnswerSet> actions = clingo->lengthRangePlanQuery(vector<AspRule>(),true,1,1,0);
 
   ActionSet computed;
 
-  list<AnswerSet>::iterator act = actions.begin();
+  auto act = actions.begin();
   for (; act != actions.end(); ++act) {
     computed.insert(act->getFluents().begin(), act->getFluents().end());
   }
@@ -56,48 +56,13 @@ struct fluent2Rule {
   bool useTimeStep;
 };
 
-bool Reasoner::updateFluents(const std::vector<actasp::AspFluent> &observations) noexcept {
-
-  //copy the observations in the heads of rules
-  vector<AspRule> obsRules;
-  obsRules.reserve(observations.size()+1); //we'll add noop later
-  transform(observations.begin(),observations.end(),back_inserter(obsRules),fluent2Rule(1));
-  //add the rule for the noop action
-  
-  AspRule noopRule;
-  noopRule.head.push_back(AspFluent("noop",vector<string>(),1));
-  
-  obsRules.push_back(noopRule);
-
-  list<AnswerSet> currentState = clingo->genericQuery(obsRules,2,"observationQuery",1);
-
-  if (currentState.empty())
-    return false; //the observations are incompatible with the current state and are discarded
-   
-  //the last answer set is the one with the timestep at 1. The ones before may have 0.
-  set<AspFluent> newStateFluents = currentState.rbegin()->getFluentsAtTime(1);
-  
-  newStateFluents.erase(AspFluent("noop",vector<string>(),1));
-  
-  clingo->setCurrentState(newStateFluents);
-
-  return true;
-}
 
  bool Reasoner::isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept {
 
   return !(clingo->monitorQuery(goal,plan).empty()); 
 }
 
-void Reasoner::resetCurrentState() noexcept {
-clingo->setCurrentState(set<AspFluent>());
-}
-
-void Reasoner::setCurrentState(const std::set<actasp::AspFluent>& newState) noexcept {
-  clingo->setCurrentState(newState);
-}
-
-AnswerSet Reasoner::computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error){
+AnswerSet Reasoner::computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) {
   list<AnswerSet> plans = clingo->minimalPlanQuery(goal,true,max_n,1);
   
   if(plans.empty())
@@ -135,7 +100,7 @@ struct AnswerSetRef {
   const AnswerSet *aset;
 };
 
-std::vector< AnswerSet > Reasoner::computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error) {
+std::vector< AnswerSet > Reasoner::computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) {
 
   if (suboptimality < 1) {
     stringstream num;
@@ -200,7 +165,7 @@ std::vector< AnswerSet > Reasoner::computeAllPlans(const std::vector<actasp::Asp
 
 }
 
-AnswerSet Reasoner::computeOptimalPlan(const std::vector<actasp::AspRule>& goal, bool filterActions, double suboptimality, bool minimum) const throw (std::logic_error) {
+AnswerSet Reasoner::computeOptimalPlan(const std::vector<actasp::AspRule>& goal, bool filterActions, double suboptimality, bool minimum) const noexcept(false) {
   if (suboptimality < 1) {
     stringstream num;
     num << suboptimality;
@@ -255,7 +220,7 @@ struct CleanPlan {
 
 };
 
-PartialPolicy *Reasoner::computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error) {
+PartialPolicy *Reasoner::computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) {
 
   MultiPolicy *p = new MultiPolicy(allActions);
   computePolicyHelper(goal,suboptimality,p);
@@ -263,7 +228,7 @@ PartialPolicy *Reasoner::computePolicy(const std::vector<actasp::AspRule>& goal,
 
 }
 
-void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* policy) const throw (std::logic_error) {
+void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* policy) const noexcept(false) {
     if (suboptimality < 1) {
     stringstream num;
     num << suboptimality;
@@ -306,13 +271,13 @@ void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, dou
   //this object remembers the set of bad plans, cannot be created inside the loop
   IsNotLocallyOptimal isNotLocallyOptimal(&goodPlans,&badPlans, allActions, shortestLength,false);
 
-  list<AnswerSet>::iterator currentFirst = answerSets.begin();
+  auto currentFirst = answerSets.begin();
 //   clock_t filter_begin = clock();
   while (currentFirst != answerSets.end()) {
 
     //process the plans in groups of increasing length
 
-    list<AnswerSet>::iterator currentLast = find_if(currentFirst,answerSets.end(),PlanLongerThan(currentFirst->maxTimeStep()));
+    auto currentLast = find_if(currentFirst,answerSets.end(),PlanLongerThan(currentFirst->maxTimeStep()));
 
     list<AnswerSetRef> goodPointers;
     remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
@@ -327,7 +292,7 @@ void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, dou
 //   clock_t filter_end = clock();
 
 
-   set< list <AspFluentRef>, LexComparator >::const_iterator printIt = goodPlans.begin();
+  auto printIt = goodPlans.begin();
    for (; printIt != goodPlans.end(); ++printIt) {
      copy(printIt->begin(),printIt->end(),ostream_iterator<string>(cout, " "));
      cout << endl;
@@ -335,9 +300,6 @@ void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, dou
 //   
 //   cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
-
-  return;
-  
 }
 
 std::list< std::list<AspAtom> > Reasoner::query(const std::string &queryString, unsigned int timestep) const noexcept {

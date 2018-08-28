@@ -1,5 +1,4 @@
-#ifndef actasp_PartialPolicy_h__guard
-#define actasp_PartialPolicy_h__guard
+#pragma once
 
 
 #include <actasp/AspFluent.h>
@@ -25,4 +24,4 @@ struct PartialPolicy {
   
 }
 
-#endif
+

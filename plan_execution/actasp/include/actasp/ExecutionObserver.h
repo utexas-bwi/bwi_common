@@ -1,5 +1,4 @@
-#ifndef actasp_ExecutionObserver_h__guard
-#define actasp_ExecutionObserver_h__guard
+#pragma once
 
 #include <actasp/AspRule.h>
 
@@ -60,4 +59,4 @@ inline bool operator==(const std::reference_wrapper<ExecutionObserver> &first,
 }
 
 
-#endif
+

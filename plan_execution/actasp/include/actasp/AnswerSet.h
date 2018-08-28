@@ -1,5 +1,4 @@
-#ifndef actasp_AnswerSet_h__guard
-#define actasp_AnswerSet_h__guard
+#pragma once
 
 #include <actasp/AspFluent.h>
 
@@ -53,4 +52,4 @@ private:
 };
 
 }
-#endif
+

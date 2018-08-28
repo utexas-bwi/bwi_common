@@ -1,6 +1,4 @@
-
-#ifndef actasp_Clingo4_2_h__guard
-#define actasp_Clingo4_2_h__guard
+#pragma once
 
 #include <actasp/FilteringQueryGenerator.h>
 
@@ -9,18 +7,10 @@ namespace actasp {
 struct Clingo4_2 : public FilteringQueryGenerator {
 
   Clingo4_2(const std::string& incrementalVar,
-          const std::string& queryDir,
-          const std::string& domainDir,
-          const ActionSet& actions,
-          unsigned int max_time = 0
-  ) noexcept;
-
-  Clingo4_2(const std::string& incrementalVar,
-          const std::string& queryDir,
-          const std::string& domainDir,
-          const ActionSet& actions,
-          const std::string& currentFilePath,
-          unsigned int max_time = 0
+            const std::vector<std::string>& linkFiles,
+            const std::vector<std::string>& copyFiles,
+            const ActionSet& actions,
+            unsigned int max_time = 0
   ) noexcept;
 
   std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
@@ -60,22 +50,15 @@ struct Clingo4_2 : public FilteringQueryGenerator {
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept;
 
+  actasp::AnswerSet optimizationQuery(const std::string& query, const std::string& fileName) const noexcept;
+
 private:
 
-  std::list<actasp::AnswerSet> genericQuery(const std::string& query,
-      unsigned int initialTimeStep,
-      unsigned int finalTimeStep,
-      const std::string& fileName,
-      unsigned int answerSetsNumber,
-      bool useCurrentState) const noexcept;
+  std::list<actasp::AnswerSet> genericQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                                              const std::string &fileName, unsigned int answerSetsNumber) const noexcept;
 
-  std::string makeQuery(const std::string& query,
-                                 unsigned int initialTimeStep,
-                                 unsigned int finalTimeStep,
-                                 const std::string& fileName,
-                              unsigned int answerSetsNumber,
-                              bool useCurrentState
-                       ) const noexcept;
+  std::string makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                          const std::string &fileName, unsigned int answerSetsNumber) const noexcept;
 
   std::string generatePlanQuery(std::vector<actasp::AspRule> goalRules) const noexcept;
   
@@ -84,12 +67,11 @@ private:
   std::string incrementalVar;
   ActionSet allActions;
   unsigned int max_time;
-  std::string queryDir;
-  std::string domainDir;
-  std::string currentFilePath;
+  std::vector<std::string> linkFiles;
+  std::vector<std::string> copyFiles;
 
 };
 
 }
 
-#endif
+

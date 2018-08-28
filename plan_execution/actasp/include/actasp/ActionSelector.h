@@ -1,5 +1,4 @@
-#ifndef actasp_ActionSelector_h__guard
-#define actasp_ActionSelector_h__guard
+#pragma once
 
 #include <actasp/AnswerSet.h>
 
@@ -15,4 +14,4 @@ struct ActionSelector  {
 };
 }
 
-#endif
+

@@ -1,6 +1,4 @@
-
-#ifndef actasp_AnyPlan_h__guard
-#define actasp_AnyPlan_h__guard
+#pragma once
 
 #include <actasp/Planner.h>
 
@@ -25,4 +23,4 @@ private:
 }
 
 
-#endif
+

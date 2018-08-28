@@ -1,5 +1,4 @@
-#ifndef actasp_Action_h__guard
-#define actasp_Action_h__guard
+#pragma once
 
 #include <actasp/AspFluent.h>
 #include <actasp/ResourceManager.h>
@@ -53,4 +52,4 @@ typedef std::function<std::unique_ptr<actasp::Action>(const actasp::AspFluent &,
 
 }
 
-#endif
+

@@ -1,5 +1,4 @@
-#ifndef actasp_ActionExecutor_h__guard
-#define actasp_ActionExecutor_h__guard
+#pragma once
 
 #include <actasp/AspRule.h>
 #include <vector>
@@ -32,4 +31,4 @@ struct PlanExecutor {
 
 }
 
-#endif
+

@@ -1,7 +1,6 @@
-#include <utility>
+#pragma once
 
-#ifndef actasp_execution_observer_utiles_h__guard
-#define actasp_execution_observer_utiles_h__guard
+#include <utility>
 
 #include <actasp/AspFluent.h>
 #include <actasp/ExecutionObserver.h>
@@ -34,4 +33,4 @@ struct NotifyGoalChanged {
 
 }
 
-#endif
+

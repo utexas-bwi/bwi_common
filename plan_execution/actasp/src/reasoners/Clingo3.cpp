@@ -11,51 +11,41 @@
 #include <cstdlib>
 #include <iostream>
 
-#define CURRENT_FILE_HOME queryDir // was  std::string("/tmp/")
-#define CURRENT_STATE_FILE std::string("current.asp")
+#include <boost/filesystem.hpp>
+#include <actasp/filesystem_utils.h>
 
 using namespace std;
 
 namespace actasp {
   
 Clingo3::Clingo3(const std::string& incrementalVar,
-         const std::string& queryDir,
-         const std::string& domainDir,
-         const ActionSet& allActions,
-         unsigned int max_time
+                 const std::vector<std::string>& linkFiles,
+                 const std::vector<std::string>& copyFiles,
+                 const ActionSet& actions,
+                 unsigned int max_time
         ) noexcept :
   incrementalVar(incrementalVar),
   max_time(max_time),
-  queryDir(queryDir),
-  domainDir(domainDir),
+  linkFiles(linkFiles),
+  copyFiles(copyFiles),
   actionFilter() {
 
   if (max_time > 0 && !system("timeout 2>/dev/null")) //make sure timeout is available
     max_time = 0;
 
-  //make sure directory ends with '/'
+  for (const auto &linkFile: linkFiles) {
+    assert(boost::filesystem::is_regular_file(linkFile));
+  }
 
-  if (this->queryDir.find_last_of("/") != (this->queryDir.length() -1))
-    this->queryDir += "/";
-
-  if ((this->domainDir.find_last_of("/")) != (this->domainDir.length() -1))
-    this->domainDir += "/";
-
-  //TODO test the existance of the directories
-  
-  //create current file
-  ifstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
-  if(!currentFile.good()) //doesn't exist, create it or clingo will go mad
-    setCurrentState(set<AspFluent>());
-  
-  currentFile.close();
+  for (const auto &copyFile: copyFiles) {
+    assert(boost::filesystem::is_regular_file(copyFile));
+  }
 
   stringstream filterStream;
   filterStream << "#hide." << endl;
 
-  std::set<AspFluent>::const_iterator actIt = allActions.begin();
-  for (; actIt != allActions.end(); ++actIt) {
-    filterStream << "#show " << actIt->getName() << "/" << actIt->arity() << "." << endl;
+  for (const auto &action: actions) {
+    filterStream << "#show " << action.getName() << "/" << action.arity() << "." << endl;
   }
 
   actionFilter = filterStream.str();
@@ -281,6 +271,9 @@ std::string Clingo3::makeQuery(const std::string& query,
   initialTimeStep++;
   finalTimeStep++;
 
+  string queryDir = getQueryDirectory(linkFiles, copyFiles);
+  populateDirectory(queryDir, linkFiles, copyFiles);
+
   string queryPath = queryDir + fileName + ".asp";
 
   ofstream queryFile(queryPath.c_str());
@@ -298,7 +291,7 @@ std::string Clingo3::makeQuery(const std::string& query,
   stringstream iterations;
   iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
 
-  commandLine << "iclingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
+  commandLine << "iclingo " << iterations.str() << " " << queryDir << "*.asp " <<  " > " << outputFilePath << " " << answerSetsNumber;
 
 
   if (!system(commandLine.str().c_str())) {
@@ -363,19 +356,5 @@ ifstream file(outputFilePath.c_str());
  return allSets;
         
 }
-
-void Clingo3::setCurrentState(const std::set<actasp::AspFluent>& newState) {
-
-  //copy the current state in a file
-  ofstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
-
-  set<AspFluent>::const_iterator stateIt = newState.begin();
-  for (; stateIt != newState.end(); ++stateIt)
-    currentFile << stateIt->toString(0) << "." << endl;
-
-  currentFile.close();
-
-}
-
 
 }

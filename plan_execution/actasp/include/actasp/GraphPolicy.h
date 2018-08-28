@@ -1,5 +1,4 @@
-#ifndef actasp_GraphPolicy_h__guard
-#define actasp_GraphPolicy_h__guard
+#pragma once
 
 #include <actasp/PartialPolicy.h>
 
@@ -45,4 +44,4 @@ private:
   
 }
 
-#endif
+

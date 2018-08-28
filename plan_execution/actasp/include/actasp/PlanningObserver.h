@@ -1,6 +1,4 @@
-#ifndef actasp_PlanningObserver_h__guard
-#define actasp_PlanningObserver_h__guard
-
+#pragma once
 #include <functional>
 
 
@@ -27,4 +25,4 @@ inline bool operator==(const std::reference_wrapper<PlanningObserver> &first,
 }
 
 
-#endif
+

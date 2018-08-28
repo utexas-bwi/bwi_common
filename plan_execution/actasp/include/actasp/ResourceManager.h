@@ -1,5 +1,4 @@
-#ifndef BWI_KR_EXECUTION_RESOURCEMANAGER_H
-#define BWI_KR_EXECUTION_RESOURCEMANAGER_H
+#pragma once
 
 namespace actasp {
 struct ResourceManager {
@@ -8,4 +7,4 @@ struct ResourceManager {
 
 }
 
-#endif //BWI_KR_EXECUTION_RESOURCEMANAGER_H
+//BWI_KR_EXECUTION_RESOURCEMANAGER_H

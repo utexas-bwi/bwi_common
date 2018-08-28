@@ -1,5 +1,4 @@
-#ifndef actasp_AspRule_h__guard
-#define actasp_AspRule_h__guard
+#pragma once
 
 #include <actasp/AspLaw.h>
 #include <actasp/AspFluent.h>
@@ -12,4 +11,4 @@ typedef AspLaw<AspFluent> AspRule;
 	
 }
 
-#endif
+

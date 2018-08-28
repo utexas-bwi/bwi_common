@@ -1,5 +1,4 @@
-#ifndef actasp_MultiPolicy_h__guard
-#define actasp_MultiPolicy_h__guard
+#pragma once
 
 #include <actasp/PartialPolicy.h>
 
@@ -33,4 +32,4 @@ private:
 
 }
 
-#endif
+

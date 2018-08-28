@@ -1,5 +1,4 @@
-#ifndef actasp_AspAtom_h__guard
-#define actasp_AspAtom_h__guard
+#pragma once
 
 #include <string>
 #include <stdexcept>
@@ -34,4 +33,4 @@ private:
 
 
 }
-#endif
+

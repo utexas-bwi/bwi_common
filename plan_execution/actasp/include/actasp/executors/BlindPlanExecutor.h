@@ -1,5 +1,4 @@
-#ifndef actasp_BlindActionExecutor_h__guard
-#define actasp_BlindActionExecutor_h__guard
+#pragma once
 
 
 #include <actasp/PlanExecutor.h>
@@ -78,4 +77,4 @@ private:
 
 
 }
-#endif
+

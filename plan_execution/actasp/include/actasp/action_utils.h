@@ -1,6 +1,4 @@
-
-#ifndef actasp_action_util_h__guard
-#define actasp_action_util_h__guard
+#pragma once
 
 #include <actasp/Action.h>
 #include <actasp/AnswerSet.h>
@@ -11,7 +9,6 @@
 #include <functional>
 
 namespace actasp {
-
 
 struct ActionMapDeepCopy {
 
@@ -47,4 +44,4 @@ ActionSet actionMapToSet(const std::map<std::string, ActionFactory> &actionMap);
 }
 
 
-#endif
+

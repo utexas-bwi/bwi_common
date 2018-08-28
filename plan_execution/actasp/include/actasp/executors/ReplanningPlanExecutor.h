@@ -1,6 +1,4 @@
-#ifndef actasp_ReplanningActionExecutor_h__guard
-#define actasp_ReplanningActionExecutor_h__guard
-
+#pragma once
 
 #include <actasp/PlanExecutor.h>
 
@@ -80,4 +78,4 @@ private:
 
 
 }
-#endif
+
