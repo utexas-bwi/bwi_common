@@ -152,9 +152,14 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
       }
 
       if (!failedHypotheses.empty()) {
-        result.message = "Failed due to " + failedHypotheses.at(0).toString();
+        result.message = "I could not complete the task due to inconsistent hypotheses. ";
+        std::transform(failedHypotheses.begin(), failedHypotheses.end(), std::back_inserter(result.inconsistent_rules),
+        plan_exec::TranslateRule());
       }
-    }
+      else {
+        result.message = "I could not find a plan to complete the task. ";
+      }
+    };
 
 
   }

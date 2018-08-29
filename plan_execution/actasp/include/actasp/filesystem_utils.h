@@ -29,7 +29,7 @@ static int hash_vector(std::vector<long> const& vec) {
   for(auto& i : vec) {
     seed ^= longHasher(i) + 0x9e3779b9 + longHasher(seed << 6) + longHasher(seed >> 2);
   }
-  std::cerr << ("Seed " + std::to_string(seed)) << std::endl;
+  //std::cerr << ("Seed " + std::to_string(seed)) << std::endl;
   return seed;
 }
 
@@ -72,7 +72,7 @@ static std::string getQueryDirectory(const std::vector<std::string> &linkFiles, 
   const auto hash = hash_vector(queryFilesSignature);
   auto hashAsString = std::to_string(hash);
 
-  hashAsString = hashAsString.substr(hashAsString.size() - 8) + "/";
+  hashAsString = hashAsString.substr(std::max(0, ((int)hashAsString.size() - 8))) + "/";
   const auto queryDir = queryRootPath / hashAsString ;
 
   if (!boost::filesystem::is_directory(queryDir)) {

@@ -69,9 +69,9 @@ vector<Concept> Concept::get_children() const {
     // Is a should only apply to concepts
     auto entities = ltmc.get().get_entities_with_attribute_of_value("is_a", entity_id);
     vector<Concept> as_concept{};
-    std::transform(entities.begin(), entities.end(), std::back_inserter(entities),
+    std::transform(entities.begin(), entities.end(), std::back_inserter(as_concept),
             [this](const Entity &entity){
-      return Concept(entity_id, ltmc);
+      return Concept(entity.entity_id, ltmc);
     });
     return as_concept;
 }

@@ -136,6 +136,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("remove_references", &Concept::remove_references)
       .def("get_instances", &Concept::get_instances)
       .def("get_name", &Concept::get_name)
+      .def("get_children", &Concept::get_children)
       .def("create_instance", static_cast<Instance (Concept::*)()> (&Concept::create_instance))
       .def("create_instance",
            static_cast<boost::optional<Instance> (Concept::*)(const string &)> (&Concept::create_instance),

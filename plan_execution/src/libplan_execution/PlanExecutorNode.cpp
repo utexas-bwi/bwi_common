@@ -17,6 +17,8 @@
 #include <plan_execution/observers.h>
 #include <plan_execution/PlanExecutorNode.h>
 
+#include <iostream>
+
 
 
 using namespace std;
@@ -37,6 +39,10 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
 
   ros::NodeHandle privateNode("~");
 
+  // Touch the working memory_path so the reasoner can verify that it exists
+  fstream fs;
+  fs.open(working_memory_path, ios::out);
+  fs.close();
 
   FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
                                                                  actionMapToSet(action_map),
