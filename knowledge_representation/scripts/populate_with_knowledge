@@ -34,13 +34,15 @@ def populate(ltmc, file_path):
                 "File not found at " + file_path + ".")
         return False
     data = read_yaml_from_file(file_path)
-    object_names = data["instances"].keys()
-    # Get the id for each named entity
-    object_name_to_entity = {name: ltmc.get_instance_named(name) for name in object_names}
 
-    for name, attributes in data["instances"].items():
-        for attribute in attributes:
-            add_attribute_entry(object_name_to_entity[name], attribute, ltmc)
+    if data.get("instances"):
+        object_names = data["instances"].keys()
+        # Get the id for each named entity
+        object_name_to_entity = {name: ltmc.get_instance_named(name) for name in object_names}
+
+        for name, attributes in data["instances"].items():
+            for attribute in attributes:
+                add_attribute_entry(object_name_to_entity[name], attribute, ltmc)
 
     if data.get("concepts"):
         concept_names = data["concepts"].keys()

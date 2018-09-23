@@ -120,7 +120,7 @@ class GetRandomBwiLocation(State):
         # These doors are inside the lab spaces. We don't want the robot trying to reach them.
         dont_go = ["d3_414a3", "d3_414b3"]
         for door in dont_go:
-            if dont_go in locations:
+            if door in locations:
                 locations.remove(door)
 
         if locations:
