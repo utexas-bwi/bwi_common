@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef MAP_UTILS_UZH9ILKD
-#define MAP_UTILS_UZH9ILKD
+#pragma once
 
 #include <bwi_mapper/structures/point.h>
 #include <nav_msgs/MapMetaData.h>
@@ -56,5 +55,3 @@ namespace bwi_mapper {
   
 } /* bwi_mapper */
 
-
-#endif /* end of include guard: MAP_UTILS_UZH9ILKD */

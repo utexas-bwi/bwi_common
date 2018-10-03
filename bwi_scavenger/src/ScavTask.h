@@ -16,7 +16,7 @@ public:
     std::string task_name; 
     std::string certificate; 
 
-    const static float tolerance = 0.5; 
+    constexpr static float tolerance = 0.5;
     std::vector<std::string> task_parameters; 
 
     virtual void executeTask(int timeout, TaskResult &result, std::string &record) = 0;

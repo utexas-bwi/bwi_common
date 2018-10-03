@@ -37,8 +37,7 @@
  *
  **/
 
-#ifndef MAP_LOADER_QANRO76Q
-#define MAP_LOADER_QANRO76Q
+#pragma once
 
 #include <string>
 
@@ -91,5 +90,3 @@ namespace bwi_mapper {
   }; /* MapLoader */
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: MAP_LOADER_QANRO76Q */

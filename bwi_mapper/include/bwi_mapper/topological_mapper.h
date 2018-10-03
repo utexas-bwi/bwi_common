@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef TOPOLOGICAL_MAPPER_EA94RQRE
-#define TOPOLOGICAL_MAPPER_EA94RQRE
+#pragma once
 
 #include <bwi_mapper/voronoi_approximator.h>
 #include <bwi_mapper/graph.h>
@@ -158,5 +157,3 @@ namespace bwi_mapper {
   }; /* TopologicalMapper */
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: TOPOLOGICAL_MAPPER_EA94RQRE */

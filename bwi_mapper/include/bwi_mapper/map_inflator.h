@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef MAP_INFLATOR_7FSXTBKS
-#define MAP_INFLATOR_7FSXTBKS
+#pragma once
 
 #include <nav_msgs/OccupancyGrid.h>
 
@@ -54,5 +53,3 @@ namespace bwi_mapper {
       nav_msgs::OccupancyGrid& inflated_map);
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: MAP_INFLATOR_7FSXTBKS */

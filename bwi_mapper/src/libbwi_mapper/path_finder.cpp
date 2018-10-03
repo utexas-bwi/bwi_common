@@ -37,6 +37,8 @@
 #include <fstream>
 
 namespace bwi_mapper {
+  const int PathFinder::OBSTACLE = -2;
+  const int PathFinder::NOT_CONNECTED = -1;
 
   PathFinder::PathFinder(const nav_msgs::OccupancyGrid& map, const Point2d& start_pt) : width_(map.info.width) {
 
