@@ -3,10 +3,9 @@ project(bwi_manipulation)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS
+find_package(catkin QUIET COMPONENTS
         actionlib
         actionlib_msgs
-        agile_grasp
         bwi_perception
         geometry_msgs
         pcl_ros
@@ -18,8 +17,12 @@ find_package(catkin REQUIRED COMPONENTS
         tf_conversions
         )
 
+if (agile_grasp_FOUND)
+    set(ENV{AGILE_GRASP_AVAILABLE} true)
+endif()
 
 find_package(PCL 1.7 REQUIRED)
+
 
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
