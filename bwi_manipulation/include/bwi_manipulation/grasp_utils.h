@@ -9,7 +9,7 @@
 #include <geometry_msgs/PoseStamped.h>
 
 #ifdef AGILE_GRASP_AVAILABLE
-#include "agile_grasp/Grasp.h"
+#include <agile_grasp/Grasp.h>
 #endif
 #include <bwi_manipulation/GraspCartesianCommand.h>
 #include <bwi_perception/BoundingBox.h>

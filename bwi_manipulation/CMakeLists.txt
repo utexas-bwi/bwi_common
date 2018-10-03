@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_manipulation)
 
-add_compile_options(-std=c++11)
+set(CMAKE_CXX_STANDARD 11)
 
+# We'll ignore any missing packages at this point and
+# rely on compile errors to highlight any real problems
 find_package(catkin QUIET COMPONENTS
         actionlib
         actionlib_msgs
+        agile_grasp
         bwi_perception
         geometry_msgs
         pcl_ros
@@ -17,8 +20,11 @@ find_package(catkin QUIET COMPONENTS
         tf_conversions
         )
 
+
 if (agile_grasp_FOUND)
-    set(ENV{AGILE_GRASP_AVAILABLE} true)
+    # Set a compile define to turn on agile grasp helpers
+    message("Found agile_grasp. Additional helpers will be compiled.")
+    add_definitions(-DAGILE_GRASP_AVAILABLE)
 endif()
 
 find_package(PCL 1.7 REQUIRED)
@@ -34,7 +40,7 @@ include_directories(
 )
 
 catkin_package(
-        CATKIN_DEPENDS actionlib actionlib_msgs agile_grasp bwi_moveit_utils bwi_perception geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
+        CATKIN_DEPENDS actionlib actionlib_msgs bwi_moveit_utils bwi_perception geometry_msgs moveit_ros_planning_interface message_runtime moveit_msgs roscpp rospy std_msgs
         INCLUDE_DIRS include
         LIBRARIES manipulation_utilities
 )
