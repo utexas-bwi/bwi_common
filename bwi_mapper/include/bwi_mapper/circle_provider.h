@@ -37,8 +37,7 @@
  *
  **/
 
-#ifndef CIRCLE_PROVIDER_1USEBX40
-#define CIRCLE_PROVIDER_1USEBX40
+#pragma once
 
 #include <vector>
 
@@ -117,5 +116,3 @@ namespace bwi_mapper {
   }; /* CircleProvider */
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: CIRCLE_PROVIDER_1USEBX40 */

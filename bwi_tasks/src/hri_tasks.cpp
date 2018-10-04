@@ -70,12 +70,12 @@ public:
     message.content = content;
     message.from = from;
     message.to = to;
-    messages.insert(make_pair<string,plan_execution::HriMessage> (message.id, message));
+    messages.insert(make_pair(message.id, message));
     return message.id;
   }
 
   void addMessage(plan_execution::HriMessage message) {
-    messages.insert(make_pair<string,plan_execution::HriMessage> (message.id, message));
+    messages.insert(make_pair(message.id, message));
   }
 
   bool lookUpMessage(plan_execution::GetHriMessage::Request  &req,

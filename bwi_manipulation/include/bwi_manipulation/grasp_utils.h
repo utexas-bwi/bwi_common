@@ -1,5 +1,4 @@
-#ifndef GRASP_UTILS_H
-#define GRASP_UTILS_H
+#pragma once
 
 
 #include <ros/ros.h>
@@ -9,7 +8,9 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include "agile_grasp/Grasp.h"
+#ifdef AGILE_GRASP_AVAILABLE
+#include <agile_grasp/Grasp.h>
+#endif
 #include <bwi_manipulation/GraspCartesianCommand.h>
 #include <bwi_perception/BoundingBox.h>
 
@@ -133,4 +134,3 @@ namespace bwi_manipulation {
 
     }
 }
-#endif

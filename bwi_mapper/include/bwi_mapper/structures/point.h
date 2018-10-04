@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef POINT_71CJ9X0J
-#define POINT_71CJ9X0J
+#pragma once
 
 #include <opencv/cv.h>
 #include <stdint.h>
@@ -82,5 +81,3 @@ namespace bwi_mapper {
   typedef cv::Point2f Point2f;
   
 } /* bwi_mapper */
-
-#endif /* end of include guard: POINT_71CJ9X0J */

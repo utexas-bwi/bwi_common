@@ -51,8 +51,8 @@ public:
     bool task_completed;
 
 private:
-    static const double human_following_pose_offset = 1;
-    static const double human_pose_delta_threshold = 1.0;
+    static constexpr double human_following_pose_offset = 1;
+    static constexpr double human_pose_delta_threshold = 1.0;
 
     geometry_msgs::PoseStamped human_pose;
     geometry_msgs::PoseStamped human_following_pose;
