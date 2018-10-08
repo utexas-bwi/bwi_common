@@ -5,8 +5,6 @@
 #include "actasp/AnswerSet.h"
 #include <knowledge_representation/Entity.h>
 
-#include "plan_execution/CurrentStateQuery.h"
-
 #include <ros/ros.h>
 
 #include <algorithm>

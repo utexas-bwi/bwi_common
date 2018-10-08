@@ -509,8 +509,9 @@ bool BwiLogicalNavigator::changeFloor(const std::string &new_room,
 
 bool BwiLogicalNavigator::senseDoor(bwi_msgs::CheckBool::Request &req,
                                     bwi_msgs::CheckBool::Response &res) {
+
   std::string door_name;
-  bool is_facing_door = getFacingDoor({robot_x_, robot_y_}, robot_yaw_, 2.0, door_name);
+  bool is_facing_door = getRobotFacingDoor({robot_x_, robot_y_}, robot_yaw_, 2.0, door_name);
   if (!is_facing_door) {
     ROS_WARN("Called sense door while not facing a door");
     res.value = false;

@@ -75,14 +75,13 @@ namespace bwi_logical_translator {
               const bwi::Point2f &current_location,
               float yaw, float threshold, const std::string &door_name);
 
-      bool isRobotBesideDoor(
-              const bwi::Point2f &current_location,
-              float yaw, float threshold, const std::string &door_name);
-
-      bool getFacingDoor(
+      bool getRobotFacingDoor(
               const bwi::Point2f &current_location,
               float yaw, float threshold, std::string &door_name);
 
+      bool isRobotBesideDoor(
+              const bwi::Point2f &current_location,
+              float yaw, float threshold, const std::string &door_name);
 
       bool isRobotFacingLocation(
           const bwi::Point2f &current_location,

@@ -17,7 +17,7 @@ namespace bwi_krexec {
 
 static std::map <std::string, actasp::ActionFactory> simulated_actions = {
   {"navigate_to", bwi_krexec::NavigateTo::create},
-  {"open_door", bwi_krexec::OpenDoor::create},
+  {"open_door", bwi_krexec::OpenSimulatedDoor::create},
   {"go_through", bwi_krexec::GoThrough::create},
   {"change_floor", bwi_krexec::ChangeFloor::create},
 };

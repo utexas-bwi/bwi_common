@@ -1,14 +1,7 @@
 #include "OpenSimulatedDoor.h"
 
-#include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
-
-#include "LogicalNavigation.h"
-
-#include "actasp/AspFluent.h"
-#include "SenseLocation.h"
-
-#include <ros/ros.h>
+#include <knowledge_representation/Entity.h>
 
 using namespace std;
 using namespace ros;
@@ -16,47 +9,54 @@ using namespace ros;
 namespace bwi_krexec {
 
 
-OpenSimulatedDoor::OpenSimulatedDoor(const std::string &door_name, knowledge_rep::LongTermMemoryConduit &ltmc) : ltmc(ltmc), door(), done(false),requestSent(false) {}
+OpenSimulatedDoor::OpenSimulatedDoor(const int door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : 
+  ltmc(ltmc), door_id(door_id), door_name(), done(false), failed(false), requestSent(false) {}
 
 void OpenSimulatedDoor::run() {
   NodeHandle n;
 
   if (!requestSent) {
+    knowledge_rep::Entity location(door_id, ltmc);
+    if (!location.is_valid()) {
+      failed = true;
+      return;
+    }
+    auto attrs = location.get_attributes("name");
+    
+    if (attrs.size() != 1) {
+      failed = true;
+      return;
+    }
+
+    door_name = attrs.at(0).get_string_value();
+
+    ROS_INFO_STREAM(door_name);
+
     ServiceClient doorClient = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
     doorClient.waitForExistence();
 
     bwi_msgs::DoorHandlerInterface dhi;
 
     dhi.request.all_doors = false;
-    dhi.request.door = door;
+    dhi.request.door = door_name;
     dhi.request.open = true;
 
     doorClient.call(dhi);
 
     requestSent = true;
 
-    vector<string> params;
-    params.push_back(door);
-    senseDoor = unique_ptr<SenseLocation>(new SenseLocation(ltmc));
+    doorStateClient = n.serviceClient<bwi_msgs::CheckBool>("/sense_door_state");
   }
 
-  senseDoor->run();
+  
+  bwi_msgs::CheckBool open_srv;
+  doorStateClient.call(open_srv);
 
-  ros::ServiceClient currentClient = n.serviceClient<plan_execution::CurrentStateQuery> ("current_state_query");
-  plan_execution::AspFluent openFluent;
-  openFluent.name = "open";
-  openFluent.timeStep = 0;
-  openFluent.variables.push_back(door);
+  done = open_srv.response.value;
 
-  plan_execution::AspRule rule;
-  rule.head.push_back(openFluent);
-
-  plan_execution::CurrentStateQuery csq;
-  csq.request.query.push_back(rule);
-
-  currentClient.call(csq);
-
-  done = csq.response.answer.satisfied;
+  if (done) {
+    ROS_INFO_STREAM("Door " << door_name << " is open");
+  }
 
 }
 
@@ -66,7 +66,7 @@ actasp::Action* OpenSimulatedDoor::cloneAndInit(const actasp::AspFluent& fluent)
 }
 
 std::vector<std::string> OpenSimulatedDoor::getParameters() const {
-  return {door};
+  return {to_string(door_id)};
 }
 
 }
