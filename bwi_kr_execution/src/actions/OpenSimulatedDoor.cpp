@@ -30,8 +30,6 @@ void OpenSimulatedDoor::run() {
 
     door_name = attrs.at(0).get_string_value();
 
-    ROS_INFO_STREAM(door_name);
-
     ServiceClient doorClient = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
     doorClient.waitForExistence();
 

@@ -9,7 +9,7 @@ namespace bwi_krexec {
 
 class GoThrough : public LogicalNavigation {
 public:
-  GoThrough(const std::string &door_name, knowledge_rep::LongTermMemoryConduit &ltmc);
+  GoThrough(const int door_id, knowledge_rep::LongTermMemoryConduit &ltmc);
 
   Action *cloneAndInit(const actasp::AspFluent &fluent) const override {
     return nullptr;
@@ -23,16 +23,16 @@ public:
 
   std::vector<std::string> getParameters() const override;
 
-  std::vector<std::string> prepareGoalParameters() const override;
+  boost::optional<std::vector<std::string> > prepareGoalParameters() const override;
 
   static std::unique_ptr<actasp::Action> create(const actasp::AspFluent & fluent, actasp::ResourceManager &resource_manager) {
-    auto door_name = fluent.getParameters().at(0);
+    auto door_id = std::atoi(fluent.getParameters().at(0).c_str());
     auto& resource_manager_cast = dynamic_cast<BwiResourceManager&>(resource_manager);
-    return std::unique_ptr<actasp::Action>(new bwi_krexec::GoThrough(door_name, resource_manager_cast.ltmc));
+    return std::unique_ptr<actasp::Action>(new bwi_krexec::GoThrough(door_id, resource_manager_cast.ltmc));
   }
 
 private:
-  const std::string &door_name;
+  int door_id;
 
   void onFinished(bool success, const bwi_msgs::LogicalNavResult &result) override;
 };

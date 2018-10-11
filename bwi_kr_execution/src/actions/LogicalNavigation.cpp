@@ -23,10 +23,14 @@ LogicalNavigation::LogicalNavigation(const std::string &logical_name, knowledge_
         LogicalNavigationRosAction("execute_logical_action") {}
 
 boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {
-    bwi_msgs::LogicalNavGoal goal;
-    goal.command.name = name;
-    goal.command.value = prepareGoalParameters();
-    return goal;
+    auto params = prepareGoalParameters();
+    if (params) {
+        bwi_msgs::LogicalNavGoal goal;
+        goal.command.name = name;
+        goal.command.value = *params;
+        return goal;
+    }
+    
 }
 
 void LogicalNavigation::onFinished(bool succeeded, const bwi_msgs::LogicalNavResult &result) {

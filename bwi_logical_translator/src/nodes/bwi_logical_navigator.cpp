@@ -339,12 +339,13 @@ bool BwiLogicalNavigator::goThroughDoor(const std::string &door_name, bwi_msgs::
     // Publish the observable fluents. Since we're likely going to sense the door, make sure the no-doors map was
     // published.
     publishNavigationMap(false, true);
-    //senseState(observations, door_idx);
+    senseState(observations);
 
     return success;
   } else {
 
     enableStaticCostmap(true);
+    senseState(observations);
 
     error_message = "Cannot interact with " + door_name + " from here.";
     return false;

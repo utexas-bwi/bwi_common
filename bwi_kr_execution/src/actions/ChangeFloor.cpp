@@ -93,12 +93,14 @@ std::vector<std::string> ChangeFloor::getParameters() const {
   return {dest_room};
 }
 
-std::vector<std::string> ChangeFloor::prepareGoalParameters() const {
+boost::optional<std::vector<std::string> > ChangeFloor::prepareGoalParameters() const {
   // Get the doors for this elevator.
   std::string facing_door;
   //TODO: Get the door we're facing
 
-  return {dest_room, facing_door};
+  std::vector<std::string> params = {dest_room, facing_door};
+
+  return params;
 }
 
 

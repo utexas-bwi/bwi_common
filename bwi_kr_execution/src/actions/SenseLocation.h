@@ -20,7 +20,7 @@ namespace bwi_krexec {
 
         std::vector<std::string> getParameters() const override;
 
-        std::vector<std::string> prepareGoalParameters() const override;
+        boost::optional<std::vector<std::string> > prepareGoalParameters() const override;
 
         static std::unique_ptr<actasp::Action> create(const actasp::AspFluent & fluent, actasp::ResourceManager &resource_manager) {
           auto& resource_manager_cast = dynamic_cast<BwiResourceManager&>(resource_manager);
