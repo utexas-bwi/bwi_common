@@ -5,6 +5,7 @@
 #include "actasp/Action.h"
 #include <bwi_msgs/CheckBool.h>
 #include "../BwiResourceManager.h"
+#include <knowledge_representation/Entity.h>
 
 #include <string>
 #include <ros/ros.h>
@@ -38,8 +39,10 @@ public:
 private:
   
  std::vector<std::string> getParameters() const;
+ bool checkDoorOpen();
  
  int door_id;
+ knowledge_rep::Entity door_entity;
  std::string door_name;
  bool done;
  bool failed;

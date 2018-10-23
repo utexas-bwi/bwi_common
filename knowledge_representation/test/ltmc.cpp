@@ -32,7 +32,8 @@ class EntityTest : public ::testing::Test {
 protected:
 
     EntityTest() : ltmc(knowledge_rep::get_default_ltmc()), entity(ltmc.add_entity()),
-                   concept(ltmc.get_concept("test concept")), instance(ltmc.add_entity().entity_id, ltmc) {
+                   concept(ltmc.get_concept("test concept")), parent_concept(ltmc.get_concept("parent concept")),
+                   instance(ltmc.add_entity().entity_id, ltmc) {
 
     }
 
@@ -47,6 +48,7 @@ protected:
     knowledge_rep::LongTermMemoryConduit ltmc;
     knowledge_rep::Entity entity;
     knowledge_rep::Concept concept;
+    knowledge_rep::Concept parent_concept;
     knowledge_rep::Instance instance;
 };
 
@@ -105,6 +107,12 @@ TEST_F(EntityTest, RemoveInstancesWorks) {
     concept.remove_instances();
   EXPECT_FALSE(instance.is_valid());
     EXPECT_EQ(0, concept.get_instances().size());
+}
+
+TEST_F(EntityTest, GetConceptsWorks) {
+  instance.make_instance_of(concept);
+  concept.add_attribute("is_a", parent_concept);
+  EXPECT_EQ(2, instance.get_concepts().size());
 }
 
 TEST_F(LTMCTest, RecursiveRemoveWorks) {

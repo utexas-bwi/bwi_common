@@ -533,7 +533,7 @@ void BwiLogicalNavigator::execute(const bwi_msgs::LogicalNavGoalConstPtr &goal) 
   if (goal->command.name == "navigate_to") {
     res.success = navigateTo(goal->command.value[0], res.observations,
                              status);
-  } else if (goal->command.name == "gothrough") {
+  } else if (goal->command.name == "go_through") {
     res.success = goThroughDoor(goal->command.value[0], res.observations,
                                 status);
   } else if (goal->command.name == "changefloor") {

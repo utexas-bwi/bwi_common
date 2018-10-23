@@ -36,4 +36,9 @@ std::vector<Concept> Instance::get_concepts() {
   });
   return concepts;
 }
+
+bool Instance::has_concept(const Concept &concept) {
+  auto concepts = this->get_concepts();
+  return std::find(concepts.begin(), concepts.end(), concept) != concepts.end();
+}
 }

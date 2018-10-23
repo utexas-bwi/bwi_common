@@ -11,7 +11,7 @@ using namespace std;
 namespace bwi_krexec {
 
 GoThrough::GoThrough(int door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : door_id(door_id),
-              LogicalNavigation("gothrough", ltmc){}
+              LogicalNavigation("go_through", ltmc){}
 
 
 std::vector<std::string> GoThrough::getParameters() const {

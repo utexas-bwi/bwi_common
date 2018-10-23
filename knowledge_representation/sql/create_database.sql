@@ -115,7 +115,7 @@ WITH RECURSIVE
     SELECT a.attribute_value
     FROM entity_attributes_id a
       INNER JOIN cteConcepts b
-        ON a.attribute_name="instance_of"
+        ON a.attribute_name="is_a"
         AND a.entity_id=b.ID
         
   )
@@ -139,6 +139,7 @@ insert into attributes(attribute_name, type) values('is_facing', 'int');
 insert into attributes(attribute_name, type) values('is_holding', 'int');
 insert into attributes(attribute_name, type) values('is_in', 'int');
 insert into attributes(attribute_name, type) values('is_near', 'int');
+insert into attributes(attribute_name, type) values('is_open', 'bool');
 insert into attributes(attribute_name, type) values('is_placed', 'int');
 insert into attributes(attribute_name, type) values('name', 'string');
 

@@ -1,7 +1,6 @@
 #include "OpenSimulatedDoor.h"
 
 #include "bwi_msgs/DoorHandlerInterface.h"
-#include <knowledge_representation/Entity.h>
 
 using namespace std;
 using namespace ros;
@@ -10,18 +9,32 @@ namespace bwi_krexec {
 
 
 OpenSimulatedDoor::OpenSimulatedDoor(const int door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : 
-  ltmc(ltmc), door_id(door_id), door_name(), done(false), failed(false), requestSent(false) {}
+  ltmc(ltmc), door_id(door_id), door_entity(door_id, ltmc), door_name(), done(false), failed(false), requestSent(false) {}
+
+bool OpenSimulatedDoor::checkDoorOpen() {
+  bwi_msgs::CheckBool open_srv;
+  doorStateClient.call(open_srv);
+
+  if (open_srv.response.value) {
+    ROS_INFO_STREAM("Door " << door_name << " is open");
+    door_entity.add_attribute("is_open", true);
+
+    return true;
+  }
+
+  return false;
+}
 
 void OpenSimulatedDoor::run() {
   NodeHandle n;
 
   if (!requestSent) {
-    knowledge_rep::Entity location(door_id, ltmc);
-    if (!location.is_valid()) {
+
+    if (!door_entity.is_valid()) {
       failed = true;
       return;
     }
-    auto attrs = location.get_attributes("name");
+    auto attrs = door_entity.get_attributes("name");
     
     if (attrs.size() != 1) {
       failed = true;
@@ -29,6 +42,13 @@ void OpenSimulatedDoor::run() {
     }
 
     door_name = attrs.at(0).get_string_value();
+
+    doorStateClient = n.serviceClient<bwi_msgs::CheckBool>("/sense_door_state");
+
+    if (checkDoorOpen()) {
+      done = true;
+      return;
+    }
 
     ServiceClient doorClient = n.serviceClient<bwi_msgs::DoorHandlerInterface> ("/update_doors");
     doorClient.waitForExistence();
@@ -42,19 +62,9 @@ void OpenSimulatedDoor::run() {
     doorClient.call(dhi);
 
     requestSent = true;
-
-    doorStateClient = n.serviceClient<bwi_msgs::CheckBool>("/sense_door_state");
   }
 
-  
-  bwi_msgs::CheckBool open_srv;
-  doorStateClient.call(open_srv);
-
-  done = open_srv.response.value;
-
-  if (done) {
-    ROS_INFO_STREAM("Door " << door_name << " is open");
-  }
+  done = checkDoorOpen();
 
 }
 
