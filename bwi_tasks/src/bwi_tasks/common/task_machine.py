@@ -85,7 +85,7 @@ def get_execute_sm():
                                      output_keys=["msg_for_operator"])
     with shared_execute_sm:
         control_flow.inject_userdata_auto("_SET_DEFAULT_MSG_FOR_OPERATOR", "msg_for_operator", "")
-        repeat_state = control_flow.RepeatN(2)
+        repeat_state = control_flow.RepeatN(0)
         StateMachine.add_auto("RESET_REPEAT", control_flow.ResetRepeat(repeat_state), ["succeeded"])
         StateMachine.add("EXECUTE_GOAL", states.ExecuteGoal(),
                          transitions={"preempted": "RECOVERY_REPEAT_GATE",
