@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+import knowledge_representation
+import rospy
+import smach_ros
+
+from knowledge_representation import LongTermMemoryConduit
+from smach import StateMachine, State
+
+from bwi_tasks.common import states, control_flow, task_machine
+from bwi_kr_execution import goal_formulators, knowledge
+
+
+def main():
+    rospy.init_node("go_to_location_smach")
+    target = rospy.get_param("~location", None)
+
+    print(target)
+
+    if not target:
+        print("Please provide a location: location:=d3_414b1")
+
+    simulation = rospy.get_param("~simulation", False)
+    introspect = rospy.get_param("~introspect", False)
+    State.simulation = simulation
+
+    ltmc = knowledge_representation.get_default_ltmc()
+
+    task_machine.get_recover_from_failure_sm(ltmc)
+
+    # Create top state machine
+    sm = StateMachine(outcomes=['succeeded', 'preempted', 'aborted'])
+    # Open the container
+    with sm:
+        control_flow.inject_userdata_auto("INJECT_LOCATION", "location", target)
+        StateMachine.add('GOTO_Location', task_machine.generate_goal_based_task_sm(
+            goal_formulators.GoToRoomOrLocationName(ltmc), ["location"]))
+
+    if introspect:
+        sis = smach_ros.IntrospectionServer('introspection_server', sm, '/SM_ROOT')
+        sis.start()
+
+    # Execute SMACH plan
+    outcome = sm.execute()
+
+    if introspect:
+        rospy.spin()
+        sis.stop()
+
+
+if __name__ == '__main__':
+    main()

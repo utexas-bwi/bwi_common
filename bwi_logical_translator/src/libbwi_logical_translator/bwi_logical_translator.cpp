@@ -53,7 +53,7 @@
 #include <cmath>
 #include <pcl/impl/point_types.hpp>
 
-#define SCALAR 1.1
+#define SCALAR 1.2
 
 using std::vector;
 
@@ -507,30 +507,33 @@ namespace bwi_logical_translator {
     static_costmap_toggle_client_.call(static_costmap_toggle);
   }
 
-    bool
-    BwiLogicalTranslator::getFacingDoor(const bwi::Point2f &current_location, float yaw, float threshold,
-                                        std::string &door_name) {
-        vector<int> indices;
-        vector<float> sq_distances;
-        location_tree.radiusSearch({current_location.x, current_location.y},threshold, indices, sq_distances);
-        if (indices.empty()) {
-            return false;
+
+  bool BwiLogicalTranslator::getRobotFacingDoor(const bwi::Point2f &current_location, float yaw, float threshold, std::string &door_name) {
+    vector<int> indices;
+    vector<float> sq_distances;
+    location_tree.radiusSearch({current_location.x, current_location.y},threshold, indices, sq_distances);
+
+    if (indices.empty()) {
+        door_name = "";
+        return false;
+    }
+
+    for (const auto index: indices) {
+        const auto& name = index_to_name[index];
+        // Is this point a door?
+        if (name_to_door.find(name) == name_to_door.end()) {
+            continue;
         }
 
-        for (const auto index: indices) {
-            const auto& name = index_to_name[index];
-            // Is this point a door?
-            if (name_to_door.find(name) == name_to_door.end()) {
-                continue;
-            }
-            const auto& door = name_to_door[door_name];
-            bool is_facing = isRobotFacingDoor(current_location, yaw, threshold, door_name);
-            if (is_facing) {
-                return true;
-            }
+        bool is_facing = isRobotFacingDoor(current_location, yaw, threshold, name);
+        if (is_facing) {
+            door_name = name;
+            return true;
         }
-        door_name = "";
-      return false;
     }
+
+    door_name = "";
+    return false;
+  }
 
 } /* namespace bwi_logical_translator */

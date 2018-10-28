@@ -339,12 +339,13 @@ bool BwiLogicalNavigator::goThroughDoor(const std::string &door_name, bwi_msgs::
     // Publish the observable fluents. Since we're likely going to sense the door, make sure the no-doors map was
     // published.
     publishNavigationMap(false, true);
-    //senseState(observations, door_idx);
+    senseState(observations);
 
     return success;
   } else {
 
     enableStaticCostmap(true);
+    senseState(observations);
 
     error_message = "Cannot interact with " + door_name + " from here.";
     return false;
@@ -509,8 +510,9 @@ bool BwiLogicalNavigator::changeFloor(const std::string &new_room,
 
 bool BwiLogicalNavigator::senseDoor(bwi_msgs::CheckBool::Request &req,
                                     bwi_msgs::CheckBool::Response &res) {
+
   std::string door_name;
-  bool is_facing_door = getFacingDoor({robot_x_, robot_y_}, robot_yaw_, 2.0, door_name);
+  bool is_facing_door = getRobotFacingDoor({robot_x_, robot_y_}, robot_yaw_, 2.0, door_name);
   if (!is_facing_door) {
     ROS_WARN("Called sense door while not facing a door");
     res.value = false;
@@ -531,7 +533,7 @@ void BwiLogicalNavigator::execute(const bwi_msgs::LogicalNavGoalConstPtr &goal) 
   if (goal->command.name == "navigate_to") {
     res.success = navigateTo(goal->command.value[0], res.observations,
                              status);
-  } else if (goal->command.name == "gothrough") {
+  } else if (goal->command.name == "go_through") {
     res.success = goThroughDoor(goal->command.value[0], res.observations,
                                 status);
   } else if (goal->command.name == "changefloor") {

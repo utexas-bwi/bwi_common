@@ -5,8 +5,6 @@
 #include "actasp/AnswerSet.h"
 #include <knowledge_representation/Entity.h>
 
-#include "plan_execution/CurrentStateQuery.h"
-
 #include <ros/ros.h>
 
 #include <algorithm>
@@ -33,7 +31,7 @@ LogicalNavigation("navigate_to", ltmc),
         return parameters;
     }
 
-    std::vector<std::string> NavigateTo::prepareGoalParameters() const {
+    boost::optional<std::vector<std::string> > NavigateTo::prepareGoalParameters() const {
         knowledge_rep::Entity location(location_id, ltmc);
         // FIXME: Fail more gracefully here
         assert(location.is_valid());
@@ -43,6 +41,12 @@ LogicalNavigation("navigate_to", ltmc),
         vector<string> parameters;
         parameters.push_back(attrs.at(0).get_string_value());
         return parameters;
+    }
+
+    void NavigateTo::onFinished(bool success, const bwi_msgs::LogicalNavResult &result) {
+      // Allow super to update the knowledge base
+      LogicalNavigation::onFinished(success, result);
+      // TODO: Send speech for unstuck
     }
 
 

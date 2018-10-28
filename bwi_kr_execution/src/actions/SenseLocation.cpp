@@ -26,8 +26,8 @@ namespace bwi_krexec {
         return {};
     }
 
-    std::vector<std::string> SenseLocation::prepareGoalParameters() const {
-        return {};
+    boost::optional<std::vector<std::string> > SenseLocation::prepareGoalParameters() const {
+        return std::vector<std::string>();
     }
 
 }

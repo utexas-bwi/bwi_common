@@ -20,6 +20,8 @@ public:
 
     std::vector<Concept> get_concepts();
 
+    bool has_concept(const Concept &concept);
+
 };
 
 

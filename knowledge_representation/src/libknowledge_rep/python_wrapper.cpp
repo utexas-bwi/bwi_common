@@ -146,7 +146,8 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("make_instance_of", &Instance::make_instance_of)
       .def("get_name", &Instance::get_name,
            python::return_value_policy<return_optional>())
-      .def("get_concepts", &Instance::get_concepts);
+      .def("get_concepts", &Instance::get_concepts)
+      .def("has_concept", &Instance::has_concept);
 
 
   class_<EntityAttribute>("EntityAttribute", init<int, string, AttributeValue>())

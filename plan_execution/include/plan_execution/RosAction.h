@@ -32,6 +32,7 @@ public:
             // The subclass didn't provide a goal. This is usually an error
             if (!goal) {
                 ROS_ERROR_STREAM("Ran " << getName() <<  " but did not return a goal from prepareGoal()");
+                failed = true;
                 onFinished(false, {});
                 done = true;
                 return;

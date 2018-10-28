@@ -17,7 +17,7 @@ public:
 
 	std::string getName() const final {return name;}
 
-	virtual std::vector<std::string> prepareGoalParameters() const = 0;
+	virtual boost::optional<std::vector<std::string> > prepareGoalParameters() const = 0;
 
   void configureWithResources(actasp::ResourceManager &resource_manager);
 

@@ -23,7 +23,7 @@ namespace bwi_krexec {
 
         std::vector<std::string> getParameters() const override;
 
-        std::vector<std::string> prepareGoalParameters() const;
+        boost::optional<std::vector<std::string> > prepareGoalParameters() const;
 
         static std::unique_ptr<actasp::Action> create(const actasp::AspFluent & fluent, actasp::ResourceManager &resource_manager) {
           auto location = std::atoi(fluent.getParameters().at(0).c_str());
@@ -33,6 +33,8 @@ namespace bwi_krexec {
 
     private:
         int location_id;
+
+        void onFinished(bool success, const bwi_msgs::LogicalNavResult &result) override;
     };
 }
 

@@ -17,9 +17,18 @@ int main(int argc, char **argv) {
         cout << "Usage: action_name [param1 [...]]" << endl;
         return 1;
     }
+
+    bool simulation;
+    n.param<bool>("simulation", simulation, false);
+
     actasp::ActionFactory action_template;
     try {
-        action_template = bwi_krexec::real_actions[argv[1]];
+        if (simulation) {
+            action_template = bwi_krexec::real_actions[argv[1]];
+        }
+        else {
+            action_template = bwi_krexec::simulated_actions[argv[1]];
+        }
     } catch (runtime_error &e) {
         cout << "Couldn't find an action for " << argv[1] << endl;
         cout << "Are you sure it's registered?" << endl;

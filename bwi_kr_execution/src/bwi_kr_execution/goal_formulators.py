@@ -32,6 +32,27 @@ class GoToLocationName(FormulateGoal):
         goal.aspGoal = [goal_rule]
 
 
+class GoToRoomOrLocationName(FormulateGoal):
+    def __init__(self, ltmc, default_location=None):
+        FormulateGoal.__init__(self, ['location'])
+        self.ltmc = ltmc
+        self.default_location = default_location
+
+    def formulate_goal(self, userdata, goal):
+        if self.default_location is None:
+            to_go = userdata.location
+        else:
+            to_go = self.default_location
+
+        to_go_entity = self.ltmc.get_instance_named(to_go)
+        room_con = self.ltmc.get_concept("room")
+
+        head = "not is_in" if to_go_entity.has_concept(room_con) else "not is_near"
+
+        goal_rule = to_asp_rule_body(head, [1, to_go_entity.entity_id])
+        goal.aspGoal = [goal_rule]
+
+
 class PickUpObject(FormulateGoal):
     def __init__(self, ltmc):
         FormulateGoal.__init__(self, ['location', 'object'])

@@ -19,7 +19,7 @@ struct ChangeFloor : public LogicalNavigation {
   
   actasp::Action *clone() const {return nullptr;}
 
-  std::vector<std::string> prepareGoalParameters() const override;
+  boost::optional<std::vector<std::string> > prepareGoalParameters() const override;
 
   static std::unique_ptr<actasp::Action> create(const actasp::AspFluent & fluent, actasp::ResourceManager &resource_manager) {
     auto dest_room = fluent.getParameters().at(0);
