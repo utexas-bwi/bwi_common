@@ -29,7 +29,6 @@
 #include <pcl/features/fpfh.h>
 #include <pcl/features/vfh.h>
 #include <pcl/features/cvfh.h>
-#include <pcl/features/moment_of_inertia_estimation.h>
 
 #include <pcl/filters/crop_box.h>
 #include <pcl/filters/passthrough.h>

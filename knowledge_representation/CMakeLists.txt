@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(knowledge_representation)
 
-set(CMAKE_CXX_STANDARD 11)
 
+if("$ENV{ROS_DISTRO}" STREQUAL "indigo")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+    set(CMAKE_CXX_STANDARD 11)
+endif()
 find_package(BISON)
 find_package(FLEX)
 
@@ -25,6 +29,12 @@ find_package(PythonLibs REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 find_library(mysql NAMES libmysqlcppconn8.so)
+if($mysql_FOUND)
+    set(DB_INCLUDES /usr/local/mysql/connector-c++-8.0/include)
+    set(DB_LIBS ${mysql})
+else()
+    message("MySQL Connector C++ 8.0 was not found. This backend will not be available.")
+endif()
 
 
 link_directories(
@@ -49,8 +59,8 @@ generate_messages(
 
 
 catkin_package(
-        INCLUDE_DIRS include /usr/local/mysql/connector-c++-8.0/include
-        LIBRARIES libknowledge_rep ${mysql}
+        INCLUDE_DIRS include ${DB_INCLUDES}
+        LIBRARIES libknowledge_rep
         CATKIN_DEPENDS
         pcl_ros
         pcl_conversions
@@ -60,7 +70,7 @@ catkin_package(
 include_directories(
         ${catkin_INCLUDE_DIRS}
         include
-        /usr/local/mysql/connector-c++-8.0/include
+        ${DB_INCLUDES}
         ${Eigen3_INCLUDE_DIRS}
 )
 
@@ -82,13 +92,13 @@ add_library(libknowledge_rep
         ${FLEX_scanner_OUTPUTS} )
 
 add_dependencies(libknowledge_rep ${knowledge_representation_EXPORTED_TARGETS})
-target_link_libraries(libknowledge_rep ${mysql} ${catkin_LIBRARIES})
+target_link_libraries(libknowledge_rep ${DB_LIBS} ${catkin_LIBRARIES})
 
 add_library(_libknowledge_rep_wrapper_cpp src/libknowledge_rep/python_wrapper.cpp)
 add_dependencies(_libknowledge_rep_wrapper_cpp ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(_libknowledge_rep_wrapper_cpp
         libknowledge_rep
-        ${mysql}
+        ${DB_LIBS}
         ${Boost_LIBRARIES}
         ${catkin_LIBRARIES})
 

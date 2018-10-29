@@ -6,7 +6,9 @@
 #include <pcl/common/common.h>
 #include <visualization_msgs/Marker.h>
 #include <pcl/common/centroid.h>
+#if PCL_VERSION_COMPARE(>, 1, 8, 0)
 #include <pcl/features/moment_of_inertia_estimation.h>
+#endif
 #include <tf/transform_listener.h>
 #include <pcl/filters/crop_box.h>
 
@@ -54,6 +56,7 @@ namespace bwi_perception {
         return BoundingBox(min, max, centroid, Eigen::Quaternionf(0, 0, 0, 1), position, plane_cloud->header.frame_id);
     }
 
+#if PCL_VERSION_COMPARE(>, 1, 8, 0)
     template<typename PointT>
     BoundingBox BoundingBox::oriented_from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud) {
         Eigen::Vector4f centroid;
@@ -75,7 +78,7 @@ namespace bwi_perception {
         return BoundingBox(min_vec, max_vec, centroid, quat, position_vec, plane_cloud->header.frame_id);
 
     }
-
+#endif
     template<typename PointT>
     void BoundingBox::crop_cloud(const typename pcl::PointCloud<PointT>::Ptr &in, typename pcl::PointCloud<PointT>::Ptr &out) {
         typename pcl::CropBox<PointT> pass;
