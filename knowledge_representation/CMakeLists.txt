@@ -25,8 +25,12 @@ find_package(Boost REQUIRED COMPONENTS python)
 
 find_package(PythonLibs REQUIRED)
 
-find_package(Eigen3 REQUIRED)
+set(PostgreSQL_ADDITIONAL_VERSIONS "9.3" "9.3.15")
+find_package(PostgreSQL REQUIRED)
 
+find_library(libpqxx NAMES pqxx)
+
+set(mysql "")
 find_library(mysql NAMES libmysqlcppconn8.so)
 get_cmake_property(_variableNames VARIABLES)
 list (SORT _variableNames)
@@ -39,8 +43,14 @@ if("${mysql}")
     set(MYSQL_AVAILABLE true)
     set(DB_INCLUDES /usr/local/mysql/connector-c++-8.0/include)
     set(DB_LIBS ${mysql})
+elseif("${POSTGRESQL_FOUND}" OR "${libpqxx}")
+    message(WARNING "MySQL Connector C++ 8.0 was not found. Using PostgreSQL.")
+    set(POSTGRES_AVAILABLE true)
+    set(DB_INCLUDES ${PostgreSQL_INCLUDE_DIRS})
+        set(DB_LIBS ${PostgreSQL_LIBRARIES} ${libpqxx})
+    set(DB_LIBS ${mysql})
 else()
-    message(WARNING "MySQL Connector C++ 8.0 was not found. This backend will not be available.")
+    message(ERROR "Neither MySQL nor PostgreSQL found. Please install one.")
 endif()
 
 
@@ -78,7 +88,6 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
         include
         ${DB_INCLUDES}
-        ${Eigen3_INCLUDE_DIRS}
 )
 
 
@@ -91,13 +100,12 @@ FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/Le
 
 ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 if ("${MYSQL_AVAILABLE}")
-    set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduit.cpp src/libknowledge_rep/mysql/Entity.cpp)
+    set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduit.cpp src/libknowledge_rep/mysql/Entity.cpp src/libknowledge_rep/mysql/Instance.cpp)
 endif()
 add_library(libknowledge_rep
         ${DB_SOURCES}
         src/libknowledge_rep/MemoryConduit.cpp
         src/libknowledge_rep/convenience.cpp
-        src/libknowledge_rep/Instance.cpp
         src/libknowledge_rep/Concept.cpp
         src/libknowledge_rep/Compiler.cpp
         ${BISON_parser_OUTPUTS}

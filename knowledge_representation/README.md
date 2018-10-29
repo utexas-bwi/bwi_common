@@ -4,6 +4,11 @@ Mechanisms for storing information about the world, and for querying this inform
 
 ## Installation
 
+### Postgresql
+
+    sudo apt install postgresql-server-dev-all
+
+
 ### Semi-automatic
 
 Try running these commands through, one at a time. Leave the root password blank
