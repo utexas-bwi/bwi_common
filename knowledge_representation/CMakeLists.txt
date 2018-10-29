@@ -21,7 +21,6 @@ find_package(catkin REQUIRED COMPONENTS
         std_msgs
         sensor_msgs
         )
-
 find_package(Boost REQUIRED COMPONENTS python)
 
 find_package(PythonLibs REQUIRED)
@@ -29,11 +28,19 @@ find_package(PythonLibs REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 find_library(mysql NAMES libmysqlcppconn8.so)
-if($mysql_FOUND)
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+# Check to see if we have the right version of MySQL Cpp Connector installed
+if("${mysql}")
+    set(MYSQL_AVAILABLE true)
     set(DB_INCLUDES /usr/local/mysql/connector-c++-8.0/include)
     set(DB_LIBS ${mysql})
 else()
-    message("MySQL Connector C++ 8.0 was not found. This backend will not be available.")
+    message(WARNING "MySQL Connector C++ 8.0 was not found. This backend will not be available.")
 endif()
 
 
@@ -74,17 +81,22 @@ include_directories(
         ${Eigen3_INCLUDE_DIRS}
 )
 
+
+if ("${MYSQL_AVAILABLE}" OR "${POSTGRES_AVAILABLE}")
+
+
 BISON_TARGET(parser src/libknowledge_rep/parser.yy ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/Parser.cpp COMPILE_FLAGS --defines=${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/Parser.h)
 FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/Lexer.cpp)
 
 
 ADD_FLEX_BISON_DEPENDENCY(scanner parser)
-
+if ("${MYSQL_AVAILABLE}")
+    set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduit.cpp src/libknowledge_rep/mysql/Entity.cpp)
+endif()
 add_library(libknowledge_rep
-        src/libknowledge_rep/LongTermMemoryConduit.cpp
+        ${DB_SOURCES}
         src/libknowledge_rep/MemoryConduit.cpp
         src/libknowledge_rep/convenience.cpp
-        src/libknowledge_rep/Entity.cpp
         src/libknowledge_rep/Instance.cpp
         src/libknowledge_rep/Concept.cpp
         src/libknowledge_rep/Compiler.cpp
@@ -124,8 +136,6 @@ catkin_add_gtest(test_parser test/parser.cpp)
 add_dependencies(test_parser ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(test_parser libknowledge_rep ${catkin_LIBRARIES})
 
-###
-
 
 set_target_properties(_libknowledge_rep_wrapper_cpp PROPERTIES
         PREFIX ""
@@ -146,3 +156,5 @@ install(DIRECTORY include/${PROJECT_NAME}
 install(TARGETS
         test_ltmc
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+endif ()
