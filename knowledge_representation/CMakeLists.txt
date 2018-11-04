@@ -25,21 +25,21 @@ find_package(Boost REQUIRED COMPONENTS python)
 
 find_package(PythonLibs REQUIRED)
 
-set(PostgreSQL_ADDITIONAL_VERSIONS "9.3" "9.3.15")
-find_package(PostgreSQL REQUIRED)
+set(PostgreSQL_ADDITIONAL_VERSIONS "10.5" "9.3" "9.3.15")
+find_package(PostgreSQL)
 
 find_library(libpqxx NAMES pqxx)
 
-set(mysql "")
 find_library(mysql NAMES libmysqlcppconn8.so)
 
+
 # Check to see if we have the right version of MySQL Cpp Connector installed
-if("${mysql}")
+if(mysql)
     set(MYSQL_AVAILABLE true)
     set(DB_INCLUDES /usr/local/mysql/connector-c++-8.0/include)
     set(DB_LIBS ${mysql})
     add_definitions(-DUSE_MYSQL)
-elseif("${POSTGRESQL_FOUND}" OR "${libpqxx}")
+elseif(POSTGRESQL_FOUND OR libpqxx)
     message(WARNING "MySQL Connector C++ 8.0 was not found. Using PostgreSQL.")
     set(POSTGRES_AVAILABLE true)
     set(DB_INCLUDES ${PostgreSQL_INCLUDE_DIRS})
@@ -47,7 +47,7 @@ elseif("${POSTGRESQL_FOUND}" OR "${libpqxx}")
     set(DB_LIBS ${mysql})
     add_definitions(-DUSE_POSTGRESQL)
 else()
-    message(ERROR "Neither MySQL nor PostgreSQL found. Please install one.")
+    message(FATAL_ERROR "Neither MySQL nor PostgreSQL found. Please install one.")
 endif()
 
 
@@ -69,8 +69,6 @@ generate_messages(
         std_msgs
         sensor_msgs
 )
-
-
 
 catkin_package(
         INCLUDE_DIRS include ${DB_INCLUDES}
@@ -96,14 +94,15 @@ FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/Le
 
 
 ADD_FLEX_BISON_DEPENDENCY(scanner parser)
-if ("${MYSQL_AVAILABLE}")
-    set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduit.cpp src/libknowledge_rep/mysql/Entity.cpp src/libknowledge_rep/mysql/Instance.cpp)
+if (MYSQL_AVAILABLE)
+    set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduitMySQL.cpp)
+elseif(POSTGRESQL_AVAILABLE)
+    set(DB_SOURCES src/libknowledge_rep/postgresql/LongTermMemoryConduit.cpp)
 endif()
 add_library(libknowledge_rep
         ${DB_SOURCES}
         src/libknowledge_rep/MemoryConduit.cpp
         src/libknowledge_rep/convenience.cpp
-        src/libknowledge_rep/Concept.cpp
         src/libknowledge_rep/Compiler.cpp
         ${BISON_parser_OUTPUTS}
         ${FLEX_scanner_OUTPUTS} )

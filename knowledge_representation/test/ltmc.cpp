@@ -1,10 +1,8 @@
-#include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/LongTermMemoryConduitInterface.h>
 #include <iostream>
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
-#include <knowledge_representation/Concept.h>
-#include <knowledge_representation/Instance.h>
 
 #include <gtest/gtest.h>
 
@@ -15,11 +13,13 @@ using std::cout;
 using std::endl;
 using knowledge_rep::EntityAttribute;
 using knowledge_rep::Concept;
+using knowledge_rep::Instance;
 
 class LTMCTest : public ::testing::Test {
 protected:
 
-    LTMCTest() : ltmc(knowledge_rep::get_default_ltmc()) {}
+    LTMCTest() : ltmc(knowledge_rep::get_default_ltmc()) {
+    }
 
     void SetUp() override {
         ltmc.delete_all_entities();
@@ -69,7 +69,7 @@ TEST_F(LTMCTest, GetConceptWorks) {
 
 TEST_F(LTMCTest, SQLQueryWorks) {
     vector<EntityAttribute> query_result;
-    ltmc.select_query<string>("SELECT * FROM entity_attributes_str", query_result);
+    ltmc.select_query_string("SELECT * FROM entity_attributes_str", query_result);
 }
 
 TEST_F(LTMCTest, ObjectAndConceptNameSpacesAreSeparate) {

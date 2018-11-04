@@ -1,10 +1,10 @@
-#include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/LongTermMemoryConduitInterface.h>
 #include <iostream>
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
-#include <knowledge_representation/Concept.h>
-#include <knowledge_representation/Instance.h>
+#include <knowledge_representation/LTMCConcept.h>
+#include <knowledge_representation/LTMCInstance.h>
 
 
 using std::vector;

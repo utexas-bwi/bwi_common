@@ -1,4 +1,4 @@
-#include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/LongTermMemoryConduitInterface.h>
 #include <iostream>
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>

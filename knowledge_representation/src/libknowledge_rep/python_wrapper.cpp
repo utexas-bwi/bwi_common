@@ -6,11 +6,11 @@
 #include <boost/python.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/utility/in_place_factory.hpp>
-#include <knowledge_representation/LongTermMemoryConduit.h>
-#include <knowledge_representation/Entity.h>
-#include <knowledge_representation/Concept.h>
-#include <knowledge_representation/Instance.h>
-
+#include <knowledge_representation/LongTermMemoryConduitInterface.h>
+#include <knowledge_representation/LTMCEntity.h>
+#include <knowledge_representation/LTMCConcept.h>
+#include <knowledge_representation/LTMCInstance.h>
+#include <knowledge_representation/convenience.h>
 namespace python = boost::python;
 using python::class_;
 using python::bases;
@@ -162,7 +162,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def(vector_indexing_suite<vector<EntityAttribute> >());
 
   class_<LongTermMemoryConduit, boost::noncopyable>("LongTermMemoryConduit",
-                                                    init<const string &, uint, const string &, const string &, const string &>())
+                                                    init<const string &>())
       .def("add_entity", static_cast<Entity (LTMC::*)()>(&LTMC::add_entity))
       .def("entity_exists", &LTMC::entity_exists)
       .def("delete_all_entities", &LTMC::delete_all_entities)

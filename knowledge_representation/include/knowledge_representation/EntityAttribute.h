@@ -1,5 +1,8 @@
+#include <utility>
+
 #pragma once
 #include <string>
+#include <boost/variant.hpp>
 
 namespace knowledge_rep {
 
@@ -28,7 +31,7 @@ struct EntityAttribute {
   EntityAttribute(int entity_id, std::string attribute_name, AttributeValue value) : entity_id(entity_id),
                                                                                    attribute_name(std::move(
                                                                                        attribute_name)),
-                                                                                   value(value) {}
+                                                                                   value(std::move(value)) {}
 
   int get_int_value() const { return boost::get<int>(value); }
 
