@@ -2,8 +2,8 @@
 
 #include "actasp/AspFluent.h"
 #include <plan_execution/AspFluent.h>
-#include <knowledge_representation/Entity.h>
-#include <knowledge_representation/Instance.h>
+#include <knowledge_representation/LTMCEntity.h>
+#include <knowledge_representation/LTMCInstance.h>
 #include "../BwiResourceManager.h"
 
 #include <ros/ros.h>

@@ -25,7 +25,6 @@
 // Solution: Static polymorphism w/ CRTP switched via a compile flag (?)
 namespace knowledge_rep {
 
-
 static const std::vector<std::string> table_names = {
     "entity_attributes_id",
     "entity_attributes_str",
@@ -224,6 +223,10 @@ protected:
 
 };
 
+typedef LTMCEntity<LongTermMemoryConduitMySQL> Entity;
+typedef LTMCConcept<LongTermMemoryConduitMySQL> Concept;
+typedef LTMCInstance<LongTermMemoryConduitMySQL> Instance;
+typedef LongTermMemoryConduitMySQL LongTermMemoryConduit;
 
 }
 

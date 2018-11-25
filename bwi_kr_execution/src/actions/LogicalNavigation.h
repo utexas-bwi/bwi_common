@@ -3,7 +3,7 @@
 
 #include "actasp/Action.h"
 #include <plan_execution/RosAction.h>
-#include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/convenience.h>
 
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_msgs/LogicalNavAction.h>

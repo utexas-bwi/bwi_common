@@ -72,7 +72,7 @@ generate_messages(
 
 catkin_package(
         INCLUDE_DIRS include ${DB_INCLUDES}
-        LIBRARIES libknowledge_rep
+        LIBRARIES libknowledge_rep ${DB_LIBS}
         CATKIN_DEPENDS
         pcl_ros
         pcl_conversions
@@ -96,6 +96,11 @@ FLEX_TARGET(scanner src/libknowledge_rep/lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/Le
 ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 if (MYSQL_AVAILABLE)
     set(DB_SOURCES src/libknowledge_rep/mysql/LongTermMemoryConduitMySQL.cpp)
+    # Symlink the LTMC header into place. We have to put this header in the public
+    # interface in order to instantiate the template of the base class. This class
+    # will not be used alone, so methods in its interface can't really be used.
+    ADD_CUSTOM_TARGET(link_target ALL
+            COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/src/libknowledge_rep/mysql/LongTermMemoryConduitMySQL.h ${PROJECT_SOURCE_DIR}/include/knowledge_representation/LongTermMemoryConduit.h)
 elseif(POSTGRESQL_AVAILABLE)
     set(DB_SOURCES src/libknowledge_rep/postgresql/LongTermMemoryConduit.cpp)
 endif()

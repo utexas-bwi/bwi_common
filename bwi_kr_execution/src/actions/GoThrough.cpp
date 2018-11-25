@@ -1,6 +1,6 @@
 #include "GoThrough.h"
 
-#include <knowledge_representation/Entity.h>
+#include <knowledge_representation/convenience.h>
 
 #include <ros/ros.h>
 

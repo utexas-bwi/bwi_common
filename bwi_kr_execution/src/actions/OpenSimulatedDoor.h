@@ -1,11 +1,9 @@
-
-#ifndef bwi_krexec_OpenSimulatedDoor_h__guard
-#define bwi_krexec_OpenSimulatedDoor_h__guard
+#pragma once
 
 #include "actasp/Action.h"
 #include <bwi_msgs/CheckBool.h>
 #include "../BwiResourceManager.h"
-#include <knowledge_representation/Entity.h>
+#include <knowledge_representation/LTMCEntity.h>
 
 #include <string>
 #include <ros/ros.h>
@@ -55,5 +53,3 @@ private:
 };
 
 }
- 
-#endif
