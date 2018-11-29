@@ -18,7 +18,7 @@ public:
   
   ActionSet actions(const std::set<AspFluent>& state) const noexcept;
   
-  void merge(const AnswerSet& plan) throw(std::logic_error);
+  void merge(const AnswerSet& plan);
   
   void merge(const PartialPolicy* otherPolicy);
   

@@ -50,7 +50,7 @@ bool RemoteReasoner::updateFluents(const std::vector<actasp::AspFluent> &observa
   return uf.response.consistent;
 }
 
-actasp::AnswerSet RemoteReasoner::computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error) {
+actasp::AnswerSet RemoteReasoner::computePlan(const std::vector<actasp::AspRule>& goal) const {
 
   return local.computePlan(goal);
 
@@ -64,14 +64,14 @@ bool RemoteReasoner::isPlanValid(const actasp::AnswerSet& plan, const std::vecto
 
 std::vector< actasp::AnswerSet > RemoteReasoner::computeAllPlans(
   const std::vector<actasp::AspRule>& goal,
-  double suboptimality) const throw (std::logic_error) {
+  double suboptimality) const {
 
   return local.computeAllPlans(goal,suboptimality);
 
 
 }
 
-actasp::GraphPolicy* RemoteReasoner::computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error) {
+actasp::GraphPolicy* RemoteReasoner::computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const {
  return local.computePolicy(goal,suboptimality);
 }
   
