@@ -23,7 +23,7 @@ Try running these commands through, one at a time. Leave the root password blank
     sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY ''"
     sudo mysql -u root -p -e "INSTALL PLUGIN mysqlx SONAME 'mysqlx.so';"
     roscd
-    cd ../src/Robocup_Integrated_Systems/villa_krr/knowledge_representation
+    cd ../src/bwi_common/knowledge_representation
     mysql -u root -p -e "source sql/create_database.sql"
     
 ### Manual
