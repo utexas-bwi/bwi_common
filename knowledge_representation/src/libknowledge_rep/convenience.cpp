@@ -1,7 +1,18 @@
 #include <knowledge_representation/convenience.h>
+#ifdef USE_MYSQL
+#include "mysql/LongTermMemoryConduitMySQL.h"
+#elif USE_POSTGRESQL
+#include "postgresql/LongTermMemoryConduit.h"
+#endif
 
 namespace knowledge_rep {
-        LongTermMemoryConduit get_default_ltmc() {
-            return {"127.0.0.1", 33060, "root", "", "knowledge_base"};
+#ifdef USE_MYSQL
+    LongTermMemoryConduit get_default_ltmc() {
+        return LongTermMemoryConduit(std::string("knowledge_base"));
     }
+#elif USE_POSTGRESQL
+    LongTermMemoryConduit<LongTermMemoryConduitPostgreSQL> get_default_ltmc() {
+        return {};
+    }
+#endif
 }

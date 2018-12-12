@@ -33,7 +33,7 @@ void GraphPolicy::merge(const PartialPolicy* otherPolicy) {
         throw runtime_error("method not implemented for a partial policy other than GraphPolicy");
 }
 
-void GraphPolicy::merge(const AnswerSet& plan) throw(logic_error) {
+void GraphPolicy::merge(const AnswerSet& plan) {
 
     plans.push_back(list<AspFluent>());
     PlanList::iterator currentPlan = --plans.end();

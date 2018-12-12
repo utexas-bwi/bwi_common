@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <mysqlx/xdevapi.h>
 #include <string>
@@ -7,14 +8,22 @@
 #include <boost/optional.hpp>
 #include <utility>
 #include <typeindex>
-#include "EntityAttribute.h"
+#include <knowledge_representation/EntityAttribute.h>
+#include <knowledge_representation/LTMCEntity.h>
+#include <knowledge_representation/LTMCConcept.h>
+#include <knowledge_representation/LTMCInstance.h>
+#include <knowledge_representation/LongTermMemoryConduitInterface.h>
 
+// Requirements
+// * Be able to staticly select which database backend
+// * No external dependency on which backend is available
+// * No significant external code changes when switching backends
+// Options
+// Non-requirements:
+// * ABI compatibility. We will continue to assume source builds
+// *
+// Solution: Static polymorphism w/ CRTP switched via a compile flag (?)
 namespace knowledge_rep {
-
-class Concept;
-class Entity;
-
-class Instance;
 
 static const std::vector<std::string> table_names = {
     "entity_attributes_id",
@@ -22,38 +31,41 @@ static const std::vector<std::string> table_names = {
     "entity_attributes_float",
     "entity_attributes_bool"};
 
-class LongTermMemoryConduit {
+class LongTermMemoryConduitMySQL : public LongTermMemoryConduitInterface<LongTermMemoryConduitMySQL> {
 
-  friend Entity;
-  friend Concept;
-  using LTMC = LongTermMemoryConduit;
+  using EntityImpl = LTMCEntity<LongTermMemoryConduitMySQL>;
+  using InstanceImpl = LTMCInstance<LongTermMemoryConduitMySQL>;
+  using ConceptImpl = LTMCConcept<LongTermMemoryConduitMySQL>;
+
+  friend EntityImpl;
+  friend InstanceImpl;
+  friend ConceptImpl;
+  friend class LongTermMemoryConduitInterface;
 
 public:
 
   std::unique_ptr<mysqlx::Session> sess;
   std::unique_ptr<mysqlx::Schema> db;
 
-  LongTermMemoryConduit(const std::string &addr, uint port, const std::string &usr,
-                        const std::string &password, const std::string &db_name);
+  explicit LongTermMemoryConduitMySQL(const std::string &db_name);
 
-  LongTermMemoryConduit(LongTermMemoryConduit &&that) = default;
+  // Move constructor
+  LongTermMemoryConduitMySQL(LongTermMemoryConduitMySQL &&that) = default;
 
-  ~LongTermMemoryConduit();
+  ~LongTermMemoryConduitMySQL();
 
-  LongTermMemoryConduit& operator=(LongTermMemoryConduit &&that) noexcept {
-    std::swap(sess, that.sess);
-    std::swap(db, that.db);
-  }
+  // Move assignment
+  LongTermMemoryConduitMySQL &operator=(LongTermMemoryConduitMySQL &&that) noexcept = default;
 
   bool add_attribute(const std::string &name, int allowed_types);
 
-  std::vector<Entity>
+  std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const int other_entity_id);
 
-  std::vector<Entity>
+  std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const bool bool_val);
 
-  std::vector<Entity>
+  std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const std::string &string_val);
 
   bool entity_exists(int id) const;
@@ -64,18 +76,18 @@ public:
 
   void delete_all_entities();
 
-  std::vector<Entity> get_all_entities();
+  std::vector<EntityImpl> get_all_entities();
 
-    std::vector<Concept> get_all_concepts();
+  std::vector<ConceptImpl> get_all_concepts();
 
-    std::vector<Instance> get_all_instances();
+  std::vector<InstanceImpl> get_all_instances();
 
-    std::vector<std::pair<std::string, int>> get_all_attributes() const;
+  std::vector<std::pair<std::string, int>> get_all_attributes() const;
 
 
   template<typename T, typename... Types>
   bool select_query_args(const std::string &sql_query, std::vector<EntityAttribute> &result,
-                    Types &&... vals) const {
+                         Types &&... vals) const {
     try {
       auto sql_result = sess->sql(sql_query).bind(vals...).execute();
       result = unwrap_attribute_rows<T>(sql_result.fetchAll());
@@ -87,7 +99,8 @@ public:
     }
 
   }
-  template <typename T>
+
+  template<typename T>
   bool select_query(const std::string &sql_query, std::vector<EntityAttribute> &result) const {
     try {
       auto sql_result = sess->sql(sql_query).execute();
@@ -137,20 +150,20 @@ public:
 
 
 //// CONVENIENCE
-  Concept get_concept(const std::string &name);
+  LTMCConcept<LongTermMemoryConduitMySQL> get_concept(const std::string &name);
 
-  Instance get_instance_named(const std::string &name);
+  InstanceImpl get_instance_named(const std::string &name);
 
-  Instance get_robot();
+  InstanceImpl get_robot();
 
-  Entity add_entity();
+  EntityImpl add_entity();
 
   bool add_entity(int id);
 
-  boost::optional<Entity> get_entity(int entity_id);
+  boost::optional<EntityImpl> get_entity(int entity_id);
 
-private:
-  template <typename T>
+protected:
+  template<typename T>
   std::vector<EntityAttribute> unwrap_attribute_rows(std::list<mysqlx::Row> rows) const {
     std::vector<EntityAttribute> result_map;
     for (auto &row: rows) {
@@ -163,7 +176,8 @@ private:
     return result_map;
   }
 
-  std::vector<EntityAttribute> unwrap_attribute_rows(const std::string &table_name, const std::list<mysqlx::Row> &rows) const {
+  std::vector<EntityAttribute>
+  unwrap_attribute_rows(const std::string &table_name, const std::list<mysqlx::Row> &rows) const {
 
     if (table_name == "entity_attributes_str") {
       return unwrap_attribute_rows<std::string>(rows);
@@ -176,8 +190,43 @@ private:
     }
   }
 
+  bool delete_entity(EntityImpl &entity);
+
+  bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
+                     const float float_val);
+
+
+  bool
+  add_attribute(EntityImpl &entity, const std::string &attribute_name, const bool bool_val);
+
+  bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
+                     const int other_entity_id);
+
+  bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
+                     const std::string &string_val);
+
+  int remove_attribute(EntityImpl &entity, const std::string &attribute_name);
+
+  int remove_attribute_of_value(EntityImpl &entity, const std::string &attribute_name,
+                                const EntityImpl &other_entity);
+
+
+  std::vector<EntityAttribute>
+  get_attributes(const EntityImpl &entity) const;
+
+  std::vector<EntityAttribute>
+  get_attributes(const EntityImpl &entity, const std::string &attribute_name) const;
+
+  bool is_valid(const EntityImpl &entity) const;
+
+  std::vector<ConceptImpl> get_concepts(const InstanceImpl &instance);
+
 };
-template bool LongTermMemoryConduit::select_query<int>(const std::string &sql_query, std::vector<EntityAttribute> &result) const;
+
+typedef LTMCEntity<LongTermMemoryConduitMySQL> Entity;
+typedef LTMCConcept<LongTermMemoryConduitMySQL> Concept;
+typedef LTMCInstance<LongTermMemoryConduitMySQL> Instance;
+typedef LongTermMemoryConduitMySQL LongTermMemoryConduit;
 
 }
 

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/static_assert.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -40,9 +41,21 @@ static void recursive_copy(const boost::filesystem::path &src, const boost::file
 
   if (boost::filesystem::is_directory(src)) {
     boost::filesystem::create_directories(dst);
+
+    #if BOOST_VERSION >= 106200
     for (boost::filesystem::directory_entry &item : boost::filesystem::directory_iterator(src)) {
       recursive_copy(item.path(), dst / item.path().filename());
     }
+    #else
+    boost::filesystem::directory_iterator end_iter;
+
+    for (boost::filesystem::directory_iterator dir_itr(src);
+         dir_itr != end_iter;
+         ++dir_itr)
+    {
+      recursive_copy(dir_itr->path(), dst / dir_itr->path().filename());
+    }
+    #endif
   } else if (boost::filesystem::is_regular_file(src)) {
     boost::filesystem::copy(src, dst);
   } else {
@@ -54,7 +67,18 @@ static std::string getQueryDirectory(const std::vector<std::string> &linkFiles, 
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
   std::stringstream stampstream;
-  stampstream << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
+  const auto format = "%d-%m-%Y_%H-%M-%S";
+  // std::put_time is part of cpp11 but isn't supported by old compilers, including the version of GCC that comes
+  // with Indigo
+ #if __GNUC__ >= 5
+  stampstream << std::put_time(&tm, format);
+ #else
+  char date_buf[1000];
+  time_t now;
+  time(&now);
+  strftime(date_buf, 1000, format, localtime(&now));
+  stampstream << date_buf;
+ #endif
 
   std::vector<long> queryFilesSignature;
   std::hash<std::string> str_hash;

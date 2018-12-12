@@ -177,6 +177,7 @@ namespace bwi_perception {
 
             // Extract the bonding box parameters of this plane
 
+            #if PCL_VERSION_COMPARE(>, 1, 8, 0)
             const bwi_perception::BoundingBox &oriented_bbox_params = bwi_perception::BoundingBox::oriented_from_cloud<PointT>(
                     plane_cloud);
 
@@ -184,7 +185,12 @@ namespace bwi_perception {
             // penalizes shelves that don't happen to be perfectly aligned with the map frame
             double plane_bounding_box_density = bwi_perception::calculate_density<PointT>(plane_cloud,
                                                                                           oriented_bbox_params);
-
+            #else
+            const bwi_perception::BoundingBox &bbox_params = bwi_perception::BoundingBox::from_cloud<PointT>(
+                    plane_cloud);
+            double plane_bounding_box_density = bwi_perception::calculate_density<PointT>(plane_cloud,
+                                                                                          bbox_params);
+            #endif
 
             plane_clouds.push_back(typename PointCloudT::Ptr(plane_cloud));
 

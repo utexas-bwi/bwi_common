@@ -4,16 +4,17 @@
 #include <pcl/common/io.h>
 
 
-#include "LongTermMemoryConduit.h"
+#include "LongTermMemoryConduitInterface.h"
 #include "ShortTermMemoryConduit.h"
 #include <ros/ros.h>
+#include <knowledge_representation/convenience.h>
 
 namespace knowledge_rep {
 
     class MemoryConduit {
         typedef pcl::PointXYZRGB PointT;
         typedef pcl::PointCloud<PointT> PointCloudT;
-        LongTermMemoryConduit ltmc;
+        knowledge_rep::LongTermMemoryConduit ltmc;
         ShortTermMemoryConduit stmc;
 
 
@@ -22,8 +23,8 @@ namespace knowledge_rep {
         ros::ServiceClient get_octomap_service;
     public:
         static const int robot_id = 1;
-        explicit MemoryConduit(const std::string &ltmi_adress = "127.0.0.1") : ltmc(ltmi_adress, 33060, "root", "",
-                                                                                    "knowledge_base"), stmc() {
+
+        explicit MemoryConduit() : ltmc(knowledge_rep::get_default_ltmc()) {
             _pnh = ros::NodeHandle("~");
            
 

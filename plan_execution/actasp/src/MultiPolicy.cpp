@@ -30,7 +30,7 @@ void MultiPolicy::merge(const PartialPolicy* otherPolicy) {
       throw runtime_error("method not implemented for a partial policy other than MultiPolicy");
 }
 
-void MultiPolicy::merge(const AnswerSet& plan) throw(logic_error) {
+void MultiPolicy::merge(const AnswerSet& plan) {
 
 
   //ignore the last time step becuase it's the final state and has no actions

@@ -3,7 +3,7 @@
 #include "plan_execution/msgs_utils.h"
 
 #include "actasp/AnswerSet.h"
-#include <knowledge_representation/Entity.h>
+#include <knowledge_representation/convenience.h>
 
 #include <ros/ros.h>
 

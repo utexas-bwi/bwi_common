@@ -2,7 +2,7 @@
 #define BWI_KR_EXECUTION_UTILS_H
 
 #include <knowledge_representation/MemoryConduit.h>
-#include <knowledge_representation/LongTermMemoryConduit.h>
+#include <knowledge_representation/convenience.h>
 #include <iostream>
 #include <actasp/AspFluent.h>
 

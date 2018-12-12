@@ -4,7 +4,7 @@ using namespace std;
 
 namespace actasp {
 
-AspAtom::AspAtom(const std::string& formula) throw () :atom(formula) {}
+AspAtom::AspAtom(const std::string& formula) :atom(formula) {}
 
 
 unsigned int AspAtom::arity() const noexcept {
