@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_msgs)
 
-find_package(catkin REQUIRED 
-  COMPONENTS 
+find_package(catkin REQUIRED
+  COMPONENTS
     actionlib_msgs
-    bwi_planning_common 
+    bwi_planning_common
     geometry_msgs
     message_generation
     sensor_msgs
@@ -21,6 +21,7 @@ add_message_files(
     LEDCameraStatus.msg
     LEDTestType.msg
     StopBaseStatus.msg
+    LEDStatus.msg
     ScavStatus.msg
     WeekTime.msg
 )
@@ -35,6 +36,7 @@ add_service_files(
     LEDClear.srv
     LEDSetCamera.srv
     LEDTestStrip.srv
+    LEDSetStatus.srv
     LocationAction.srv
     NextLocation.srv
     QuestionDialog.srv
@@ -62,7 +64,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     actionlib_msgs
     bwi_planning_common
     geometry_msgs

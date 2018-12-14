@@ -19,7 +19,7 @@
 /*******************************************************
 *                   Service Headers                    *
 ********************************************************/
-#include "bwi_services/SpeakMessage.h"
+//#include "bwi_services/SpeakMessage.h"
 
 namespace bwi_krexec {
 
@@ -33,8 +33,8 @@ void ChangeFloor::run() {
   if(!asked) {
 
     ros::NodeHandle n;
-    ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service_node/speak_message");
-    bwi_services::SpeakMessage speak_srv;
+  //  ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service_node/speak_message");
+    //bwi_services::SpeakMessage speak_srv;
 
     // Get the doors for this elevator.
     std::string dest_floor;
@@ -62,8 +62,8 @@ void ChangeFloor::run() {
                                          ", and then let me know when the elevator arrives there?"));
       askToChangeFloor->run();
 
-      speak_srv.request.message = "Could you press the button for floor " + dest_floor + ", and then let me know when the elevator arrives there?";
-      speak_message_client.call(speak_srv);
+      //speak_srv.request.message = "Could you press the button for floor " + dest_floor + ", and then let me know when the elevator arrives there?";
+      //speak_message_client.call(speak_srv);
 
       // Retrieve current state fluents
       ros::ServiceClient krClient = n.serviceClient<bwi_kr_execution::CurrentStateQuery> ( "current_state_query" );

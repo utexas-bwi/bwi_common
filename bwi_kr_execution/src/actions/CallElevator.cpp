@@ -30,9 +30,9 @@
 /*******************************************************
 *                   Service Headers                    *
 ********************************************************/
-#include "bwi_services/SpeakMessage.h"
+//#include "bwi_services/SpeakMessage.h"
 #include <move_base/move_base.h>
-#include <move_base_msgs/MoveBaseLogging.h>
+//#include <move_base_msgs/MoveBaseLogging.h>
 #include <std_srvs/Empty.h>
 
 namespace bwi_krexec {
@@ -53,14 +53,14 @@ struct IsFluentFacing {
 void CallElevator::run() {
   ros::NodeHandle n;
 
-  ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service_node/speak_message");
-  bwi_services::SpeakMessage speak_srv;
+  //ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service_node/speak_message");
+  //bwi_services::SpeakMessage speak_srv;
 
-  ros::ServiceClient init_count_client = n.serviceClient<std_srvs::Empty>("move_base/init_replan_count_elevator");
-  std_srvs::Empty init_count_srv;
+ // ros::ServiceClient init_count_client = n.serviceClient<std_srvs::Empty>("move_base/init_replan_count_elevator");
+  //std_srvs::Empty init_count_srv;
 
-  ros::ServiceClient get_count_client = n.serviceClient<move_base_msgs::MoveBaseLogging>("/move_base/log_replan_count_elevator");
-  move_base_msgs::MoveBaseLogging get_count_srv;
+  //ros::ServiceClient get_count_client = n.serviceClient<move_base_msgs::MoveBaseLogging>("/move_base/log_replan_count_elevator");
+  //move_base_msgs::MoveBaseLogging get_count_srv;
 
   actionlib::SimpleActionClient<bwi_msgs::LEDControlAction> ac("led_control_server", true);
   ac.waitForServer();
@@ -71,7 +71,7 @@ void CallElevator::run() {
   // std::string log_filename = ros::package::getPath("led_study") + "/data/" + "elevator_state.csv";
 
   if(!asked && !done) {
-    init_count_client.call(init_count_srv);
+    //init_count_client.call(init_count_srv);
 
     std::string direction_text = (going_up) ? "up" : "down";
 
@@ -145,8 +145,8 @@ void CallElevator::run() {
             ac.sendGoal(goal);
             if (randSpeech)
             {
-              speak_srv.request.message = "Could you call the elevator to go " + direction_text + ", and then let me know when the door in front of me opens?";
-              speak_message_client.call(speak_srv);
+    //          speak_srv.request.message = "Could you call the elevator to go " + direction_text + ", and then let me know when the door in front of me opens?";
+      //        speak_message_client.call(speak_srv);
             }
           }
           else{
@@ -159,8 +159,8 @@ void CallElevator::run() {
 
             if (randSpeech)
             {
-              speak_srv.request.message = "Could you call the elevator to go " + direction_text + ", and then let me know when the door in front of me opens?";
-              speak_message_client.call(speak_srv);
+            //  speak_srv.request.message = "Could you call the elevator to go " + direction_text + ", and then let me know when the door in front of me opens?";
+             // speak_message_client.call(speak_srv);
             }
           }
 

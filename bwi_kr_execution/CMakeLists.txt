@@ -3,7 +3,7 @@ project(bwi_kr_execution)
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
-  actionlib_msgs 
+  actionlib_msgs
   bwi_msgs
   message_generation
   roscpp
@@ -37,7 +37,7 @@ generate_messages(
   DEPENDENCIES
     actionlib_msgs
     std_msgs)
- 
+
 catkin_package(
   INCLUDE_DIRS actasp/include
   LIBRARIES actasp
@@ -87,7 +87,7 @@ target_link_libraries(any_plan_executor_node
 add_executable(learning_executor_node ${lexec_SRC})
 target_link_libraries(learning_executor_node
   ${catkin_LIBRARIES} actasp kractions)
- 
+
 add_executable(knowledge_reasoning_node  ${krreasoner_SRC})
 target_link_libraries(knowledge_reasoning_node
   ${catkin_LIBRARIES} actasp kractions)

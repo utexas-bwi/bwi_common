@@ -33,9 +33,9 @@
 /*******************************************************
 *                   Service Headers                    *
 ********************************************************/
-#include "bwi_services/SpeakMessage.h"
+//#include "bwi_services/SpeakMessage.h"
 #include <move_base/move_base.h>
-#include <move_base_msgs/MoveBaseLogging.h>
+//#include <move_base_msgs/MoveBaseLogging.h>
 #include <std_srvs/Empty.h>
 
 using namespace std;
@@ -54,8 +54,8 @@ OpenDoor::OpenDoor() :
 void OpenDoor::run() {
   ros::NodeHandle n;
 
-  ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service/speak_message");
-  bwi_services::SpeakMessage speak_srv;
+  //ros::ServiceClient speak_message_client = n.serviceClient<bwi_services::SpeakMessage>("/speak_message_service/speak_message");
+  //bwi_services::SpeakMessage speak_srv;
 
   actionlib::SimpleActionClient<bwi_msgs::LEDControlAction> ac("led_control_server", true);
   ac.waitForServer();
@@ -64,8 +64,8 @@ void OpenDoor::run() {
   ros::ServiceClient init_count_client = n.serviceClient<std_srvs::Empty>("move_base/init_replan_count_door");
   std_srvs::Empty init_count_srv;
 
-  ros::ServiceClient get_count_client = n.serviceClient<move_base_msgs::MoveBaseLogging>("/move_base/log_replan_count_door");
-  move_base_msgs::MoveBaseLogging get_count_srv;
+//ros::ServiceClient get_count_client = n.serviceClient<move_base_msgs::MoveBaseLogging>("/move_base/log_replan_count_door");
+  //move_base_msgs::MoveBaseLogging get_count_srv;
 
   // std::ofstream log_file;
   // std::string log_filename = ros::package::getPath("led_study") + "/data/" + "assist_state.csv";
@@ -89,11 +89,11 @@ void OpenDoor::run() {
       goal.type.led_animations = bwi_msgs::LEDAnimations::NEED_ASSIST;
       goal.timeout = ros::Duration(0);
       ac.sendGoal(goal);
-      if(randSpeech)
+      /*if(randSpeech)
       {
         speak_srv.request.message = "Can you open door " + door + ", please?";
         speak_message_client.call(speak_srv);
-      }
+      }*/
     }
     else {
       // time_t now = time(0);
@@ -102,11 +102,11 @@ void OpenDoor::run() {
       // // state,led,date,time
       // log_file << "start," << randLED << ","  <<  randSpeech << "," << (1900 + gmtm->tm_year) << "-" << (1 + gmtm->tm_mon) << "-" << gmtm->tm_mday << "," << (1 + gmtm->tm_hour) << ":" << (1 + gmtm->tm_min) << ":" << (1 + gmtm->tm_sec) << std::endl;
       // log_file.close();
-      if(randSpeech)
+      /*if(randSpeech)
       {
         speak_srv.request.message = "Can you open door " + door + ", please?";
         speak_message_client.call(speak_srv);
-      }
+      }*/
     }
 
     CallGUI askToOpen("askToOpen", CallGUI::DISPLAY,  "Can you open door " + door + ", please?");
@@ -159,11 +159,11 @@ void OpenDoor::run() {
     // // state,led,date,time
     // log_file << "end," << randLED << "," << randSpeech << "," << (1900 + gmtm->tm_year) << "-" << (1 + gmtm->tm_mon) << "-" << gmtm->tm_mday << "," << (1 + gmtm->tm_hour) << ":" << (1 + gmtm->tm_min) << ":" << (1 + gmtm->tm_sec) << "," << get_count_srv.response.replan_count << "," << get_count_srv.response.recovery_count << std::endl;
     // log_file.close();
-    if(randSpeech)
+    /*if(randSpeech)
     {
       speak_srv.request.message = "Thanks, Please keep the door open for me so I can pass through.";
       speak_message_client.call(speak_srv);
-    }
+    }*/
     CallGUI askToOpen("thank", CallGUI::DISPLAY,  "Thanks, Please keep the door open for me so I can pass through.");
     askToOpen.run();
     done = true;
