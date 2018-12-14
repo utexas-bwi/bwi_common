@@ -28,6 +28,8 @@ public:
 	bool operator<(const AspFluent& other) const noexcept;
 	bool operator==(const AspFluent& other) const noexcept;
 
+
+
 	std::string toString() const noexcept;
 	std::string toString(unsigned int timeStep) const noexcept;
   std::string toString(const std::string& timeStepVar) const noexcept;
@@ -82,6 +84,8 @@ struct AspFluentRef {
   
   const AspFluent *const_obj;
 };
+
+AspFluent operator ""_f(const char *string, std::size_t size);
 
 }
 

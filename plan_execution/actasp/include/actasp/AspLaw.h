@@ -10,8 +10,8 @@ template<typename AtomType>
 struct AspLaw {
   
   AspLaw() : head(), body() {}
-  
-  
+  AspLaw(std::vector<AtomType> head, std::vector<AtomType> body) : head(head), body(body) {}
+
   AspLaw& operator<< (AtomType fluent) noexcept {
     body.push_back(fluent);
     return *this;
