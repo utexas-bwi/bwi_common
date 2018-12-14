@@ -163,11 +163,6 @@ install(TARGETS plan_execution
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_plan_execution.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+catkin_add_gtest(test_actasp test/actasp.cpp)
+add_dependencies(test_actasp ${plan_execution_EXPORTED_TARGETS})
+target_link_libraries(test_actasp actasp ${catkin_LIBRARIES})
