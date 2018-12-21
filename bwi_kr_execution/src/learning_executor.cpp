@@ -1,6 +1,5 @@
 
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
 
 #include "learning/SarsaActionSelector.h"
 #include "learning/TimeReward.h"
@@ -248,10 +247,7 @@ int main(int argc, char**argv) {
 
   boost::filesystem::create_directories(queryDirectory);
   
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
-  FilteringKR *reasoner = new RemoteReasoner(generator,MAX_N,actionMapToSet(ActionFactory::actions()));
-
-
+  FilteringQueryGenerator *reasoner = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
 
   TimeReward<SarsaActionSelector::State> *reward = new TimeReward<SarsaActionSelector::State>();
   DefaultActionValue *timeValue = new DefaultTimes();

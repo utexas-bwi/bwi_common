@@ -1,7 +1,5 @@
 
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
-
 #include "actasp/action_utils.h"
 #include "actasp/executors/ReplanningPlanExecutor.h"
 #include "actasp/planners/AnyPlan.h"
@@ -142,8 +140,7 @@ int main(int argc, char**argv) {
   
   boost::filesystem::create_directories(queryDirectory);
 
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
-  AspKR *reasoner = new RemoteReasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
+  FilteringQueryGenerator *reasoner = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
 
   Planner *planner = new AnyPlan(reasoner,1.);
   

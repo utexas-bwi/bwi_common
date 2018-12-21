@@ -1,6 +1,5 @@
 
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
 
 #include "actasp/action_utils.h"
 #include "actasp/executors/ReplanningPlanExecutor.h"
