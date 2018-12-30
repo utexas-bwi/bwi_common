@@ -14,7 +14,7 @@ namespace actasp {
 class MultiPolicy : public PartialPolicy {
 public:
 
-  MultiPolicy(const ActionSet& actions);
+  MultiPolicy(const std::set<std::string>& actions);
 
   ActionSet actions(const std::set<AspFluent>& state) const noexcept;
 
@@ -26,7 +26,7 @@ public:
 
 private:
   std::map<std::set<AspFluent>, ActionSet, StateComparator<AspFluent> > policy;
-  ActionSet allActions;
+  std::set<std::string> allActions;
 
 };
 

@@ -20,7 +20,7 @@ struct StateComparator : public std::binary_function<std::set<FluentClass>,std::
     typename std::set<FluentClass>::const_iterator thisV = first.begin();
     typename std::set<FluentClass>::const_iterator otherV = second.begin();
 
-    ActionComparator lessThen; //ignores the time steps!
+    ActionComparator<FluentClass> lessThen; //ignores the time steps!
 
     for (; thisV != first.end(); ++thisV, ++otherV) {
       //this comparison is costly, so I'm using this unelegant expression to minimize the calls to it.

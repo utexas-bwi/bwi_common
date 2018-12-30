@@ -1,7 +1,7 @@
 #include <incmode>.
 #program step(n).
 
-#const b = 10.
+#const b = 2.
 
 %%%%%%% Domain
 

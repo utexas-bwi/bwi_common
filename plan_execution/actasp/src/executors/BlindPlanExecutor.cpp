@@ -1,3 +1,5 @@
+#include <utility>
+
 #include <actasp/executors/BlindPlanExecutor.h>
 
 #include <actasp/AspKR.h>
@@ -37,7 +39,7 @@ BlindPlanExecutor::BlindPlanExecutor(AspKR &reasoner,
 
     struct NotifyNewPlan {
 
-        explicit NotifyNewPlan(const AnswerSet &plan) : plan(plan) {}
+        explicit NotifyNewPlan(AnswerSet plan) : plan(std::move(plan)) {}
 
       void operator()(PlanningObserver &observer) {
         observer.planChanged(plan);

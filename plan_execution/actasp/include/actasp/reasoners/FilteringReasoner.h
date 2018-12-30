@@ -9,7 +9,7 @@ class FilteringQueryGenerator;
 
 struct FilteringReasoner : public FilteringKR, public Reasoner {
 
-  FilteringReasoner(FilteringQueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions);
+  FilteringReasoner(FilteringQueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions);
 
 
   AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) override {
@@ -33,8 +33,8 @@ struct FilteringReasoner : public FilteringKR, public Reasoner {
     return this->Reasoner::isPlanValid(plan,goal);
   }
 
-  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const noexcept {
-    return this->Reasoner::query(queryString,timestep);
+  std::list<actasp::AnswerSet> query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept {
+    return this->Reasoner::query(query,timestep);
   }
   
   GraphPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;

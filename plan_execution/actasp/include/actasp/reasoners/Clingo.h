@@ -13,7 +13,7 @@ struct Clingo {
 	static FilteringQueryGenerator* getQueryGenerator(const std::string& incrementalVar,
           const std::string& linkDir,
 					const std::vector<std::string>& copyFiles,
-          const ActionSet& actions,
+          const std::set<std::string>& actions,
           unsigned int max_time = 0) {
 
 		std::string ros_distro = std::getenv("ROS_DISTRO");
@@ -21,11 +21,11 @@ struct Clingo {
     // TODO: This should be tied to which version of clingo is available, not which distro we're on
 		if (ros_distro == "indigo") {
 			auto indigoPath = linkDir.substr(0, linkDir.size()-1)+"_indigo/";
-			return new Clingo4_2(incrementalVar, dirToAllAspFilesInDir(indigoPath), copyFiles, actions, max_time);
+			//return new Clingo4_2(incrementalVar, dirToAllAspFilesInDir(indigoPath), copyFiles, actions, max_time);
 		}
 
 		if (ros_distro == "kinetic") {
-			return new Clingo4_5(incrementalVar, dirToAllAspFilesInDir(linkDir), copyFiles, actions, max_time);
+			//return new Clingo4_5(incrementalVar, dirToAllAspFilesInDir(linkDir), copyFiles, actions, max_time);
 		}
 
 		if (ros_distro == "melodic") {

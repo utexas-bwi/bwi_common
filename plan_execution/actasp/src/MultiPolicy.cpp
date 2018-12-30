@@ -9,7 +9,7 @@ using namespace std;
 
 namespace actasp {
   
-MultiPolicy::MultiPolicy(const ActionSet& actions) : policy(), allActions(actions) {}
+MultiPolicy::MultiPolicy(const std::set<std::string>& actions) : policy(), allActions(actions) {}
 	
 ActionSet MultiPolicy::actions(const std::set<AspFluent>& state) const noexcept {
   

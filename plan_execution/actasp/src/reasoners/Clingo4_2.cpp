@@ -62,9 +62,9 @@ struct RuleToString4_2 {
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
       if (timeStep.size() >0)
-        ruleStream << rule.head[i].toString(timeStep);
+        ruleStream << rule.head[i].to_string(timeStep);
       else
-        ruleStream << rule.head[i].toString();
+        ruleStream << rule.head[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -76,9 +76,9 @@ struct RuleToString4_2 {
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
       if (timeStep.size() >0)
-        ruleStream << rule.body[i].toString(timeStep);
+        ruleStream << rule.body[i].to_string(timeStep);
       else
-        ruleStream << rule.body[i].toString();
+        ruleStream << rule.body[i].to_string();
 
       if (i < (size-1))
         ruleStream << "| ";
@@ -104,7 +104,7 @@ struct RuleToCumulativeString4_2 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      ruleStream << rule.head[i].toString(timeStep+"-1");
+      ruleStream << rule.head[i].to_string(timeStep+"-1");
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -116,7 +116,7 @@ struct RuleToCumulativeString4_2 {
 
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
-      ruleStream << rule.body[i].toString();
+      ruleStream << rule.body[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -150,7 +150,7 @@ struct RuleToGoalString4_2 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      ruleStream << rule.head[i].toString(timeStep+"-1");
+      ruleStream << rule.head[i].to_string(timeStep+"-1");
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -162,7 +162,7 @@ struct RuleToGoalString4_2 {
 
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
-      ruleStream << rule.body[i].toString(timeStep+"-1");
+      ruleStream << rule.body[i].to_string(timeStep+"-1");
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -597,8 +597,8 @@ std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentS
 
   auto fluent = currentState.getFluents().begin();
   for (; fluent != currentState.getFluents().end(); ++fluent) {
-    fluentsString << "0{" << fluent->toString() << "}1." << endl;
-    minimizeString  << ":~ " << fluent->toString() << ". [1]" << endl;
+    fluentsString << "0{" << fluent->to_string() << "}1." << endl;
+    minimizeString  << ":~ " << fluent->to_string() << ". [1]" << endl;
   }
 
   fluentsString << endl;

@@ -14,7 +14,7 @@ namespace actasp {
 struct GraphPolicy : public PartialPolicy {
 public:
   
-  GraphPolicy(const ActionSet& actions);
+  GraphPolicy(const std::set<std::string>& actions);
   
   ActionSet actions(const std::set<AspFluent>& state) const noexcept;
   
@@ -36,7 +36,7 @@ private:
   typedef std::map<std::set<AspFluent>, PlanReference , StateComparator<AspFluent> > PlanIndex;
   
   PolicyMap policy;
-  ActionSet allActions;
+  std::set<std::string> allActions;
   PlanList plans;
   PlanIndex planIndex;
   

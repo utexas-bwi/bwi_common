@@ -42,11 +42,6 @@ struct QueryGenerator {
       unsigned int timestep,
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept = 0;
-      
-  virtual std::list< std::list<AspAtom> > genericQuery(const std::string& query,
-      unsigned int timestep,
-      const std::string& fileName,
-      unsigned int answerSetsNumber) const noexcept = 0;
 
   virtual actasp::AnswerSet optimizationQuery(const std::string& query, const std::string& fileName) const noexcept = 0;
 

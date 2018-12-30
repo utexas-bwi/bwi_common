@@ -95,7 +95,7 @@ std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, ac
 std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) const noexcept {
 
     //create fake fluent with the required time step
-	AspFluent fake("-",vector<string>(),timeStep);
+	AspFluent fake("-",{},timeStep);
 
     pair<FluentSet::const_iterator, FluentSet::const_iterator> bounds = equal_range(fluents.begin(), fluents.end(),fake, TimeStepComparator());
 

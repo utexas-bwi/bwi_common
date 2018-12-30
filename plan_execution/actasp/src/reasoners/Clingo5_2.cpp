@@ -16,6 +16,8 @@
 #include <ros/ros.h>
 #include <boost/filesystem.hpp>
 #include <actasp/filesystem_utils.h>
+#include <clingo.hh>
+
 
 using namespace std;
 using boost::filesystem::path;
@@ -25,7 +27,7 @@ namespace actasp {
 Clingo5_2::Clingo5_2(const std::string& incrementalVar,
                      const std::vector<std::string>& linkFiles,
                      const std::vector<std::string>& copyFiles,
-                     const ActionSet& actions,
+                     const std::set<std::string>& actions,
                      unsigned int max_time
                      ) noexcept :
   incrementalVar(incrementalVar),
@@ -33,9 +35,6 @@ Clingo5_2::Clingo5_2(const std::string& incrementalVar,
   linkFiles(linkFiles),
   copyFiles(copyFiles),
   allActions(actions) {
-
-  if (max_time > 0 && !system("timeout 2>/dev/null")) //make sure timeout is available
-    max_time = 0;
 
   for (const auto &linkFile: linkFiles) {
     assert(boost::filesystem::is_regular_file(linkFile));
@@ -48,15 +47,6 @@ Clingo5_2::Clingo5_2(const std::string& incrementalVar,
 }
 
 struct RuleToString5_2 {
-  RuleToString5_2(unsigned int timeStepNum) {
-    stringstream ss;
-    ss << timeStepNum;
-    timeStep = ss.str();
-  }
-
-  RuleToString5_2(const std::string& timeStepVar) : timeStep(timeStepVar) {}
-
-  RuleToString5_2() : timeStep("") {}
 
   std::string operator()(const AspRule& rule) const {
 
@@ -64,10 +54,8 @@ struct RuleToString5_2 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      if (timeStep.size() >0)
-        ruleStream << rule.head[i].toString(timeStep);
-      else
-        ruleStream << rule.head[i].toString();
+
+        ruleStream << rule.head[i].to_string();
 
       if (i < (size-1))
         ruleStream << " | ";
@@ -78,10 +66,8 @@ struct RuleToString5_2 {
 
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
-      if (timeStep.size() >0)
-        ruleStream << rule.body[i].toString(timeStep);
-      else
-        ruleStream << rule.body[i].toString();
+
+        ruleStream << rule.body[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -93,12 +79,11 @@ struct RuleToString5_2 {
     return ruleStream.str();
   }
 
-  string timeStep;
 };
 
 struct RuleToCumulativeString5_2 {
 
-  RuleToCumulativeString5_2(std::string timeStepVar) : timeStep(std::move(timeStepVar)) {}
+  RuleToCumulativeString5_2(Variable timeStepVar) : timeStep(std::move(timeStepVar)) {}
 
   std::string operator()(const AspRule& rule) const {
 
@@ -107,7 +92,7 @@ struct RuleToCumulativeString5_2 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-      ruleStream << rule.head[i].toString(timeStep);
+      ruleStream << with_timestep(rule.head[i], timeStep);
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -119,7 +104,7 @@ struct RuleToCumulativeString5_2 {
 
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
-      ruleStream << rule.body[i].toString();
+      ruleStream << rule.body[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -139,7 +124,7 @@ struct RuleToCumulativeString5_2 {
     return ruleStream.str();
   }
 
-  string timeStep;
+  Variable timeStep;
 };
 
 struct RuleToGoalString5_2 {
@@ -153,7 +138,7 @@ struct RuleToGoalString5_2 {
 
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
-        ruleStream << rule.head[i].toString();
+        ruleStream << rule.head[i].to_string();
       headTimeStep = std::max(headTimeStep,rule.head[i].getTimeStep());
 
       if (i < (size-1))
@@ -165,7 +150,7 @@ struct RuleToGoalString5_2 {
 
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
-      ruleStream << rule.body[i].toString(timeStep);
+      ruleStream << with_timestep(rule.body[i], timeStep);
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -192,19 +177,19 @@ static string cumulativeString(const std::vector<actasp::AspRule>& query, const 
   return aspStream.str();
 }
 
-static string aspString(const std::vector<actasp::AspRule>& query, const string& timeStepVar) {
+static string aspString(const std::vector<actasp::AspRule>& query, const Variable& timeStepVar) {
 
-  stringstream aspStream;
-  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToString5_2(timeStepVar));
-  return aspStream.str();
+
 }
 
 static string aspString(const std::vector<actasp::AspRule>& query, unsigned int timeStep) {
-
-  stringstream vs;
-  vs << timeStep;
-
-  return aspString(query,vs.str());
+  stringstream aspStream;
+  std::vector<actasp::AspRule> rules;
+  for (const auto &rule: query) {
+    rules.push_back(add_timestep(rule, timeStep));
+  }
+  transform(query.begin(),query.end(),ostream_iterator<std::string>(aspStream),RuleToString5_2());
+  return aspStream.str();
 }
 
 static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) noexcept {
@@ -221,43 +206,6 @@ static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) 
   return predicates;
 }
 
-
-static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) noexcept {
-
-  ifstream file(filePath.c_str());
-
-  list<AnswerSet> allSets;
-  bool interrupted = false;
-
-  string line;
-  while (file) {
-
-    getline(file,line);
-
-    if (line == "UNSATISFIABLE")
-      return list<AnswerSet>();
-
-    if (line.find("INTERRUPTED : 1") != string::npos)
-      interrupted = true;
-
-    if (line.find("Answer") != string::npos) {
-      getline(file,line);
-      while (line.find("Answer") != string::npos) 
-        getline(file,line);
-      try {
-        list<AspFluent> fluents = parseAnswerSet(line);
-        allSets.emplace_back(fluents.begin(), fluents.end());
-      } catch (std::invalid_argument& arg) {
-        //swollow it and skip this answer set.
-      }
-    }
-  }
-
-  if (interrupted) //the last answer set might be invalid
-    allSets.pop_back();
-
-  return allSets;
-}
 
 static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const bool minimum) noexcept {
 
@@ -314,7 +262,6 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
 
 string Clingo5_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const noexcept {
   stringstream goal;
-  goal << "#program check(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
 
@@ -323,22 +270,6 @@ string Clingo5_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) cons
   goal << endl;
 
   return goal.str();
-}
-
-
-static list<AnswerSet> filterPlans(const list<AnswerSet> &unfiltered_plans, const ActionSet& allActions) {
-
-  list<AnswerSet> plans;
-
-  list<AnswerSet>::const_iterator ans = unfiltered_plans.begin();
-  for (; ans != unfiltered_plans.end(); ++ans) {
-    list<AspFluent> actionsOnly;
-    remove_copy_if(ans->getFluents().begin(),ans->getFluents().end(),back_inserter(actionsOnly),not1(IsAnAction(allActions)));
-
-    plans.push_back(AnswerSet(actionsOnly.begin(), actionsOnly.end()));
-  }
-
-  return plans;
 }
 
 std::list<actasp::AnswerSet> Clingo5_2::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
@@ -400,10 +331,10 @@ actasp::AnswerSet Clingo5_2::optimalPlanQuery(const std::vector<actasp::AspRule>
 
   string planquery = generatePlanQuery(goalRules);
 
-  string outputFilePath = makeQuery(planquery, max_plan_length, max_plan_length, "planQuery", answerset_number, true);
+  list<AnswerSet> allAnswers = makeQuery(planquery, max_plan_length, max_plan_length, "planQuery", answerset_number, true);
 
-  AnswerSet optimalPlan = readOptimalAnswerSet(outputFilePath,minimum);
-
+  //TODO: Fix this
+  AnswerSet optimalPlan = allAnswers.front();
   if (filterActions) {
     list<AnswerSet> sets;
     sets.push_back(optimalPlan);
@@ -469,9 +400,8 @@ std::string Clingo5_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
 
   for (int i=1; actionIt != actionSet.end(); ++actionIt, ++i) {
     AspFluent action(*actionIt);
-    action.setTimeStep(i);
     AspRule actionRule;
-    actionRule.head.push_back(action);
+    actionRule.head.push_back(with_timestep(action, i));
     plan_in_rules.push_back(actionRule);
   }
 
@@ -497,54 +427,79 @@ std::list<actasp::AnswerSet> Clingo5_2::monitorQuery(const std::vector<actasp::A
   return result;
 }
 
-std::string Clingo5_2::makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+list<AnswerSet> Clingo5_2::makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
                                  const std::string &fileName, unsigned int answerSetsNumber, bool useCopyFiles) const  noexcept {
   //this depends on our way of representing stuff.
   //iclingo starts from 1, while we needed the initial state and first action to be at time step 0
   initialTimeStep++;
   finalTimeStep++;
 
+  Clingo::Control control;
+  using S = std::string;
+  using Clingo::Number;
+  using Clingo::Function;
+  using Clingo::TruthValue;
+  using ModelVec = std::vector<Clingo::SymbolVector>;
+  using MessageVec = std::vector<std::pair<Clingo::WarningCode, std::string>>;
+  auto logger = [](Clingo::WarningCode, char const *message) {
+    cerr << message << endl;
+  };
+  control = Clingo::Control({}, logger, 20);
+
+  control.configuration()["solve"]["models"] = std::to_string(answerSetsNumber).c_str();
+
   //cout << "initialTimeStep is " << initialTimeStep << " ; finalTimeStep is " << finalTimeStep << endl;
-  vector<string> copyFiles = this->copyFiles;
-  if (!useCopyFiles) {
-    copyFiles.clear();
+  if (useCopyFiles) {
+    for (const auto &path: copyFiles) {
+      control.load(path.c_str());
+    }
+  }
+  for (const auto &path: linkFiles) {
+    control.load(path.c_str());
+  }
+  control.add("check", {"n"}, query.c_str());
+
+  //const path outputFilePath = (queryDir / fileName).string() + "_output.txt";
+  list<AnswerSet> allAnswers;
+  try {
+    //control.assign_external(Function("query", {Number(0)}), TruthValue::True);
+    control.ground({{"step", {Number(1)}}});
+    control.ground({{"step", {Number(2)}}});
+    control.ground({{"check", {Number(2)}}});
+
+    for (auto atom: control.theory_atoms()) {
+      //std::cout << atom << std::endl;
+    }
+    for (auto atom: control.symbolic_atoms()) {
+      //std::cout << atom.symbol() << std::endl;
+    }
+    auto handle = control.solve();
+    for (const auto& m : handle) {
+      cout << "Model" << endl;
+      vector<AspFluent> set;
+      for (auto &atom : m.symbols(Clingo::ShowType::Shown)) {
+        if (atom.type() == Clingo::SymbolType::Function) {
+          vector<AspAtom::Argument> variables(atom.arguments().size());
+          for (const auto &argument: atom.arguments()) {
+            if (argument.type() == Clingo::SymbolType::Number) {
+              variables.emplace_back(argument.number());
+            } else if (argument.type() == Clingo::SymbolType::String) {
+              variables.emplace_back(argument.string());
+            }
+          }
+          set.emplace_back(atom.name(), variables);
+        }
+        cout << atom << endl;
+        allAnswers.emplace_back(set.begin(), set.end());
+      }
+    }
+    cout << handle.get() << endl;
+  }
+  catch (exception const &e) {
+    cerr << "Grounding failed with: " << e.what() << endl;
   }
 
-  path queryDir = getQueryDirectory(linkFiles, copyFiles);
-  auto queryDirFiles = populateDirectory(queryDir, linkFiles, copyFiles);
-
-  const path queryPath = (queryDir / fileName).string() + ".asp";
-
-  ofstream queryFile(queryPath.c_str());
-  queryFile << query << endl;
-  queryFile.close();
-
-  stringstream commandLine;
-
-  const path outputFilePath = (queryDir / fileName).string() + "_output.txt";
-
-  if (max_time > 0) {
-    commandLine << "timeout " << max_time << " ";
-  }
-
-  stringstream iterations;
-  iterations << "-cimin=" << initialTimeStep;
-  iterations << " -cimax=" << finalTimeStep;
-
-  commandLine << "clingo --warn no-atom-undefined " << iterations.str() << " ";
-  for (const path &queryDirFile: queryDirFiles) {
-    commandLine << queryDirFile.string() << " ";
-  }
-  commandLine << queryPath << " ";
-
-  
-  commandLine << " > " << outputFilePath << " " << answerSetsNumber;
-
-  if (!system(commandLine.str().c_str())) {
-    //maybe do something here, or just kill the warning about the return value not being used.
-  }
-
-  return outputFilePath.string();
+  return allAnswers;
 }
 
 std::list<actasp::AnswerSet> Clingo5_2::genericQuery(const std::string& query,
@@ -554,53 +509,19 @@ std::list<actasp::AnswerSet> Clingo5_2::genericQuery(const std::string& query,
     unsigned int answerSetsNumber,
     bool useCopyFiles) const noexcept {
 
-  string outputFilePath = makeQuery(query, initialTimeStep, finalTimeStep, fileName, answerSetsNumber, useCopyFiles);
-
-  list<AnswerSet> allAnswers = readAnswerSets(outputFilePath);
+  list<AnswerSet> allAnswers = makeQuery(query, initialTimeStep, finalTimeStep, fileName, answerSetsNumber, useCopyFiles);
 
   return allAnswers;
 }
 
-std::list< std::list<AspAtom> > Clingo5_2::genericQuery(const std::string& query,
+std::list<actasp::AnswerSet> Clingo5_2::genericQuery(const std::string& query,
     unsigned int timestep,
     const std::string& fileName,
     unsigned int answerSetsNumber, bool useCopyFiles) const noexcept {
 
-  string outputFilePath = makeQuery(query, timestep, timestep, fileName, answerSetsNumber, useCopyFiles);
+  list<AnswerSet> answersets = makeQuery(query, timestep, timestep, fileName, answerSetsNumber, useCopyFiles);
 
-  ifstream file(outputFilePath.c_str());
-
-  list<list <AspAtom> > allSets;
-  bool answerFound = false;
-
-  string line;
-  while (file) {
-
-    getline(file,line);
-
-    if (answerFound && line == "UNSATISFIABLE")
-      return list<list <AspAtom> >();
-
-    if (line.find("Answer") != string::npos) {
-      getline(file,line);
-      try {
-        stringstream predicateLine(line);
-
-        list<AspAtom> atoms;
-
-        //split the line based on spaces
-        copy(istream_iterator<string>(predicateLine),
-             istream_iterator<string>(),
-             back_inserter(atoms));
-
-        allSets.push_back(atoms);
-      } catch (std::invalid_argument& arg) {
-        //swollow it and skip this answer set.
-      }
-    }
-  }
-
-  return allSets;
+  return answersets;
 
 }
 
@@ -614,8 +535,8 @@ std::list<actasp::AnswerSet> Clingo5_2::filteringQuery(const AnswerSet& currentS
 
   auto fluent = currentState.getFluents().begin();
   for (; fluent != currentState.getFluents().end(); ++fluent) {
-    fluentsString << "0{" << fluent->toString() << "}1." << endl;
-    minimizeString  << ":~ " << fluent->toString() << ". [1]" << endl;
+    fluentsString << "0{" << fluent->to_string() << "}1." << endl;
+    minimizeString  << ":~ " << fluent->to_string() << ". [1]" << endl;
   }
 
   fluentsString << endl;
@@ -638,19 +559,11 @@ Clingo5_2::genericQuery(const std::vector<actasp::AspRule> &query, unsigned int 
   return genericQuery(query, timestep, fileName, answerSetsNumber, true);
 }
 
-std::list<std::list<AspAtom> >
-Clingo5_2::genericQuery(const std::string &query, unsigned int timestep, const std::string &fileName,
-                        unsigned int answerSetsNumber) const noexcept {
-  return genericQuery(query, timestep, fileName, answerSetsNumber, true);
-}
-
 actasp::AnswerSet
 Clingo5_2::optimizationQuery(const std::string &query, const std::string &fileName) const noexcept {
-  string outputFilePath = makeQuery(query, 0, 0, fileName, 0, true);
-
-  AnswerSet optimalAnswer = readOptimalAnswerSet(outputFilePath, true);
-
-  return optimalAnswer;
+  list<AnswerSet> answerSets = makeQuery(query, 0, 0, fileName, 0, true);
+  // TODO: fix this
+  return answerSets.front();
 }
 
 

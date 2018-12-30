@@ -1,5 +1,4 @@
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
 
 #include <actasp/action_utils.h>
 #include <actasp/reasoners/Clingo.h>
@@ -7,6 +6,7 @@
 #include "actasp/executors/BlindPlanExecutor.h"
 #include "actasp/ExecutionObserver.h"
 #include "actasp/PlanningObserver.h"
+#include <actasp/AspKR.h>
 
 #include "plan_execution/ExecutePlanAction.h"
 
@@ -44,10 +44,9 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   fs.open(working_memory_path, ios::out);
   fs.close();
 
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
+  planningReasoner = unique_ptr<actasp::FilteringQueryGenerator>(Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
                                                                  actionMapToSet(action_map),
-                                                                 PLANNER_TIMEOUT);
-  planningReasoner = unique_ptr<actasp::AspKR>(new RemoteReasoner(generator, MAX_N, actionMapToSet(action_map)));
+                                                                 PLANNER_TIMEOUT));
   auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
   if (boost::filesystem::is_directory(diagnosticsPath)) {
     auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator("n", diagnosticsPath.string(), {working_memory_path}, {}, PLANNER_TIMEOUT));
@@ -57,7 +56,7 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   }
   {
     //need a pointer to the specific type for the observer
-    auto replanner = new ReplanningPlanExecutor(*planningReasoner, *planningReasoner, action_map, resourceManager);
+    auto replanner = new ReplanningPlanExecutor(*dynamic_cast<actasp::AspKR*>(planningReasoner.get()), *dynamic_cast<actasp::Planner*>(planningReasoner.get()), action_map, resourceManager);
     //BlindPlanExecutor *replanner = new BlindPlanExecutor(reasoner, reasoner, ActionFactory::actions());
     for (auto &observer: planning_observers) {
       replanner->addPlanningObserver(observer);

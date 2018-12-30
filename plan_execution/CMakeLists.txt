@@ -8,9 +8,6 @@ else()
     set(CMAKE_CXX_STANDARD 11)
 endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs 
@@ -21,14 +18,14 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
 )
 
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+include(ExternalProject)
+set(CLINGO_BUILD_APPS OFF)
+ExternalProject_Add(clingo
+        GIT_REPOSITORY https://github.com/potassco/clingo.git
+        GIT_TAG        v5.3.0
+        INSTALL_DIR /opt
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CATKIN_DEVEL_PREFIX}
+        )
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -63,35 +60,6 @@ generate_messages(
     actionlib_msgs
     std_msgs)
 
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
-
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this42 if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include actasp/include
   LIBRARIES actasp plan_execution
@@ -109,8 +77,6 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
 include_directories(
   ${catkin_INCLUDE_DIRS}
   include
@@ -120,7 +86,8 @@ include_directories(
 set(actasp_SRC)
 add_subdirectory(actasp/src/)
 add_library(actasp ${actasp_SRC})
-target_link_libraries(actasp ${catkin_LIBRARIES})
+#add_dependencies(actasp libclingo)
+target_link_libraries(actasp libclingo.so ${catkin_LIBRARIES})
 
 set(plan_execution_SRC)
 add_subdirectory(src/libplan_execution)
@@ -133,17 +100,6 @@ target_link_libraries(plan_execution actasp ${catkin_LIBRARIES})
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark executables and/or libraries for installation
 install(TARGETS actasp
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

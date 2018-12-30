@@ -11,7 +11,7 @@ namespace actasp {
 
 struct Action {	
 
-	typedef boost::shared_ptr<Action> Ptr;
+	typedef std::shared_ptr<Action> Ptr;
 	virtual int paramNumber() const = 0;
 	
 	virtual std::string getName() const = 0;
@@ -44,7 +44,7 @@ struct Action {
 	
 private:
 	
- virtual std::vector<std::string> getParameters() const = 0;
+ virtual std::vector<AspAtom::Argument> getParameters() const = 0;
 };
 
 typedef std::function<std::unique_ptr<actasp::Action>(const actasp::AspFluent &, actasp::ResourceManager &)> ActionFactory;

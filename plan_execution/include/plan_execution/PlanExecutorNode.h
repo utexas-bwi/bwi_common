@@ -18,7 +18,7 @@ public:
 private:
   void executePlan(const plan_execution::ExecutePlanGoalConstPtr &plan);
   std::unique_ptr<actasp::PlanExecutor> executor;
-  std::unique_ptr<actasp::AspKR> planningReasoner;
+  std::unique_ptr<actasp::FilteringQueryGenerator> planningReasoner;
   Server server;
 
   std::unique_ptr<RosActionServerInterfaceObserver> ros_observer;

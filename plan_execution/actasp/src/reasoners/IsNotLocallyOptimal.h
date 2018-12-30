@@ -16,20 +16,20 @@ struct IsNotLocallyOptimal : public std::unary_function<const AnswerSet&, bool> 
     
   typedef std::set< std::list <AspFluentRef>, LexComparator > PlanSet;
   
-  IsNotLocallyOptimal(const PlanSet* good, PlanSet* bad, const ActionSet& allActions, 
+  IsNotLocallyOptimal(const PlanSet* good, PlanSet* bad, const std::set<std::string>& allActions,
                       unsigned int shortestLength, bool planFitered);
     
   bool operator()(const AnswerSet& plan);
   
   std::list<AspFluentRef> cleanPlan(const AnswerSet& plan) const;
   
-  std::list<AspFluentRef>::const_iterator findFirstSuspiciousAction(const std::list<AspFluentRef>&) const; 
+  std::list<AspFluentRef>::const_iterator findFirstSuspiciousAction(const std::list<AspFluentRef>&) const;
   
   bool validFrom(const std::list<AspFluentRef>& planCleaned, std::list<AspFluentRef>::const_iterator firstSuspect) const;
   
   bool checkPlanValidity(const std::list<AspFluentRef>&) const;
   
-  bool checkSectionWithLength(const std::list<AspFluentRef>& planCleaned, 
+  bool checkSectionWithLength(const std::list<AspFluentRef>& planCleaned,
                               std::list<AspFluentRef>::const_iterator firstSuspect,
                                int length) const;
   
@@ -40,7 +40,7 @@ struct IsNotLocallyOptimal : public std::unary_function<const AnswerSet&, bool> 
 private:
   const PlanSet* good;
   PlanSet* bad;
-  const ActionSet& allActions;
+  const std::set<std::string>& allActions;
   unsigned int shortestLength;
   bool planFiltered;
     

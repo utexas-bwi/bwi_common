@@ -11,7 +11,7 @@ struct Clingo5_2 : public FilteringQueryGenerator {
   Clingo5_2(const std::string& incrementalVar,
             const std::vector<std::string>& linkFiles,
             const std::vector<std::string>& copyFiles,
-            const ActionSet& actions,
+            const std::set<std::string>& actions,
             unsigned int max_time = 0
   ) noexcept;
 
@@ -45,17 +45,12 @@ struct Clingo5_2 : public FilteringQueryGenerator {
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept;
 
-  std::list< std::list<AspAtom> > genericQuery(const std::string& query,
-      unsigned int timestep,
-      const std::string& fileName,
-      unsigned int answerSetsNumber) const noexcept;
-
   std::list<actasp::AnswerSet> genericQuery(const std::vector<actasp::AspRule>& query,
       unsigned int timestep,
       const std::string& fileName,
       unsigned int answerSetsNumber, bool useCopyFiles = true) const noexcept;
 
-  std::list< std::list<AspAtom> > genericQuery(const std::string& query,
+  std::list<actasp::AnswerSet> genericQuery(const std::string& query,
       unsigned int timestep,
       const std::string& fileName,
       unsigned int answerSetsNumber, bool useCopyFiles = true) const noexcept;
@@ -70,7 +65,7 @@ private:
       const std::string& fileName,
       unsigned int answerSetsNumber, bool useCopyFiles = true) const noexcept;
 
-  std::string makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+  std::list<actasp::AnswerSet> makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
                           const std::string &fileName, unsigned int answerSetsNumber, bool useCopyFiles=true) const noexcept;
 
   std::string generatePlanQuery(std::vector<actasp::AspRule> goalRules) const noexcept;
@@ -78,7 +73,7 @@ private:
   std::string generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules, const AnswerSet& plan) const noexcept;
 
   std::string incrementalVar;
-  ActionSet allActions;
+  std::set<std::string> allActions;
   unsigned int max_time;
   std::vector<std::string> linkFiles;
   std::vector<std::string> copyFiles;

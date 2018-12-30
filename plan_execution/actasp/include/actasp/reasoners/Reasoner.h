@@ -11,7 +11,7 @@ class PartialPolicy;
   
 struct Reasoner : public AspKR {
   
-  Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions);
+  Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions);
   
   ActionSet availableActions() const noexcept override;
   
@@ -27,7 +27,7 @@ struct Reasoner : public AspKR {
 
   PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
   
-  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const noexcept override;
+  std::list<actasp::AnswerSet> query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept override;
   
   void setMaxTimeStep(unsigned int max_n) noexcept {
     this->max_n = max_n;
@@ -38,7 +38,7 @@ struct Reasoner : public AspKR {
 protected:
   QueryGenerator *clingo;
   unsigned int max_n;
-  ActionSet allActions;
+  std::set<std::string> allActions;
   
   void computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* p) const noexcept(false);
   

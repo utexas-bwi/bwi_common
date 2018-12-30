@@ -14,7 +14,7 @@ using namespace std;
 namespace actasp {
   
 IsNotLocallyOptimal::IsNotLocallyOptimal(const PlanSet* good, PlanSet* bad, 
-                                         const ActionSet& allActions, 
+                                         const std::set<std::string>& allActions,
                                          unsigned int shortestLength,
                                          bool planFiltered
                                         ) :
@@ -49,7 +49,7 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
 //   cout << endl;
   
   //find the first action that does not belong to any minimal plan
-  list<AspFluentRef>::const_iterator firstSuspect = findFirstSuspiciousAction(planCleaned); 
+  list<AspFluentRef>::const_iterator firstSuspect = findFirstSuspiciousAction(planCleaned);
 
   
   if(firstSuspect == planCleaned.end()) {
@@ -111,11 +111,10 @@ bool IsNotLocallyOptimal::hasLoops(const AnswerSet& plan) const {
     
     IsAnAction isAnAction(allActions);
     int timeStep = 0;
-    
-    AnswerSet::FluentSet::const_iterator p = plan.getFluents().begin();
-    for(; p!= plan.getFluents().end(); ++p) {
+
+    for(const auto &fluent: plan.getFluents()) {
       
-      if(p->getTimeStep() != timeStep) {
+      if(fluent.getTimeStep() != timeStep) {
 
         bool present = !(allStates.insert(state).second);
 
@@ -126,8 +125,8 @@ bool IsNotLocallyOptimal::hasLoops(const AnswerSet& plan) const {
         ++timeStep;
       }
 
-      if(!isAnAction(*p))
-        state.insert(*p);
+      if(!isAnAction(fluent))
+        state.insert(AspFluentRef(fluent));
 
     }
     
@@ -141,7 +140,7 @@ bool IsNotLocallyOptimal::hasLoops(const AnswerSet& plan) const {
 }
 
 
-bool IsNotLocallyOptimal::checkSectionWithLength(const std::list<AspFluentRef>& planCleaned, 
+bool IsNotLocallyOptimal::checkSectionWithLength(const std::list<AspFluentRef>& planCleaned,
                               const std::list<AspFluentRef>::const_iterator firstSuspect,
                                int length) const {
   
@@ -257,8 +256,8 @@ list<AspFluentRef>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousActio
   list<AspFluentRef>::const_iterator sus1=plan.end(), sus2= plan.end();
   
   if(lb != good->end()) {
-    pair< list<AspFluentRef>::const_iterator, list<AspFluentRef>::const_iterator > different = 
-              mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality());
+    pair< list<AspFluentRef>::const_iterator, list<AspFluentRef>::const_iterator > different =
+              mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality<AspFluentRef>());
     dist1 = distance(plan.begin(), different.second);
     sus1 = different.second;
   }
@@ -272,7 +271,7 @@ list<AspFluentRef>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousActio
 //     cout <<endl;
     
     pair< list<AspFluentRef>::const_iterator, list<AspFluentRef>::const_iterator > different =
-      mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality());
+      mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality<AspFluentRef>());
     dist2 = distance(plan.begin(), different.second);
     sus2 = different.second;
   }

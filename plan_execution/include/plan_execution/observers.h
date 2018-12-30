@@ -16,11 +16,11 @@ namespace plan_exec {
 struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::PlanningObserver {
 
     void actionStarted(const actasp::AspFluent &action) noexcept override {
-        ROS_INFO_STREAM("Starting execution: " << action.toString());
+        ROS_INFO_STREAM("Starting execution: " << action.to_string());
     }
 
     void actionTerminated(const actasp::AspFluent &action, bool succeeded) noexcept override {
-        ROS_INFO_STREAM("Terminating execution: " << action.toString() << " Success:" << succeeded);
+        ROS_INFO_STREAM("Terminating execution: " << action.to_string() << " Success:" << succeeded);
     }
 
     void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
@@ -38,7 +38,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
 
         planStream << "Plan execution terminated. Status: " << planStatusToString(status) << ". ";
 
-        planStream << "Final action: " << final_action.toString() << std::endl;
+        planStream << "Final action: " << final_action.to_string() << std::endl;
 
         planStream << "Remaining plan: ";
 
@@ -136,8 +136,8 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
       std::stringstream fluentsString, minimizeString;
 
       for (const auto &rule : hypotheses) {
-        fluentsString << "0{" << rule.head[0].toString() << "}1." << std::endl;
-        minimizeString  << ":~ " << rule.head[0].toString() << ". [-1, 1]" << std::endl;
+        fluentsString << "0{" << rule.head[0].to_string() << "}1." << std::endl;
+        minimizeString  << ":~ " << rule.head[0].to_string() << ". [-1, 1]" << std::endl;
       }
 
       std::stringstream query;
@@ -146,7 +146,7 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
 
       std::vector<actasp::AspRule> failedHypotheses;
       for (const auto &rule : hypotheses) {
-        if (!answer.contains(rule.head[0].toString())) {
+        if (!answer.contains(rule.head[0].to_string())) {
           failedHypotheses.push_back(rule);
         }
       }

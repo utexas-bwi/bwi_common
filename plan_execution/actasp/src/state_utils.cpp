@@ -3,23 +3,7 @@
 
 namespace actasp {
 
-  bool stateEquals::operator()(const std::set<AspFluent>& otherstate) const {
 
-    if (state.size() != otherstate.size()) {
-      return false;
-    }
-    std::set<AspFluent>::const_iterator thisIt = state.begin();
-    std::set<AspFluent>::const_iterator otherIt = otherstate.begin();
-    for(; thisIt!=state.end(); ++thisIt) {
-      std::string thisstring = thisIt->toString(0);
-      std::string otherstring = otherIt->toString(0);
-      if (thisstring.compare(otherstring)!=0) { //different
-        return false;
-      }
-      ++otherIt;
-    }
-    return true; //at this point..
-  }
   
 }
 

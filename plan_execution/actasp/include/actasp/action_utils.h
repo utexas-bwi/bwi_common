@@ -7,8 +7,11 @@
 #include <utility>
 #include <set>
 #include <functional>
+#include "AspRule.h"
 
 namespace actasp {
+
+std::list<AnswerSet> filterPlans(const std::list<AnswerSet> &unfiltered_plans, const std::set<std::string>& allActions);
 
 struct ActionMapDeepCopy {
 
@@ -27,12 +30,20 @@ struct ActionMapDelete {
 
 struct IsAnAction : public std::unary_function<const AspFluent &, bool> {
 
-  IsAnAction(const ActionSet &actions);
+  IsAnAction(const std::set<std::string> &actions): actionNames(actions){};
 
   bool operator()(const AspFluent &fluent) const;
 
   std::set<std::string> actionNames;
 };
+
+AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep);
+
+AspFluent with_timestep(const AspFluent &fluent, Variable timestep);
+
+AspRule add_timestep(const AspRule &fluent, Variable timestep);
+
+AspRule add_timestep(const AspRule &fluent, uint32_t timestep);
 
 AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan);
 

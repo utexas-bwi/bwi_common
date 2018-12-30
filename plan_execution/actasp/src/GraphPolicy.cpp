@@ -12,7 +12,7 @@ using namespace std;
 
 namespace actasp {
 
-GraphPolicy::GraphPolicy(const ActionSet& actions) :  policy(), allActions(actions), plans(), planIndex() {}
+GraphPolicy::GraphPolicy(const std::set<std::string>& actions) :  policy(), allActions(actions), plans(), planIndex() {}
 
 ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const noexcept {
 

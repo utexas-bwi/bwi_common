@@ -14,7 +14,7 @@
 namespace actasp {
 
 class Action;
-
+//TODO: Templatize to allow for nonfluent version
 class AnswerSet {
 
 public:
@@ -41,9 +41,9 @@ public:
 
   const FluentSet &getFluents() const noexcept { return fluents; }
 
-  std::set<actasp::AspFluent> getFluentsAtTime(unsigned int timeStep) const noexcept;
+  std::set<actasp::AspFluent> getFluentsAtTime(uint32_t timeStep) const noexcept;
 
-  unsigned int maxTimeStep() const noexcept(false);
+  uint32_t maxTimeStep() const noexcept(false);
 
 private:
 
@@ -51,5 +51,6 @@ private:
   FluentSet fluents;
 };
 
+typedef std::reference_wrapper<AnswerSet> AnswerSetRef;
 }
 

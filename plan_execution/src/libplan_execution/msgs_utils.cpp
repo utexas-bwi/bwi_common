@@ -3,13 +3,25 @@
 
 #include <algorithm>
 #include <iterator>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
 namespace plan_exec {
 
 actasp::AspFluent TranslateFluent::operator()(const plan_execution::AspFluent& bwiFluent) {
-  return actasp::AspFluent(bwiFluent.name,bwiFluent.variables,bwiFluent.timeStep);
+  vector<actasp::AspAtom::Argument> arguments(bwiFluent.variables.size());
+  for (const auto &string_var: bwiFluent.variables) {
+    try {
+      // Try to interpret as int
+      // Note that this means string variables must be unambigously string-y or they'll be parsed as ints!
+      int asInt = std::stoi(string_var);
+      arguments.emplace_back(asInt);
+    } catch (std::invalid_argument &e) {
+      arguments.emplace_back(string_var);
+    }
+  }
+  return actasp::AspFluent(bwiFluent.name,arguments,bwiFluent.timeStep);
 }
 
 plan_execution::AspFluent TranslateFluent::operator()(const actasp::AspFluent& actaspFluent) {
@@ -17,7 +29,11 @@ plan_execution::AspFluent TranslateFluent::operator()(const actasp::AspFluent& a
   plan_execution::AspFluent bwiFluent;
   bwiFluent.name = actaspFluent.getName();
   bwiFluent.timeStep = actaspFluent.getTimeStep();
-  bwiFluent.variables = actaspFluent.getParameters();
+  bwiFluent.variables.reserve(actaspFluent.getParameters().size());
+  transform(actaspFluent.getParameters().begin(), actaspFluent.getParameters().end(),
+      bwiFluent.variables.begin(), [](const actasp::AspAtom::Argument &as_variant){
+    return boost::lexical_cast<std::string>(as_variant);
+  });
 
   return bwiFluent;
 }

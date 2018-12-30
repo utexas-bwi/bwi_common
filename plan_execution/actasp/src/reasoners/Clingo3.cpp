@@ -69,9 +69,9 @@ struct RuleToString3 {
     //iterate over head
     for (int i =0, size = rule.head.size(); i <size; ++i) {
       if (timeStep.size() >0)
-        ruleStream << rule.head[i].toString(timeStep);
+        ruleStream << rule.head[i].to_string(timeStep);
       else
-        ruleStream << rule.head[i].toString();
+        ruleStream << rule.head[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -83,9 +83,9 @@ struct RuleToString3 {
     //iterate over body
     for (int i =0, size = rule.body.size(); i <size; ++i) {
       if (timeStep.size() >0)
-        ruleStream << rule.body[i].toString(timeStep);
+        ruleStream << rule.body[i].to_string(timeStep);
       else
-        ruleStream << rule.body[i].toString();
+        ruleStream << rule.body[i].to_string();
 
       if (i < (size-1))
         ruleStream << ", ";
@@ -249,7 +249,7 @@ std::list<actasp::AnswerSet> Clingo3::monitorQuery(const std::vector<actasp::Asp
   AnswerSet::FluentSet::const_iterator actionIt = allActions.begin();
 
   for (int i=1; actionIt != allActions.end(); ++actionIt, ++i)
-    monitorQuery << actionIt->toString(i) << "." << endl;
+    monitorQuery << actionIt->to_string(i) << "." << endl;
 
   list<actasp::AnswerSet> result = genericQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery",1);
   

@@ -7,20 +7,23 @@ using namespace std;
 
 namespace actasp {
 
-struct ActionName {
-  string operator()(const AspFluent& action) const {
-    return action.getName();
-  }
-
-};
-
-IsAnAction::IsAnAction(const ActionSet& actions) {
-  transform(actions.begin(), actions.end(), inserter(actionNames, actionNames.begin()), ActionName());
-}
 
 bool IsAnAction::operator()(const AspFluent& fluent) const {
-
   return actionNames.find(fluent.getName()) != actionNames.end();
+}
+
+std::list<AnswerSet> filterPlans(const std::list<AnswerSet> &unfiltered_plans, const std::set<std::string>& allActions) {
+
+  list<AnswerSet> plans;
+
+  for (const auto &plan: unfiltered_plans) {
+    list<AspFluent> actionsOnly;
+    remove_copy_if(plan.getFluents().begin(),plan.getFluents().end(),back_inserter(actionsOnly),not1(IsAnAction(allActions)));
+
+    plans.emplace_back(actionsOnly.begin(), actionsOnly.end());
+  }
+
+  return plans;
 }
 
 AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan) {
@@ -40,7 +43,7 @@ ActionSet actionMapToSet(const std::map<std::string, ActionFactory>& actionMap) 
 
   for (const auto &pair: actionMap) {
     // Put the real name in and a fake number of parameters
-    fluents.insert(AspFluent(pair.first, {2,""}));
+    fluents.insert(AspFluent(pair.first, std::vector<AspAtom::Argument>{}));
   }
   return fluents;
 }
@@ -52,6 +55,40 @@ ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap) {
     fluents.insert(AspFluent(pair.second->toFluent(0)));
 
   return fluents;
+}
+
+AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep) {
+  const auto &params = fluent.getParameters();
+  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep);
+}
+
+AspFluent with_timestep(const AspFluent &fluent, Variable timestep) {
+  const auto &params = fluent.getParameters();
+  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep);
+}
+
+AspRule add_timestep(const AspRule &rule, uint32_t timestep) {
+  std::vector<AspFluent> head;
+  std::vector<AspFluent> body;
+  for (const auto atom: rule.head) {
+    head.push_back(with_timestep(atom, timestep));
+  }
+  for (const auto atom: rule.body) {
+    body.push_back(with_timestep(atom, timestep));
+  }
+  return {head, body};
+}
+
+AspRule add_timestep(const AspRule &rule, Variable timestep) {
+  std::vector<AspFluent> head;
+  std::vector<AspFluent> body;
+  for (const auto atom: rule.head) {
+    head.push_back(with_timestep(atom, timestep));
+  }
+  for (const auto atom: rule.body) {
+    body.push_back(with_timestep(atom, timestep));
+  }
+  return {head, body};
 }
 
 }

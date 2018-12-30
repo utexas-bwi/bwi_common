@@ -19,7 +19,7 @@ using namespace std;
 
 namespace actasp {
   
-Reasoner::Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions) :
+Reasoner::Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions) :
             clingo(queryGenerator), max_n(max_n), allActions(allActions) {}
   
 ActionSet Reasoner::availableActions() const noexcept {
@@ -46,9 +46,12 @@ struct fluent2Rule {
     
   AspRule operator() (const AspFluent& fluent){
       AspRule rule;
-      rule.head.push_back(fluent);
-      if(useTimeStep)
-        rule.head[0].setTimeStep(timeStep);
+
+      if(useTimeStep) {
+        rule.head.push_back(with_timestep(fluent, (timeStep)));
+      } else {
+        rule.head.push_back(fluent);
+      }
       return rule;
   }
   
@@ -90,15 +93,6 @@ struct PlanLongerThan {
   unsigned int length;
 };
 
-struct AnswerSetRef {
-  AnswerSetRef(const AnswerSet& aset) : aset(&aset) {}
-
-  operator const AnswerSet&() const {
-    return *aset;
-  }
-
-  const AnswerSet *aset;
-};
 
 std::vector< AnswerSet > Reasoner::computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) {
 
@@ -204,7 +198,7 @@ struct PolicyMerger {
 
 struct CleanPlan {
 
-  CleanPlan(const ActionSet &allActions) : allActions(allActions) {}
+  CleanPlan(const std::set<std::string> &allActions) : allActions(allActions) {}
 
   list<AspFluentRef> operator()(const AnswerSet &planWithStates) const {
     list<AspFluentRef> actionsOnly;
@@ -216,7 +210,7 @@ struct CleanPlan {
 
   }
 
-  const ActionSet &allActions;
+  const std::set<std::string> &allActions;
 
 };
 
@@ -292,19 +286,18 @@ void Reasoner::computePolicyHelper(const std::vector<actasp::AspRule>& goal, dou
 //   clock_t filter_end = clock();
 
 
-  auto printIt = goodPlans.begin();
-   for (; printIt != goodPlans.end(); ++printIt) {
-     copy(printIt->begin(),printIt->end(),ostream_iterator<string>(cout, " "));
-     cout << endl;
+   for (const auto &goodPlan: goodPlans) {
+     //copy(goodPlan.begin(),goodPlan.end(),ostream_iterator<string>(cout, " "));
+     //cout << endl;
    }
 //   
 //   cout << "filtering took " << (double(filter_end - filter_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
 
 }
 
-std::list< std::list<AspAtom> > Reasoner::query(const std::string &queryString, unsigned int timestep) const noexcept {
+std::list<actasp::AnswerSet> Reasoner::query(const std::vector<AspRule> &query, unsigned int timestep) const noexcept {
   
-  return clingo->genericQuery(queryString,timestep,"query_output",0);
+  return clingo->genericQuery(query,timestep,"query_output",0);
 }
 
 }

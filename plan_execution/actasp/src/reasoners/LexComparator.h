@@ -1,10 +1,10 @@
 #pragma once
 
 #include <list>
+#include <actasp/AspFluent.h>
 
 namespace actasp {
-  
-class AspFluentRef;
+
 class AspFluent;
 
 struct LexComparator {

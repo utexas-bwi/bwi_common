@@ -17,7 +17,7 @@ namespace actasp {
  * @param max_n
  * @param allActions
  */
-FilteringReasoner::FilteringReasoner(FilteringQueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions) :
+FilteringReasoner::FilteringReasoner(FilteringQueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions) :
   Reasoner(queryGenerator,max_n,allActions),
   clingo(queryGenerator) {}
 
