@@ -30,7 +30,7 @@ public:
 
   using PlanExecutor::setGoal;
 
-  void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
+  void setGoal(const std::vector<actasp::AspFluentRule> &goalRules) noexcept;
 
   bool goalReached() const noexcept;
 
@@ -56,7 +56,7 @@ private:
   //KR stuff
   AspKR &kr;
   MultiPlanner &planner;
-  std::vector<actasp::AspRule> goalRules;
+  std::vector<actasp::AspFluentRule> goalRules;
 
   PartialPolicy *policy;
 

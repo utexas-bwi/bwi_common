@@ -21,13 +21,13 @@ struct NotifyActionStart {
 
 struct NotifyGoalChanged {
 
-  NotifyGoalChanged(const std::vector<actasp::AspRule> &goalRules) : goalRules(goalRules) {}
+  NotifyGoalChanged(const std::vector<actasp::AspFluentRule> &goalRules) : goalRules(goalRules) {}
 
   void operator()(ExecutionObserver &observer) {
     observer.goalChanged(goalRules);
   }
 
-  const std::vector<actasp::AspRule> &goalRules;
+  const std::vector<actasp::AspFluentRule> &goalRules;
 };
 
 

@@ -29,7 +29,7 @@ public:
 
   using PlanExecutor::setGoal;
 
-  void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
+  void setGoal(const std::vector<actasp::AspFluentRule> &goalRules) noexcept;
 
   bool goalReached() const noexcept {
     return isGoalReached;
@@ -54,7 +54,7 @@ public:
 
 
 private:
-  std::vector<actasp::AspRule> goalRules;
+  std::vector<actasp::AspFluentRule> goalRules;
   bool isGoalReached;
   bool hasFailed;
   std::map<std::string, ActionFactory> actionMap;

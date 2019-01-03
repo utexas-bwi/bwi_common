@@ -22,7 +22,7 @@ FilteringReasoner::FilteringReasoner(FilteringQueryGenerator *queryGenerator,uns
   clingo(queryGenerator) {}
 
 
-GraphPolicy *FilteringReasoner::computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) {
+GraphPolicy *FilteringReasoner::computePolicy(const std::vector<actasp::AspFluentRule>& goal, double suboptimality) const noexcept(false) {
   auto *p = new GraphPolicy(allActions);
   computePolicyHelper(goal,suboptimality,p);
   return p;
@@ -41,7 +41,7 @@ struct AnswerSetStateComparator {
 // goals = vector of fluents that have to be true at the final step (example: "not pos(3, 9, n)" to mean "be there"..)
 //domain needs to have #show for fluents and actions.
 // TODO:: Make it possible to add a "nofilter.txt" file in the domain directory to specify which fluents (name/arity) have to stay there no matter what.
-AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& plans, const std::vector<actasp::AspRule>& goals) {
+AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& plans, const std::vector<actasp::AspFluentRule>& goals) {
 
   //input checking:
   if (plans.empty() || goals.empty()) {
@@ -49,7 +49,7 @@ AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& p
   }
 
   //get all the known fluents of the current state:
-  AnswerSet currentState = Reasoner::currentStateQuery(vector<AspRule>());
+  AnswerSet currentState = Reasoner::currentStateQuery(vector<AspFluentRule>());
 
   set<AspFluent> result;
 

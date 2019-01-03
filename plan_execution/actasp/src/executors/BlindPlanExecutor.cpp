@@ -65,7 +65,7 @@ BlindPlanExecutor::BlindPlanExecutor(AspKR &reasoner,
 
     }
 
-    void BlindPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
+    void BlindPlanExecutor::setGoal(const std::vector<actasp::AspFluentRule> &goalRules) noexcept {
         this->goalRules = goalRules;
         
         for_each(executionObservers.begin(),executionObservers.end(),NotifyGoalChanged(goalRules));

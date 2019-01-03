@@ -58,16 +58,16 @@ ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap) {
 }
 
 AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep) {
-  const auto &params = fluent.getParameters();
-  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep);
+  const auto &params = fluent.getArguments();
+  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep, fluent.getNegation());
 }
 
 AspFluent with_timestep(const AspFluent &fluent, Variable timestep) {
-  const auto &params = fluent.getParameters();
-  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep);
+  const auto &params = fluent.getArguments();
+  return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep, fluent.getNegation());
 }
 
-AspRule add_timestep(const AspRule &rule, uint32_t timestep) {
+AspFluentRule add_timestep(const AspFluentRule &rule, uint32_t timestep) {
   std::vector<AspFluent> head;
   std::vector<AspFluent> body;
   for (const auto atom: rule.head) {
@@ -79,16 +79,31 @@ AspRule add_timestep(const AspRule &rule, uint32_t timestep) {
   return {head, body};
 }
 
-AspRule add_timestep(const AspRule &rule, Variable timestep) {
+AspFluentRule add_timestep(const AspFluentRule &rule, Variable timestep) {
   std::vector<AspFluent> head;
   std::vector<AspFluent> body;
-  for (const auto atom: rule.head) {
+  for (const auto &atom: rule.head) {
     head.push_back(with_timestep(atom, timestep));
   }
-  for (const auto atom: rule.body) {
+  for (const auto &atom: rule.body) {
     body.push_back(with_timestep(atom, timestep));
   }
   return {head, body};
+}
+
+vector<AspFluentRule> make_goal_all_true(const std::vector<AspFluent> &fluents) {
+  vector<AspFluentRule> goal;
+  for (const auto &fluent: fluents) {
+    AspFluentRule rule;
+    auto negation = fluent.getNegation();
+    negation.insert(negation.begin(),Default);
+    AspFluent negated = {fluent.getName(), fluent.getArguments(), negation};
+    rule.body.push_back(negated);
+    rule.body.emplace_back("query", vector<AspAtom::Argument>{Variable("n")});
+    goal.push_back(rule);
+  }
+
+  return goal;
 }
 
 }

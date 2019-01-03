@@ -257,7 +257,7 @@ list<AspFluentRef>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousActio
   
   if(lb != good->end()) {
     pair< list<AspFluentRef>::const_iterator, list<AspFluentRef>::const_iterator > different =
-              mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality<AspFluentRef>());
+              mismatch(lb->begin(), lb->end(), plan.begin(), NoTimeStepEqualityRef());
     dist1 = distance(plan.begin(), different.second);
     sus1 = different.second;
   }
@@ -271,7 +271,7 @@ list<AspFluentRef>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousActio
 //     cout <<endl;
     
     pair< list<AspFluentRef>::const_iterator, list<AspFluentRef>::const_iterator > different =
-      mismatch(lb->begin(), lb->end(), plan.begin(), ActionEquality<AspFluentRef>());
+      mismatch(lb->begin(), lb->end(), plan.begin(), NoTimeStepEqualityRef());
     dist2 = distance(plan.begin(), different.second);
     sus2 = different.second;
   }

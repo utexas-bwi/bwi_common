@@ -39,7 +39,7 @@ struct ExecutionObserver {
   virtual void planTerminated(const PlanStatus status, const actasp::AspFluent &final_action,
                               const actasp::AnswerSet &plan_remainder) noexcept = 0;
 
-  virtual void goalChanged(const std::vector<actasp::AspRule> &newGoalRules) noexcept = 0;
+  virtual void goalChanged(const std::vector<actasp::AspFluentRule> &newGoalRules) noexcept = 0;
 
   //TODO move this into a separate observer
   virtual void policyChanged(PartialPolicy *policy) noexcept = 0;

@@ -11,5 +11,4 @@ SET( actasp_SRC  ${actasp_SRC}
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GraphPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/action_utils.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/state_utils.cpp
 PARENT_SCOPE)

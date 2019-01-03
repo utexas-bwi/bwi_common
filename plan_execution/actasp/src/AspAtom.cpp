@@ -18,7 +18,7 @@ static inline std::string ltrim_copy(std::string s) {
   return s;
 }
 
-static void interpret_param(const std::string &param, std::vector<AspAtom::Argument> &variables) {
+static inline void interpret_param(const std::string &param, std::vector<AspAtom::Argument> &variables) {
   const auto trimmed = ltrim_copy(param);
   try {
     // Try to interpret as int
@@ -49,13 +49,39 @@ AspAtom::AspAtom(const std::string& formula) {
   if(last_par == string::npos)
     throw std::invalid_argument("The string " + formula + " does not contain a ')', therefore is not a valid fluent");
 
-  name = formula.substr(0, first_par);
+
+  // See if there are any negations before the first paren
+
+  size_t first_not = formula.find("not");
+  size_t last_negation = 0;
+  if (first_not == 0) {
+    negation.emplace_back(Default);
+    last_negation = 4;
+    size_t second_not = formula.find("not", last_negation);
+    if (second_not == 4) {
+      negation.emplace_back(Default);
+      last_negation = 8;
+    }
+  }
+
+  first_not = formula.find('-', last_negation);
+  if (first_not == last_negation) {
+    negation.emplace_back(Classical);
+    last_negation += 1;
+    size_t second_not = formula.find('-', last_negation);
+    if (second_not == last_negation) {
+      negation.emplace_back(Classical);
+      last_negation += 1;
+    }
+  }
+
+  name = formula.substr(last_negation, first_par - last_negation);
   size_t start = first_par + 1;
   size_t comma = formula.find_first_of(',', start);
 
   if (comma == string::npos && last_par - first_par != 1) {
     const auto &param = formula.substr(first_par + 1, last_par - first_par - 1);
-    interpret_param(param, variables);
+    interpret_param(param, arguments);
     return;
   }
 
@@ -66,7 +92,7 @@ AspAtom::AspAtom(const std::string& formula) {
   size_t endi = comma;
   do {
     const auto &nextParam = formula.substr(start,endi-start);
-    interpret_param(nextParam, variables);
+    interpret_param(nextParam, arguments);
     start = endi + 1;
     endi = formula.find_first_of(',',endi+1);
     if (endi == string::npos) {
@@ -78,41 +104,52 @@ AspAtom::AspAtom(const std::string& formula) {
 
 
 unsigned int AspAtom::arity() const noexcept {
-  return variables.size();
+  return arguments.size();
 }
 
 std::string AspAtom::getName() const noexcept {
   return name;
 }
   
-std::vector<AspAtom::Argument> AspAtom::getParameters() const noexcept {
-    return variables;
+std::vector<AspAtom::Argument> AspAtom::getArguments() const noexcept {
+    return arguments;
 }
 
-struct VariableToString: public boost::static_visitor<std::string> {
-  std::string operator()(const std::string &string) const {
+
+  std::string ArgumentToString::operator()(const std::string &string) const {
     return "\"" + string + "\"";
   }
-  std::string operator()(const Variable &variable) const {
+  std::string ArgumentToString::operator()(const Variable &variable) const {
     return variable.name;
   }
-  std::string operator()(const int32_t &integer) const {
+  std::string ArgumentToString::operator()(const int32_t &integer) const {
     return std::to_string(integer);
   }
-};
+
 
 std::string AspAtom::to_string() const noexcept {
   std::stringstream sstream;
+  for (const auto &negation: this->negation) {
+    if (negation == Default) {
+      sstream << "not ";
+    } else {
+      sstream << "-";
+    }
+  }
   sstream << this->name << "(";
-  for (int i = 0; i < variables.size(); ++i){
+  for (int i = 0; i < arguments.size(); ++i){
     if (i > 0) {
       sstream << ", ";
     }
-    sstream << boost::apply_visitor(VariableToString{},variables[i]);
+    sstream << boost::apply_visitor(ArgumentToString{},arguments[i]);
   }
 
   sstream << ")";
   return sstream.str();
+}
+
+vector<Negation> AspAtom::getNegation() const noexcept {
+  return negation;
 }
 
 std::ostream &operator<<(std::ostream &stream, const AspAtom &atom) {

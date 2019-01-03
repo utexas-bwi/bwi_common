@@ -47,7 +47,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
         ROS_INFO_STREAM(planStream.str());
     }
 
-    void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
+    void goalChanged(const std::vector<actasp::AspFluentRule>& newGoalRules) noexcept override {
     }
 
     void policyChanged(actasp::PartialPolicy *policy) noexcept override {}
@@ -105,7 +105,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
        std::transform(fluents.begin(), fluents.end(), std::back_inserter(result.plan_remainder), plan_exec::TranslateFluent());
     }
 
-    void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
+    void goalChanged(const std::vector<actasp::AspFluentRule>& newGoalRules) noexcept override {
     }
 
     void policyChanged(actasp::PartialPolicy *policy) noexcept override {}
@@ -115,7 +115,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
 struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterfaceObserver {
 
   std::unique_ptr<actasp::QueryGenerator> explainer;
-  std::vector<actasp::AspRule> goalRules;
+  std::vector<actasp::AspFluentRule> goalRules;
 
   ExplainingRosActionServerInterfaceObserver(actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> &server, std::unique_ptr<actasp::QueryGenerator> explainer)
       :  explainer(std::move(explainer)), RosActionServerInterfaceObserver(server){}
@@ -126,10 +126,10 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
                       const actasp::AnswerSet &plan_remainder) noexcept override {
     RosActionServerInterfaceObserver::planTerminated(status, final_action, plan_remainder);
     if (status == FAILED_TO_PLAN) {
-      std::vector<actasp::AspRule> hypotheses;
+      std::vector<actasp::AspFluentRule> hypotheses;
       // Hypotheticals are rules in the head of the goal
       std::copy_if(goalRules.begin(), goalRules.end(), std::back_inserter(hypotheses),
-      [](actasp::AspRule & rule){
+      [](actasp::AspFluentRule & rule){
         return !rule.head.empty();
       });
 
@@ -144,7 +144,7 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
       query << fluentsString.str() << std::endl << minimizeString.str() << std::endl;
       actasp::AnswerSet answer = explainer->optimizationQuery(query.str(), "diagnoticQuery");
 
-      std::vector<actasp::AspRule> failedHypotheses;
+      std::vector<actasp::AspFluentRule> failedHypotheses;
       for (const auto &rule : hypotheses) {
         if (!answer.contains(rule.head[0].to_string())) {
           failedHypotheses.push_back(rule);
@@ -164,7 +164,7 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
 
   }
 
-  void goalChanged(const std::vector<actasp::AspRule>& newGoalRules) noexcept override {
+  void goalChanged(const std::vector<actasp::AspFluentRule>& newGoalRules) noexcept override {
     goalRules.clear();
     std::copy(newGoalRules.begin(), newGoalRules.end(), std::back_inserter(goalRules));
 }

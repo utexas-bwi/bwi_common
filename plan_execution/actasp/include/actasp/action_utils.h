@@ -37,13 +37,25 @@ struct IsAnAction : public std::unary_function<const AspFluent &, bool> {
   std::set<std::string> actionNames;
 };
 
+
+struct MaxTimeStepLessThan {
+
+  MaxTimeStepLessThan(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
+
+  bool operator()(const AnswerSet& answer) {
+    return !answer.getFluents().empty() &&  answer.maxTimeStep() < initialTimeStep;
+  }
+
+  unsigned int initialTimeStep;
+};
+
 AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep);
 
 AspFluent with_timestep(const AspFluent &fluent, Variable timestep);
 
-AspRule add_timestep(const AspRule &fluent, Variable timestep);
+AspFluentRule add_timestep(const AspFluentRule &fluent, Variable timestep);
 
-AspRule add_timestep(const AspRule &fluent, uint32_t timestep);
+AspFluentRule add_timestep(const AspFluentRule &fluent, uint32_t timestep);
 
 AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan);
 
@@ -52,6 +64,7 @@ ActionSet actionMapToSet(const std::map<std::string, Action *> &actionMap);
 
 ActionSet actionMapToSet(const std::map<std::string, ActionFactory> &actionMap);
 
+std::vector<AspFluentRule> make_goal_all_true(const std::vector<AspFluent> &fluents);
 }
 
 

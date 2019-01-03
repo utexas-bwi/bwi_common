@@ -38,7 +38,7 @@ PartialPolicyExecutor::~PartialPolicyExecutor() {
 }
   
   
-void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept {
+void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspFluentRule>& goalRules) noexcept {
 
   this->goalRules = goalRules;
 
@@ -112,7 +112,7 @@ void PartialPolicyExecutor::executeActionStep() {
       return;
 
     //choose the next action
-    AnswerSet currentState = kr.currentStateQuery(vector<AspRule>());
+    AnswerSet currentState = kr.currentStateQuery(vector<AspFluentRule>());
     set<AspFluent> state(currentState.getFluents().begin(), currentState.getFluents().end());
     ActionSet options = policy->actions(state);
 

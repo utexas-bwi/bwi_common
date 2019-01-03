@@ -13,7 +13,7 @@ public:
 	//doesn't own
 	AnyPlan(actasp::MultiPlanner *actualPlanner, double suboptimality = 1.);
 	
-	AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const;
+	AnswerSet computePlan(const std::vector<actasp::AspFluentRule>& goal) const;
 private:
 	MultiPlanner *actualPlanner;
   double suboptimality;

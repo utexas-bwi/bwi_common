@@ -9,13 +9,13 @@ class ExecutionObserver;
 
 struct PlanExecutor {
 
-	void setGoal(const AspRule& goalRule) noexcept {
-		std::vector<AspRule> goal;
+	void setGoal(const AspFluentRule& goalRule) noexcept {
+		std::vector<AspFluentRule> goal;
 		goal.push_back(goalRule);
 		this->setGoal(goal);
 	}
 	
-	virtual void setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept = 0;
+	virtual void setGoal(const std::vector<actasp::AspFluentRule>& goalRules) noexcept = 0;
 
 	virtual bool goalReached() const noexcept =0;
 	virtual bool failed() const noexcept = 0;

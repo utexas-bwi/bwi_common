@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include <utility>
+#include <boost/optional.hpp>
 
 #pragma once
 
@@ -29,9 +29,17 @@ struct Variable {
     return name == other.name;
   }
 
-
 };
 
+struct ArgumentToString: public boost::static_visitor<std::string> {
+  std::string operator()(const std::string &string) const;
+  std::string operator()(const Variable &variable) const;
+  std::string operator()(const int32_t &integer) const;
+};
+enum Negation {
+  Default, // "not"
+  Classical // "-"
+};
 
 std::ostream& operator<< (std::ostream& stream, const Variable& variable);
 
@@ -41,7 +49,8 @@ public:
 
   typedef boost::variant<int32_t, std::string, Variable> Argument;
 
-  AspAtom(std::string name, std::vector<Argument> variables): name(std::move(name)), variables(std::move(variables)) {}
+  AspAtom(std::string name, std::vector<Argument> variables, std::vector<Negation> negation={}): name(std::move(name)), arguments(std::move(variables)), negation(
+      std::move(negation)) {}
 
   AspAtom(const std::string& formula);
 
@@ -49,7 +58,9 @@ public:
 
   std::string getName() const noexcept;
   
-  virtual std::vector<Argument> getParameters() const noexcept;
+  virtual std::vector<Argument> getArguments() const noexcept;
+
+  virtual std::vector<Negation> getNegation() const noexcept;
 
   virtual std::string to_string() const noexcept;
   
@@ -58,19 +69,21 @@ public:
   virtual ~AspAtom() = default;
 
   bool operator<(const AspAtom& other) const noexcept{
-    return name < other.name ||  ((name == other.name) && variables < other.variables);
+    return negation < other.negation || name < other.name ||  ((name == other.name) && arguments < other.arguments);
   }
+
   bool operator>(const AspAtom& other) const noexcept{
-    return name > other.name ||  ((name == other.name) && variables > other.variables);
+    return negation > other.negation || name > other.name ||  ((name == other.name) && arguments > other.arguments);
   }
 
   bool operator==(const AspAtom& other) const noexcept {
-    return name == other.name && variables == other.variables;
+    return negation == other.negation && name == other.name && arguments == other.arguments;
   }
 
 protected:
   std::string name;
-  std::vector<Argument> variables;
+  std::vector<Argument> arguments;
+  std::vector<Negation> negation;
 };
 
 AspAtom operator ""_a(const char *string, std::size_t size);
@@ -78,4 +91,6 @@ AspAtom operator ""_a(const char *string, std::size_t size);
 std::ostream& operator<< (std::ostream& stream, const AspAtom& atom);
 
 }
+
+
 

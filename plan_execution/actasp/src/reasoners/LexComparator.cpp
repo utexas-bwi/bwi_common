@@ -9,11 +9,11 @@ using namespace std;
 namespace actasp {
 
 bool LexComparator::operator()(const list<AspFluentRef>& a, const list<AspFluentRef> &b) const {
-    return lexicographical_compare(a.begin(),a.end(),b.begin(),b.end(),ActionComparator<AspFluentRef>());
+    return lexicographical_compare(a.begin(),a.end(),b.begin(),b.end(),NoTimeStepComparatorRef());
 }
 
 bool LexComparator::operator()(const std::list<AspFluent>& a, const std::list<AspFluent> &b) const {
-  return lexicographical_compare(a.begin(),a.end(),b.begin(),b.end(),ActionComparator<AspFluentRef>());
+  return lexicographical_compare(a.begin(),a.end(),b.begin(),b.end(),NoTimeStepComparatorRef());
 }
   
 }

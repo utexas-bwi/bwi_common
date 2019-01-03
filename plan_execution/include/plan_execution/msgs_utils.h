@@ -17,8 +17,8 @@ struct TranslateFluent {
 };
 
 struct TranslateRule {
-  actasp::AspRule operator()(const plan_execution::AspRule& bwiRule);
-  plan_execution::AspRule operator()(const actasp::AspRule& actaspRule);
+  actasp::AspFluentRule operator()(const plan_execution::AspRule& bwiRule);
+  plan_execution::AspRule operator()(const actasp::AspFluentRule& actaspRule);
 
 };
 

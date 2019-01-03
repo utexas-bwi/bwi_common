@@ -29,8 +29,8 @@ plan_execution::AspFluent TranslateFluent::operator()(const actasp::AspFluent& a
   plan_execution::AspFluent bwiFluent;
   bwiFluent.name = actaspFluent.getName();
   bwiFluent.timeStep = actaspFluent.getTimeStep();
-  bwiFluent.variables.reserve(actaspFluent.getParameters().size());
-  transform(actaspFluent.getParameters().begin(), actaspFluent.getParameters().end(),
+  bwiFluent.variables.reserve(actaspFluent.getArguments().size());
+  transform(actaspFluent.getArguments().begin(), actaspFluent.getArguments().end(),
       bwiFluent.variables.begin(), [](const actasp::AspAtom::Argument &as_variant){
     return boost::lexical_cast<std::string>(as_variant);
   });
@@ -39,7 +39,7 @@ plan_execution::AspFluent TranslateFluent::operator()(const actasp::AspFluent& a
 }
 
 
-actasp::AspRule TranslateRule::operator()(const plan_execution::AspRule& bwiRule) {
+actasp::AspFluentRule TranslateRule::operator()(const plan_execution::AspRule& bwiRule) {
   actasp::AspRule actaspRule;
 
   transform(bwiRule.head.begin(), bwiRule.head.end(), back_inserter(actaspRule.head), TranslateFluent());

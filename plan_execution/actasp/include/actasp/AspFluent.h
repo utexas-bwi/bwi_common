@@ -11,39 +11,24 @@
 
 namespace actasp {
 
-template<typename FluentClass>
-struct ActionComparator : public std::binary_function<const FluentClass&, const FluentClass&, bool>{
-	bool operator()(const FluentClass& first, const FluentClass& second) const {
-		return (std::string)first < (std::string)second;
-	}
-};
-
-template<typename FluentClass>
-struct ActionEquality : public std::binary_function<const FluentClass&, const FluentClass&, bool>{
-	bool operator()(const FluentClass& first, const FluentClass& second) const {
-		return (std::string)first == (std::string)second;
-	}
-};
-
-
 class AspFluent: public AspAtom {
 public:
 
 	AspFluent(const std::string& formula) noexcept(false): AspAtom(formula) {
-	  if (variables[variables.size()-1].type() == typeid(std::string)) {
+	  if (arguments[arguments.size()-1].type() == typeid(std::string)) {
       throw std::invalid_argument("AspFluent: The string " + formula + " must have a number or variable as it's last argument.");
 	  }
 	};
-	AspFluent(const std::string &name, const std::vector<Argument> &variables) noexcept(false): AspAtom(name, variables) {
+	AspFluent(const std::string &name, const std::vector<Argument> &variables, const std::vector<Negation> &negation={}) noexcept(false): AspAtom(name, variables, negation) {
 		if (variables[variables.size()-1].type() == typeid(std::string)) {
       throw std::invalid_argument("AspFluent: The formula for " + name + " must have a number or variable as it's last argument.");
     }
 	};
-	AspFluent(const std::string &name, const std::vector<Argument> &variables, uint32_t timeStep) noexcept: AspAtom(name, variables){
-	  this->variables.emplace_back(timeStep);
+	AspFluent(const std::string &name, const std::vector<Argument> &variables, uint32_t timeStep, const std::vector<Negation> &negation={}) noexcept: AspAtom(name, variables, negation){
+	  this->arguments.emplace_back(timeStep);
 	};
-	AspFluent(const std::string &name, const std::vector<Argument> &variables, Variable timeStep) noexcept: AspAtom(name, variables){
-		this->variables.emplace_back(timeStep);
+	AspFluent(const std::string &name, const std::vector<Argument> &variables, Variable timeStep, const std::vector<Negation> &negation={}) noexcept: AspAtom(name, variables, negation){
+		this->arguments.emplace_back(timeStep);
 	};
 
 	uint32_t getTimeStep() const noexcept(false);
@@ -52,15 +37,10 @@ public:
 	bool operator<(const AspFluent& other) const noexcept;
 	bool operator>(const AspFluent& other) const noexcept;
 
-private:
-	
-	friend class ActionComparator<AspFluent>;
-  friend class ActionEquality<AspFluent>;
-
 };
 
 
-typedef std::set<AspFluent, ActionComparator<AspFluent>> ActionSet;
+typedef std::set<AspFluent> ActionSet;
 
 
 struct AspFluentRef {
@@ -86,6 +66,46 @@ struct AspFluentRef {
 struct TimeStepComparator : public std::binary_function<const AspFluent&, const AspFluent&, bool>{
   bool operator()(const AspFluent& first, const AspFluent& second) const {
     return first.getTimeStep() < second.getTimeStep();
+  }
+};
+
+struct NoTimeStepComparator : public std::binary_function<const AspFluent&, const AspFluent&, bool>{
+	bool operator()(const AspFluent& first, const AspFluent& second) const {
+    std::vector<AspAtom::Argument> first_without_time{first.getArguments().begin(), first.getArguments().end() - 1};
+    std::vector<AspAtom::Argument> second_without_time{second.getArguments().begin(), second.getArguments().end() - 1};
+		return first.getNegation() < second.getNegation() || first.getName() < second.getName() || first_without_time <
+																																																	 second_without_time;
+	}
+};
+
+struct NoTimeStepEquality : public std::binary_function<const AspFluent&, const AspFluent&, bool>{
+  bool operator()(const AspFluent& first, const AspFluent& second) const {
+    std::vector<AspAtom::Argument> first_without_time{first.getArguments().begin(), first.getArguments().end() - 1};
+    std::vector<AspAtom::Argument> second_without_time{second.getArguments().begin(), second.getArguments().end() - 1};
+    return first.getNegation() == second.getNegation() && first.getName() == second.getName() &&  first_without_time ==
+                                                                                               second_without_time;
+  }
+};
+
+struct NoTimeStepComparatorRef : public std::binary_function<const AspFluentRef&, const AspFluentRef&, bool>{
+  bool operator()(const AspFluentRef& first_ref, const AspFluentRef& second_ref) const {
+    const auto &first = *first_ref.const_obj;
+    const auto &second = *second_ref.const_obj;
+    std::vector<AspAtom::Argument> first_without_time{first.getArguments().begin(), first.getArguments().end() - 1};
+    std::vector<AspAtom::Argument> second_without_time{second.getArguments().begin(), second.getArguments().end() - 1};
+    return first.getNegation() < second.getNegation() || first.getName() < second.getName() || first_without_time <
+                                                                                               second_without_time;
+  }
+};
+
+struct NoTimeStepEqualityRef : public std::binary_function<const AspFluentRef&, const AspFluentRef&, bool>{
+  bool operator()(const AspFluentRef& first_ref, const AspFluentRef& second_ref) const {
+    const auto &first = *first_ref.const_obj;
+    const auto &second = *second_ref.const_obj;
+    std::vector<AspAtom::Argument> first_without_time{first.getArguments().begin(), first.getArguments().end() - 1};
+    std::vector<AspAtom::Argument> second_without_time{second.getArguments().begin(), second.getArguments().end() - 1};
+    return first.getNegation() == second.getNegation() && first.getName() == second.getName() &&  first_without_time ==
+                                                                                                  second_without_time;
   }
 };
 
