@@ -40,7 +40,7 @@ plan_execution::AspFluent TranslateFluent::operator()(const actasp::AspFluent& a
 
 
 actasp::AspFluentRule TranslateRule::operator()(const plan_execution::AspRule& bwiRule) {
-  actasp::AspRule actaspRule;
+  actasp::AspFluentRule actaspRule;
 
   transform(bwiRule.head.begin(), bwiRule.head.end(), back_inserter(actaspRule.head), TranslateFluent());
   transform(bwiRule.body.begin(), bwiRule.body.end(), back_inserter(actaspRule.body), TranslateFluent());
@@ -49,7 +49,7 @@ actasp::AspFluentRule TranslateRule::operator()(const plan_execution::AspRule& b
   return actaspRule;
 }
 
-plan_execution::AspRule TranslateRule::operator()(const actasp::AspRule& actaspRule) {
+plan_execution::AspRule TranslateRule::operator()(const actasp::AspFluentRule& actaspRule) {
   plan_execution::AspRule bwiRule;
 
   transform(actaspRule.head.begin(), actaspRule.head.end(), back_inserter(bwiRule.head), TranslateFluent());

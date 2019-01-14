@@ -8,33 +8,28 @@ struct Clingo5_2 : public FilteringQueryGenerator {
 
 
 
-  Clingo5_2(const std::string& incrementalVar,
+  Clingo5_2(
             const std::vector<std::string>& linkFiles,
-            const std::vector<std::string>& copyFiles,
-            const std::set<std::string>& actions,
             unsigned int max_time = 0
   ) noexcept;
 
   std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-      bool filterActions,
       unsigned int  max_plan_length,
-      unsigned int answerset_number) const noexcept;
+      unsigned int answerset_number, bool actions_only=true) const noexcept;
 
   std::list<actasp::AnswerSet> lengthRangePlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-      bool filterActions,
       unsigned int min_plan_length,
       unsigned int  max_plan_length,
-      unsigned int answerset_number) const noexcept;
+      unsigned int answerset_number, bool actions_only=true
+  ) const noexcept;
 
   actasp::AnswerSet optimalPlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-      bool filterActions,
       unsigned int  max_plan_length,
-      unsigned int answerset_number,
-      bool minimum) const noexcept;
+      unsigned int answerset_number, bool actions_only=true
+  ) const noexcept;
 
   std::list<actasp::AnswerSet> monitorQuery(const std::vector<actasp::AspFluentRule>& goalRules,
       const AnswerSet& plan) const noexcept;
-
 
   AnswerSet currentStateQuery(const std::vector<actasp::AspFluentRule>& query) const noexcept;
   
@@ -50,6 +45,9 @@ struct Clingo5_2 : public FilteringQueryGenerator {
       const std::string& fileName,
       unsigned int answerSetsNumber, bool useCopyFiles = true) const noexcept;
 
+  virtual std::set<std::string> get_all_actions() {
+    return allActions;
+  };
 
 
 private:
@@ -64,6 +62,7 @@ private:
   unsigned int max_time;
   std::vector<std::string> linkFiles;
   std::vector<std::string> copyFiles;
+  bool actions_only;
 
 };
 

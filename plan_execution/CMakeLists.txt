@@ -21,11 +21,19 @@ find_package(catkin REQUIRED COMPONENTS
 include(ExternalProject)
 set(CLINGO_BUILD_APPS OFF)
 ExternalProject_Add(clingo
+        PREFIX 3rd_party
         GIT_REPOSITORY https://github.com/potassco/clingo.git
         GIT_TAG        v5.3.0
-        INSTALL_DIR /opt
+        UPDATE_COMMAND ""
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CATKIN_DEVEL_PREFIX}
         )
+
+
+SET(CLINGO_INCLUDE_DIR ${CATKIN_DEVEL_PREFIX}/include)
+SET(CLINGO_LIB_DIR ${CATKIN_DEVEL_PREFIX}/lib)
+
+add_library(libclingo SHARED IMPORTED)
+set_target_properties(libclingo PROPERTIES IMPORTED_LOCATION ${CLINGO_LIB_DIR}/libclingo.so)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -86,8 +94,8 @@ include_directories(
 set(actasp_SRC)
 add_subdirectory(actasp/src/)
 add_library(actasp ${actasp_SRC})
-#add_dependencies(actasp libclingo)
-target_link_libraries(actasp libclingo.so ${catkin_LIBRARIES})
+add_dependencies(actasp clingo)
+target_link_libraries(actasp libclingo ${catkin_LIBRARIES})
 
 set(plan_execution_SRC)
 add_subdirectory(src/libplan_execution)

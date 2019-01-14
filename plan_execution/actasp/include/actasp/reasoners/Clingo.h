@@ -10,17 +10,15 @@ namespace actasp {
 
 struct Clingo {
 
-	static FilteringQueryGenerator* getQueryGenerator(const std::string& incrementalVar,
-          const std::string& linkDir,
-					const std::vector<std::string>& copyFiles,
-          const std::set<std::string>& actions,
+	static FilteringQueryGenerator* getQueryGenerator(
+          const std::string& domain_directory,
           unsigned int max_time = 0) {
 
 		std::string ros_distro = std::getenv("ROS_DISTRO");
 
     // TODO: This should be tied to which version of clingo is available, not which distro we're on
 		if (ros_distro == "indigo") {
-			auto indigoPath = linkDir.substr(0, linkDir.size()-1)+"_indigo/";
+			auto indigoPath = domain_directory.substr(0, domain_directory.size()-1)+"_indigo/";
 			//return new Clingo4_2(incrementalVar, dirToAllAspFilesInDir(indigoPath), copyFiles, actions, max_time);
 		}
 
@@ -29,7 +27,7 @@ struct Clingo {
 		}
 
 		if (ros_distro == "melodic") {
-			return new Clingo5_2(incrementalVar, dirToAllAspFilesInDir(linkDir), copyFiles, actions, max_time);
+			return new Clingo5_2( dirToAllAspFilesInDir(domain_directory), max_time);
 		}
 		assert(false);
 	}

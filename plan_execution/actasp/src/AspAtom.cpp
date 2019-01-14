@@ -136,7 +136,7 @@ std::string AspAtom::to_string() const noexcept {
       sstream << "-";
     }
   }
-  sstream << this->name << "(";
+  sstream << name << "(";
   for (int i = 0; i < arguments.size(); ++i){
     if (i > 0) {
       sstream << ", ";

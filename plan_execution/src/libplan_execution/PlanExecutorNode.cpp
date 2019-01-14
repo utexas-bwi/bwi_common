@@ -44,12 +44,10 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   fs.open(working_memory_path, ios::out);
   fs.close();
 
-  planningReasoner = unique_ptr<actasp::FilteringQueryGenerator>(Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
-                                                                 actionMapToSet(action_map),
-                                                                 PLANNER_TIMEOUT));
+  planningReasoner = unique_ptr<actasp::FilteringQueryGenerator>(Clingo::getQueryGenerator( domain_directory));
   auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
   if (boost::filesystem::is_directory(diagnosticsPath)) {
-    auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator("n", diagnosticsPath.string(), {working_memory_path}, {}, PLANNER_TIMEOUT));
+    auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator(diagnosticsPath.string()));
     ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new ExplainingRosActionServerInterfaceObserver(server, std::move(diagnosticReasoner)));
   } else {
     ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new RosActionServerInterfaceObserver(server));

@@ -20,11 +20,11 @@ public:
     return rules;
   }
 
-  const std::vector<Variable> getVariables() const {
+  const std::vector<Variable>& getVariables() const {
     return variables;
   }
 
-  const std::string getName() const {
+  const std::string& getName() const {
     return name;
   }
 

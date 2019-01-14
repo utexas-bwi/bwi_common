@@ -22,28 +22,28 @@ struct AspRule {
   }
 
   std::string to_string() const{
-    std::stringstream string;
+    std::stringstream sstream;
     bool first = true;
     for (const auto &headAtom: head) {
       if (!first) {
-        string << ", ";
+        sstream << ", ";
       }
-      string << headAtom.to_string();
+      sstream << headAtom.to_string();
       first = false;
     }
     if (!body.empty()) {
-      string << " :- ";
+      sstream << " :- ";
     }
     first = true;
     for (const auto &bodyAtom: body) {
       if (!first) {
-        string << ", ";
+        sstream << ", ";
       }
-      string << bodyAtom.to_string();
+      sstream << bodyAtom.to_string();
       first = false;
     }
-    string << ".";
-    return string.str();
+    sstream << ".";
+    return sstream.str();
   }
   
   std::vector<AtomType> head;

@@ -16,21 +16,19 @@ namespace actasp {
 struct QueryGenerator {
   
   virtual std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-                                         bool filterActions, 
                                          unsigned int  max_plan_length,
-                                         unsigned int answerset_number) const noexcept = 0;
+                                         unsigned int answerset_number, bool actions_only=true
+  ) const noexcept = 0;
                                          
   virtual std::list<actasp::AnswerSet> lengthRangePlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-                                         bool filterActions, 
                                          unsigned int min_plan_length,
                                          unsigned int  max_plan_length,
-                                         unsigned int answerset_number) const noexcept = 0;
+                                         unsigned int answerset_number, bool actions_only=true
+  ) const noexcept = 0;
 
   virtual actasp::AnswerSet optimalPlanQuery(const std::vector<actasp::AspFluentRule>& goalRules,
-                                         bool filterActions,
                                          unsigned int  max_plan_length,
-                                         unsigned int answerset_number,
-                                         bool minimum) const noexcept = 0;
+                                         unsigned int answerset_number, bool actions_only=true) const noexcept = 0;
   
   virtual std::list<actasp::AnswerSet> monitorQuery(const std::vector<actasp::AspFluentRule>& goalRules,
                                          const AnswerSet& plan) const noexcept = 0;
@@ -43,6 +41,7 @@ struct QueryGenerator {
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept = 0;
 
+  virtual std::set<std::string> get_all_actions() = 0;
 
 };
 

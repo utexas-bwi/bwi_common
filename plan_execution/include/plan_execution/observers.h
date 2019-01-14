@@ -139,11 +139,10 @@ struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterf
         fluentsString << "0{" << rule.head[0].to_string() << "}1." << std::endl;
         minimizeString  << ":~ " << rule.head[0].to_string() << ". [-1, 1]" << std::endl;
       }
-
-      std::stringstream query;
-      query << fluentsString.str() << std::endl << minimizeString.str() << std::endl;
-      actasp::AnswerSet answer = explainer->optimizationQuery(query.str(), "diagnoticQuery");
-
+      // FIXME: Support this type of query again
+      std::vector<actasp::AspFluentRule> query;
+      std::list<actasp::AnswerSet> answers = explainer->genericQuery(query, 0, "diagnoticQuery", 0);
+      const auto &answer = answers.front();
       std::vector<actasp::AspFluentRule> failedHypotheses;
       for (const auto &rule : hypotheses) {
         if (!answer.contains(rule.head[0].to_string())) {
