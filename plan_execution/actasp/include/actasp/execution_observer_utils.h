@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 #include <actasp/ExecutionObserver.h>
 
 namespace actasp {
@@ -21,13 +21,13 @@ struct NotifyActionStart {
 
 struct NotifyGoalChanged {
 
-  NotifyGoalChanged(const std::vector<actasp::AspFluentRule> &goalRules) : goalRules(goalRules) {}
+  NotifyGoalChanged(const std::vector<actasp::AspRule> &goalRules) : goalRules(goalRules) {}
 
   void operator()(ExecutionObserver &observer) {
     observer.goalChanged(goalRules);
   }
 
-  const std::vector<actasp::AspFluentRule> &goalRules;
+  const std::vector<actasp::AspRule> &goalRules;
 };
 
 

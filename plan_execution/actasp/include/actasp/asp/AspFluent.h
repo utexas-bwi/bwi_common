@@ -6,11 +6,15 @@
 #include <set>
 #include <functional>
 #include <boost/variant.hpp>
-#include <actasp/AspAtom.h>
+#include <actasp/asp/AspAtom.h>
 #include <iostream>
 
 namespace actasp {
 
+/**
+ * @brief A convenience subclass of AspAtom that makes working with timesteps
+ * and timestep variables easier.
+ */
 class AspFluent: public AspAtom {
 public:
 

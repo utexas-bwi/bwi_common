@@ -57,19 +57,20 @@ ActionSet actionMapToSet(const std::map<std::string, Action *>& actionMap) {
   return fluents;
 }
 
-AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep) {
+
+AspFluent with_timestep(const AspAtom &fluent, uint32_t timestep) {
   const auto &params = fluent.getArguments();
   return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep, fluent.getNegation());
 }
 
-AspFluent with_timestep(const AspFluent &fluent, Variable timestep) {
+AspFluent with_timestep(const AspAtom &fluent, Variable timestep) {
   const auto &params = fluent.getArguments();
   return AspFluent(fluent.getName(),{params.begin(), params.end() - 1}, timestep, fluent.getNegation());
 }
 
-AspFluentRule add_timestep(const AspFluentRule &rule, uint32_t timestep) {
-  std::vector<AspFluent> head;
-  std::vector<AspFluent> body;
+AspRule add_timestep(const AspRule &rule, uint32_t timestep) {
+  std::vector<AspAtom> head;
+  std::vector<AspAtom> body;
   for (const auto atom: rule.head) {
     head.push_back(with_timestep(atom, timestep));
   }
@@ -79,9 +80,9 @@ AspFluentRule add_timestep(const AspFluentRule &rule, uint32_t timestep) {
   return {head, body};
 }
 
-AspFluentRule add_timestep(const AspFluentRule &rule, Variable timestep) {
-  std::vector<AspFluent> head;
-  std::vector<AspFluent> body;
+AspRule add_timestep(const AspRule &rule, Variable timestep) {
+  std::vector<AspAtom> head;
+  std::vector<AspAtom> body;
   for (const auto &atom: rule.head) {
     head.push_back(with_timestep(atom, timestep));
   }
@@ -91,10 +92,10 @@ AspFluentRule add_timestep(const AspFluentRule &rule, Variable timestep) {
   return {head, body};
 }
 
-vector<AspFluentRule> make_goal_all_true(const std::vector<AspFluent> &fluents) {
-  vector<AspFluentRule> goal;
+vector<AspRule> make_goal_all_true(const std::vector<AspFluent> &fluents) {
+  vector<AspRule> goal;
   for (const auto &fluent: fluents) {
-    AspFluentRule rule;
+    AspRule rule;
     auto negation = fluent.getNegation();
     negation.insert(negation.begin(),Default);
     AspFluent negated = {fluent.getName(), fluent.getArguments(), negation};

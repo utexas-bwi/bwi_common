@@ -2,7 +2,7 @@
 
 #include <actasp/PartialPolicy.h>
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 #include <actasp/state_utils.h>
 
 #include <map>

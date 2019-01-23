@@ -78,7 +78,7 @@ PlanExecutorNode::~PlanExecutorNode() = default;
 
 void PlanExecutorNode::executePlan(const plan_execution::ExecutePlanGoalConstPtr &plan) {
   plan_execution::ExecutePlanResult result;
-  vector<AspFluentRule> goalRules;
+  vector<AspRule> goalRules;
 
 
   transform(plan->aspGoal.begin(), plan->aspGoal.end(), back_inserter(goalRules), TranslateRule());

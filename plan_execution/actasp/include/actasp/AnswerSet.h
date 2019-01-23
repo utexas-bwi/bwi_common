@@ -1,6 +1,6 @@
 #pragma once
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 #include <string>
 #include <set>
@@ -22,7 +22,15 @@ public:
   AnswerSet() : satisfied(false), fluents() {}
 
   template<typename Iterator>
-  AnswerSet(Iterator from, Iterator to) noexcept : satisfied(true), fluents(from, to) {
+  AnswerSet(Iterator from, Iterator to) noexcept : satisfied(true), atoms(from, to) {
+    for (const auto &atom: atoms) {
+      try {
+        AspFluent as_fluent{atom.getName(), atom.getArguments()};
+        fluents.push_back(as_fluent);
+      } catch (const std::invalid_argument &e) {
+        continue;
+      }
+    }
     std::sort(fluents.begin(), fluents.end(), TimeStepComparator());
   }
 
@@ -30,6 +38,7 @@ public:
 
   bool isSatisfied() const noexcept;
 
+  bool contains(const actasp::AspAtom &fluent) const noexcept;
   bool contains(const actasp::AspFluent &fluent) const noexcept;
 
   std::list<std::unique_ptr<Action>> instantiateActions(const std::map<std::string, actasp::ActionFactory> &actionMap,
@@ -39,7 +48,11 @@ public:
   std::list<std::unique_ptr<Action>>
   instantiateActions(const std::map<std::string, actasp::Action *> &actionMap) const noexcept(false);
 
-  const FluentSet &getFluents() const noexcept { return fluents; }
+  const FluentSet &getFluents() const noexcept {
+    return fluents;
+  }
+
+  const std::vector<AspAtom> &getAtoms() const noexcept { return atoms; }
 
   std::set<actasp::AspFluent> getFluentsAtTime(uint32_t timeStep) const noexcept;
 
@@ -48,6 +61,7 @@ public:
 private:
 
   bool satisfied;
+  std::vector<AspAtom> atoms;
   FluentSet fluents;
 };
 

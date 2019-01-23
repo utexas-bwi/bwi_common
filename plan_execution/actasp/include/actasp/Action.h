@@ -1,6 +1,6 @@
 #pragma once
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 #include <actasp/ResourceManager.h>
 
 #include <string>

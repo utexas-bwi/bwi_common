@@ -1,4 +1,4 @@
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 #include <sstream>
 #include <cstdlib> //for atoi

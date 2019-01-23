@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 using namespace std;
 

@@ -1,8 +1,8 @@
 #include <actasp/reasoners/Clingo3.h>
 
-#include <actasp/AspRule.h>
+#include <actasp/asp/AspRule.h>
 #include <actasp/AnswerSet.h>
-#include <actasp/AspAtom.h>
+#include <actasp/asp/AspAtom.h>
 
 #include <algorithm>
 #include <iterator>

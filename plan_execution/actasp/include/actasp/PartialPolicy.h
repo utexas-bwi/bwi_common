@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 #include <set>
 #include <stdexcept>

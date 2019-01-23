@@ -7,7 +7,7 @@
 #include <utility>
 #include <set>
 #include <functional>
-#include "AspRule.h"
+#include <actasp/asp/AspRule.h>
 
 namespace actasp {
 
@@ -49,13 +49,13 @@ struct MaxTimeStepLessThan {
   unsigned int initialTimeStep;
 };
 
-AspFluent with_timestep(const AspFluent &fluent, uint32_t timestep);
+AspFluent with_timestep(const AspAtom &fluent, uint32_t timestep);
 
-AspFluent with_timestep(const AspFluent &fluent, Variable timestep);
+AspFluent with_timestep(const AspAtom &fluent, Variable timestep);
 
-AspFluentRule add_timestep(const AspFluentRule &fluent, Variable timestep);
+AspRule add_timestep(const AspRule &rule, Variable timestep);
 
-AspFluentRule add_timestep(const AspFluentRule &fluent, uint32_t timestep);
+AspRule add_timestep(const AspRule &rule, uint32_t timestep);
 
 AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan);
 
@@ -64,7 +64,7 @@ ActionSet actionMapToSet(const std::map<std::string, Action *> &actionMap);
 
 ActionSet actionMapToSet(const std::map<std::string, ActionFactory> &actionMap);
 
-std::vector<AspFluentRule> make_goal_all_true(const std::vector<AspFluent> &fluents);
+std::vector<AspRule> make_goal_all_true(const std::vector<AspFluent> &fluents);
 }
 
 

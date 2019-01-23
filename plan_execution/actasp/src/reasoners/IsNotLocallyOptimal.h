@@ -6,7 +6,7 @@
 #include <set>
 #include <functional>
 
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 namespace actasp {
 

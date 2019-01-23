@@ -1,4 +1,4 @@
-#include <actasp/AspAtom.h>
+#include <actasp/asp/AspAtom.h>
 #include <sstream>
 #include <iostream>
 
@@ -126,7 +126,9 @@ std::vector<AspAtom::Argument> AspAtom::getArguments() const noexcept {
     return std::to_string(integer);
   }
 
-
+// In general, we avoid string formatting in the ASP type implementations
+// because this may change between solvers, but in practice atoms
+// are fundamental enough that they're consistent across versions of Clingo
 std::string AspAtom::to_string() const noexcept {
   std::stringstream sstream;
   for (const auto &negation: this->negation) {

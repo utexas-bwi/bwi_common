@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include <actasp/AspFluent.h>
+#include <actasp/asp/AspFluent.h>
 
 namespace actasp {
 

@@ -63,7 +63,7 @@ void ReplanningPlanExecutor::computePlan() {
 
 }
 
-void ReplanningPlanExecutor::setGoal(const std::vector<actasp::AspFluentRule> &goalRules) noexcept {
+void ReplanningPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
   this->goalRules = goalRules;
 
   for_each(executionObservers.begin(), executionObservers.end(), NotifyGoalChanged(goalRules));

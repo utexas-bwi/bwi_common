@@ -4,8 +4,8 @@
 #include "plan_execution/AspRule.h"
 #include "plan_execution/AnswerSet.h"
 
-#include "actasp/AspFluent.h"
-#include "actasp/AspRule.h"
+#include "actasp/asp/AspFluent.h"
+#include "actasp/asp/AspRule.h"
 #include "actasp/AnswerSet.h"
 
 namespace plan_exec {
@@ -17,8 +17,8 @@ struct TranslateFluent {
 };
 
 struct TranslateRule {
-  actasp::AspFluentRule operator()(const plan_execution::AspRule& bwiRule);
-  plan_execution::AspRule operator()(const actasp::AspFluentRule& actaspRule);
+  actasp::AspRule operator()(const plan_execution::AspRule& bwiRule);
+  plan_execution::AspRule operator()(const actasp::AspRule& actaspRule);
 
 };
 

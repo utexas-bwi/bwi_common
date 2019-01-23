@@ -13,7 +13,7 @@ AnyPlan::AnyPlan(actasp::MultiPlanner *actualPlanner, double suboptimality) :
         actualPlanner(actualPlanner),
         suboptimality(suboptimality){}
 
-AnswerSet AnyPlan::computePlan(const std::vector<actasp::AspFluentRule>& goal) const {
+AnswerSet AnyPlan::computePlan(const std::vector<actasp::AspRule>& goal) const {
 
 	vector< AnswerSet > allPlans = actualPlanner->computeAllPlans(goal,suboptimality);
 
