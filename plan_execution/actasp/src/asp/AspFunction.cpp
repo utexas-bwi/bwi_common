@@ -1,4 +1,4 @@
-#include <actasp/asp/AspAtom.h>
+#include <actasp/asp/AspFunction.h>
 #include <sstream>
 #include <iostream>
 
@@ -18,36 +18,38 @@ static inline std::string ltrim_copy(std::string s) {
   return s;
 }
 
-static inline void interpret_param(const std::string &param, std::vector<AspAtom::Argument> &variables) {
+static inline void interpret_param(const std::string &param, TermContainer &arguments) {
   const auto trimmed = ltrim_copy(param);
   try {
     // Try to interpret as int
     int asInt = std::stoi(trimmed);
-    variables.emplace_back(asInt);
+    arguments.push_back(new IntTerm(asInt));
   } catch (std::exception &e) {
     // Is the parameter a quoted string?
     const auto front = trimmed.front();
     if (front == '"' || front == '\'') {
       const auto close_quote = trimmed.find(front, 1);
-      variables.emplace_back(trimmed.substr(1, close_quote - 1));
+      arguments.push_back(new StringTerm(trimmed.substr(1, close_quote - 1)));
+    } else if (isupper(front)){
+      arguments.push_back(new Variable(trimmed));
     } else {
-      variables.emplace_back(Variable(trimmed));
+      arguments.push_back(new SymbolicConstant(trimmed));
     }
   }
 }
 
-AspAtom operator ""_a(const char *string, std::size_t size) {
-  return AspAtom(string);
+AspFunction operator ""_a(const char *string, std::size_t size) {
+  return AspFunction(string);
 }
 
-AspAtom::AspAtom(const std::string& formula) {
+AspFunction::AspFunction(const std::string& formula) {
   size_t first_par = formula.find_first_of('(');
   size_t last_par = formula.find_last_of(')');
   if(first_par == string::npos)
-    throw std::invalid_argument("AspAtom: The string " + formula + " does not contain a '(', therefore is not a valid fluent");
+    throw std::invalid_argument("AspFunction: The string " + formula + " does not contain a '(', therefore is not a valid fluent");
 
   if(last_par == string::npos)
-    throw std::invalid_argument("The string " + formula + " does not contain a ')', therefore is not a valid fluent");
+    throw std::invalid_argument("The string " + formula + " does not contain a ')', therefore is not a valid ASP function term");
 
 
   // See if there are any negations before the first paren
@@ -103,33 +105,22 @@ AspAtom::AspAtom(const std::string& formula) {
 }
 
 
-unsigned int AspAtom::arity() const noexcept {
+unsigned int AspFunction::arity() const noexcept {
   return arguments.size();
 }
 
-std::string AspAtom::getName() const noexcept {
+std::string AspFunction::getName() const noexcept {
   return name;
 }
   
-std::vector<AspAtom::Argument> AspAtom::getArguments() const noexcept {
+TermContainer AspFunction::getArguments() const noexcept {
     return arguments;
 }
-
-
-  std::string ArgumentToString::operator()(const std::string &string) const {
-    return "\"" + string + "\"";
-  }
-  std::string ArgumentToString::operator()(const Variable &variable) const {
-    return variable.name;
-  }
-  std::string ArgumentToString::operator()(const int32_t &integer) const {
-    return std::to_string(integer);
-  }
 
 // In general, we avoid string formatting in the ASP type implementations
 // because this may change between solvers, but in practice atoms
 // are fundamental enough that they're consistent across versions of Clingo
-std::string AspAtom::to_string() const noexcept {
+std::string AspFunction::to_string() const noexcept {
   std::stringstream sstream;
   for (const auto &negation: this->negation) {
     if (negation == Default) {
@@ -143,18 +134,18 @@ std::string AspAtom::to_string() const noexcept {
     if (i > 0) {
       sstream << ", ";
     }
-    sstream << boost::apply_visitor(ArgumentToString{},arguments[i]);
+    sstream << (arguments.at(i).to_string());
   }
 
   sstream << ")";
   return sstream.str();
 }
 
-vector<Negation> AspAtom::getNegation() const noexcept {
+vector<Negation> AspFunction::getNegation() const noexcept {
   return negation;
 }
 
-std::ostream &operator<<(std::ostream &stream, const AspAtom &atom) {
+std::ostream &operator<<(std::ostream &stream, const AspFunction &atom) {
   stream << (std::string)atom;
 }
 

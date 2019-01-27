@@ -26,9 +26,9 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
     void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
         std::stringstream planStream;
 
-        ROS_INFO_STREAM("plan size: " << newPlan.getFluents().size());
+        ROS_INFO_STREAM("plan size: " << newPlan.fluents.size());
 
-        copy(newPlan.getFluents().begin(), newPlan.getFluents().end(), std::ostream_iterator<std::string>(planStream, " "));
+        copy(newPlan.fluents.begin(), newPlan.fluents.end(), std::ostream_iterator<std::string>(planStream, " "));
 
         ROS_INFO_STREAM(planStream.str());
     }
@@ -42,7 +42,7 @@ struct ConsoleObserver : public actasp::ExecutionObserver, public actasp::Planni
 
         planStream << "Remaining plan: ";
 
-        copy(plan_remainder.getFluents().begin(), plan_remainder.getFluents().end(), std::ostream_iterator<std::string>(planStream, " "));
+        copy(plan_remainder.fluents.begin(), plan_remainder.fluents.end(), std::ostream_iterator<std::string>(planStream, " "));
 
         ROS_INFO_STREAM(planStream.str());
     }
@@ -82,7 +82,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
     void planChanged(const actasp::AnswerSet &newPlan) noexcept override {
         feedback.plan.clear();
         feedback.event_type = plan_execution::ExecutePlanFeedback::PLAN_CHANGED_EVENT;
-        std::vector<actasp::AspFluent> fluents = newPlan.getFluents();
+        std::vector<actasp::AspFluent> fluents = newPlan.fluents;
         std::transform(fluents.begin(), fluents.end(), std::back_inserter(feedback.plan), plan_exec::TranslateFluent());
         server.publishFeedback(feedback);
         //ros::spinOnce();
@@ -100,7 +100,7 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
                result.status = plan_execution::ExecutePlanResult::TOO_MANY_ACTION_FAILURES;
                break;
        }
-       std::vector<actasp::AspFluent> fluents = plan_remainder.getFluents();
+       std::vector<actasp::AspFluent> fluents = plan_remainder.fluents;
        result.final_action = plan_exec::TranslateFluent()(final_action);
        std::transform(fluents.begin(), fluents.end(), std::back_inserter(result.plan_remainder), plan_exec::TranslateFluent());
     }

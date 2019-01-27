@@ -27,7 +27,7 @@ ActionSet Reasoner::availableActions() const noexcept {
   ActionSet computed;
 
   for (const auto &act: actions) {
-    computed.insert(act.getFluents().begin(), act.getFluents().end());
+    computed.insert(act.fluents.begin(), act.fluents.end());
   }
 
   return computed;
@@ -43,14 +43,14 @@ struct fluent2Rule {
   fluent2Rule(unsigned int timeStep) : timeStep(timeStep), useTimeStep(true) {}
     
   AspRule operator() (const AspFluent& fluent){
-      AspRule rule;
+      LiteralContainer head;
 
       if(useTimeStep) {
-        rule.head.push_back(with_timestep(fluent, (timeStep)));
+        head.push_back(with_timestep(fluent, (timeStep)).literal_clone());
       } else {
-        rule.head.push_back(fluent);
+        head.push_back(fluent.literal_clone());
       }
-      return rule;
+      return AspRule(head, {});
   }
   
   unsigned int timeStep;
@@ -75,7 +75,7 @@ AnswerSet Reasoner::computePlan(const std::vector<actasp::AspRule>& goal) const 
 struct AnswerSetToList {
   list <AspFluentRef> operator()(const AnswerSet& aset) const {
 
-    return list <AspFluentRef>(aset.getFluents().begin(), aset.getFluents().end());
+    return list <AspFluentRef>(aset.fluents.begin(), aset.fluents.end());
 
   }
 };
@@ -201,7 +201,7 @@ struct CleanPlan {
   list<AspFluentRef> operator()(const AnswerSet &planWithStates) const {
     list<AspFluentRef> actionsOnly;
 
-    remove_copy_if(planWithStates.getFluents().begin(), planWithStates.getFluents().end(),
+    remove_copy_if(planWithStates.fluents.begin(), planWithStates.fluents.end(),
                    back_inserter(actionsOnly),not1(IsAnAction(allActions)));
 
     return actionsOnly;

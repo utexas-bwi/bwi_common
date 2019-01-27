@@ -26,6 +26,8 @@ protected:
 };
 
 TEST_F(ReasonerTest, MinimalPlanQueryWorks) {
+  vector<AspFluent> test = {"bit_on(1,n)"_f};
+  EXPECT_EQ(test[0].arity(), 2);
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
   auto plan = query_generator->minimalPlanQuery(goal,10,0);
   EXPECT_TRUE(!plan.empty());
@@ -33,6 +35,17 @@ TEST_F(ReasonerTest, MinimalPlanQueryWorks) {
   goal = {make_goal_all_true({"bit_on(1,n)"_f, "-bit_on(1,n)"_f})};
   plan = query_generator->minimalPlanQuery(goal,2,0);
   EXPECT_TRUE(plan.empty());
+}
+
+TEST_F(ReasonerTest, MonitorQueryWorks) {
+  std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
+  auto plan = query_generator->minimalPlanQuery(goal,10,0);
+  // This part has to work for us to be able to test monitoring...
+  ASSERT_TRUE(!plan.empty());
+  ASSERT_EQ(plan.front().fluents.size(), 1);
+
+  auto results = query_generator->monitorQuery({},plan.front());
+  EXPECT_FALSE(results.empty());
 }
 
 TEST_F(ReasonerTest, LengthRangePlanQueryWorks) {
@@ -45,7 +58,7 @@ TEST_F(ReasonerTest, OptimalPlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f, "bit_on(2,n)"_f});
 
   auto plan = query_generator->optimalPlanQuery(goal,10,0);
-  EXPECT_TRUE(plan.isSatisfied());
+  EXPECT_TRUE(plan.satisfied);
   EXPECT_EQ(plan.maxTimeStep(), 1);
 }
 

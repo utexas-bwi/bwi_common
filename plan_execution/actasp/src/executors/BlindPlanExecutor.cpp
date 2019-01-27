@@ -51,7 +51,7 @@ BlindPlanExecutor::BlindPlanExecutor(AspKR &reasoner,
 
     void BlindPlanExecutor::computePlan() {
 
-      isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
+      isGoalReached = kr.currentStateQuery(goalRules).satisfied;
 
         if (!isGoalReached) {
           plan = planner.computePlan(goalRules).instantiateActions(actionMap);
@@ -66,9 +66,11 @@ BlindPlanExecutor::BlindPlanExecutor(AspKR &reasoner,
     }
 
     void BlindPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
-        this->goalRules = goalRules;
-        
-        for_each(executionObservers.begin(),executionObservers.end(),NotifyGoalChanged(goalRules));
+      this->goalRules.clear();
+      for (const auto &rule: goalRules) { this->goalRules.push_back(rule);}
+
+
+      for_each(executionObservers.begin(),executionObservers.end(),NotifyGoalChanged(goalRules));
 
         computePlan();
     }

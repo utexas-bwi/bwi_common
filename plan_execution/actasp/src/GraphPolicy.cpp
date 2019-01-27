@@ -150,10 +150,10 @@ std::vector<actasp::AnswerSet> GraphPolicy::plansFrom(const std::set<AspFluent>&
     for(; planIt != stateIt->second.end(); ++planIt)
         plans.insert( list<AspFluent>(planIt->second,planIt->first->end()) );
     
-    set< list<AspFluent>, LexComparator >::const_iterator solutions = plans.begin();
-    for(; solutions != plans.end(); ++solutions) {
+
+    for(const auto &solutions: plans) {
         
-        result.push_back(AnswerSet(solutions->begin(), solutions->end()));
+        result.push_back(AnswerSet({}, std::vector<AspFluent>(solutions.begin(), solutions.end())));
       
 //         copy(solutions->begin(), solutions->end(), ostream_iterator<string>(cout, " "));
 //         cout << endl;

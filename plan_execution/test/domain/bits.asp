@@ -10,6 +10,7 @@ bit(1..b).
 -bit_on(1..b, 0).
 
 action("turn_on";"turn_off";"all_on";"all_off").
+fluent("bit_on").
 
 #program step(n).
 

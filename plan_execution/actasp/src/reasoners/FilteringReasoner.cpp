@@ -51,7 +51,7 @@ AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& p
   //get all the known fluents of the current state:
   AnswerSet currentState = Reasoner::currentStateQuery(vector<AspRule>());
 
-  set<AspFluent> result;
+  vector<AspFluent> fluents;
 
   auto planIt = plans.begin();
   for (; planIt != plans.end(); ++planIt) {
@@ -62,13 +62,13 @@ AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& p
       set<AspFluent> statezero = best->getFluentsAtTime(0);
       auto statezeroIt = statezero.begin();
       for (;statezeroIt != statezero.end(); ++statezeroIt) {
-        result.insert(*statezeroIt);
+        fluents.push_back(*statezeroIt);
       }
     }
 
   }
 
-  return AnswerSet(result.begin(), result.end());
+  return AnswerSet({}, fluents);
 
 } //end of Clingo::filterState method
 

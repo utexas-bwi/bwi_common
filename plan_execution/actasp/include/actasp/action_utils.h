@@ -43,15 +43,15 @@ struct MaxTimeStepLessThan {
   MaxTimeStepLessThan(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
 
   bool operator()(const AnswerSet& answer) {
-    return !answer.getFluents().empty() &&  answer.maxTimeStep() < initialTimeStep;
+    return !answer.fluents.empty() &&  answer.maxTimeStep() < initialTimeStep;
   }
 
   unsigned int initialTimeStep;
 };
 
-AspFluent with_timestep(const AspAtom &fluent, uint32_t timestep);
+AspFluent with_timestep(const AspFunction &fluent, uint32_t timestep);
 
-AspFluent with_timestep(const AspAtom &fluent, Variable timestep);
+AspFluent with_timestep(const AspFunction &fluent, Variable timestep);
 
 AspRule add_timestep(const AspRule &rule, Variable timestep);
 

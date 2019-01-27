@@ -73,7 +73,7 @@ actasp::AnswerSet TranslateAnswerSet::operator()(const plan_execution::AnswerSet
 plan_execution::AnswerSet TranslateAnswerSet::operator()(const actasp::AnswerSet& actaspAnswerSet) {
   plan_execution::AnswerSet bwiAnswerSet;
   
-  transform(actaspAnswerSet.getFluents().begin(),actaspAnswerSet.getFluents().end(),back_inserter(bwiAnswerSet.fluents),TranslateFluent());
+  transform(actaspAnswerSet.fluents.begin(),actaspAnswerSet.fluents.end(),back_inserter(bwiAnswerSet.fluents),TranslateFluent());
   bwiAnswerSet.satisfied = actaspAnswerSet.isSatisfied();
   
   return bwiAnswerSet;

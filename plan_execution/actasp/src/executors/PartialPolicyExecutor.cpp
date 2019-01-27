@@ -39,10 +39,10 @@ PartialPolicyExecutor::~PartialPolicyExecutor() {
   
   
 void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept {
+  this->goalRules.clear();
+  for (const auto &rule: goalRules) { this->goalRules.push_back(rule);}
 
-  this->goalRules = goalRules;
-
-  isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
+  isGoalReached = kr.currentStateQuery(goalRules).satisfied;
 
   if (!isGoalReached) {
     delete policy;
@@ -106,14 +106,14 @@ void PartialPolicyExecutor::executeActionStep() {
                  });
     }
 
-    isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
+    isGoalReached = kr.currentStateQuery(goalRules).satisfied;
 
     if (isGoalReached) //well done!
       return;
 
     //choose the next action
     AnswerSet currentState = kr.currentStateQuery(vector<AspRule>());
-    set<AspFluent> state(currentState.getFluents().begin(), currentState.getFluents().end());
+    set<AspFluent> state(currentState.fluents.begin(), currentState.fluents.end());
     ActionSet options = policy->actions(state);
 
     if (options.empty() || (active != nullptr &&  active->hasFailed())) {

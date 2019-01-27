@@ -11,7 +11,7 @@ namespace actasp {
   
   class AnswerSet;
   class AspFluent;
-  class AspAtom;
+  class AspFunction;
 
 struct QueryGenerator {
   

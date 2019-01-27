@@ -47,7 +47,7 @@ struct NotifyNewPlan {
 };
 
 void ReplanningPlanExecutor::computePlan() {
-  isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
+  isGoalReached = kr.currentStateQuery(goalRules).satisfied;
 
   if (!isGoalReached) {
     plan = planner.computePlan(goalRules).instantiateActions(actionMap, resourceManager);
@@ -64,7 +64,9 @@ void ReplanningPlanExecutor::computePlan() {
 }
 
 void ReplanningPlanExecutor::setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept {
-  this->goalRules = goalRules;
+  this->goalRules.clear();
+  for (const auto &rule: goalRules) { this->goalRules.push_back(rule);}
+
 
   for_each(executionObservers.begin(), executionObservers.end(), NotifyGoalChanged(goalRules));
 

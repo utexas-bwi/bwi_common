@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <actasp/asp/AspRule.h>
-#include <actasp/asp/AspAtom.h>
+#include <actasp/asp/AspFunction.h>
 #include <actasp/asp/AspElement.h>
 
 namespace actasp {

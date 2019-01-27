@@ -9,22 +9,6 @@ using namespace std;
 
 namespace actasp {
 
-// AnswerSet::AnswerSet(bool satisfied,const std::set<actasp::AspFluent>& fluents) throw () :
-// 	satisfied(satisfied),
-// 	fluents(fluents.begin(),fluents.end())  {}
-
-bool AnswerSet::isSatisfied() const noexcept {
-	return satisfied;
-}
-
-bool AnswerSet::contains(const actasp::AspFluent& fluent) const noexcept {
-
-    pair<FluentSet::const_iterator, FluentSet::const_iterator> bounds =
-          equal_range(fluents.begin(), fluents.end(), fluent, TimeStepComparator());
-
-    FluentSet::const_iterator element = find(bounds.first, bounds.second, fluent);
-	return element != bounds.second;
-}
 
 
 std::list<std::unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, actasp::ActionFactory> &actionMap,
@@ -49,7 +33,9 @@ noexcept(false) {
   if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
     AnswerSet as = planToAnswerSet(plan);
     stringstream planStream;
-    copy(as.getFluents().begin(), as.getFluents().end(), ostream_iterator<string>(planStream, " "));
+    for (const auto &fluent: as.fluents) {
+      planStream << fluent.to_string() << " ";
+    }
     std::cout << planStream.str() << std::endl;
     // Wipe out instances
     plan.clear();
@@ -82,7 +68,9 @@ std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, ac
     if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
         AnswerSet as = planToAnswerSet(plan);
         stringstream planStream;
-        copy(as.getFluents().begin(), as.getFluents().end(), ostream_iterator<string>(planStream, " "));
+        for (const auto &fluent: as.fluents) {
+          planStream << fluent.to_string() << " ";
+        }
         std::cout << planStream.str() << std::endl;
       plan.clear();
         throw logic_error(
@@ -95,7 +83,7 @@ std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, ac
 std::set<actasp::AspFluent> AnswerSet::getFluentsAtTime(unsigned int timeStep) const noexcept {
 
     //create fake fluent with the required time step
-	AspFluent fake("-",{},timeStep);
+	AspFluent fake("-",{},{},timeStep);
 
     pair<FluentSet::const_iterator, FluentSet::const_iterator> bounds = equal_range(fluents.begin(), fluents.end(),fake, TimeStepComparator());
 

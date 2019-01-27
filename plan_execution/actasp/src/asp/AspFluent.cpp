@@ -1,8 +1,6 @@
 #include <actasp/asp/AspFluent.h>
 
 #include <sstream>
-#include <cstdlib> //for atoi
-
 using namespace std;
 
 namespace actasp {
@@ -12,11 +10,11 @@ AspFluent operator ""_f(const char *string, std::size_t size) {
 }
 
 unsigned int AspFluent::getTimeStep() const noexcept(false) {
-	return boost::get<int>(arguments[arguments.size() - 1]);
+	return dynamic_cast<const IntTerm*>(&arguments.back())->value;
 }
 
-Variable AspFluent::getTimeStepVariable() const noexcept(false) {
-	return boost::get<Variable>(arguments[arguments.size() - 1]);
+SymbolicConstant AspFluent::getTimeStepVariable() const noexcept(false) {
+	return *dynamic_cast<const SymbolicConstant*>(&arguments.back());
 }
 
 

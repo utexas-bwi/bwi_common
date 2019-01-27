@@ -1,6 +1,6 @@
 #pragma once
 
-#include <actasp/asp/AspAtom.h>
+#include <actasp/asp/AspFunction.h>
 #include <actasp/AnswerSet.h>
 #include <actasp/MultiPlanner.h>
 

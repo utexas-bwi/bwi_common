@@ -27,7 +27,7 @@ struct Clingo {
 		}
 
 		if (ros_distro == "melodic") {
-			return new Clingo5_2( dirToAllAspFilesInDir(domain_directory), max_time);
+			return new Clingo5_2( dirToAllAspFilesInDir(domain_directory), {});
 		}
 		assert(false);
 	}

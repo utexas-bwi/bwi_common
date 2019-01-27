@@ -2,7 +2,7 @@
 
 #include <actasp/asp/AspRule.h>
 #include <actasp/AnswerSet.h>
-#include <actasp/asp/AspAtom.h>
+#include <actasp/asp/AspFunction.h>
 
 #include <algorithm>
 #include <iterator>
@@ -197,7 +197,7 @@ struct MaxTimeStepLessThan3 {
   MaxTimeStepLessThan3(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
 
   bool operator()(const AnswerSet& answer) {
-    return !answer.getFluents().empty() &&  answer.maxTimeStep() < initialTimeStep;
+    return !answer.fluents.empty() &&  answer.maxTimeStep() < initialTimeStep;
   }
 
   unsigned int initialTimeStep;
@@ -245,15 +245,15 @@ std::list<actasp::AnswerSet> Clingo3::monitorQuery(const std::vector<actasp::Asp
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
 
-  const AnswerSet::FluentSet &allActions = plan.getFluents();
+  const AnswerSet::FluentSet &allActions = plan.fluents;
   AnswerSet::FluentSet::const_iterator actionIt = allActions.begin();
 
   for (int i=1; actionIt != allActions.end(); ++actionIt, ++i)
     monitorQuery << actionIt->to_string(i) << "." << endl;
 
-  list<actasp::AnswerSet> result = genericQuery(monitorQuery.str(),plan.getFluents().size(),plan.getFluents().size(),"monitorQuery",1);
+  list<actasp::AnswerSet> result = genericQuery(monitorQuery.str(),plan.fluents.size(),plan.fluents.size(),"monitorQuery",1);
   
-  result.remove_if(MaxTimeStepLessThan3(plan.getFluents().size()));
+  result.remove_if(MaxTimeStepLessThan3(plan.fluents.size()));
   
 //   clock_t kr1_end = clock();
 //   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;

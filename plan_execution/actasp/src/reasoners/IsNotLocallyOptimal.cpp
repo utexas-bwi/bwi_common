@@ -112,7 +112,7 @@ bool IsNotLocallyOptimal::hasLoops(const AnswerSet& plan) const {
     IsAnAction isAnAction(allActions);
     int timeStep = 0;
 
-    for(const auto &fluent: plan.getFluents()) {
+    for(const auto &fluent: plan.fluents) {
       
       if(fluent.getTimeStep() != timeStep) {
 
@@ -225,10 +225,10 @@ list<AspFluentRef> IsNotLocallyOptimal::cleanPlan(const AnswerSet& plan) const{
   list<AspFluentRef> actionsOnly;
   
   if(planFiltered) {
-    actionsOnly.insert(actionsOnly.end(),plan.getFluents().begin(),plan.getFluents().end());
+    actionsOnly.insert(actionsOnly.end(),plan.fluents.begin(),plan.fluents.end());
   }
   else {
-  remove_copy_if(plan.getFluents().begin(), plan.getFluents().end(),
+  remove_copy_if(plan.fluents.begin(), plan.fluents.end(),
                    back_inserter(actionsOnly),not1(IsAnAction(allActions)));
   }
   

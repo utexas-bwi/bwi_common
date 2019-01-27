@@ -8,7 +8,7 @@ struct Clingo5_2 : public FilteringQueryGenerator {
 
   Clingo5_2(
             const std::vector<std::string>& linkFiles,
-            unsigned int max_time = 0
+            const std::vector<actasp::AspFunction> &knowledge
   ) noexcept;
 
   std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
@@ -44,7 +44,7 @@ struct Clingo5_2 : public FilteringQueryGenerator {
       unsigned int answerSetsNumber, bool useCopyFiles = true) const noexcept;
 
   virtual std::set<std::string> get_all_actions() {
-    return allActions;
+    return action_names;
   };
 
 
@@ -56,10 +56,11 @@ private:
   std::string generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules, const AnswerSet& plan) const noexcept;
 
   std::string incrementalVar;
-  std::set<std::string> allActions;
-  unsigned int max_time;
+  std::set<std::string> action_names;
+  std::set<std::string> fluent_names;
   std::vector<std::string> linkFiles;
   std::vector<std::string> copyFiles;
+  const std::vector<actasp::AspFunction> &knowledge;
   bool actions_only;
 
 };

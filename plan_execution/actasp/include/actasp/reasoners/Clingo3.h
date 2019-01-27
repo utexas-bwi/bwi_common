@@ -35,7 +35,7 @@ struct Clingo3 : public QueryGenerator {
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept;
 
-  std::list< std::list<AspAtom> > genericQuery(const std::string& query,
+  std::list< std::list<AspFunction> > genericQuery(const std::string& query,
       unsigned int timestep,
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept;

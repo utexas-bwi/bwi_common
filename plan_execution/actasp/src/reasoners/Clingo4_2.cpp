@@ -2,7 +2,7 @@
 
 #include <actasp/asp/AspRule.h>
 #include <actasp/AnswerSet.h>
-#include <actasp/asp/AspAtom.h>
+#include <actasp/asp/AspFunction.h>
 #include <actasp/action_utils.h>
 
 #include <algorithm>
@@ -355,7 +355,7 @@ struct MaxTimeStepLessThan4_2 {
   MaxTimeStepLessThan4_2(unsigned int initialTimeStep) : initialTimeStep(initialTimeStep) {}
 
   bool operator()(const AnswerSet& answer) {
-    return !answer.getFluents().empty() &&  answer.maxTimeStep() < initialTimeStep;
+    return !answer.fluents.empty() &&  answer.maxTimeStep() < initialTimeStep;
   }
 
   unsigned int initialTimeStep;
@@ -457,7 +457,7 @@ std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
   monitorQuery << "#program cumulative(" << incrementalVar << ")." << endl;
 
 
-  const AnswerSet::FluentSet &actionSet = plan.getFluents();
+  const AnswerSet::FluentSet &actionSet = plan.fluents;
   AnswerSet::FluentSet::const_iterator actionIt = actionSet.begin();
   vector<AspRule> plan_in_rules;
 
@@ -481,10 +481,10 @@ std::list<actasp::AnswerSet> Clingo4_2::monitorQuery(const std::vector<actasp::A
       
   string monitorQuery = generateMonitorQuery(goalRules,plan);
 
-  list<actasp::AnswerSet> result = genericQuery(monitorQuery, plan.getFluents().size(), plan.getFluents().size(),
+  list<actasp::AnswerSet> result = genericQuery(monitorQuery, plan.fluents.size(), plan.fluents.size(),
                                                 "monitorQuery", 1);
 
-  result.remove_if(MaxTimeStepLessThan4_2(plan.getFluents().size()));
+  result.remove_if(MaxTimeStepLessThan4_2(plan.fluents.size()));
 
 //   clock_t kr1_end = clock();
 //   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
@@ -595,8 +595,8 @@ std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentS
 
   fluentsString << "#program base." << endl;
 
-  auto fluent = currentState.getFluents().begin();
-  for (; fluent != currentState.getFluents().end(); ++fluent) {
+  auto fluent = currentState.fluents.begin();
+  for (; fluent != currentState.fluents.end(); ++fluent) {
     fluentsString << "0{" << fluent->to_string() << "}1." << endl;
     minimizeString  << ":~ " << fluent->to_string() << ". [1]" << endl;
   }
@@ -611,7 +611,7 @@ std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentS
   total << fluentsString.str() << std::endl << monitorString << endl << minimizeString.str() << endl;
 
   //make a query that only uses the domain and what I created, not current.asp
-  return genericQuery(total.str(), plan.getFluents().size(), plan.getFluents().size(), "filterState", 0);
+  return genericQuery(total.str(), plan.fluents.size(), plan.fluents.size(), "filterState", 0);
 
 }
 

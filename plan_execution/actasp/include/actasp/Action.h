@@ -20,7 +20,7 @@ struct Action {
 	
 	virtual bool hasFinished() const = 0;
   
-    virtual bool hasFailed() const {return false;}
+	virtual bool hasFailed() const {return false;}
 
     // DEPRECATED
 	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const = 0;
@@ -30,7 +30,7 @@ struct Action {
 	
 	std::string toASP(unsigned int timeStep) const;
   
-    AspFluent toFluent(unsigned int timeStep) const;
+	AspFluent toFluent(unsigned int timeStep) const;
 	
 	bool operator==(const Action *other) const {
 		return this->toASP(0) == other->toASP(0);
@@ -40,11 +40,11 @@ struct Action {
 		return this->toASP(0) < other->toASP(0);
 	}
 	
-	virtual ~Action() {}
-	
+	virtual ~Action() = default;
+
 private:
 	
- virtual std::vector<AspAtom::Argument> getParameters() const = 0;
+ virtual TermContainer getParameters() const = 0;
 };
 
 typedef std::function<std::unique_ptr<actasp::Action>(const actasp::AspFluent &, actasp::ResourceManager &)> ActionFactory;
