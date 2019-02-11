@@ -9,6 +9,7 @@
 bit(1..b).
 -bit_on(1..b, 0).
 
+% Domain annotations that will help plan_execution process answer sets
 action("turn_on";"turn_off";"all_on";"all_off").
 fluent("bit_on").
 

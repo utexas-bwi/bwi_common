@@ -15,15 +15,25 @@ namespace actasp {
  * Terms are simplest the building blocks of ASP programs. Mostly, they're used
  * as arguments to atoms (AKA AspFunctions that appear in the the head of rules or as facts).
  */
-struct AspTerm : public AspElement {
+struct AspTerm : virtual public AspElement {
   virtual std::string to_string() const = 0;
 
+  /***
+   * Returns a pointer to a copy of the object on the heap.
+   * @return
+   */
   virtual AspTerm* clone() const = 0;
 
   virtual bool isEqual(const AspTerm &other) const =0;
 
   virtual bool isLess(const AspTerm &other) const =0;
 
+  /***
+   * ASP defines a total ordering over all terms. Each term type returns it's its intrinsic
+   * position in this ordering. A more expensive isEqual comparison is required to verify
+   * that two instances that return the same index are actually the same.
+   * @return
+   */
   virtual int totalOrderIndex() const = 0;
 };
 
@@ -39,8 +49,11 @@ inline AspTerm* new_clone(const AspTerm& object) {
 
 struct Variable;
 struct SymbolicConstant;
-struct SimpleTerm: public AspTerm {
 
+/***
+ * SimpleTerms are thin wrappers around fundamental types
+ */
+struct SimpleTerm: public AspTerm {
 
   static int32_t get_int(const AspTerm &term);
 
@@ -195,7 +208,8 @@ inline bool operator==(const AspTerm &lhs, const AspTerm &rhs) {
 typedef boost::ptr_vector<AspTerm> TermContainer;
 
 class AspFunction;
-// Until this becomes important, it's simpler to just allow functions
+
+// Until this becomes important, it's simpler to just allow functions.
 // A function without arguments is infact equivalent to a constant anyways
 //typedef boost::variant<AspFunction, AspConstant> AspAtom;
 typedef AspFunction AspAtom;

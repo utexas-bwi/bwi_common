@@ -68,6 +68,14 @@ public:
     return *this == static_cast<const AspFunction&>(other);
   }
 
+  bool isLess(const AspLiteral &other) const {
+    return *this < static_cast<const AspFunction &>(other);
+  };
+
+  bool isEqual(const AspLiteral &other) const {
+    return *this == static_cast<const AspFunction &>(other);
+  };
+
   int totalOrderIndex() const {
     return 4;
   }

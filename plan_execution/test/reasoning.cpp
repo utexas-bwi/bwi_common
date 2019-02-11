@@ -14,8 +14,9 @@ using namespace actasp;
 class ReasonerTest : public ::testing::Test {
 protected:
 
-  ReasonerTest(): query_generator(std::unique_ptr<FilteringQueryGenerator>(Clingo::getQueryGenerator(ros::package::getPath("plan_execution")+"/test/domain/"))),
-  reasoner(query_generator.get(),10, query_generator->get_all_actions()) {
+  ReasonerTest() : query_generator(std::unique_ptr<FilteringQueryGenerator>(
+      actasp::Clingo::getQueryGenerator(ros::package::getPath("plan_execution") + "/test/domain/"))),
+                   reasoner(query_generator.get(),10, query_generator->get_all_actions()) {
   }
 
   void SetUp() override {
@@ -29,35 +30,35 @@ TEST_F(ReasonerTest, MinimalPlanQueryWorks) {
   vector<AspFluent> test = {"bit_on(1,n)"_f};
   EXPECT_EQ(test[0].arity(), 2);
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plan = query_generator->minimalPlanQuery(goal,10,0);
+  auto plan = query_generator->minimalPlanQuery(goal, 10, 0, nullptr);
   EXPECT_TRUE(!plan.empty());
 
   goal = {make_goal_all_true({"bit_on(1,n)"_f, "-bit_on(1,n)"_f})};
-  plan = query_generator->minimalPlanQuery(goal,2,0);
+  plan = query_generator->minimalPlanQuery(goal, 2, 0, nullptr);
   EXPECT_TRUE(plan.empty());
 }
 
 TEST_F(ReasonerTest, MonitorQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plan = query_generator->minimalPlanQuery(goal,10,0);
+  auto plan = query_generator->minimalPlanQuery(goal, 10, 0, nullptr);
   // This part has to work for us to be able to test monitoring...
   ASSERT_TRUE(!plan.empty());
   ASSERT_EQ(plan.front().fluents.size(), 1);
 
-  auto results = query_generator->monitorQuery({},plan.front());
+  auto results = query_generator->monitorQuery({}, plan.front(), nullptr);
   EXPECT_FALSE(results.empty());
 }
 
 TEST_F(ReasonerTest, LengthRangePlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plan = query_generator->lengthRangePlanQuery(goal,10,10,0);
+  auto plan = query_generator->lengthRangePlanQuery(goal, 10, 10, 0, nullptr);
   EXPECT_TRUE(!plan.empty());
 }
 
 TEST_F(ReasonerTest, OptimalPlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f, "bit_on(2,n)"_f});
 
-  auto plan = query_generator->optimalPlanQuery(goal,10,0);
+  auto plan = query_generator->optimalPlanQuery(goal, 10, 0, nullptr);
   EXPECT_TRUE(plan.satisfied);
   EXPECT_EQ(plan.maxTimeStep(), 1);
 }

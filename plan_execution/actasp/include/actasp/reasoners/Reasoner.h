@@ -14,20 +14,22 @@ struct Reasoner : public AspKR {
   Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions);
   
   ActionSet availableActions() const noexcept override;
-  
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept override;
 
-  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept override;
+  AnswerSet currentStateQuery(const std::vector<AspRule> &query) const noexcept override;
 
-  AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) override;
-  
-  std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
+  bool isPlanValid(const Plan &plan, const std::vector<AspRule> &goal) const noexcept override;
 
-  AnswerSet computeOptimalPlan(const std::vector<actasp::AspRule>& goal, bool filterActions, double suboptimality, bool minimum) const noexcept(false);
+  Plan computePlan(const std::vector<AspRule> &goal) const noexcept(false) override;
 
-  PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
-  
-  std::list<actasp::AnswerSet> query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept override;
+  std::vector<Plan>
+  computeAllPlans(const std::vector<AspRule> &goal, double suboptimality) const noexcept(false) override;
+
+  AnswerSet computeOptimalPlan(const std::vector<AspRule> &goal, bool filterActions, double suboptimality,
+                               bool minimum) const noexcept(false);
+
+  PartialPolicy *computePolicy(const std::vector<AspRule> &goal, double suboptimality) const noexcept(false) override;
+
+  std::vector<AnswerSet> query(const std::vector<AspRule> &query, unsigned int timestep) const noexcept override;
   
   void setMaxTimeStep(unsigned int max_n) noexcept {
     this->max_n = max_n;
@@ -39,8 +41,9 @@ protected:
   QueryGenerator *clingo;
   unsigned int max_n;
   std::set<std::string> allActions;
-  
-  void computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* p) const noexcept(false);
+
+  void
+  computePolicyHelper(const std::vector<AspRule> &goal, double suboptimality, PartialPolicy *p) const noexcept(false);
   
 };
   

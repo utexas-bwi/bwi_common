@@ -7,36 +7,43 @@
 #include <string>
 #include <set>
 
+namespace Clingo {
+class Model;
+}
+
 namespace actasp {
   
   class AnswerSet;
   class AspFluent;
   class AspFunction;
 
+class Plan;
+
 struct QueryGenerator {
-  
-  virtual std::list<actasp::AnswerSet> minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
-                                         unsigned int  max_plan_length,
-                                         unsigned int answerset_number, bool actions_only=true
-  ) const noexcept = 0;
-                                         
-  virtual std::list<actasp::AnswerSet> lengthRangePlanQuery(const std::vector<actasp::AspRule>& goalRules,
-                                         unsigned int min_plan_length,
-                                         unsigned int  max_plan_length,
-                                         unsigned int answerset_number, bool actions_only=true
+
+  virtual std::vector<Plan> minimalPlanQuery(const std::vector<AspRule> &goalRules,
+                                             unsigned int  max_plan_length,
+                                             unsigned int answerset_number, const std::vector<AspAtom> *knowledge
   ) const noexcept = 0;
 
-  virtual actasp::AnswerSet optimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
-                                         unsigned int  max_plan_length,
-                                         unsigned int answerset_number, bool actions_only=true) const noexcept = 0;
-  
-  virtual std::list<actasp::AnswerSet> monitorQuery(const std::vector<actasp::AspRule>& goalRules,
-                                         const AnswerSet& plan) const noexcept = 0;
+  virtual std::vector<Plan> lengthRangePlanQuery(const std::vector<AspRule> &goalRules,
+                                                 unsigned int min_plan_length,
+                                                 unsigned int  max_plan_length,
+                                                 unsigned int answerset_number, const std::vector<AspAtom> *knowledge
+  ) const noexcept = 0;
+
+  virtual Plan optimalPlanQuery(const std::vector<AspRule> &goalRules,
+                                unsigned int  max_plan_length,
+                                unsigned int answerset_number,
+                                const std::vector<AspAtom> *knowledge) const noexcept = 0;
+
+  virtual std::vector<Plan> monitorQuery(const std::vector<AspRule> &goalRules,
+                                         const Plan &plan, const std::vector<AspAtom> *knowledge) const noexcept = 0;
 
 
-  virtual AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept = 0;
+  virtual AnswerSet currentStateQuery(const std::vector<AspRule> &query) const noexcept = 0;
 
-  virtual std::list<actasp::AnswerSet> genericQuery(const std::vector<actasp::AspRule>& query,
+  virtual std::vector<AnswerSet> genericQuery(const std::vector<AspRule> &query,
       unsigned int timestep,
       const std::string& fileName,
       unsigned int answerSetsNumber) const noexcept = 0;

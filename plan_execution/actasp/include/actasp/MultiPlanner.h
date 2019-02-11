@@ -14,7 +14,8 @@ class Action;
 
 struct MultiPlanner : public actasp::Planner {
 
-virtual std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) =0;
+  virtual std::vector<Plan>
+  computeAllPlans(const std::vector<actasp::AspRule> &goal, double suboptimality) const noexcept(false) = 0;
 
 virtual PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false)=0;
 

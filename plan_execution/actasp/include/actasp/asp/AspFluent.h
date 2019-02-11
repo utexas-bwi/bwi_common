@@ -40,6 +40,11 @@ public:
   inline AspTerm* clone() const override {
     return new AspFluent(*this);
   }
+
+  inline AspLiteral *literal_clone() const override {
+    return new AspFluent(*this);
+  }
+
 	uint32_t getTimeStep() const noexcept(false);
 	SymbolicConstant getTimeStepVariable() const noexcept(false);
 
@@ -63,6 +68,7 @@ struct AspFluentRef {
   bool operator<(const AspFluent& other) const noexcept {
     return *const_obj < other;
   }
+
   bool operator==(const AspFluent& other) const noexcept {
     return *const_obj == other;
   }

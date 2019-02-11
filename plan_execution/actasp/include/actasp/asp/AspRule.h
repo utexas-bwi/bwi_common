@@ -52,8 +52,7 @@ struct AspRule: public AspElement {
   }
   
   bool operator== (const AspRule &other) const noexcept {
-    assert(false);
-    //return this->head == other.head && this->body == other.body;
+    return this->head == other.head && this->body == other.body;
   }
 
   std::vector<AspFluent> head_fluents() const {

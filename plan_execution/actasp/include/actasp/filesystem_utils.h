@@ -8,6 +8,7 @@
 #include <boost/static_assert.hpp>
 #include <iostream>
 #include <fstream>
+#include <actasp/asp/AspTerm.h>
 
 namespace actasp {
 
@@ -61,6 +62,37 @@ static void recursive_copy(const boost::filesystem::path &src, const boost::file
   } else {
     throw std::runtime_error(dst.generic_string() + " not dir or file");
   }
+}
+
+static std::string
+getQueryDirectory(const std::vector<std::string> &linkFiles, const std::vector<actasp::AspAtom> *knowledge) {
+  auto t = std::time(nullptr);
+  auto tm = *std::localtime(&t);
+  std::stringstream stampstream;
+  const auto format = "%d-%m-%Y_%H-%M-%S";
+  // std::put_time is part of cpp11 but isn't supported by old compilers, including the version of GCC that comes
+  // with Indigo
+#if __GNUC__ >= 5
+  stampstream << std::put_time(&tm, format);
+#else
+  char date_buf[1000];
+  time_t now;
+  time(&now);
+  strftime(date_buf, 1000, format, localtime(&now));
+  stampstream << date_buf;
+#endif
+
+  // Until we have a solid hashing plan for knowledge, no caching.
+  // It's also probably more performant to keep an in memory cache... This may just stick
+  // around as a debugging convenience
+  const boost::filesystem::path queryRootPath("/tmp/actasp/");
+
+  const auto queryDir = queryRootPath / stampstream.str();
+
+
+  boost::filesystem::create_directories(queryDir);
+
+  return queryDir.string();
 }
 
 static std::string getQueryDirectory(const std::vector<std::string> &linkFiles, const std::vector<std::string> &copyFiles) {
@@ -129,6 +161,11 @@ static std::vector<boost::filesystem::path> populateDirectory(const boost::files
     boost::filesystem::copy(copyFile, target);
   }
   return outFilePaths;
+}
+
+static std::vector<boost::filesystem::path>
+populateDirectory(const boost::filesystem::path &dirPath, const std::vector<std::string> &linkFiles) {
+  return populateDirectory(dirPath, linkFiles, {});
 }
 
 }

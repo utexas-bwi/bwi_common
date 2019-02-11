@@ -59,7 +59,7 @@ void ReplanningPlanExecutor::computePlan() {
   hasFailed = plan.empty();
 
   if (!hasFailed)
-    for_each(planningObservers.begin(), planningObservers.end(), NotifyNewPlan(planToAnswerSet(plan)));
+    for_each(planningObservers.begin(), planningObservers.end(), NotifyNewPlan(actions_to_plan(plan)));
 
 }
 
@@ -104,7 +104,7 @@ void ReplanningPlanExecutor::executeActionStep() {
     std::cout << "STARTING PLAN VERIFICATION. Remaining plan size: " << plan.size() << std::endl;
 
 
-    if (!kr.isPlanValid(planToAnswerSet(plan), goalRules)) {
+    if (!kr.isPlanValid(actions_to_plan(plan), goalRules)) {
 
       //if (current->hasFailed()) {
       ++failureCount;
@@ -116,7 +116,7 @@ void ReplanningPlanExecutor::executeActionStep() {
         for_each(executionObservers.begin(), executionObservers.end(),
                  [this, as_fluent](ExecutionObserver &observer) {
                    observer.planTerminated(ExecutionObserver::PlanStatus::TOO_MANY_ACTION_FAILURES,
-                                           as_fluent, planToAnswerSet(plan));
+                                           as_fluent, actions_to_plan(plan));
                  });
 
         hasFailed = true;
@@ -139,7 +139,7 @@ void ReplanningPlanExecutor::executeActionStep() {
       for_each(executionObservers.begin(), executionObservers.end(),
                [this, as_fluent](ExecutionObserver &observer) {
                  observer.planTerminated(ExecutionObserver::PlanStatus::SUCCEEDED,
-                                         as_fluent, planToAnswerSet(plan));
+                                         as_fluent, actions_to_plan(plan));
                });
       return;
     }
@@ -148,7 +148,7 @@ void ReplanningPlanExecutor::executeActionStep() {
       for_each(executionObservers.begin(), executionObservers.end(),
                [this, as_fluent](ExecutionObserver &observer) {
                  observer.planTerminated(ExecutionObserver::PlanStatus::FAILED_TO_PLAN,
-                                         as_fluent, planToAnswerSet(plan));
+                                         as_fluent, actions_to_plan(plan));
                });
       return;
     }

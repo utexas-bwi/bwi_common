@@ -16,8 +16,9 @@ using namespace actasp;
 class ReasonerTest : public ::testing::Test {
 protected:
 
-  ReasonerTest(): query_generator(std::unique_ptr<FilteringQueryGenerator>(Clingo::getQueryGenerator(ros::package::getPath("plan_execution")+"/test/domain/"))),
-  reasoner(query_generator.get(),10, query_generator->get_all_actions()) {
+  ReasonerTest() : query_generator(std::unique_ptr<FilteringQueryGenerator>(
+      actasp::Clingo::getQueryGenerator(ros::package::getPath("plan_execution") + "/test/domain/"))),
+                   reasoner(query_generator.get(),10, query_generator->get_all_actions()) {
   }
 
   void SetUp() override {
@@ -202,5 +203,5 @@ TEST(AspTerm, CloneWorks) {
 }
 
 TEST(AspAggregate, ConstructionWorks) {
-  AspAggregate aggregate(IntTerm(0), {{}}, IntTerm(1));
+  AspAggregate aggregate(IntTerm(0), TermContainer{{}}, IntTerm(1));
 }

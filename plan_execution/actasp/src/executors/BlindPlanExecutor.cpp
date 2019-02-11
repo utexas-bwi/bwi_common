@@ -61,7 +61,7 @@ BlindPlanExecutor::BlindPlanExecutor(AspKR &reasoner,
         hasFailed = plan.empty();
 
         if (!hasFailed)
-            for_each(planningObservers.begin(), planningObservers.end(), NotifyNewPlan(planToAnswerSet(plan)));
+          for_each(planningObservers.begin(), planningObservers.end(), NotifyNewPlan(actions_to_plan(plan)));
 
     }
 

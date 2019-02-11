@@ -1,10 +1,21 @@
 #pragma once
 
+#include <typeinfo>
+#include <actasp/asp/AspTerm.h>
+
 namespace actasp {
 
-struct AspLiteral : public AspElement {
+/**
+ * Still a bit murky on the differences between Literals and Terms, but certainly
+ * you can't put literals as arguments to AspFunctions...
+ */
+struct AspLiteral : virtual public AspElement {
   virtual ~AspLiteral(){}
   virtual AspLiteral* literal_clone() const = 0;
+
+  virtual bool isLess(const AspLiteral &other) const = 0;
+
+  virtual bool isEqual(const AspLiteral &other) const = 0;
 };
 
 /***
@@ -16,19 +27,48 @@ inline AspLiteral* new_clone(const AspLiteral& object) {
   return object.literal_clone();
 };
 
+inline bool operator<(const AspLiteral &lhs, const AspLiteral &rhs) {
+  if (typeid(lhs) != typeid(rhs)) {
+    // Literals don't have a meaningful order across types..
+    assert(false);
+  }
+  return lhs.isLess(rhs);
+}
 
+inline bool operator==(const AspLiteral &lhs, const AspLiteral &rhs) {
+  return typeid(lhs) == typeid(rhs) && lhs.isEqual(rhs);
+}
+
+/**
+ * Polymorphic container type.
+ */
 typedef boost::ptr_vector<AspLiteral> LiteralContainer;
 
+/** The mechanism for nested implication
+ * a : b , c
+ */
 struct AspConditionalLiteral: public AspLiteral {
-    const std::unique_ptr<AspLiteral> literal;
-    LiteralContainer conditions;
-    AspConditionalLiteral(AspLiteral &literal, LiteralContainer conditions): literal(literal.literal_clone()), conditions(conditions){}
+  const std::unique_ptr<AspLiteral> literal;
+  LiteralContainer conditions;
 
-    AspConditionalLiteral(const AspConditionalLiteral &other): literal(other.literal.get()->literal_clone()), conditions(conditions){}
+  AspConditionalLiteral(AspLiteral &literal, LiteralContainer conditions): literal(literal.literal_clone()), conditions(conditions){}
 
-    AspLiteral* literal_clone() const {
-      return new AspConditionalLiteral(*this);
-    }
+  AspConditionalLiteral(const AspConditionalLiteral &other): literal(other.literal.get()->literal_clone()), conditions(conditions){}
+
+  AspLiteral* literal_clone() const {
+    return new AspConditionalLiteral(*this);
+  }
+
+  virtual bool isLess(const AspLiteral &other) const {
+    // No meaningful definition (that I can think of right now)
+    assert(false);
+  };
+
+  virtual bool isEqual(const AspLiteral &other) const {
+    auto downcast = static_cast<const AspConditionalLiteral &>(other);
+    return literal.get() == downcast.literal.get() && conditions == downcast.conditions;
+  };
+
 };
 
 enum RelationType {
@@ -66,6 +106,16 @@ struct BinRelation: public AspLiteral {
   AspLiteral* literal_clone() const {
     return new BinRelation(*this);
   }
+
+  virtual bool isLess(const AspLiteral &other) const {
+    // No meaningful definition (that I can think of right now)
+    assert(false);
+  };
+
+  virtual bool isEqual(const AspLiteral &other) const {
+    auto downcast = static_cast<const BinRelation &>(other);
+    return type == downcast.type && left == downcast.left && right == downcast.right;
+  };
 };
 
 }

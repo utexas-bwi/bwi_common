@@ -26,7 +26,7 @@ std::list<AnswerSet> filterPlans(const std::list<AnswerSet> &unfiltered_plans, c
   return plans;
 }
 
-AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan) {
+Plan actions_to_plan(const std::list<std::unique_ptr<Action>> &plan) {
   auto actIt = plan.begin();
   set<AspFluent> fluents;
 
@@ -34,7 +34,7 @@ AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan) {
     fluents.insert((*actIt)->toFluent(timeStep));
   }
 
-  return AnswerSet({}, std::vector<AspFluent>(fluents.begin(), fluents.end()));
+  return Plan({}, {}, std::vector<AspFluent>(fluents.begin(), fluents.end()));
 }
 
 ActionSet actionMapToSet(const std::map<std::string, ActionFactory>& actionMap) {

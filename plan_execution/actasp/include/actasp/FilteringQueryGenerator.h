@@ -8,8 +8,10 @@ namespace actasp {
   
 
 struct FilteringQueryGenerator : public QueryGenerator{
-  
-  virtual std::list<actasp::AnswerSet> filteringQuery(const AnswerSet& currentState, const AnswerSet& plan, const std::vector<actasp::AspRule>& goals)=0;
+
+  virtual std::vector<Plan>
+  filteringQuery(const AnswerSet &currentState, const Plan &plan, const std::vector<actasp::AspRule> &goals,
+                 const std::vector<AspAtom> *knowledge) const noexcept = 0;
   
 };
 

@@ -1,5 +1,7 @@
 #include <utility>
 
+#include <utility>
+
 #pragma once
 
 #include <actasp/asp/AspFluent.h>
@@ -17,6 +19,10 @@ namespace actasp {
 
 class Action;
 
+/**
+ * A stable model of an ASP program, coupled with some awareness of which atoms in the model
+ * are actually timestepped (AKA fluents)
+ */
 struct AnswerSet {
   AnswerSet(): satisfied(false) {
 
@@ -36,8 +42,6 @@ struct AnswerSet {
   std::list<std::unique_ptr<Action>>
   instantiateActions(const std::map<std::string, actasp::Action *> &actionMap) const noexcept(false);
 
-
-
   std::set<actasp::AspFluent> getFluentsAtTime(uint32_t timeStep) const noexcept;
 
   uint32_t maxTimeStep() const noexcept(false);
@@ -48,5 +52,27 @@ struct AnswerSet {
 };
 
 typedef std::reference_wrapper<AnswerSet> AnswerSetRef;
+
+/**
+ * An answer set, but with some atoms specially noted as specifying actions
+ */
+struct Plan : public AnswerSet {
+  Plan() : AnswerSet() {
+
+  }
+
+  Plan(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents, std::vector<AspFluent> plan) : plan(std::move(plan)),
+                                                                                                  AnswerSet(
+                                                                                                      std::move(atoms),
+                                                                                                      std::move(
+                                                                                                          fluents)) {
+  }
+
+  const std::vector<AspFluent> plan;
+};
+
+typedef std::reference_wrapper<Plan> PlanRef;
+
 }
+
 

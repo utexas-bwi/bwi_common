@@ -13,7 +13,7 @@ class Action;
 
 struct Planner {
 
-	virtual AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) =0;
+  virtual Plan computePlan(const std::vector<AspRule> &goal) const noexcept(false) = 0;
 
 	virtual ~Planner() = default;
 };

@@ -41,7 +41,7 @@ struct AnswerSetStateComparator {
 // goals = vector of fluents that have to be true at the final step (example: "not pos(3, 9, n)" to mean "be there"..)
 //domain needs to have #show for fluents and actions.
 // TODO:: Make it possible to add a "nofilter.txt" file in the domain directory to specify which fluents (name/arity) have to stay there no matter what.
-AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& plans, const std::vector<actasp::AspRule>& goals) {
+AnswerSet FilteringReasoner::filterState(const std::vector<Plan> &plans, const std::vector<actasp::AspRule> &goals) {
 
   //input checking:
   if (plans.empty() || goals.empty()) {
@@ -56,9 +56,9 @@ AnswerSet FilteringReasoner::filterState(const std::vector<actasp::AnswerSet>& p
   auto planIt = plans.begin();
   for (; planIt != plans.end(); ++planIt) {
     //make a query that only uses the domain and what I created, not current.asp
-    std::list<actasp::AnswerSet> listResult = clingo->filteringQuery(currentState,*planIt,goals);
+    vector<Plan> listResult = clingo->filteringQuery(currentState, *planIt, goals, nullptr);
     if (!listResult.empty()) {
-      std::list<actasp::AnswerSet>::const_iterator best = min_element(listResult.begin(), listResult.end(),AnswerSetStateComparator());
+      vector<Plan>::const_iterator best = min_element(listResult.begin(), listResult.end(), AnswerSetStateComparator());
       set<AspFluent> statezero = best->getFluentsAtTime(0);
       auto statezeroIt = statezero.begin();
       for (;statezeroIt != statezero.end(); ++statezeroIt) {

@@ -19,9 +19,10 @@ struct AspKR : public actasp::MultiPlanner {
     virtual AnswerSet currentStateQuery(const std::vector<actasp::AspRule> &query) const noexcept = 0;
 
     //most general query, doesn't try to parse the result into fluents
-    virtual std::list<actasp::AnswerSet> query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept = 0;
+    virtual std::vector<actasp::AnswerSet>
+    query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept = 0;
 
-    virtual bool isPlanValid(const AnswerSet &plan, const std::vector<actasp::AspRule> &goal) const noexcept = 0;
+  virtual bool isPlanValid(const Plan &plan, const std::vector<actasp::AspRule> &goal) const noexcept = 0;
 
   ~AspKR() override = default;
 };

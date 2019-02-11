@@ -1,7 +1,5 @@
 #pragma once
 
-#include <actasp/reasoners/Clingo4_2.h>
-#include <actasp/reasoners/Clingo4_5.h>
 #include <actasp/reasoners/Clingo5_2.h>
 #include <boost/filesystem.hpp>
 #include <actasp/filesystem_utils.h>
@@ -27,7 +25,7 @@ struct Clingo {
 		}
 
 		if (ros_distro == "melodic") {
-			return new Clingo5_2( dirToAllAspFilesInDir(domain_directory), {});
+			return new Clingo5_2(dirToAllAspFilesInDir(domain_directory));
 		}
 		assert(false);
 	}

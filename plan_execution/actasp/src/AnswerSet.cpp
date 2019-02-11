@@ -31,7 +31,7 @@ noexcept(false) {
   }
 
   if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
-    AnswerSet as = planToAnswerSet(plan);
+    AnswerSet as = actions_to_plan(plan);
     stringstream planStream;
     for (const auto &fluent: as.fluents) {
       planStream << fluent.to_string() << " ";
@@ -66,7 +66,7 @@ std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, ac
 	}
 
     if (maxTimeStep > 0 && maxTimeStep > plan.size()) {
-        AnswerSet as = planToAnswerSet(plan);
+      AnswerSet as = actions_to_plan(plan);
         stringstream planStream;
         for (const auto &fluent: as.fluents) {
           planStream << fluent.to_string() << " ";

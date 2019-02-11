@@ -57,7 +57,7 @@ AspRule add_timestep(const AspRule &rule, Variable timestep);
 
 AspRule add_timestep(const AspRule &rule, uint32_t timestep);
 
-AnswerSet planToAnswerSet(const std::list<std::unique_ptr<Action>> &plan);
+Plan actions_to_plan(const std::list<std::unique_ptr<Action>> &plan);
 
 // DEPRECATED
 ActionSet actionMapToSet(const std::map<std::string, Action *> &actionMap);

@@ -1,5 +1,6 @@
 #include <actasp/reasoners/Clingo5_2.h>
 
+#include <actasp/asp/AspAggregate.h>
 #include <actasp/asp/AspRule.h>
 #include <actasp/AnswerSet.h>
 #include <actasp/asp/AspFunction.h>
@@ -29,16 +30,13 @@ namespace actasp {
 
 
 Clingo5_2::Clingo5_2(
-    const std::vector<std::string> &linkFiles,
-    const std::vector<actasp::AspFunction> &knowledge
+    const vector<string> &domain_files
 ) noexcept :
-    linkFiles(linkFiles),
-    knowledge(knowledge),
-    actions_only(true),
+    domain_files(domain_files),
     incrementalVar("n") {
 
   Clingo::Control control;
-  for (const auto &linkFile: linkFiles) {
+  for (const auto &linkFile: domain_files) {
     assert(boost::filesystem::is_regular_file(linkFile));
     control.load(linkFile.c_str());
   }
@@ -48,12 +46,12 @@ Clingo5_2::Clingo5_2(
     // Domains can annotate which predicates denote actions using the "action" predicate with the name of the action
     // as the sole string argument
     if (symbol.type() == Clingo::SymbolType::Function) {
-      if (symbol.name() == std::string("action")) {
-        const std::string value = symbol.arguments()[0].string();
+      if (symbol.name() == string("action")) {
+        const string value = symbol.arguments()[0].string();
         action_names.insert(value);
         fluent_names.insert(value);
-      } else if (symbol.name() == std::string("fluent")) {
-        const std::string value = symbol.arguments()[0].string();
+      } else if (symbol.name() == string("fluent")) {
+        const string value = symbol.arguments()[0].string();
         fluent_names.insert(value);
       }
     }
@@ -64,7 +62,7 @@ Clingo5_2::Clingo5_2(
 
 }
 
-std::string literal_to_string(const actasp::AspLiteral &literal) {
+string literal_to_string(const AspLiteral &literal) {
   if (const auto downcast = dynamic_cast<const AspAtom*>(&literal)) {
     return downcast->to_string();
   } else if (const auto downcast = dynamic_cast<const BinRelation*>(&literal)) {
@@ -75,8 +73,8 @@ std::string literal_to_string(const actasp::AspLiteral &literal) {
   }
 }
 
-std::string rule_to_string(const actasp::AspRule *rule) {
-  std::stringstream sstream;
+string rule_to_string(const AspRule *rule) {
+  stringstream sstream;
   bool first = true;
   for (const auto &literal: rule->head) {
     if (!first) {
@@ -101,16 +99,16 @@ std::string rule_to_string(const actasp::AspRule *rule) {
 }
 
 // TODO: Support minimization statements
-std::string minimize_to_string(const actasp::AspMinimize *minimize) {
+string minimize_to_string(const AspMinimize *minimize) {
   assert(false);
 }
 
 // TODO: Support meta statements
-std::string meta_to_string(const actasp::AspMeta *minimize) {
+string meta_to_string(const AspMeta *minimize) {
   assert(false);
 }
 
-std::string element_to_string(const actasp::AspElement *element) {
+string element_to_string(const AspElement *element) {
   if (const auto r = dynamic_cast<const AspRule*>(element)) {
     return rule_to_string(r);
   } else if (const auto c = dynamic_cast<const AspMinimize*>(element)) {
@@ -122,8 +120,8 @@ std::string element_to_string(const actasp::AspElement *element) {
   }
 }
 
-std::string program_to_string(const actasp::AspProgram &program) {
-  std::stringstream stream;
+string program_to_string(const AspProgram &program) {
+  stringstream stream;
   stream << "#program " << program.getName();
   if (!program.getVariables().empty()) {
     stream << "(";
@@ -147,7 +145,7 @@ std::string program_to_string(const actasp::AspProgram &program) {
 
 struct RuleToString5_2 {
 
-  std::string operator()(const AspRule &rule) const {
+  string operator()(const AspRule &rule) const {
 
     stringstream ruleStream;
 
@@ -201,7 +199,7 @@ static AspFunction parse_function(const Clingo::Symbol &atom) {
 
 }
 
-static AnswerSet model_to_answer_set(const Clingo::Model &model, const std::set<std::string> fluent_names) {
+static AnswerSet model_to_answer_set(const Clingo::Model &model, const std::set<string> &fluent_names) {
   cout << "Model" << endl;
   vector<AspFluent> fluents;
   vector<AspAtom> atoms;
@@ -225,22 +223,50 @@ static AnswerSet model_to_answer_set(const Clingo::Model &model, const std::set<
   return AnswerSet(atoms, fluents);
 }
 
-static string aspString(const std::vector<actasp::AspRule> &query, unsigned int timeStep) {
+static Plan
+model_to_plan(const Clingo::Model &model, const std::set<string> &fluent_names, const std::set<string> &action_names) {
+  cout << "Model" << endl;
+  vector<AspFluent> fluents;
+  vector<AspFluent> actions;
+  vector<AspAtom> atoms;
+  for (auto &atom : model.symbols(Clingo::ShowType::All)) {
+    if (atom.type() == Clingo::SymbolType::Function) {
+      const auto parsed = parse_function(atom);
+      if (action_names.find(atom.name()) != action_names.end()) {
+        actions.emplace_back(parsed.getName(), parsed.getArguments(), parsed.getNegation());
+      } else if (fluent_names.find(atom.name()) != fluent_names.end()) {
+        fluents.emplace_back(parsed.getName(), parsed.getArguments(), parsed.getNegation());
+      } else {
+        atoms.push_back(parsed);
+      }
+    } else {
+      assert(false);
+    }
+  }
+
+  for (auto &atom: model.symbols(Clingo::ShowType::All)) {
+    cout << atom << endl;
+  }
+  cout << endl << endl;
+  return Plan(atoms, fluents, actions);
+}
+
+static string aspString(const vector<AspRule> &query, unsigned int timeStep) {
   stringstream aspStream;
-  std::vector<actasp::AspRule> rules;
+  vector<AspRule> rules;
   for (const auto &rule: query) {
     rules.push_back(add_timestep(rule, timeStep));
   }
-  transform(query.begin(), query.end(), ostream_iterator<std::string>(aspStream), RuleToString5_2());
+  transform(query.begin(), query.end(), ostream_iterator<string>(aspStream), RuleToString5_2());
   return aspStream.str();
 }
 
-static inline void add(Clingo::Control &control, const actasp::AspProgram &program) {
-  std::vector<const char *> as_strings;
+static inline void add(Clingo::Control &control, const AspProgram &program) {
+  vector<const char *> as_strings;
   for (const auto &variable: program.getVariables()) {
     as_strings.push_back(variable.name.c_str());
   }
-  std::stringstream stream;
+  stringstream stream;
   stream << "#external query(n)." << std::endl;
   for (const auto &rule: program.get_elements()) {
     stream << element_to_string(rule);
@@ -249,67 +275,66 @@ static inline void add(Clingo::Control &control, const actasp::AspProgram &progr
   control.add(program.getName().c_str(), as_strings, program_str.c_str());
 }
 
+template<typename E>
+static vector<AspElement *> wrap(const vector<E> &elements) {
+  vector<AspElement *> upcast;
+  for (const auto &e: elements) {
+    upcast.push_back((AspElement *) (&e));
+  }
+  return upcast;
+}
 
-std::list<actasp::AnswerSet> Clingo5_2::minimalPlanQuery(const std::vector<actasp::AspRule> &goalRules,
-                                                         unsigned int max_plan_length,
-                                                         unsigned int answerset_number,
-                                                         bool actions_only) const noexcept {
+vector<Plan> Clingo5_2::minimalPlanQuery(const vector<AspRule> &goal,
+                                         unsigned int max_plan_length,
+                                         unsigned int answerset_number,
+                                         const vector<AspAtom> *knowledge) const noexcept {
 
-
-  list<AnswerSet> answers = makeQuery(goalRules, 0, max_plan_length, "planQuery", answerset_number);
-
-  if (actions_only)
-    return filterPlans(answers, action_names);
-  else
-    return answers;
+  // FIXME: This is gross, and only safe because goal_elements will be
+  // used while goal is in scope
+  vector<AspProgram> programs;
+  programs.emplace_back("check", wrap<AspRule>(goal), vector<Variable>{Variable("n")});
+  if (knowledge) {
+    programs.emplace_back("base", wrap<AspAtom>(*knowledge));
+  }
+  return makePlanQuery(programs, 0, max_plan_length, answerset_number);
 
 }
 
 
-std::list<actasp::AnswerSet> Clingo5_2::lengthRangePlanQuery(const std::vector<actasp::AspRule> &goalRules,
-                                                             unsigned int min_plan_length,
-                                                             unsigned int max_plan_length,
-                                                             unsigned int answerset_number,
-                                                             bool actions_only) const noexcept {
-
-  std::list<actasp::AnswerSet> allplans = makeQuery(goalRules, max_plan_length, max_plan_length, "planQuery",
+vector<actasp::Plan> Clingo5_2::lengthRangePlanQuery(const vector<AspRule> &goal,
+                                                     unsigned int min_plan_length,
+                                                     unsigned int max_plan_length,
+                                                     unsigned int answerset_number,
+                                                     const vector<AspAtom> *knowledge) const noexcept {
+  vector<AspProgram> programs;
+  programs.emplace_back("check", wrap<AspRule>(goal), vector<Variable>{Variable("n")});
+  if (knowledge) {
+    programs.emplace_back("base", wrap<AspAtom>(*knowledge));
+  }
+  return makePlanQuery(programs, max_plan_length, max_plan_length,
                                                     answerset_number);
 
-  //clingo 3 generates all plans up to a maximum length anyway, we can't avoid the plans shorter than min_plan_length to be generated
-  //we can only filter them out afterwards
-
-  allplans.remove_if(MaxTimeStepLessThan(min_plan_length));
-
-  if (actions_only)
-    return filterPlans(allplans, action_names);
-  else
-    return allplans;
-
 }
 
-actasp::AnswerSet Clingo5_2::optimalPlanQuery(const std::vector<actasp::AspRule> &goalRules,
-                                              unsigned int max_plan_length,
-                                              unsigned int answerset_number, bool actions_only) const noexcept {
-
-  list<AnswerSet> allAnswers = makeQuery(goalRules, 0, max_plan_length, "planQuery", answerset_number, true);
-
-  if (allAnswers.empty()) {
-    return {};
+actasp::Plan Clingo5_2::optimalPlanQuery(const vector<AspRule> &goal,
+                                         unsigned int max_plan_length,
+                                         unsigned int answerset_number,
+                                         const vector<AspAtom> *knowledge) const noexcept {
+  vector<AspProgram> programs;
+  programs.emplace_back("check", wrap<AspRule>(goal), vector<Variable>{Variable("n")});
+  if (knowledge) {
+    programs.emplace_back("base", wrap<AspAtom>(*knowledge));
   }
-  const AnswerSet &optimalPlan = allAnswers.front();
-  if (actions_only) {
-    list<AnswerSet> sets;
-    sets.push_back(optimalPlan);
-    return *(filterPlans(sets, action_names).begin());
-  } else
-    return optimalPlan;
+  vector<Plan> allAnswers = makePlanQuery(programs, 0, max_plan_length, answerset_number);
+  return allAnswers.front();
 }
 
-AnswerSet Clingo5_2::currentStateQuery(const std::vector<actasp::AspRule> &query) const noexcept {
+AnswerSet Clingo5_2::currentStateQuery(const vector<AspRule> &query) const noexcept {
+  assert(false);
   // TODO: This used to be aspString(query, 0). Fix it
-  list<AnswerSet> sets = makeQuery(query, 0, 0, "stateQuery", 1);
+//  list<AnswerSet> sets = makeQuery(query, 0, 0, "stateQuery", 1, nullptr);
 
-  return (sets.empty()) ? AnswerSet() : *(sets.begin());
+//  return (sets.empty()) ? AnswerSet() : *(sets.begin());
 }
 
 struct HasTimeStepZeroInHead5_2 : unary_function<const AspRule &, bool> {
@@ -324,114 +349,48 @@ struct HasTimeStepZeroInHead5_2 : unary_function<const AspRule &, bool> {
   }
 };
 
-std::list<actasp::AnswerSet> Clingo5_2::genericQuery(const std::vector<actasp::AspRule> &query,
-                                                     unsigned int timeStep,
-                                                     const std::string &fileName,
-                                                     unsigned int answerSetsNumber, bool useCopyFiles) const noexcept {
+vector<actasp::AnswerSet> Clingo5_2::genericQuery(const vector<AspRule> &query,
+                                                  unsigned int timeStep,
+                                                  const string &fileName,
+                                                  unsigned int answerSetsNumber,
+                                                  const vector<AspAtom> *knowledge) const noexcept {
 
-  std::vector<actasp::AspRule> base;
+  vector<AspRule> base;
   remove_copy_if(query.begin(), query.end(), back_inserter(base), not1(HasTimeStepZeroInHead5_2()));
 
-
-  return makeQuery(query, timeStep, timeStep, fileName, answerSetsNumber);
+  // TODO: Think about this interface
+  assert(false);
+  return makeQuery({}, timeStep, timeStep, answerSetsNumber);
 
 }
 
-std::string Clingo5_2::generateMonitorQuery(const std::vector<actasp::AspRule> &goalRules,
-                                            const AnswerSet &plan) const noexcept {
 
-  stringstream monitorQuery("", ios_base::app | ios_base::out);
-
-  monitorQuery << "#program step(" << incrementalVar << ")." << endl;
-
-
-  const AnswerSet::FluentSet &actionSet = plan.fluents;
-  auto actionIt = actionSet.begin();
-  vector<AspRule> plan_in_rules;
-
-  // FIXME: Use the new primitives to build the query
-  for (int i = 1; actionIt != actionSet.end(); ++actionIt, ++i) {
-    AspFluent action(*actionIt);
-    vector<AspAtom> head;
-    head.push_back(with_timestep(action, i));
-    //plan_in_rules.push_back(AspRule(head, {}));
-  }
-
-  //monitorQuery << cumulativeString(plan_in_rules, "n");
-
-  return monitorQuery.str();
-}
-
-std::list<actasp::AnswerSet> Clingo5_2::monitorQuery(const std::vector<actasp::AspRule> &goalRules,
-                                                     const AnswerSet &plan) const noexcept {
+vector<actasp::Plan> Clingo5_2::monitorQuery(const vector<AspRule> &goal,
+                                             const Plan &plan, const vector<AspAtom> *knowledge) const noexcept {
 
   //   clock_t kr1_begin = clock();
-
-  string monitorQuery = generateMonitorQuery(goalRules, plan);
-
-  list<actasp::AnswerSet> result = makeQuery(goalRules, plan.fluents.size(), plan.fluents.size(),
-                                             "monitorQuery", 1);
-
-  result.remove_if(MaxTimeStepLessThan(plan.fluents.size()));
+  vector<AspProgram> programs;
+  programs.emplace_back("check", wrap<AspRule>(goal), vector<Variable>{Variable("n")});
+  if (knowledge) {
+    programs.emplace_back("base", wrap<AspAtom>(*knowledge));
+  }
+  // TODO: Actually make the monitor query...
+  return makePlanQuery(programs, plan.fluents.size(), plan.fluents.size(), 1);
 
 //   clock_t kr1_end = clock();
 //   cout << "Verifying plan time: " << (double(kr1_end - kr1_begin) / CLOCKS_PER_SEC) << " seconds" << endl;
-
-  return result;
 }
 
-list<AnswerSet>
-Clingo5_2::makeQuery(const std::vector<AspRule> &goal, unsigned int initialTimeStep, unsigned int finalTimeStep,
-                     const std::string &fileName, unsigned int answerSetsNumber, bool useCopyFiles) const noexcept {
-
-  using S = std::string;
+static bool
+inc_solve_loop(Clingo::Control &control, Clingo::SolveHandle &handle, uint32_t initial_step, uint32_t final_step) {
   using Clingo::Number;
   using Clingo::Function;
   using Clingo::TruthValue;
   using Clingo::Control;
-  using ModelVec = std::vector<Clingo::SymbolVector>;
-  using MessageVec = std::vector<std::pair<Clingo::WarningCode, std::string>>;
-  auto logger = [](Clingo::WarningCode, char const *message) {
-    cerr << message << endl;
-  };
-
-  Clingo::Control control({}, logger, 20);
-
-  control.configuration()["solve"]["models"] = std::to_string(answerSetsNumber).c_str();
-
-  if (useCopyFiles) {
-    for (const auto &path: copyFiles) {
-      control.load(path.c_str());
-    }
-  }
-  for (const auto &path: linkFiles) {
-    control.load(path.c_str());
-  }
-
-  path queryDir = getQueryDirectory(linkFiles, copyFiles);
-  auto queryDirFiles = populateDirectory(queryDir, linkFiles, copyFiles);
-
-  const path queryPath = (queryDir / fileName).string() + ".asp";
-  std::vector<AspElement *> goal_elements;
-  // FIXME: This is gross, and only safe because goal_elements will be
-  // used while goal is in scope
-  for (const auto &i : goal) {
-    goal_elements.push_back((AspElement*)(&i));
-  }
-  AspProgram check("check", goal_elements, {Variable("n")});
-  //AspProgram check("check", {{{},{"not query(4)"_f}}}, {Variable("n")});
-
-  add(control, check);
-  std::ofstream query_file(queryPath.string());
-  query_file << program_to_string(check);
-  query_file << std::endl << "#external query(n)." << std::endl;
-  query_file.close();
-  //const path outputFilePath = (queryDir / fileName).string() + "_output.txt";
-  list<AnswerSet> allAnswers;
-  int step = 0;
   Clingo::SolveResult result;
-  Clingo::SolveHandle handle;
-  while (step < finalTimeStep && (step == 0 || step < initialTimeStep || !result.is_satisfiable())) {
+
+  int step = 0;
+  while (step < final_step && (step == 0 || step < initial_step || !result.is_satisfiable())) {
     try {
       vector<Clingo::Part> parts;
       parts.emplace_back("check", Clingo::SymbolSpan{Number(step)});
@@ -462,51 +421,128 @@ Clingo5_2::makeQuery(const std::vector<AspRule> &goal, unsigned int initialTimeS
     }
     catch (exception const &e) {
       cerr << "Grounding failed with: " << e.what() << endl;
-      return {};
+      return false;
     }
   }
-  for (const auto &model : handle) {
-    allAnswers.push_back(model_to_answer_set(model, fluent_names));
-  }
+  return true;
 
-  return allAnswers;
 }
 
+vector<AnswerSet>
+Clingo5_2::makeQuery(const vector<AspProgram> &programs, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                     unsigned int answerSetsNumber) const noexcept {
 
-std::list<actasp::AnswerSet> Clingo5_2::filteringQuery(const AnswerSet &currentState, const AnswerSet &plan,
-                                                       const std::vector<actasp::AspRule> &goals) {
+  auto logger = [](Clingo::WarningCode, char const *message) {
+    cerr << message << endl;
+  };
+
+  Clingo::Control control({}, logger, 20);
+
+  control.configuration()["solve"]["models"] = std::to_string(answerSetsNumber).c_str();
+
+  for (const auto &path: domain_files) {
+    control.load(path.c_str());
+  }
+
+  path
+  queryDir = getQueryDirectory(domain_files, {});
+  auto queryDirFiles = populateDirectory(queryDir, domain_files);
+
+  for (const auto &program: programs) {
+    add(control, program);
+    const path part_path = (queryDir / program.getName()).string() + ".asp";
+    std::ofstream query_file(part_path.string());
+    query_file << program_to_string(program);
+    query_file.close();
+  }
+
+  Clingo::SolveHandle handle;
+  bool solved = inc_solve_loop(control, handle, initialTimeStep, finalTimeStep);
+
+  if (!solved) {
+    return {};
+  }
+  //const path outputFilePath = (queryDir / fileName).string() + "_output.txt";
+  list<AnswerSet> allAnswers;
+
+  vector<AnswerSet> sets;
+  for (const auto &model: handle) {
+    sets.push_back(model_to_plan(model, fluent_names, action_names));
+  }
+  return sets;
+
+}
+
+vector<Plan>
+Clingo5_2::makePlanQuery(const vector<AspProgram> &programs, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                         unsigned int answerSetsNumber) const noexcept {
+
+  auto logger = [](Clingo::WarningCode, char const *message) {
+    cerr << message << endl;
+  };
+
+  Clingo::Control control({}, logger, 20);
+
+  control.configuration()["solve"]["models"] = std::to_string(answerSetsNumber).c_str();
+
+  for (const auto &path: domain_files) {
+    control.load(path.c_str());
+  }
+
+  path
+  queryDir = getQueryDirectory(domain_files, {});
+  auto queryDirFiles = populateDirectory(queryDir, domain_files);
+
+  for (const auto &program: programs) {
+    add(control, program);
+    const path part_path = (queryDir / program.getName()).string() + ".asp";
+    std::ofstream query_file(part_path.string());
+    query_file << program_to_string(program);
+    query_file.close();
+  }
+
+  Clingo::SolveHandle handle;
+  bool solved = inc_solve_loop(control, handle, initialTimeStep, finalTimeStep);
+
+  if (!solved) {
+    return {};
+  }
+  //const path outputFilePath = (queryDir / fileName).string() + "_output.txt";
+  list<AnswerSet> allAnswers;
+
+  vector<Plan> plans;
+  for (const auto &model: handle) {
+    plans.push_back(model_to_plan(model, fluent_names, action_names));
+  }
+  return plans;
+
+}
+
+vector<Plan>
+Clingo5_2::filteringQuery(const AnswerSet &currentState, const Plan &plan, const vector<AspRule> &goal,
+                          const vector<AspAtom> *knowledge) const noexcept {
 
   //generate a string with all the fluents "0{fluent}1."
   //and add the minimize statement ( eg: :~ pos(x,y,z), ... . [1@1] )
-  stringstream fluentsString, minimizeString;
 
-  fluentsString << "#program base." << endl;
-
-  auto fluent = currentState.fluents.begin();
-  for (; fluent != currentState.fluents.end(); ++fluent) {
-    fluentsString << "0{" << fluent->to_string() << "}1." << endl;
-    minimizeString << ":~ " << fluent->to_string() << ". [1]" << endl;
+  for (const auto &fluent: plan.plan) {
+    TermContainer terms;
+    terms.push_back(new AspFluent(fluent));
+    AspAggregate(0, terms, 1);
+    // TODO: Rewrite this in terms of minimize statement?
+    //minimizeString << ":~ " << fluent->to_string() << ". [1]" << endl;
   }
 
-  fluentsString << endl;
-  minimizeString << endl;
-
-  string monitorString = generateMonitorQuery(goals, plan);
-
-  //combine this plan with all the fluents stuff created before
-  stringstream total;
-  total << fluentsString.str() << std::endl << monitorString << endl << minimizeString.str() << endl;
-
   //make a query that only uses
-  return makeQuery(goals, plan.fluents.size(), plan.fluents.size(), "filterState", 0, false);
+  return makePlanQuery({}, plan.fluents.size(), plan.fluents.size(), 0);
 
 }
 
-std::list<actasp::AnswerSet>
-Clingo5_2::genericQuery(const std::vector<actasp::AspRule> &query, unsigned int timestep,
-                        const std::string &fileName,
+vector<AnswerSet>
+Clingo5_2::genericQuery(const vector<AspRule> &query, unsigned int timestep,
+                        const string &fileName,
                         unsigned int answerSetsNumber) const noexcept {
-  return genericQuery(query, timestep, fileName, answerSetsNumber, true);
+  return genericQuery(query, timestep, fileName, answerSetsNumber, nullptr);
 }
 
 

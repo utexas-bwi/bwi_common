@@ -12,11 +12,12 @@ struct FilteringReasoner : public FilteringKR, public Reasoner {
   FilteringReasoner(FilteringQueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions);
 
 
-  AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) override {
+  Plan computePlan(const std::vector<AspRule> &goal) const noexcept(false) override {
     return this->Reasoner::computePlan(goal);
   }
 
-  std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override {
+  std::vector<Plan>
+  computeAllPlans(const std::vector<AspRule> &goal, double suboptimality) const noexcept(false) override {
     return this->Reasoner::computeAllPlans(goal,suboptimality);
   }
 
@@ -24,22 +25,22 @@ struct FilteringReasoner : public FilteringKR, public Reasoner {
     return this->Reasoner::availableActions();
   }
 
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept override {
+  AnswerSet currentStateQuery(const std::vector<AspRule> &query) const noexcept override {
     return  this->Reasoner::currentStateQuery(query);
   }
 
 
-  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept override {
+  bool isPlanValid(const Plan &plan, const std::vector<AspRule> &goal) const noexcept override {
     return this->Reasoner::isPlanValid(plan,goal);
   }
 
-  std::list<actasp::AnswerSet> query(const std::vector<actasp::AspRule> &query, unsigned int timestep) const noexcept {
+  std::vector<AnswerSet> query(const std::vector<AspRule> &query, unsigned int timestep) const noexcept {
     return this->Reasoner::query(query,timestep);
   }
-  
-  GraphPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
 
-  AnswerSet filterState(const std::vector<actasp::AnswerSet>& plans, const std::vector<actasp::AspRule>& goals) override;
+  GraphPolicy *computePolicy(const std::vector<AspRule> &goal, double suboptimality) const noexcept(false) override;
+
+  AnswerSet filterState(const std::vector<Plan> &plans, const std::vector<AspRule> &goals) override;
 
 private:
   FilteringQueryGenerator *clingo;
