@@ -203,9 +203,13 @@ inline bool operator==(const AspTerm &lhs, const AspTerm &rhs) {
 }
 
 
-
-
 typedef boost::ptr_vector<AspTerm> TermContainer;
+
+inline TermContainer term_to_container(const AspTerm &term) {
+  TermContainer elements;
+  elements.push_back(term.clone());
+  return elements;
+}
 
 class AspFunction;
 

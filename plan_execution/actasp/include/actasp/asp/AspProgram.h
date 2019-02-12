@@ -10,28 +10,17 @@ namespace actasp {
 /**
  * @brief A fragment of an ASP program. Represented as an unowned collection of elements.
  */
-class AspProgram {
+struct AspProgram {
 
-public:
   AspProgram(std::string name, std::vector<AspElement *> rules, std::vector<Variable> variables = {}): name(
-      std::move(name)), rules(std::move(rules)), variables(std::move(variables)) {}
+      std::move(name)), elements(std::move(rules)), variables(std::move(variables)) {}
 
-  const std::vector<AspElement*> & get_elements() const{
-    return rules;
-  }
-
-  const std::vector<Variable>& getVariables() const {
-    return variables;
-  }
-
-  const std::string& getName() const {
-    return name;
-  }
-
-private:
-  std::vector<AspElement*> rules; //unowned
-  std::string name;
-  std::vector<Variable> variables;
+      // FIXME: This pattern is pretty dangerous, and it'll probably lead to a bug if
+      // the type is used carelessly outside of the Clingo instance. Maybe should provide
+      // a safe implementation too?
+  const std::vector<AspElement*> elements; //unowned
+  const std::string name;
+  const std::vector<Variable> variables;
 };
 
 

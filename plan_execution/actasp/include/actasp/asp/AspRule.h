@@ -21,7 +21,7 @@ struct AspRule: public AspElement {
   
   AspRule() : head(), body() {}
   ~AspRule() override = default;
-  AspRule(LiteralContainer head, LiteralContainer body) : head(std::move(head)), body(std::move(body)) {}
+  AspRule(const LiteralContainer &head, const LiteralContainer &body) : head(head), body(body) {}
 
 
   static AspRule with_atoms(std::vector<AspAtom> head, std::vector<AspAtom> body){
@@ -86,7 +86,12 @@ inline AspRule operator<=(const LiteralContainer &head, const LiteralContainer &
  * Ex:      :- a, b.
  */
 struct AspFact : public AspRule{
-  AspFact(LiteralContainer head) : AspRule(head, {}) {}
+  AspFact(const LiteralContainer &head) : AspRule(head, {}) {}
+  /**
+   * @brief Convenience constructor for the common single-atom case.
+   * @param head
+   */
+  AspFact(const AspLiteral &head) : AspRule(literal_to_container(head), {}) {}
 
 };
 
@@ -95,7 +100,7 @@ struct AspFact : public AspRule{
  * Ex: :- a, b.
  */
 class AspIntegrityConstraint : public AspRule {
-  AspIntegrityConstraint(LiteralContainer body) : AspRule({}, body) {}
+  AspIntegrityConstraint(const LiteralContainer &body) : AspRule({}, body) {}
 
 };
 }

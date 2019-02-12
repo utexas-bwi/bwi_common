@@ -44,6 +44,11 @@ inline bool operator==(const AspLiteral &lhs, const AspLiteral &rhs) {
  */
 typedef boost::ptr_vector<AspLiteral> LiteralContainer;
 
+inline LiteralContainer literal_to_container(const AspLiteral &literal) {
+  LiteralContainer literals;
+  literals.push_back(literal.literal_clone());
+  return literals;
+  }
 /** The mechanism for nested implication
  * a : b , c
  */
@@ -53,7 +58,7 @@ struct AspConditionalLiteral: public AspLiteral {
 
   AspConditionalLiteral(AspLiteral &literal, LiteralContainer conditions): literal(literal.literal_clone()), conditions(conditions){}
 
-  AspConditionalLiteral(const AspConditionalLiteral &other): literal(other.literal.get()->literal_clone()), conditions(conditions){}
+  AspConditionalLiteral(const AspConditionalLiteral &other): literal(other.literal->literal_clone()), conditions(conditions){}
 
   AspLiteral* literal_clone() const {
     return new AspConditionalLiteral(*this);

@@ -27,7 +27,7 @@ ActionSet Reasoner::availableActions() const noexcept {
   ActionSet computed;
 
   for (const auto &act: all_possible_one_step_plans) {
-    computed.insert(act.plan.begin(), act.plan.end());
+    computed.insert(act.actions.begin(), act.actions.end());
   }
 
   return computed;

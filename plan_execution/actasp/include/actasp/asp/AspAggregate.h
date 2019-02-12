@@ -14,12 +14,6 @@ struct AggregateRelation: public AspElement {
   AggregateRelation(const AggregateRelation &other): type(other.type), term(other.term.get()->clone()) {}
 };
 
-static TermContainer term_to_container(const AspTerm &term) {
-  TermContainer elements;
-  elements.push_back(term.clone());
-  return elements;
-}
-
 struct AggregateElement: public AspElement {
   const TermContainer terms;
   const LiteralContainer conditions;

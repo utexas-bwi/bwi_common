@@ -40,19 +40,27 @@ TEST_F(ReasonerTest, MinimalPlanQueryWorks) {
 
 TEST_F(ReasonerTest, MonitorQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plan = query_generator->minimalPlanQuery(goal, 10, 0, nullptr);
+  auto plans = query_generator->minimalPlanQuery(goal, 10, 0, nullptr);
   // This part has to work for us to be able to test monitoring...
-  ASSERT_TRUE(!plan.empty());
-  ASSERT_EQ(plan.front().fluents.size(), 1);
+  ASSERT_FALSE(plans.empty());
+  // Two ways to accomplish the goal
+  ASSERT_EQ(plans.size(), 2);
+  auto plan = plans.front();
+  ASSERT_EQ(plan.actions.size(), 1);
 
-  auto results = query_generator->monitorQuery({}, plan.front(), nullptr);
-  EXPECT_FALSE(results.empty());
+  auto monitor_results = query_generator->monitorQuery({}, plan, nullptr);
+  EXPECT_FALSE(monitor_results.empty());
+  // Original plan is valid. No other plan should come back.
+  EXPECT_EQ(monitor_results.size(), 1);
+  EXPECT_EQ(plan.actions, monitor_results.front().actions);
+
+  // TODO: Verify that we can invalidate the plan by passing in different knowledge.
 }
 
 TEST_F(ReasonerTest, LengthRangePlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plan = query_generator->lengthRangePlanQuery(goal, 10, 10, 0, nullptr);
-  EXPECT_TRUE(!plan.empty());
+  auto plans = query_generator->lengthRangePlanQuery(goal, 10, 10, 0, nullptr);
+  EXPECT_FALSE(plans.empty());
 }
 
 TEST_F(ReasonerTest, OptimalPlanQueryWorks) {

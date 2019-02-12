@@ -24,12 +24,13 @@ class Action;
  * are actually timestepped (AKA fluents)
  */
 struct AnswerSet {
-  AnswerSet(): satisfied(false) {
+  AnswerSet() : satisfied(false) {
 
   }
 
-  AnswerSet(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents) : satisfied(true), atoms(std::move(atoms)), fluents(
-      std::move(fluents)) {
+  AnswerSet(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents) : satisfied(true), atoms(std::move(atoms)),
+                                                                          fluents(
+                                                                              std::move(fluents)) {
     std::sort(fluents.begin(), fluents.end(), TimeStepComparator());
   }
 
@@ -61,14 +62,17 @@ struct Plan : public AnswerSet {
 
   }
 
-  Plan(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents, std::vector<AspFluent> plan) : plan(std::move(plan)),
+  Plan(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents, std::vector<AspFluent> plan) : actions(std::move(plan)),
                                                                                                   AnswerSet(
                                                                                                       std::move(atoms),
                                                                                                       std::move(
                                                                                                           fluents)) {
   }
 
-  const std::vector<AspFluent> plan;
+  /**
+   * @brief A sequence of fluents starting at timestep 1 representing actions of the plan
+   */
+  const std::vector<AspFluent> actions;
 };
 
 typedef std::reference_wrapper<Plan> PlanRef;
