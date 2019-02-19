@@ -39,14 +39,18 @@ TEST_F(ReasonerTest, MinimalPlanQueryWorks) {
 }
 
 TEST_F(ReasonerTest, MonitorQueryWorks) {
-  std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plans = query_generator->minimalPlanQuery(goal, 10, 0, nullptr);
+  // Turn on all the bits... without using the helpful all_on action :-P
+  std::vector<AspRule> goal{
+  AspIntegrityConstraint::integrity_constraint({"not bit_on(I, n)"_al, "query(n)"_al, "bit(I)"_al}),
+  AspIntegrityConstraint::integrity_constraint("all_on(1..n)"_al, "query(n)"_al)
+  };
+  auto plans = query_generator->minimalPlanQuery(goal, 2, 0, nullptr);
   // This part has to work for us to be able to test monitoring...
   ASSERT_FALSE(plans.empty());
-  // Two ways to accomplish the goal
+  // 2 ways to accomplish the goal
   ASSERT_EQ(plans.size(), 2);
   auto plan = plans.front();
-  ASSERT_EQ(plan.actions.size(), 1);
+  ASSERT_EQ(plan.actions.size(), 2);
 
   auto monitor_results = query_generator->monitorQuery({}, plan, nullptr);
   EXPECT_FALSE(monitor_results.empty());
@@ -54,18 +58,25 @@ TEST_F(ReasonerTest, MonitorQueryWorks) {
   EXPECT_EQ(monitor_results.size(), 1);
   EXPECT_EQ(plan.actions, monitor_results.front().actions);
 
-  // TODO: Verify that we can invalidate the plan by passing in different knowledge.
+  // Suddenly, we discover there's a third bit! (Domain defaults to 2)
+  // The previous plan should no longer work
+  vector<AspFact> knowledge = {AspFact::fact("bit(3)"_a), AspFact::fact("-bit_on(3,0)"_a)};
+  monitor_results = query_generator->monitorQuery(goal, plan, &knowledge);
+  EXPECT_TRUE(monitor_results.empty());
 }
 
 TEST_F(ReasonerTest, LengthRangePlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f});
-  auto plans = query_generator->lengthRangePlanQuery(goal, 10, 10, 0, nullptr);
-  EXPECT_FALSE(plans.empty());
+  auto plans = query_generator->lengthRangePlanQuery(goal, 3, 3, 0, nullptr);
+  ASSERT_FALSE(plans.empty());
+  // We asked for plans exactly three steps long
+  for (const auto &plan: plans) {
+    EXPECT_EQ(plan.actions.size(), 3);
+  }
 }
 
 TEST_F(ReasonerTest, OptimalPlanQueryWorks) {
   std::vector<AspRule> goal = make_goal_all_true({"bit_on(1,n)"_f, "bit_on(2,n)"_f});
-
   auto plan = query_generator->optimalPlanQuery(goal, 10, 0, nullptr);
   EXPECT_TRUE(plan.satisfied);
   EXPECT_EQ(plan.maxTimeStep(), 1);
@@ -77,7 +88,7 @@ TEST_F(ReasonerTest, GetAllActionsWorks) {
 }
 
 TEST_F(ReasonerTest, AvailableActionsWorks){
-  std::set<AspFluent> all_actions = {"all_off(0)"_f,"all_on(0)"_f, "turn_off(1,0)"_f, "turn_off(2,0)"_f "turn_on(1,0)"_f, "turn_off(2,0)"_f};
+  std::set<AspFluent> all_actions = {"all_off(1)"_f,"all_on(1)"_f, "turn_off(1,1)"_f, "turn_off(2,1)"_f, "turn_on(1,1)"_f, "turn_on(2,1)"_f};
   auto actions = reasoner.availableActions();
   EXPECT_EQ(actions, all_actions);
 }

@@ -1,12 +1,15 @@
 #include <actasp/asp/AspFluent.h>
-
 #include <sstream>
 using namespace std;
 
 namespace actasp {
 
 AspFluent operator ""_f(const char *string, std::size_t size) {
-  return AspFluent(string);
+  return AspFluent::from_string(string);
+}
+
+FluentLiteral operator ""_fl(const char *string, std::size_t size) {
+	return FluentLiteral::from_string(string);
 }
 
 unsigned int AspFluent::getTimeStep() const noexcept(false) {

@@ -65,7 +65,7 @@ static void recursive_copy(const boost::filesystem::path &src, const boost::file
 }
 
 static std::string
-getQueryDirectory(const std::vector<std::string> &linkFiles, const std::vector<actasp::AspAtom> *knowledge) {
+get_query_directory(const std::vector<std::string> &linkFiles, const std::vector<actasp::AspAtom> *knowledge) {
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
   std::stringstream stampstream;
@@ -164,7 +164,7 @@ static std::vector<boost::filesystem::path> populateDirectory(const boost::files
 }
 
 static std::vector<boost::filesystem::path>
-populateDirectory(const boost::filesystem::path &dirPath, const std::vector<std::string> &linkFiles) {
+populate_directory(const boost::filesystem::path &dirPath, const std::vector<std::string> &linkFiles) {
   return populateDirectory(dirPath, linkFiles, {});
 }
 

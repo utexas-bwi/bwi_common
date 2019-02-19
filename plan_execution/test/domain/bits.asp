@@ -1,15 +1,15 @@
 #include <incmode>.
 #program base.
-#const b = 2.
+#const num_b = 2.
 
 #const incvar = "n".
 
 %%%%%%% Domain
 
-bit(1..b).
--bit_on(1..b, 0).
+bit(1..num_b).
+-bit_on(1..num_b, 0).
 
-% Domain annotations that will help plan_execution process answer sets
+% Domain annotations that will help actasp process answer sets
 action("turn_on";"turn_off";"all_on";"all_off").
 fluent("bit_on").
 
@@ -29,13 +29,13 @@ bit_on(I, n) :- turn_on(I, n).
 
 -bit_on(I, n) :- turn_off(I, n).
 
-bit_on(1..b, n) :- all_on(n).
+bit_on(I, n) :- all_on(n), bit(I).
 
--bit_on(1..b, n) :- all_off(n).
+-bit_on(I, n) :- all_off(n), bit(I).
 
 %%%%%%% Inertial
 
-bit_on(I, n) :- bit_on(I, n-1), not turn_off(I, n), not all_off(n).
--bit_on(I, n) :- -bit_on(I, n-1), not turn_on(I, n), not all_on(n).
+bit_on(I, n) :- bit_on(I, n-1), not -bit_on(I, n).
+-bit_on(I, n) :- -bit_on(I, n-1), not bit_on(I, n).
 
 %%%%%%%

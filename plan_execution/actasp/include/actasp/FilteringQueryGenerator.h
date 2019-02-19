@@ -11,7 +11,7 @@ struct FilteringQueryGenerator : public QueryGenerator{
 
   virtual std::vector<Plan>
   filteringQuery(const AnswerSet &currentState, const Plan &plan, const std::vector<actasp::AspRule> &goals,
-                 const std::vector<AspAtom> *knowledge) const noexcept = 0;
+                 const std::vector<AspFact> *knowledge) const noexcept = 0;
   
 };
 

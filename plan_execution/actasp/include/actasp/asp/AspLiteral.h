@@ -2,20 +2,31 @@
 
 #include <typeinfo>
 #include <actasp/asp/AspTerm.h>
+#include <clingo.hh>
+#include <sstream>
 
 namespace actasp {
+
+typedef Clingo::AST::Sign NegationType;
 
 /**
  * Still a bit murky on the differences between Literals and Terms, but certainly
  * you can't put literals as arguments to AspFunctions...
  */
 struct AspLiteral : virtual public AspElement {
+
+  NegationType negation;
   virtual ~AspLiteral(){}
+  AspLiteral(NegationType negation=NegationType::None): negation(negation){}
   virtual AspLiteral* literal_clone() const = 0;
 
   virtual bool isLess(const AspLiteral &other) const = 0;
 
   virtual bool isEqual(const AspLiteral &other) const = 0;
+
+  static std::unique_ptr<AspLiteral> from_string(const char *string) {
+
+  }
 };
 
 /***
@@ -39,6 +50,8 @@ inline bool operator==(const AspLiteral &lhs, const AspLiteral &rhs) {
   return typeid(lhs) == typeid(rhs) && lhs.isEqual(rhs);
 }
 
+
+
 /**
  * Polymorphic container type.
  */
@@ -56,7 +69,7 @@ struct AspConditionalLiteral: public AspLiteral {
   const std::unique_ptr<AspLiteral> literal;
   LiteralContainer conditions;
 
-  AspConditionalLiteral(AspLiteral &literal, LiteralContainer conditions): literal(literal.literal_clone()), conditions(conditions){}
+  AspConditionalLiteral(AspLiteral &literal, LiteralContainer conditions): literal(literal.literal_clone()), conditions(conditions), AspLiteral(){}
 
   AspConditionalLiteral(const AspConditionalLiteral &other): literal(other.literal->literal_clone()), conditions(conditions){}
 
@@ -76,14 +89,7 @@ struct AspConditionalLiteral: public AspLiteral {
 
 };
 
-enum RelationType {
-  Less,
-  LessEqual,
-  Equal,
-  NotEqual,
-  Greater,
-  GreaterEqual
-};
+typedef Clingo::AST::ComparisonOperator RelationType;
 
 struct BinRelation: public AspLiteral {
   const std::unique_ptr<AspTerm> left;
@@ -96,16 +102,9 @@ struct BinRelation: public AspLiteral {
   }
 
   std::string to_string() const {
-    std::string rel;
-    switch (type) {
-      case Less:rel = "<";break;
-      case LessEqual: rel = "<="; break;
-      case Equal:rel = "=="; break;
-      case NotEqual:rel = "!="; break;
-      case Greater:rel = ">"; break;
-      case GreaterEqual:rel = ">="; break;
-    }
-    return left->to_string() + " " + rel + " " + right->to_string();
+    std::stringstream output;
+    output << left->to_string() << " " << type << " " << right->to_string();
+    return output.str();
   }
 
   AspLiteral* literal_clone() const {

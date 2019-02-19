@@ -37,27 +37,6 @@ AnswerSet Reasoner::currentStateQuery(const vector<AspRule> &query) const noexce
   return clingo->currentStateQuery(query);
 }
 
-struct fluent2Rule {
-  
-  fluent2Rule() : timeStep(0), useTimeStep(false) {}
-  fluent2Rule(unsigned int timeStep) : timeStep(timeStep), useTimeStep(true) {}
-    
-  AspRule operator() (const AspFluent& fluent){
-      LiteralContainer head;
-
-      if(useTimeStep) {
-        head.push_back(with_timestep(fluent, (timeStep)).literal_clone());
-      } else {
-        head.push_back(fluent.literal_clone());
-      }
-      return AspRule(head, {});
-  }
-  
-  unsigned int timeStep;
-  bool useTimeStep;
-};
-
-
 bool Reasoner::isPlanValid(const Plan &plan, const vector<AspRule> &goal) const noexcept {
 
   return !(clingo->monitorQuery(goal, plan, nullptr).empty());
@@ -297,8 +276,9 @@ void Reasoner::computePolicyHelper(const vector<AspRule> &goal, double suboptima
 }
 
 vector<AnswerSet> Reasoner::query(const vector<AspRule> &query, unsigned int timestep) const noexcept {
-  
-  return clingo->genericQuery(query,timestep,"query_output",0);
+  // TODO: Fix this class...
+  assert(false);
+  //return clingo->genericQuery(query,timestep,"query_output",0);
 }
 
 }

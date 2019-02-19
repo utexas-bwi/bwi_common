@@ -21,7 +21,7 @@ noexcept(false) {
 
   for (const auto &fluent: fluents) {
 
-    auto actIt = actionMap.find(fluent.getName());
+    auto actIt = actionMap.find(fluent.name);
 
     if (actIt != actionMap.end()) {
       plan.emplace_back(actIt->second(fluent, resourceManager));
@@ -56,7 +56,7 @@ std::list<unique_ptr<Action>> AnswerSet::instantiateActions(const map<string, ac
 
 	for (; fluentIt != fluents.end(); ++fluentIt) {
 
-		auto actIt = actionMap.find(fluentIt->getName());
+		auto actIt = actionMap.find(fluentIt->name);
 
 		if (actIt != actionMap.end()) {
             plan.emplace_back(actIt->second->cloneAndInit(*fluentIt));
@@ -94,7 +94,35 @@ unsigned int AnswerSet::maxTimeStep() const noexcept(false) {
   if(fluents.empty())
     throw logic_error("maxTimeStep() invoked on an  empty answer set, which therefore has not time step at all");
 
-    return fluents.rbegin()->getTimeStep();
+  return fluents.rbegin()->getTimeStep();
+}
+
+std::string AnswerSet::to_string() const {
+  stringstream output;
+  for (const auto &atom: atoms) {
+    output << atom.to_string() << endl;
+  }
+  output << endl << "%%%%%%%%%% Fluents" << endl;
+  for (const auto &fluent: fluents) {
+    output << fluent.to_string() << endl;
+  }
+  return output.str();
+}
+
+std::string Plan::to_string() const {
+  stringstream output;
+  for (const auto &atom: atoms) {
+    output << atom.to_string() << endl;
+  }
+  output << endl << "% Fluents" << endl;
+  for (const auto &fluent: fluents) {
+    output << fluent.to_string() << endl;
+  }
+  output << endl << "% Actions" << endl;
+  for (const auto &action: actions) {
+    output << action.to_string() << endl;
+  }
+  return output.str();
 }
 
 

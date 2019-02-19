@@ -54,19 +54,23 @@ struct AspAggregate: public AspElement {
   const std::vector<AggregateElement> elements;
 
   AspAggregate(const IntTerm &lower_term, TermContainer terms, const IntTerm &upper_term) : type(Count),
-                                                                                            lower_relation(LessEqual,
+                                                                                            lower_relation(RelationType::LessEqual,
                                                                                                            lower_term),
                                                                                             elements(
                                                                                                 terms_to_aggregate_element_list(
                                                                                                     terms)),
-                                                                                            upper_relation(LessEqual,
+                                                                                            upper_relation(RelationType::LessEqual,
                                                                                                            upper_term) {}
 
   AspAggregate(const IntTerm &lower_term, AggregateElementList elements, const IntTerm &upper_term): type(Count),
-                                                                                                     lower_relation(LessEqual, lower_term), elements(elements), upper_relation(LessEqual, upper_term){}
+                                                                                                     lower_relation(RelationType::LessEqual, lower_term),
+                                                                                                     elements(elements),
+                                                                                                     upper_relation(RelationType::LessEqual, upper_term){}
 
   AspAggregate(AspTerm &lower_term, AggregateElementList elements, AspTerm &upper_term): type(Count),
-                                                                                         lower_relation(LessEqual, lower_term), elements(elements), upper_relation(LessEqual, upper_term){}
+                                                                                         lower_relation(RelationType::LessEqual, lower_term),
+                                                                                         elements(elements),
+                                                                                         upper_relation(RelationType::LessEqual, upper_term){}
 
 
 };

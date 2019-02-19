@@ -47,6 +47,8 @@ struct AnswerSet {
 
   uint32_t maxTimeStep() const noexcept(false);
 
+  virtual std::string to_string() const;
+
   const bool satisfied;
   const std::vector<AspAtom> atoms;
   const FluentSet fluents;
@@ -59,7 +61,6 @@ typedef std::reference_wrapper<AnswerSet> AnswerSetRef;
  */
 struct Plan : public AnswerSet {
   Plan() : AnswerSet() {
-
   }
 
   Plan(std::vector<AspAtom> atoms, std::vector<AspFluent> fluents, std::vector<AspFluent> plan) : actions(std::move(plan)),
@@ -73,6 +74,9 @@ struct Plan : public AnswerSet {
    * @brief A sequence of fluents starting at timestep 1 representing actions of the plan
    */
   const std::vector<AspFluent> actions;
+
+  std::string to_string() const override;
+
 };
 
 typedef std::reference_wrapper<Plan> PlanRef;

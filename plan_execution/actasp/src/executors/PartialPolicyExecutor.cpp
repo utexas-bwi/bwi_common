@@ -72,10 +72,10 @@ bool PartialPolicyExecutor::failed() const noexcept {
 }
 
 static Action *instantiateAction(const std::map<std::string, Action * >& actionMap, const AspFluent &actionFluent) {
-  auto action = actionMap.find(actionFluent.getName());
+  auto action = actionMap.find(actionFluent.name);
   
   if(action == actionMap.end())
-    throw logic_error("MultiPolicyExecutor: no action with name " + actionFluent.getName());
+    throw logic_error("MultiPolicyExecutor: no action with name " + actionFluent.name);
   
   return action->second->cloneAndInit(actionFluent);
 }
