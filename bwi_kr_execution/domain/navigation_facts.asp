@@ -138,7 +138,6 @@ door(d3_408d).
 door(d3_424).
 door(d3_428).
 door(d3_518).
-door(d3_414b).
 
 door(d4_828).
 door(d4_710a2).
