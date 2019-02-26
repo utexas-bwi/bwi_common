@@ -130,6 +130,16 @@ room(l1_700).
 room(l1_600).
 room(l1_800).
 
+door(d3_514).
+door(d3_414a).
+door(d3_410e).
+door(d3_408).
+door(d3_408d).
+door(d3_424).
+door(d3_428).
+door(d3_518).
+door(d3_414b).
+
 door(d4_828).
 door(d4_710a2).
 door(d4_710a1).
