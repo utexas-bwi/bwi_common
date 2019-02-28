@@ -24,15 +24,13 @@ int main(int argc, char**argv) {
   
   std::vector<string> doors;
   
+  doors.push_back("d3_428");
+  doors.push_back("d3_518");
   doors.push_back("d3_514");
   doors.push_back("d3_414a");
   doors.push_back("d3_410e");
-  // doors.push_back("d3_408");
   doors.push_back("d3_408d");
-  // doors.push_back("d3_424");
-  doors.push_back("d3_428");
-  // doors.push_back("d3_518");
-  // doors.push_back("d3_414b");
+  doors.push_back("d3_424");
 
   int current_door = 0;
 
