@@ -39,7 +39,9 @@ namespace bwi_manipulation {
             assert(lhs.frame_id_ == rhs.frame_id_);
             tf::Stamped<tf::Quaternion> result;
             tf::Quaternion rotated = lhs * rhs;
+            rotated.normalize();
             result.setData(rotated);
+            result.frame_id_= lhs.frame_id_;
             return result;
         }
 
@@ -66,7 +68,7 @@ namespace bwi_manipulation {
             // differences.
             tf::Stamped<tf::Quaternion> origin_orientation;
             tf::quaternionMsgToTF(grasp_x_orientation.quaternion, origin_orientation);
-
+            origin_orientation.frame_id_= grasp_x_orientation.header.frame_id;
             geometry_msgs::QuaternionStamped quat_stamped;
             tf::Stamped<tf::Quaternion> quat;
             quat.frame_id_ = grasp_x_orientation.header.frame_id;
@@ -89,6 +91,7 @@ namespace bwi_manipulation {
 
             // Point down
             quat.setRPY(0.0, M_PI, 0);
+
             quat = compose_quaternions(origin_orientation, quat);
             tf::quaternionStampedTFToMsg(quat, quat_stamped);
 
@@ -122,7 +125,7 @@ namespace bwi_manipulation {
             generate_poses_along_line(boundingBox.frame_id, min, max, poses,
                                       quat_stamped.quaternion);
 
-            std::vector<GraspCartesianCommand> grasp_commands;
+            std::vector<GraspCartesianCommand> grasp_commands(poses.size());
             std::transform(poses.begin(), poses.end(), grasp_commands.begin(), [=](geometry_msgs::PoseStamped pose) {
                 return bwi_manipulation::GraspCartesianCommand::from_grasp_pose(pose, approach_offset);
             });
