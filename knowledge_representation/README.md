@@ -14,7 +14,7 @@ Mechanisms for storing information about the world, and for querying this inform
 Try running these commands through, one at a time. Leave the root password blank
 
     cd /tmp
-    wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb -O sql.deb
+    wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb -O sql.deb
     sudo dpkg -i sql.deb
     sudo apt update
     sudo apt install -y mysql-server mysql-shell
