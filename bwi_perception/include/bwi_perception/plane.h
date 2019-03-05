@@ -177,7 +177,7 @@ namespace bwi_perception {
 
             // Extract the bonding box parameters of this plane
 
-            #if PCL_VERSION_COMPARE(>, 1, 8, 0)
+            #if PCL_VERSION_COMPARE(>=, 1, 7, 2)
             const bwi_perception::BoundingBox &oriented_bbox_params = bwi_perception::BoundingBox::oriented_from_cloud<PointT>(
                     plane_cloud);
 

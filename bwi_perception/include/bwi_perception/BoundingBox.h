@@ -6,7 +6,7 @@
 #include <pcl/common/common.h>
 #include <visualization_msgs/Marker.h>
 #include <pcl/common/centroid.h>
-#if PCL_VERSION_COMPARE(>, 1, 8, 0)
+#if PCL_VERSION_COMPARE(>=, 1, 7, 2)
 #include <pcl/features/moment_of_inertia_estimation.h>
 #endif
 #include <tf/transform_listener.h>
@@ -56,7 +56,7 @@ namespace bwi_perception {
         return BoundingBox(min, max, centroid, Eigen::Quaternionf(0, 0, 0, 1), position, plane_cloud->header.frame_id);
     }
 
-#if PCL_VERSION_COMPARE(>, 1, 8, 0)
+#if PCL_VERSION_COMPARE(>=, 1, 7, 2)
     template<typename PointT>
     BoundingBox BoundingBox::oriented_from_cloud(const typename pcl::PointCloud<PointT>::Ptr &plane_cloud) {
         Eigen::Vector4f centroid;
