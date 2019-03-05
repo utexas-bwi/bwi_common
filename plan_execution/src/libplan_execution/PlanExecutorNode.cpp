@@ -1,5 +1,5 @@
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
+#include "actasp/reasoners/Reasoner.h"
 
 #include <actasp/action_utils.h>
 #include <actasp/reasoners/Clingo.h>
@@ -47,7 +47,7 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
                                                                  actionMapToSet(action_map),
                                                                  PLANNER_TIMEOUT);
-  planningReasoner = unique_ptr<actasp::AspKR>(new RemoteReasoner(generator, MAX_N, actionMapToSet(action_map)));
+  planningReasoner = unique_ptr<actasp::AspKR>(new Reasoner(generator, MAX_N, actionMapToSet(action_map)));
   auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
   if (boost::filesystem::is_directory(diagnosticsPath)) {
     auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator("n", diagnosticsPath.string(), {working_memory_path}, {}, PLANNER_TIMEOUT));
