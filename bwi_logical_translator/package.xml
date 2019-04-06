@@ -32,6 +32,7 @@
   <depend>multi_level_map_msgs</depend>
   <depend>multi_level_map_utils</depend>
   <depend>nav_msgs</depend>
+  <depend>pcl_ros</depend>
   <depend>roscpp</depend>
   <depend>tf</depend>
 

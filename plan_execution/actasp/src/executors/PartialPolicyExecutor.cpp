@@ -1,23 +1,18 @@
 #include <actasp/executors/PartialPolicyExecutor.h>
 
 #include <actasp/AspKR.h>
-#include <actasp/MultiPlanner.h>
-#include <actasp/AspRule.h>
 #include <actasp/ActionSelector.h>
-#include <actasp/Action.h>
 #include <actasp/execution_observer_utils.h>
-#include <actasp/action_utils.h>
 
-#include <algorithm>
 #include <iterator>
-#include <functional>
+#include <actasp/action_utils.h>
 
 using namespace std;
 
 namespace actasp {
 
-PartialPolicyExecutor::PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, ActionSelector *selector, 
-                      const std::map<std::string, Action * >& actionMap, double suboptimality) :
+PartialPolicyExecutor::PartialPolicyExecutor(AspKR &kr, MultiPlanner &planner, ActionSelector &selector,
+                                             const std::map<std::string, Action *> &actionMap, double suboptimality) :
                     
                     isGoalReached(false),
                     hasFailed(false),
@@ -33,12 +28,12 @@ PartialPolicyExecutor::PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, A
                     actionMap(),
                     executionObservers() {
 
-  transform(actionMap.begin(),actionMap.end(),inserter(this->actionMap,this->actionMap.end()),ActionMapDeepCopy());
+  transform(actionMap.begin(), actionMap.end(), inserter(this->actionMap, this->actionMap.end()), ActionMapDeepCopy());
 }
 
 PartialPolicyExecutor::~PartialPolicyExecutor() {
   delete active;
-  for_each(actionMap.begin(),actionMap.end(),ActionMapDelete());
+  for_each(actionMap.begin(), actionMap.end(), ActionMapDelete());
   delete policy;
 }
   
@@ -47,13 +42,16 @@ void  PartialPolicyExecutor::setGoal(const std::vector<actasp::AspRule>& goalRul
 
   this->goalRules = goalRules;
 
-  isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
+  isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
 
   if (!isGoalReached) {
     delete policy;
-    policy = planner->computePolicy(goalRules,suboptimality);
+    policy = planner.computePolicy(goalRules, suboptimality);
     //TODO do the same for the other notifications, and get rid of helper classes?
-    for_each(executionObservers.begin(),executionObservers.end(),bind2nd(mem_fun(&ExecutionObserver::policyChanged),policy));
+    for_each(executionObservers.begin(), executionObservers.end(),
+             [this](ExecutionObserver &observer) {
+               observer.policyChanged(policy);
+             });
   }
 
   hasFailed = (policy!= nullptr) && (policy->empty());
@@ -74,7 +72,7 @@ bool PartialPolicyExecutor::failed() const noexcept {
 }
 
 static Action *instantiateAction(const std::map<std::string, Action * >& actionMap, const AspFluent &actionFluent) {
-  map<string, Action * >::const_iterator action = actionMap.find(actionFluent.getName());
+  auto action = actionMap.find(actionFluent.getName());
   
   if(action == actionMap.end())
     throw logic_error("MultiPolicyExecutor: no action with name " + actionFluent.getName());
@@ -103,18 +101,18 @@ void PartialPolicyExecutor::executeActionStep() {
         actionCounter += 1;
         auto as_fluent = active->toFluent(actionCounter);
         for_each(executionObservers.begin(), executionObservers.end(),
-                 [as_fluent, this](ExecutionObserver *observer) {
-                     observer->actionTerminated(as_fluent, active->hasFailed());
+                 [as_fluent, this](ExecutionObserver &observer) {
+                   observer.actionTerminated(as_fluent, active->hasFailed());
                  });
     }
 
-    isGoalReached = kr->currentStateQuery(goalRules).isSatisfied();
+    isGoalReached = kr.currentStateQuery(goalRules).isSatisfied();
 
     if (isGoalReached) //well done!
       return;
 
     //choose the next action
-    AnswerSet currentState = kr->currentStateQuery(vector<AspRule>());
+    AnswerSet currentState = kr.currentStateQuery(vector<AspRule>());
     set<AspFluent> state(currentState.getFluents().begin(), currentState.getFluents().end());
     ActionSet options = policy->actions(state);
 
@@ -123,10 +121,13 @@ void PartialPolicyExecutor::executeActionStep() {
 
       //if the last action failed, we may want to have some more option
 
-      PartialPolicy *otherPolicy = planner->computePolicy(goalRules,suboptimality);
+      PartialPolicy *otherPolicy = planner.computePolicy(goalRules, suboptimality);
       policy->merge(otherPolicy);
       delete otherPolicy;
-      for_each(executionObservers.begin(),executionObservers.end(),bind2nd(mem_fun(&ExecutionObserver::policyChanged),policy));
+      for_each(executionObservers.begin(), executionObservers.end(),
+               [this](ExecutionObserver &observer) {
+                 observer.policyChanged(policy);
+               });
 
       options = policy->actions(state);
       if (options.empty()) { //no actions available from here!
@@ -135,7 +136,7 @@ void PartialPolicyExecutor::executeActionStep() {
       }
     }
 
-      auto chosen = selector->choose(options);
+    auto chosen = selector.choose(options);
 
     delete active;
     active = instantiateAction(actionMap,*chosen);
@@ -147,11 +148,11 @@ void PartialPolicyExecutor::executeActionStep() {
 
 }
 
-void PartialPolicyExecutor::addExecutionObserver(ExecutionObserver *observer) noexcept {
-  executionObservers.push_back(observer);
+void PartialPolicyExecutor::addExecutionObserver(ExecutionObserver &observer) noexcept {
+  executionObservers.emplace_back(observer);
 }
 
-void PartialPolicyExecutor::removeExecutionObserver(ExecutionObserver *observer) noexcept {
+void PartialPolicyExecutor::removeExecutionObserver(ExecutionObserver &observer) noexcept {
   executionObservers.remove(observer);
 }
 

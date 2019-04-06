@@ -1,10 +1,7 @@
 #include "GoThrough.h"
 
-#include "ActionFactory.h"
+#include <knowledge_representation/convenience.h>
 
-#include "plan_execution/CurrentStateQuery.h"
-
-#include <ros/console.h>
 #include <ros/ros.h>
 
 #include <algorithm>
@@ -12,63 +9,41 @@
 using namespace std;
 
 namespace bwi_krexec {
-  
-  static vector<string> createVector(const std::string& doorName) {
-    vector<string> paramVector(1);
-    paramVector[0] = doorName;
-    
-    return paramVector;
-  }
-    
-  
-GoThrough::GoThrough(const std::string& doorName): 
-              plan_exec::LogicalAction("gothrough",createVector(doorName)),
-              failed(false){}
- 
- 
- struct IsFluentAt {
-   
-   bool operator()(const plan_execution::AspFluent& fluent) {
-     return fluent.name == "at";
-   }
-   
- };
- 
-void GoThrough::run() {
-  
-  ros::NodeHandle n;
-  ros::ServiceClient krClient = n.serviceClient<plan_execution::CurrentStateQuery> ( "current_state_query" );
-  krClient.waitForExistence();
-  
-  plan_execution::CurrentStateQuery csq;
-  
-  krClient.call(csq);
-  
-  vector<plan_execution::AspFluent>::const_iterator atIt = 
-                    find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
-  
-   bool error = false;
-   string initialPosition = "";
-                    
-  if(atIt == csq.response.answer.fluents.end()) {
-    ROS_ERROR("ApproachDoor: fluent \"at\" missing ");
-    error = true;
-  }
-  else 
-    initialPosition = atIt->variables[0];
-  
-  plan_exec::LogicalAction::run();
-  
-   krClient.call(csq);
-  
-  atIt = find_if(csq.response.answer.fluents.begin(), csq.response.answer.fluents.end(), IsFluentAt());
-                    
-  if(!error && atIt != csq.response.answer.fluents.end()) 
-    failed = initialPosition == atIt->variables[0];
-  
+
+GoThrough::GoThrough(int door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : door_id(door_id),
+              LogicalNavigation("go_through", ltmc){}
+
+
+std::vector<std::string> GoThrough::getParameters() const {
+  std::vector<std::string> parameters;
+  parameters.push_back(to_string(door_id));
+  return parameters;
 }
 
-ActionFactory gothroughFactory(new GoThrough(""));
+boost::optional<std::vector<std::string> > GoThrough::prepareGoalParameters() const {
+
+  knowledge_rep::Entity location(door_id, ltmc);
+  if (!location.is_valid()) {
+    return boost::none;
+  }
+  auto attrs = location.get_attributes("name");
   
+  if (attrs.size() != 1) {
+    return boost::none;
+  }
+
+  std::string door_name = attrs.at(0).get_string_value();
+
+  vector<string> params;
+  params.push_back(door_name);
+  return params;
+}
+
+void GoThrough::onFinished(bool success, const bwi_msgs::LogicalNavResult &result) {
+  // Allow super to update the knowledge base
+  LogicalNavigation::onFinished(success, result);
+  // TODO: Check that we're in a different place than when we started
+}
+
   
 }

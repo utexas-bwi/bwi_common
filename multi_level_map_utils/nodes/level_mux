@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from bwi_tools import loadMapFromFile, resolveResource
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
 from multi_level_map_msgs.msg import LevelMetaData, MultiLevelMapData
 from multi_level_map_msgs.srv import ChangeCurrentLevel, ChangeCurrentLevelRequest
 import multi_level_map_utils.utils as utils
@@ -9,7 +9,9 @@ from nav_msgs.msg import MapMetaData, OccupancyGrid
 from nav_msgs.srv import GetMap, SetMap
 import rospy
 from std_srvs.srv import Empty
-import tf
+import tf2_ros
+from tf import transformations
+
 
 class LevelMultiplexer:
 
@@ -45,6 +47,8 @@ class LevelMultiplexer:
         # Finally, provide a service that allows the current level to be changed.
         # This service will get enabled once the multimap becomes available.
         self.change_level_service = None
+
+        self.broadcaster = tf2_ros.StaticTransformBroadcaster()
 
     def process_multimap(self, msg):
         """ Callback for messages received on map metadata topic. """
@@ -134,54 +138,54 @@ class LevelMultiplexer:
         available_level_names = []
 
         for level in self.levels:
-            if level.level_id == req.new_level_id:
-
-                # Make this the current level
-                self.current_level = level.level_id
-                rospy.loginfo('level_mux: new level is ' + str(req.new_level_id))
-
-                # Initialize the mux output channels if they have not been initialized.
-                if self.level_publisher is None:
-                    self.level_publisher = rospy.Publisher("~map", OccupancyGrid, latch=True, queue_size=1)
-                    self.level_metadata_publisher = rospy.Publisher("~map_metadata", MapMetaData, latch=True, queue_size=1)
-                    self.level_map_service = rospy.Service('~static_map', GetMap, self.process_level_service)
-                    # Note that initialpose is not latched, as the publication is only valid when the
-                    # change_current_level service is called. Soon after, the robot may have moved, and this estimate
-                    # is incorrect.
-                    self.initialpose_publisher = rospy.Publisher("initialpose", PoseWithCovarianceStamped, queue_size=1)
-                    self.set_map = rospy.ServiceProxy("set_map", SetMap)
-                    try:
-                        clear_costmap_service = rospy.ServiceProxy('move_base/clear_costmaps', Empty)
-                        # Clear all costmaps.
-                        clear_costmap_service()
-                    except rospy.ROSInterruptException:
-                        # shutting down.
-                        return False, "Shutting down!"
-                    except rospy.ServiceException:
-                        # Service does not exist, level_mux being used without move_base OR a configuration snafu
-                        rospy.logwarn("Couldn't find move_base clear costmap service. This is an error if navigation is running!")
-
-                self.maps[self.current_level].map.header.stamp = rospy.Time.now()
-
-                # Publish latched map messages
-                self.level_metadata_publisher.publish(self.maps[self.current_level].map.info)
-                self.level_publisher.publish(self.maps[self.current_level].map)
-                rospy.loginfo('level_mux: published map for ' + str(self.current_level))
-
-                if req.publish_initial_pose:
-                    try:
-                        self.set_map(self.maps[self.current_level].map, req.initial_pose)
-                    except rospy.ServiceException:
-                        # Service does not exist, level_mux being used without move_base OR a configuration snafu
-                        rospy.logwarn("MultiLevelMap - Multiplexer::changeLevel: " +
-                                      "Couldn't set initial pose via service call. Trying unlatched publication.")
-                        self.initialpose_publisher.publish(req.initial_pose)
-                self.status_publisher.publish(level)
-
-                level_found = True
-                break
-            else:
+            if level.level_id != req.new_level_id:
                 available_level_names.append(level.level_id)
+                continue
+            # Make this the current level
+            self.current_level = level.level_id
+            rospy.loginfo('level_mux: new level is ' + str(req.new_level_id))
+
+            # Initialize the mux output channels if they have not been initialized.
+            if self.level_publisher is None:
+                self.level_publisher = rospy.Publisher("~map", OccupancyGrid, latch=True, queue_size=1)
+                self.level_metadata_publisher = rospy.Publisher("~map_metadata", MapMetaData, latch=True, queue_size=1)
+                self.level_map_service = rospy.Service('~static_map', GetMap, self.process_get_map_service)
+                # Note that initialpose is not latched, as the publication is only valid when the
+                # change_current_level service is called. Soon after, the robot may have moved, and this estimate
+                # is incorrect.
+                self.initialpose_publisher = rospy.Publisher("initialpose", PoseWithCovarianceStamped, queue_size=1)
+                self.set_map = rospy.ServiceProxy("set_map", SetMap)
+                try:
+                    clear_costmap_service = rospy.ServiceProxy('move_base/clear_costmaps', Empty)
+                    # Clear all costmaps.
+                    clear_costmap_service()
+                except rospy.ROSInterruptException:
+                    # shutting down.
+                    return False, "Shutting down!"
+                except rospy.ServiceException:
+                    # Service does not exist, level_mux being used without move_base OR a configuration snafu
+                    rospy.logwarn("Couldn't find move_base clear costmap service. This is an error if navigation is running!")
+
+            self.maps[self.current_level].map.header.stamp = rospy.Time.now()
+
+            # Publish latched map messages
+            self.level_metadata_publisher.publish(self.maps[self.current_level].map.info)
+            self.level_publisher.publish(self.maps[self.current_level].map)
+            rospy.loginfo('level_mux: published map for ' + str(self.current_level))
+
+            if req.publish_initial_pose:
+                try:
+                    self.set_map(self.maps[self.current_level].map, req.initial_pose)
+                except rospy.ServiceException:
+                    # Service does not exist, level_mux being used without move_base OR a configuration snafu
+                    rospy.logwarn("MultiLevelMap - Multiplexer::changeLevel: " +
+                                  "Couldn't set initial pose via service call. Trying unlatched publication.")
+                    self.initialpose_publisher.publish(req.initial_pose)
+            self.status_publisher.publish(level)
+
+            level_found = True
+            self.update_broadcast()
+            break
 
         if not level_found:
             success = False
@@ -189,25 +193,33 @@ class LevelMultiplexer:
 
         return success, error_message
 
-    def process_level_service(self, req):
+    def process_get_map_service(self, req):
+        """
+        Returns the map for the current level. Can be used by move_base.
+        """
+        rospy.loginfo("Got request")
         self.maps[self.current_level].map.header.stamp = rospy.Time.now()
         return self.maps[self.current_level]
 
-    def spin(self):
-        br = tf.TransformBroadcaster()
-        r = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            if self.current_level is not None:
-                br.sendTransform((0, 0, 0),
-                                 tf.transformations.quaternion_from_euler(0, 0, 0),
-                                 rospy.Time.now(),
-                                 self.global_frame_id,
-                                 utils.frameIdFromLevelId(self.current_level))
-            r.sleep()
+    def update_broadcast(self):
+        if self.current_level is None:
+            self.broadcaster.sendTransform([])
+            return
+        rospy.logerr("SENDING TRANSFORM")
+        transform = TransformStamped()
+        rotation = transformations.quaternion_from_euler(0, 0, 0)
+        transform.transform.rotation.x = rotation[0]
+        transform.transform.rotation.y = rotation[1]
+        transform.transform.rotation.z = rotation[2]
+        transform.transform.rotation.w = rotation[3]
+        transform.header.frame_id = utils.frameIdFromLevelId(self.current_level)
+        transform.child_frame_id = self.global_frame_id
+        self.broadcaster.sendTransform(transform)
+
 
 if __name__ == '__main__':
     level_mux = LevelMultiplexer()
     try:
-        level_mux.spin()
+        rospy.spin()
     except rospy.ROSInterruptException: 
         pass

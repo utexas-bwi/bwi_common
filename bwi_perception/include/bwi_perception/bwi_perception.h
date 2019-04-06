@@ -1,5 +1,6 @@
-#ifndef LIBBWI_PERCEPTION_BWI_PERCEPTION_H
-#define LIBBWI_PERCEPTION_BWI_PERCEPTION_H
+#pragma once
+
+
 #include <ros/ros.h>
 #include <signal.h>
 #include <iostream>
@@ -110,5 +111,3 @@ namespace bwi_perception {
 
 
 }
-
-#endif

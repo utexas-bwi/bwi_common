@@ -1,7 +1,7 @@
-#ifndef actasp_Action_h__guard
-#define actasp_Action_h__guard
+#pragma once
 
 #include <actasp/AspFluent.h>
+#include <actasp/ResourceManager.h>
 
 #include <string>
 #include <vector>
@@ -21,9 +21,11 @@ struct Action {
 	virtual bool hasFinished() const = 0;
   
     virtual bool hasFailed() const {return false;}
-	
-	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const =0;
-	
+
+    // DEPRECATED
+	virtual Action *cloneAndInit(const actasp::AspFluent & fluent) const = 0;
+
+    // DEPRECATED
 	virtual Action *clone() const =0;
 	
 	std::string toASP(unsigned int timeStep) const;
@@ -45,6 +47,9 @@ private:
  virtual std::vector<std::string> getParameters() const = 0;
 };
 
+typedef std::function<std::unique_ptr<actasp::Action>(const actasp::AspFluent &, actasp::ResourceManager &)> ActionFactory;
+
+
 }
 
-#endif
+

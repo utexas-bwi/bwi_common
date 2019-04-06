@@ -6,6 +6,8 @@ int32 TOO_MANY_ACTION_FAILURES = 3
 int32 status
 AspFluent final_action
 AspFluent[] plan_remainder
+AspRule[] inconsistent_rules
+string message
 ---
 int32 PLAN_CHANGED_EVENT = 1
 int32 ACTION_STARTED_EVENT = 2

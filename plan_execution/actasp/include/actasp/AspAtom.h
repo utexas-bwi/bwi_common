@@ -1,5 +1,4 @@
-#ifndef actasp_AspAtom_h__guard
-#define actasp_AspAtom_h__guard
+#pragma once
 
 #include <string>
 #include <stdexcept>
@@ -11,7 +10,7 @@ namespace actasp {
 class AspAtom {
 public:
 
-  AspAtom(const std::string& formula) throw ();
+  AspAtom(const std::string& formula);
 
   unsigned int arity() const noexcept;
 
@@ -34,4 +33,4 @@ private:
 
 
 }
-#endif
+

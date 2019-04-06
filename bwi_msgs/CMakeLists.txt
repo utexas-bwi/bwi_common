@@ -20,6 +20,7 @@ add_message_files(
     LEDAnimations.msg
     LEDStatus.msg
     LEDTestType.msg
+    LogicalNavigationState.msg
     StopBaseStatus.msg
     ScavStatus.msg
     WeekTime.msg
@@ -29,6 +30,7 @@ add_service_files(
   DIRECTORY srv
   FILES
     ActionUpdate.srv
+    CheckBool.srv
     DoorHandlerInterface.srv
     GetNextImage.srv
     ImageQuestion.srv
@@ -44,7 +46,6 @@ add_service_files(
     SemanticParser.srv
     StopBase.srv
     ScavHunt.srv
-    Trigger.srv
     UploadImage.srv
     UpdateObject.srv
     ActionUpdate.srv
@@ -55,7 +56,7 @@ add_action_files(
   DIRECTORY action
   FILES
     LEDControl.action
-    LogicalAction.action
+    LogicalNav.action
 )
 
 generate_messages(

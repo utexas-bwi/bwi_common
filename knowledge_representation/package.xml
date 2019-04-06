@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>knowledge_representation</name>
+    <version>1.0.0</version>
+    <description>The knowledge_representation package</description>
+    <maintainer email="jiangyuqian@utexas.edu">Yuqian Jiang</maintainer>
+    <maintainer email="nickswalker@utexas.edu">Nick Walker</maintainer>
+    <license>Apache 2.0</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>bison</depend>
+    <depend>bwi_perception</depend>
+    <depend>flex</depend>
+    <depend>libmysqlclient-dev</depend>
+    <depend>libmysqlcppconn-dev</depend>
+    <depend>libpqxx</depend>
+    <depend>pcl_conversions</depend>
+    <depend>pcl_ros</depend>
+    <depend>roscpp</depend>
+    <depend>sensor_msgs</depend>
+    <depend>std_msgs</depend>
+    <export>
+    </export>
+</package>

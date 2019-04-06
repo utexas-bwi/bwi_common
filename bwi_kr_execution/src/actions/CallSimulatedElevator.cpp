@@ -5,7 +5,6 @@
 #include "plan_execution/CurrentStateQuery.h"
 #include "bwi_msgs/DoorHandlerInterface.h"
 
-#include "ActionFactory.h"
 #include "plan_execution/StaticFacts.h"
 
 #include "plan_execution/UpdateFluents.h"
@@ -105,9 +104,5 @@ std::vector<std::string> CallSimulatedElevator::getParameters() const {
   params.push_back(going_up? "up" : "down");
   return params;
 }
-
-//if you want the action to be available only in simulation, or only
-//on the robot, use the constructor that also takes a boolean.
-ActionFactory callSimulatedElevator(new CallSimulatedElevator(), true);
 
 }

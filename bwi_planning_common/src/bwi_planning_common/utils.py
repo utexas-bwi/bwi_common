@@ -7,6 +7,8 @@ try:
 except ImportError:
     from python_qt_binding.QtWidgets import QLabel
 
+import os
+
 def clearLayoutAndFixHeight(layout):
     # Clear all subfunction buttons.
     while layout.count():
@@ -53,19 +55,22 @@ def transformPointToRealWorldCoordinates(pt, map, image_size):
             QPointF(map_point) * map.map.info.resolution
 
 def getDoorsFileLocationFromDataDirectory(data_directory):
-    return data_directory + "/doors.yaml"
+    return os.path.join(data_directory, "doors.yaml")
 
 def getDoorsMapLocationFromDataDirectory(data_directory):
-    return data_directory + "/doors_map.yaml"
+    return os.path.join(data_directory, "doors_map.yaml")
 
 def getDoorsMapImageLocationFromDataDirectory(data_directory):
-    return data_directory + "/doors_map.pgm"
+    return os.path.join(data_directory, "doors_map.pgm")
 
 def getLocationsFileLocationFromDataDirectory(data_directory):
-    return data_directory + "/locations.yaml"
+    return os.path.join(data_directory, "locations.yaml")
+
+def getConnectivityFileLocationFromDataDirectory(data_directory):
+    return os.path.join(data_directory, "connectivity.yaml")
 
 def getObjectsFileLocationFromDataDirectory(data_directory):
-    return data_directory + "/objects.yaml"
+    return os.path.join(data_directory, "objects.yaml")
 
 def getLocationsImageFileLocationFromDataDirectory(data_directory):
-    return data_directory + "/locations.pgm"
+    return os.path.join(data_directory, "locations.pgm")

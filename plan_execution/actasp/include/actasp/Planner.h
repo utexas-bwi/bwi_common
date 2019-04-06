@@ -1,5 +1,4 @@
-#ifndef actasp_Planner_h__guard
-#define actasp_Planner_h__guard
+#pragma once
 
 #include <actasp/AspRule.h>
 #include <actasp/AnswerSet.h>
@@ -14,10 +13,10 @@ class Action;
 
 struct Planner {
 
-	virtual AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error) =0;
+	virtual AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) =0;
 
-	virtual ~Planner() {}
+	virtual ~Planner() = default;
 };
 	
 }
-#endif
+

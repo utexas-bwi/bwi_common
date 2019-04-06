@@ -1,6 +1,4 @@
-#ifndef actasp_ReplanningActionExecutor_h__guard
-#define actasp_ReplanningActionExecutor_h__guard
-
+#pragma once
 
 #include <actasp/PlanExecutor.h>
 
@@ -12,58 +10,67 @@
 namespace actasp {
 
 class AspKR;
+
 class Planner;
+
 class Action;
+
 class PlanningObserver;
 
 class ReplanningPlanExecutor : public PlanExecutor {
 
 public:
-	
-	ReplanningPlanExecutor(actasp::AspKR* reasoner,
-							 actasp::Planner *planner,
-							 const std::map<std::string, Action * > &actionMap
-							) noexcept(false);
-	
+
+  ReplanningPlanExecutor(AspKR &reasoner,
+                         Planner &planner,
+                         const std::map<std::string, ActionFactory> &actionMap,
+                         actasp::ResourceManager &resourceManager
+  ) noexcept(false);
+
   using PlanExecutor::setGoal;
-	void setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept;
 
-	bool goalReached() const noexcept {
-		return isGoalReached;
-	}
-	
-	bool failed() const noexcept {
-		return hasFailed;
-	}
+  void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
 
-	void executeActionStep();
-  
-  void addExecutionObserver(ExecutionObserver *observer) noexcept;
-  void removeExecutionObserver(ExecutionObserver *observer) noexcept;
-  
-  void addPlanningObserver(PlanningObserver *observer) noexcept;
-  void removePlanningObserver(PlanningObserver *observer) noexcept;
-	
-	~ReplanningPlanExecutor();
-	
+  bool goalReached() const noexcept {
+    return isGoalReached;
+  }
+
+  bool failed() const noexcept {
+    return hasFailed;
+  }
+
+  void executeActionStep() override;
+
+  void addExecutionObserver(ExecutionObserver &observer) noexcept override;
+
+  void removeExecutionObserver(ExecutionObserver &observer) noexcept override;
+
+  void addPlanningObserver(PlanningObserver &observer) noexcept;
+
+  void removePlanningObserver(PlanningObserver &observer) noexcept;
+
+
+  ~ReplanningPlanExecutor();
+
 
 private:
-	std::vector<actasp::AspRule> goalRules;
-	bool isGoalReached;
-	bool hasFailed;
-	std::map<std::string, Action * > actionMap;
-	
-	std::list<Action::Ptr> plan;
+  std::vector<actasp::AspRule> goalRules;
+  bool isGoalReached;
+  bool hasFailed;
+  std::map<std::string, ActionFactory> actionMap;
+
+  std::list<std::unique_ptr<Action>> plan;
   unsigned int actionCounter;
   bool newAction;
-    unsigned int failureCount;
-	
-	AspKR* kr;
-	Planner *planner;
-  
-  std::list<ExecutionObserver*> executionObservers;
-  std::list<PlanningObserver*> planningObservers;
-  
+  unsigned int failureCount;
+
+  AspKR &kr;
+  Planner &planner;
+  ResourceManager &resourceManager;
+
+  std::list<std::reference_wrapper<ExecutionObserver>> executionObservers;
+  std::list<std::reference_wrapper<PlanningObserver>> planningObservers;
+
   void computePlan();
 
 
@@ -71,4 +78,4 @@ private:
 
 
 }
-#endif
+

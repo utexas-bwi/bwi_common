@@ -1,7 +1,5 @@
 #include "AskPerson.h"
 
-#include "ActionFactory.h"
-
 #include "CallGUI.h"
 
 #include "plan_execution/AspFluent.h"
@@ -176,6 +174,4 @@ std::vector<std::string> AskPerson::getParameters() const {
 }
 
 
-ActionFactory AskPersonFactory(new AskPerson());
-  
 }

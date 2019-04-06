@@ -3,8 +3,9 @@
 import rospy
 
 from bwi_tools import loadMapFromFile, resolveResource
+from geometry_msgs.msg import TransformStamped
 from tf.transformations import quaternion_from_euler
-from tf import TransformBroadcaster
+from tf2_ros import static_transform_broadcaster
 from nav_msgs.srv import GetMap
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import MapMetaData
@@ -15,6 +16,7 @@ import multi_level_map_utils.utils
 import yaml
 
 utils = multi_level_map_utils.utils
+
 
 class MapServer:
     def __init__(self):
@@ -31,21 +33,28 @@ class MapServer:
         self.global_frame_id = rospy.get_param('~global_frame_id', 'map')
         self.publish_rate = rospy.get_param('~publish_rate', 5)
         try:
-
             map_file = rospy.get_param('~map_file')
-            resolved_map_file = resolveResource(map_file)
-            if resolved_map_file is None:
-                rospy.logfatal("Unable to resolved map file: " + map_file)
-                return
-            map_data = yaml.load(open(resolved_map_file, "r"))
-            self.map_list = map_data["maps"]
-            if "links" in map_data:
-                self.map_links = map_data["links"]
-            else:
-                self.map_links = []
         except KeyError as e:
-            rospy.logfatal("Please provide multimap file (~map_file): " + str(e))
+            rospy.logfatal("Please provide multimap YAML file (~map_file): " + str(e))
             return
+        resolved_map_file = resolveResource(map_file)
+        if resolved_map_file is None:
+            rospy.logfatal("Unable to resolve map file path: " + map_file)
+            return
+        try:
+            map_data = yaml.load(open(resolved_map_file, "r"))
+        except IOError:
+            rospy.logfatal("Unable to open map file " + resolved_map_file)
+            rospy.logfatal("Please ensure that you passed a path to a multimap YAML file.")
+            return
+        if "maps" not in map_data:
+            rospy.logfatal("No `maps` key in YAML file. Please ensure that you passed a valid multimap file.")
+            return
+        self.map_list = map_data["maps"]
+        if "links" in map_data:
+            self.map_links = map_data["links"]
+        else:
+            self.map_links = []
 
         # process maps
         self.map_response = dict()
@@ -77,14 +86,14 @@ class MapServer:
             if resolved_data_directory is None:
                 return
 
-            yaml_file = map_info['yaml'];
+            yaml_file = map_info['yaml']
             resolved_yaml_file = resolveResource(yaml_file) 
             if resolved_yaml_file is None:
                 return
 
             self.map_response[map_name] = loadMapFromFile(resolved_yaml_file)
             if self.map_response[map_name] is None:
-                rospy.logfatal("Unable to load yaml file for map: %s" %resolved_yaml_file)
+                rospy.logfatal("Unable to load yaml file for {} map: {}".format(map_name, resolved_yaml_file))
                 return
 
             self.map_response[map_name].map.info.map_load_time = rospy.Time.now()
@@ -93,8 +102,8 @@ class MapServer:
 
             # Publish map service
             self.service_server[map_name] = rospy.Service(self.multimap_topic_prefix + utils.mapServiceFromLevelId(map_name),
-                                                          GetMap, 
-                                                          self.levelCallback)
+                                                          GetMap,
+                                                          self.get_map_callback)
 
             # Publish latched map messages
             self.metadata_publisher[map_name] = rospy.Publisher(self.multimap_topic_prefix + utils.metadataTopicFromLevelId(map_name), 
@@ -113,7 +122,7 @@ class MapServer:
             leveldata.info = self.map_response[map_name].map.info
             out_meta_data_msg.levels.append(leveldata)
 
-        #process links
+        # process links
         for map_link in self.map_links:
             link = MultiLevelMapLink()
 
@@ -138,27 +147,40 @@ class MapServer:
         self.metadata_pub = rospy.Publisher("map_metadata", MultiLevelMapData, latch=True, queue_size=1)
         self.metadata_pub.publish(out_meta_data_msg)
 
+        self.broadcaster = static_transform_broadcaster.StaticTransformBroadcaster()
         # publish tf tree from global frame of reference
-        rate = rospy.Rate(self.publish_rate)
-        while not rospy.is_shutdown():
-            for map_name, map_response in self.map_response.items():
-                br = TransformBroadcaster()
-                br.sendTransform(self.map_origin_position[map_name],
-                                 self.map_origin_orientation[map_name],
-                                 rospy.Time.now(),
-                                 map_response.map.header.frame_id,
-                                 self.global_frame_id)
+        self.update_transforms()
 
-            rate.sleep();
-
-    def levelCallback(self, req):
+    def get_map_callback(self, req):
+        rospy.logerr("MLMS got request")
         service = req._connection_header['service']
         for map_name, map_response in self.map_response.items():
             if service == rospy.resolve_name(map_name + '/static_map'):
                 return map_response
 
+    def update_transforms(self):
+        transforms = []
+        for map_name, map_response in self.map_response.items():
+            transform = TransformStamped()
+            transform.header.stamp = rospy.Time.now()
+            transform.header.frame_id = self.global_frame_id
+            translation, rotation = self.map_origin_position[map_name], self.map_origin_orientation[map_name]
+            transform.transform.translation.x = translation[0]
+            transform.transform.translation.y = translation[1]
+            transform.transform.translation.z = translation[2]
+            transform.transform.rotation.x = rotation[0]
+            transform.transform.rotation.y = rotation[1]
+            transform.transform.rotation.z = rotation[2]
+            transform.transform.rotation.w = rotation[3]
+            transform.child_frame_id = map_response.map.header.frame_id
+            transforms.append(transform)
+
+        self.broadcaster.sendTransform(transforms)
+
+
 if __name__ == '__main__':
     try:
         MapServer()
+        rospy.spin()
     except rospy.exceptions.ROSInterruptException:
         pass

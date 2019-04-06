@@ -14,11 +14,11 @@
   </group>
 
   <!-- start world -->
-  <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/combined.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+  <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/combined.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" required="true" />
 
   <!-- start gui -->
   <group if="$(arg gui)">
-    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" required="true" />
   </group>
 
 </launch>

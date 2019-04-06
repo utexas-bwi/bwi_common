@@ -1,5 +1,4 @@
-#ifndef actasp_LexComparator_h__guard
-#define actasp_LexComparator_h__guard
+#pragma once
 
 #include <list>
 
@@ -15,4 +14,4 @@ struct LexComparator {
 
 }
 
-#endif
+

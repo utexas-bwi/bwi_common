@@ -1,5 +1,4 @@
-#ifndef ARM_POSITION_DB_H
-#define ARM_POSITION_DB_H
+#pragma once
 #include <ros/ros.h>
 #include <signal.h>
 #include <iostream>
@@ -41,7 +40,3 @@ namespace bwi_manipulation {
 
     };
 }
-
-
-
-#endif

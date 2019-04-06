@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef POINT_UTILS_JIEAIBJ2
-#define POINT_UTILS_JIEAIBJ2
+#pragma once
 
 #include <bwi_mapper/structures/point.h>
 
@@ -48,5 +47,3 @@ namespace bwi_mapper {
   float getMagnitude(Point2f v);
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: POINT_UTILS_JIEAIBJ2 */

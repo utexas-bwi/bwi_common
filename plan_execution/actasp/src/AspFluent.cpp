@@ -7,15 +7,16 @@ using namespace std;
 
 namespace actasp {
 
+AspFluent operator ""_f(const char *string, std::size_t size) {
+  return AspFluent(string);
+}
 
-AspFluent::AspFluent(const std::string& formula) throw (std::invalid_argument) :
+AspFluent::AspFluent(const std::string& formula) noexcept(false) :
       timeStep(),
 			cachedBase(){
         
   //this used to be nice, but it turned out to be a major bottleneck, so I had to reimplement it for efficiency.
-   
-   bool inName = true;   
-   bool valid = false;
+
    string current;
    //current.reserve(100);
    size_t first_par = formula.find_first_of('(');
@@ -34,7 +35,8 @@ AspFluent::AspFluent(const std::string& formula) throw (std::invalid_argument) :
   
 }
 
-AspFluent::AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep) throw () : 
+AspFluent::AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep) noexcept
+    :
 		timeStep(timeStep),
 		cachedBase() {
   stringstream ss;
@@ -113,7 +115,7 @@ std::string AspFluent::toString(const string& timeStepVar) const noexcept {
   return cachedBase + timeStepVar + ")";
 }
 
-std::string AspFluent::toString() const throw () {
+std::string AspFluent::toString() const noexcept {
 	return this->toString(this->timeStep);
 }
 

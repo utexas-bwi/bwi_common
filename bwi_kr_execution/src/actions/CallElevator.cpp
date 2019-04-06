@@ -2,8 +2,6 @@
 
 #include <boost/foreach.hpp>
 
-#include "ActionFactory.h"
-#include "plan_execution/StaticFacts.h"
 
 #include "plan_execution/CurrentStateQuery.h"
 #include "plan_execution/UpdateFluents.h"
@@ -29,6 +27,7 @@ void CallElevator::run() {
   
   if(!asked && !done) {
     std::string direction_text = (going_up) ? "up" : "down";
+
 
     // Get the doors for this elevator.
     std::vector<std::string> doors;
@@ -111,7 +110,7 @@ void CallElevator::run() {
       done = true;
     }
   }
- 
+
   
 }
 
@@ -138,8 +137,5 @@ std::vector<std::string> CallElevator::getParameters() const {
   return params;
 }
 
-//if you want the action to be available only in simulation, or only
-//on the robot, use the constructor that also takes a boolean.
-ActionFactory callElevator(new CallElevator(), false);
 
 }

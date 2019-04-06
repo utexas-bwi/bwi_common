@@ -1,5 +1,4 @@
-#ifndef actasp_MultiPolicy_h__guard
-#define actasp_MultiPolicy_h__guard
+#pragma once
 
 #include <actasp/PartialPolicy.h>
 
@@ -19,7 +18,7 @@ public:
 
   ActionSet actions(const std::set<AspFluent>& state) const noexcept;
 
-  void merge(const AnswerSet& plan) throw(std::logic_error);
+  void merge(const AnswerSet& plan);
   void merge(const PartialPolicy* otherPolicy);
   void merge(const MultiPolicy* otherPolicy);
 
@@ -33,4 +32,4 @@ private:
 
 }
 
-#endif
+

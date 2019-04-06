@@ -1,5 +1,4 @@
-#ifndef actasp_AspFluent_h__guard
-#define actasp_AspFluent_h__guard
+#pragma once
 
 #include <string>
 #include <vector>
@@ -15,10 +14,10 @@ class ActionEquality;
 class AspFluent {
 public:
 
-	AspFluent(const std::string& formula) throw (std::invalid_argument);
-	AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep = 0) throw ();
+	AspFluent(const std::string& formula) noexcept(false);
+	AspFluent(const std::string &name, const std::vector<std::string> &variables, unsigned int timeStep = 0) noexcept;
 
-	unsigned int arity() const throw ();
+	unsigned int arity() const noexcept;
 
 	void setTimeStep(unsigned int timeStep) noexcept;
 	unsigned int getTimeStep() const noexcept;
@@ -28,6 +27,8 @@ public:
 	
 	bool operator<(const AspFluent& other) const noexcept;
 	bool operator==(const AspFluent& other) const noexcept;
+
+
 
 	std::string toString() const noexcept;
 	std::string toString(unsigned int timeStep) const noexcept;
@@ -84,5 +85,7 @@ struct AspFluentRef {
   const AspFluent *const_obj;
 };
 
+AspFluent operator ""_f(const char *string, std::size_t size);
+
 }
-#endif
+

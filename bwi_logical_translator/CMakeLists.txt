@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_logical_translator)
 
+add_compile_options(-std=c++11)
+
 find_package(catkin REQUIRED
   COMPONENTS
     actionlib
@@ -14,6 +16,7 @@ find_package(catkin REQUIRED
     multi_level_map_msgs
     multi_level_map_utils
     nav_msgs
+    pcl_ros
     roscpp
     tf
 )
@@ -31,6 +34,7 @@ catkin_package(
     multi_level_map_msgs
     multi_level_map_utils
     nav_msgs
+    pcl_ros
     roscpp
     tf
   INCLUDE_DIRS
@@ -47,7 +51,7 @@ include_directories(
 add_library(${PROJECT_NAME} src/libbwi_logical_translator/bwi_logical_translator.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-add_executable(bwi_logical_navigator src/nodes/bwi_logical_navigator.cpp)
+add_executable(bwi_logical_navigator src/nodes/bwi_logical_navigator.cpp src/nodes/bwi_logical_navigator.h)
 target_link_libraries(bwi_logical_navigator ${catkin_LIBRARIES} ${PROJECT_NAME})
 add_dependencies(bwi_logical_navigator ${catkin_EXPORTED_TARGETS})
 

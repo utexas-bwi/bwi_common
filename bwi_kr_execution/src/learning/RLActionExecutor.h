@@ -1,7 +1,7 @@
 #ifndef actasp_RLActionExecutor_h__guard
 #define actasp_RLActionExecutor_h__guard
 
-#include <actasp/ActionExecutor.h>
+#include <actasp/PlanExecutor.h>
 #include <actasp/MultiPolicy.h>
 #include <actasp/AspRule.h>
 
@@ -17,12 +17,12 @@ class ExecutionObserver;
 class PlanningObserver;
 class Action;
 
-class RLActionExecutor : public ActionExecutor {
+class RLActionExecutor : public PlanExecutor {
 public:
   
   RLActionExecutor(AspKR* kr, ActionSelector *selector, const std::map<std::string, Action * >& actionMap);
   
-  using ActionExecutor::setGoal;
+  using PlanExecutor::setGoal;
   void setGoal(const std::vector<actasp::AspRule>& goalRules) throw();
 
   bool goalReached() const throw();
