@@ -20,6 +20,7 @@ Try running these commands through, one at a time. Leave the root password blank
     sudo apt install -y mysql-server mysql-shell
     git clone https://github.com/mysql/mysql-connector-cpp.git
     cd mysql-connector-cpp
+    git checkout tags/8.0.15
     mkdir build
     cd build
     cmake ..
