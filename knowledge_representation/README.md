@@ -8,6 +8,13 @@ Mechanisms for storing information about the world, and for querying this inform
 
     sudo apt install postgresql-server-dev-all
 
+### From script
+
+Try running
+
+    ./install_mysql.sh
+
+Leave the root password blank
 
 ### Semi-automatic
 
