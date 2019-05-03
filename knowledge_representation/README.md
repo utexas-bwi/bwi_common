@@ -8,6 +8,13 @@ Mechanisms for storing information about the world, and for querying this inform
 
     sudo apt install postgresql-server-dev-all
 
+### From script
+
+Try running
+
+    ./install_mysql.sh
+
+Leave the root password blank
 
 ### Semi-automatic
 
@@ -20,6 +27,7 @@ Try running these commands through, one at a time. Leave the root password blank
     sudo apt install -y mysql-server mysql-shell
     git clone https://github.com/mysql/mysql-connector-cpp.git
     cd mysql-connector-cpp
+    git checkout tags/8.0.15
     mkdir build
     cd build
     cmake ..
