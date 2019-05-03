@@ -10,7 +10,6 @@
     <buildtool_depend>catkin</buildtool_depend>
 
     <depend>bison</depend>
-    <depend>bwi_perception</depend>
     <depend>flex</depend>
     <depend>libmysqlclient-dev</depend>
     <depend>libmysqlcppconn-dev</depend>

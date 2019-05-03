@@ -1,7 +1,6 @@
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
 #include <tf/transform_listener.h>
-#include <bwi_perception/filter.h>
 using namespace std;
 
 typedef pcl::PointXYZRGB PointT;
