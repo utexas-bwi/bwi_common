@@ -46,8 +46,8 @@ CREATE TABLE entity_attributes_str (
     FOREIGN KEY(attribute_name)
         REFERENCES attributes(attribute_name)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT CHK_name_unique CHECK (NumSameNames() = 0)
+        ON UPDATE CASCADE/*,
+    CONSTRAINT CHK_name_unique CHECK (NumSameNames() = 0)*/
 );
 
 
