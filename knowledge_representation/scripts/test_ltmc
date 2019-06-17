@@ -6,7 +6,7 @@ ltmc = knowledge_representation.get_default_ltmc()
 
 coke = ltmc.add_entity()
 assert coke.is_valid()
-assert ltmc.entity_exists(coke)
+assert ltmc.entity_exists(coke.entity_id)
 
 
 nsb_concept = ltmc.get_concept("never seen before")
@@ -26,4 +26,11 @@ ltmc.select_query_string("SELECT * FROM entity_attributes_str", result_list)
 
 instance = nsb_concept.create_instance("nsb")
 assert instance
+
+result = ltmc.add_new_attribute("new attribute", "string")
+assert result
+assert ltmc.attribute_exists("new attribute")
+result = instance.add_attribute_str("new attribute", "as")
+assert result
+
 print("Done!")

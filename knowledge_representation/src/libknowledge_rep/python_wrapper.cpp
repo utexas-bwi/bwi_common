@@ -164,7 +164,9 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
   class_<LongTermMemoryConduit, boost::noncopyable>("LongTermMemoryConduit",
                                                     init<const string &>())
       .def("add_entity", static_cast<Entity (LTMC::*)()>(&LTMC::add_entity))
+      .def("add_new_attribute", &LTMC::add_new_attribute)
       .def("entity_exists", &LTMC::entity_exists)
+      .def("attribute_exists", &LTMC::attribute_exists)
       .def("delete_all_entities", &LTMC::delete_all_entities)
       .def("get_entities_with_attribute_of_value",
            static_cast<vector<Entity> (LTMC::*)(const string &, const int)>

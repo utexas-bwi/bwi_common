@@ -72,10 +72,22 @@ bool LongTermMemoryConduitMySQL::add_entity(int id) {
  * @param allowed_types a bitmask representing the types allowed for the attribute
  * @return whether the attribute was added. Note that addition will fail if the attribute already exists.
  */
-bool LongTermMemoryConduitMySQL::add_attribute(const string &name, const int allowed_types) {
-  // TODO: Implement allowed_types parameter
-  Table entities = db->getTable("attributes");
-  Result result = entities.insert("attribute_name").values(name).execute();
+bool LongTermMemoryConduitMySQL::add_new_attribute(const string &name, const std::string &type) {
+  if (attribute_exists(name)) {
+    return true;
+  }
+
+  Table attributes = db->getTable("attributes");
+  TableInsert inserter = attributes.insert("attribute_name", "type");
+  inserter.values(name, type);
+  try {
+    inserter.execute();
+  }
+  catch (const mysqlx::Error &err) {
+    cerr << "Tried to add new attribute " << name << " with type " << type << endl;
+    cerr << "ERROR: " << err << endl;
+    return false;
+  }
   return true;
 }
 
@@ -164,14 +176,15 @@ void LongTermMemoryConduitMySQL::delete_all_entities() {
   assert(entity_exists(1));
 }
 
-bool LongTermMemoryConduitMySQL::delete_attribute(string name) {
+bool LongTermMemoryConduitMySQL::delete_attribute(string &name) {
   // TODO: Write
   return false;
 }
 
-bool LongTermMemoryConduitMySQL::attribute_exists(string name) const {
-  // TODO: Write this
-  return false;
+bool LongTermMemoryConduitMySQL::attribute_exists(const string &name) const {
+  Table entities = db->getTable("attributes");
+  auto result = entities.select("attribute_name").where("attribute_name = :name").bind("name", name).execute();
+  return result.count() == 1;
 }
 
 /**
@@ -332,6 +345,9 @@ vector<std::pair<string, int> > LongTermMemoryConduitMySQL::get_all_attributes()
 
   bool LongTermMemoryConduitMySQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                          const float float_val) {
+    if (!attribute_exists(attribute_name)) {
+      add_new_attribute(attribute_name, "float");
+    }
     Table entity_attributes = db->getTable("entity_attributes_float");
     TableInsert inserter = entity_attributes.insert("entity_id", "attribute_name", "attribute_value");
     inserter.values(entity.entity_id, attribute_name, float_val);
@@ -348,6 +364,9 @@ vector<std::pair<string, int> > LongTermMemoryConduitMySQL::get_all_attributes()
 
 
   bool LongTermMemoryConduitMySQL::add_attribute(Entity &entity, const std::string &attribute_name, const bool bool_val) {
+    if (!attribute_exists(attribute_name)) {
+      add_new_attribute(attribute_name, "bool");
+    }
     Table entity_attributes = db->getTable("entity_attributes_bool");
     TableInsert inserter = entity_attributes.insert("entity_id", "attribute_name", "attribute_value");
     inserter.values(entity.entity_id, attribute_name, bool_val);
@@ -365,6 +384,9 @@ vector<std::pair<string, int> > LongTermMemoryConduitMySQL::get_all_attributes()
 
   bool LongTermMemoryConduitMySQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                          const int other_entity_id) {
+    if (!attribute_exists(attribute_name)) {
+      add_new_attribute(attribute_name, "id");
+    }
     Table entity_attributes = db->getTable("entity_attributes_id");
     TableInsert inserter = entity_attributes.insert("entity_id", "attribute_name", "attribute_value");
     inserter.values(entity.entity_id, attribute_name, other_entity_id);
@@ -382,6 +404,9 @@ vector<std::pair<string, int> > LongTermMemoryConduitMySQL::get_all_attributes()
 
   bool LongTermMemoryConduitMySQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                          const std::string &string_val) {
+    if (!attribute_exists(attribute_name)) {
+      add_new_attribute(attribute_name, "string");
+    }
     Table entity_attributes = db->getTable("entity_attributes_str");
     TableInsert inserter = entity_attributes.insert("entity_id", "attribute_name", "attribute_value");
     inserter.values(entity.entity_id, attribute_name, string_val);

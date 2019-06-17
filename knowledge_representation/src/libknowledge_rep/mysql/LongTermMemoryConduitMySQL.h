@@ -57,7 +57,7 @@ public:
   // Move assignment
   LongTermMemoryConduitMySQL &operator=(LongTermMemoryConduitMySQL &&that) noexcept = default;
 
-  bool add_attribute(const std::string &name, int allowed_types);
+  bool add_new_attribute(const std::string &name, const std::string &type);
 
   std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const int other_entity_id);
@@ -70,9 +70,9 @@ public:
 
   bool entity_exists(int id) const;
 
-  bool delete_attribute(std::string name);
+  bool delete_attribute(std::string &name);
 
-  bool attribute_exists(std::string name) const;
+  bool attribute_exists(const std::string &name) const;
 
   void delete_all_entities();
 
