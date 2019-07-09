@@ -17,7 +17,8 @@ public:
   enum TYPE {
     DISPLAY = bwi_msgs::QuestionDialogRequest::DISPLAY,
     CHOICE_QUESTION = bwi_msgs::QuestionDialogRequest::CHOICE_QUESTION,
-    TEXT_QUESTION = bwi_msgs::QuestionDialogRequest::TEXT_QUESTION
+    TEXT_QUESTION = bwi_msgs::QuestionDialogRequest::TEXT_QUESTION,
+    LIST_QUESTION = bwi_msgs::QuestionDialogRequest::LIST_QUESTION
   };
 
   CallGUI(const std::string &name, const TYPE type,  const std::string& message,
