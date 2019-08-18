@@ -16,7 +16,7 @@ GraphPolicy::GraphPolicy(const std::set<std::string>& actions) :  policy(), allA
 
 ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const noexcept {
 
-    std::map<set<AspFluent>, ActionSet >::const_iterator acts = policy.find(state);
+  auto acts = policy.find(state);
 
     if(acts != policy.end()) {
         return acts->second;
@@ -26,36 +26,21 @@ ActionSet GraphPolicy::actions(const std::set<AspFluent>& state) const noexcept 
 }
 
 void GraphPolicy::merge(const PartialPolicy* otherPolicy) {
-    const GraphPolicy *other = dynamic_cast<const GraphPolicy*>(otherPolicy);
+  const auto *other = dynamic_cast<const GraphPolicy *>(otherPolicy);
     if(other != nullptr)
         merge(other);
     else
         throw runtime_error("method not implemented for a partial policy other than GraphPolicy");
 }
 
-void GraphPolicy::merge(const AnswerSet& plan) {
+void GraphPolicy::merge(const Plan &plan) {
 
     plans.push_back(list<AspFluent>());
     PlanList::iterator currentPlan = --plans.end();
 
-    unsigned int planLength = plan.maxTimeStep();
-
-    set<AspFluent> state = plan.getFluentsAtTime(0);
-
-    for (int timeStep = 1; timeStep <=planLength; ++timeStep) {
-
-        set<AspFluent> stateWithAction = plan.getFluentsAtTime(timeStep);
-
-        //find the action
-        set<AspFluent>::iterator actionIt = find_if(stateWithAction.begin(),stateWithAction.end(),IsAnAction(allActions));
-
-        if(actionIt == stateWithAction.end())
-            throw logic_error("GraphPolicy: no action for some state");
-
-        AspFluent action = *actionIt;
-
-        //remove the action from there
-        stateWithAction.erase(actionIt);
+  for (int i = 0; i < plan.maxTimeStep(); i++) {
+    const auto state = plan.getFluentsAtTime(i);
+    const auto &action = plan.actions[i];
 
         ActionSet &stateActions = policy[state]; //creates an empty vector if not present
 
@@ -65,8 +50,6 @@ void GraphPolicy::merge(const AnswerSet& plan) {
 
         std::list<AspFluent>::const_iterator currentAction = --currentPlan->end();
         planIndex[state].push_back(make_pair(currentPlan,currentAction));
-
-        state = stateWithAction;
 
     }
 

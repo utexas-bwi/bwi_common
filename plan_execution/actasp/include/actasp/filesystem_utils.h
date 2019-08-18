@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <actasp/asp/AspTerm.h>
+#include <actasp/asp/AspFunction.h>
 
 namespace actasp {
 

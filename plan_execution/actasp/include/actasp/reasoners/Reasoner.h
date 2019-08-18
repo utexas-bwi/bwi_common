@@ -6,12 +6,12 @@
 
 namespace actasp {
 
-class QueryGenerator;
+class Solver;
 class PartialPolicy;
   
 struct Reasoner : public AspKR {
   
-  Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const std::set<std::string>& allActions);
+  Reasoner(Solver *queryGenerator, unsigned int max_n, const std::set<std::string>& allActions);
   
   ActionSet availableActions() const noexcept override;
 
@@ -38,7 +38,7 @@ struct Reasoner : public AspKR {
   ~Reasoner() override = default;
 
 protected:
-  QueryGenerator *clingo;
+  Solver *clingo;
   unsigned int max_n;
   std::set<std::string> allActions;
 

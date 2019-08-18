@@ -47,7 +47,7 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   planningReasoner = unique_ptr<actasp::FilteringQueryGenerator>(Clingo::getQueryGenerator( domain_directory));
   auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
   if (boost::filesystem::is_directory(diagnosticsPath)) {
-    auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator(diagnosticsPath.string()));
+    auto diagnosticReasoner = std::unique_ptr<actasp::Solver>(actasp::Clingo::getQueryGenerator(diagnosticsPath.string()));
     ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new ExplainingRosActionServerInterfaceObserver(server, std::move(diagnosticReasoner)));
   } else {
     ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new RosActionServerInterfaceObserver(server));

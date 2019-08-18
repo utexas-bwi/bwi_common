@@ -1,7 +1,5 @@
 #include <iostream>
 #include <string>
-#include <actasp/reasoners/Clingo.h>
-#include <actasp/reasoners/FilteringReasoner.h>
 #include <gtest/gtest.h>
 #include <ros/package.h>
 #include <actasp/action_utils.h>
@@ -10,19 +8,17 @@
 
 using namespace std;
 using namespace actasp;
-class ReasonerTest : public ::testing::Test {
+
+class AspTypesTest : public ::testing::Test {
 protected:
 
-  ReasonerTest() : query_generator(std::unique_ptr<FilteringQueryGenerator>(
-      actasp::Clingo::getQueryGenerator(ros::package::getPath("plan_execution") + "/test/domain/"))),
-                   reasoner(query_generator.get(),10, query_generator->get_all_actions()) {
+  AspTypesTest() {
+
   }
 
   void SetUp() override {
   }
 
-  std::unique_ptr<FilteringQueryGenerator> query_generator;
-  FilteringReasoner reasoner;
 };
 
 TEST(AspFunction, InvalidConstructionThrows) {
@@ -217,7 +213,7 @@ TEST(AspRule, EqualityWorks) {
 }
 
 TEST(AspRule, ConvenienceConstructionWorks) {
-  auto constraint = AspIntegrityConstraint::integrity_constraint({"not bit_on(I, n)"_al, "query(n)"_al, "bit(I)"_al});
+  auto constraint = AspRule::integrity_constraint({"not bit_on(I, n)"_al, "query(n)"_al, "bit(I)"_al});
   EXPECT_EQ(constraint.head.size(), 0);
   EXPECT_EQ(constraint.body.size(), 3);
   auto fact = AspFact::fact("query(n)"_al);

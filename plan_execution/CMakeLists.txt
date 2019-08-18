@@ -127,6 +127,6 @@ install(TARGETS plan_execution
 ## Testing ##
 #############
 
-catkin_add_gtest(test_actasp test/main.cpp test/asptypes.cpp test/reasoning.cpp)
+catkin_add_gtest(test_actasp test/main.cpp test/asptypes.cpp test/solver.cpp test/reasoner.cpp)
 add_dependencies(test_actasp ${plan_execution_EXPORTED_TARGETS})
 target_link_libraries(test_actasp actasp ${catkin_LIBRARIES})

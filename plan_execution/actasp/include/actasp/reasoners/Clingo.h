@@ -8,7 +8,7 @@ namespace actasp {
 
 struct Clingo {
 
-	static FilteringQueryGenerator* getQueryGenerator(
+	static Solver* getQueryGenerator(
           const std::string& domain_directory,
           unsigned int max_time = 0) {
 

@@ -20,7 +20,7 @@ namespace actasp {
 
 class Plan;
 
-struct QueryGenerator {
+struct Solver {
 
   virtual std::vector<Plan> minimalPlanQuery(const std::vector<AspRule> &goalRules,
                                              unsigned int max_plan_length,
@@ -52,9 +52,14 @@ struct QueryGenerator {
 
   virtual std::set<std::string> get_all_actions() = 0;
 
+  virtual std::vector<Plan>
+  filteringQuery(const AnswerSet &currentState, const Plan &plan, const std::vector<actasp::AspRule> &goals,
+                 const std::vector<AspFact> *knowledge) const noexcept = 0;
+
 };
 
 }
+
 
 
 

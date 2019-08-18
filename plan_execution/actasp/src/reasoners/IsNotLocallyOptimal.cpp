@@ -22,8 +22,8 @@ IsNotLocallyOptimal::IsNotLocallyOptimal(const PlanSet* good, PlanSet* bad,
                                          shortestLength(shortestLength),
                                          planFiltered(planFiltered){}
 
-  
-bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
+
+bool IsNotLocallyOptimal::operator()(const Plan &plan) {
   
 //   cout << "*** test IsNotLocallyOptimal" << endl;
   
@@ -40,29 +40,23 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
     if(loops)
       return true;
   }
-  
-
-  const list<AspFluentRef> planCleaned = cleanPlan(plan); //remove fluents that are not actions
-
-//   cout << "piano pulito: ";
-//   copy(planCleaned.begin(), planCleaned.end(), ostream_iterator<string>(cout, " "));
-//   cout << endl;
-  
+  // TODO: Fix this method
+  /*
   //find the first action that does not belong to any minimal plan
-  list<AspFluentRef>::const_iterator firstSuspect = findFirstSuspiciousAction(planCleaned);
+  vector<AspFluent>::const_iterator firstSuspect = findFirstSuspiciousAction(plan);
 
   
-  if(firstSuspect == planCleaned.end()) {
+  if(firstSuspect == plan.actions.end()) {
 //     cout << "good" << endl;
     return false;
   }
   
 //   cout << "first suspect: " << firstSuspect->toString() << endl;
   
-  for(int l = 1, size = planCleaned.size(); l <= size - shortestLength; ++l) {
+  for(int l = 1, size = plan.actions.size(); l <= size - shortestLength; ++l) {
 
-    if(checkSectionWithLength(planCleaned,firstSuspect,l)) {
-      bad->insert(planCleaned);
+    if(checkSectionWithLength(plan,firstSuspect,l)) {
+      bad->insert(plan);
       return true;
     }
 
@@ -81,8 +75,8 @@ bool IsNotLocallyOptimal::operator()(const AnswerSet& plan) {
   }
 //  else
 //    cout << "good after check" << endl;
-  
-  return lastCheck;
+
+  return lastCheck;*/
   
   
 //   bool valid1 = validFrom(planCleaned,firstSuspect);
@@ -236,7 +230,7 @@ list<AspFluentRef> IsNotLocallyOptimal::cleanPlan(const AnswerSet& plan) const{
 
 }
 
-list<AspFluentRef>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousAction(const list<AspFluentRef>& plan) const {
+vector<AspFluent>::const_iterator IsNotLocallyOptimal::findFirstSuspiciousAction(const Plan &plan) const {
   
   if(good->empty())
     return plan.end(); //shouldn't really happen...

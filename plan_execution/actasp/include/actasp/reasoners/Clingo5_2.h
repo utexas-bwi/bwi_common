@@ -1,8 +1,11 @@
 #pragma once
 
-#include <actasp/FilteringQueryGenerator.h>
 #include <boost/filesystem.hpp>
 #include <actasp/filesystem_utils.h>
+#include <set>
+#include <actasp/AnswerSet.h>
+#include <actasp/asp/AspRule.h>
+#include <actasp/Solver.h>
 
 namespace Clingo {
 class Model;
@@ -14,7 +17,7 @@ static std::set<std::string> standard_program_names = {"base", "step", "check", 
 
 class AspProgram;
 
-struct Clingo5_2 : public FilteringQueryGenerator {
+struct Clingo5_2 : public Solver {
 
   explicit Clingo5_2(
       const std::vector<std::string> &domain_files

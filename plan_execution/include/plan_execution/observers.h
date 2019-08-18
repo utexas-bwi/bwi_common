@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 #include <actasp/ExecutionObserver.h>
 #include <actasp/PlanningObserver.h>
-#include <actasp/QueryGenerator.h>
+#include <actasp/Solver.h>
 #include <actasp/AnswerSet.h>
 #include <utility>
 #include <boost/filesystem.hpp>
@@ -114,10 +114,10 @@ struct RosActionServerInterfaceObserver : public actasp::ExecutionObserver, publ
 
 struct ExplainingRosActionServerInterfaceObserver : public RosActionServerInterfaceObserver {
 
-  std::unique_ptr<actasp::QueryGenerator> explainer;
+  std::unique_ptr<actasp::Solver> explainer;
   std::vector<actasp::AspRule> goalRules;
 
-  ExplainingRosActionServerInterfaceObserver(actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> &server, std::unique_ptr<actasp::QueryGenerator> explainer)
+  ExplainingRosActionServerInterfaceObserver(actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> &server, std::unique_ptr<actasp::Solver> explainer)
       :  explainer(std::move(explainer)), RosActionServerInterfaceObserver(server){}
 
 

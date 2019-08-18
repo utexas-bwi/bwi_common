@@ -122,5 +122,4 @@ inline AspRule operator<=(const LiteralContainer &head, const LiteralContainer &
 }
 
 typedef AspRule AspFact;
-typedef AspRule AspIntegrityConstraint;
 }

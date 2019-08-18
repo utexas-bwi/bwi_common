@@ -17,8 +17,8 @@ public:
   GraphPolicy(const std::set<std::string>& actions);
   
   ActionSet actions(const std::set<AspFluent>& state) const noexcept;
-  
-  void merge(const AnswerSet& plan);
+
+  void merge(const Plan &plan);
   
   void merge(const PartialPolicy* otherPolicy);
   

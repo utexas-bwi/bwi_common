@@ -1,6 +1,6 @@
 #include <actasp/reasoners/Reasoner.h>
 
-#include <actasp/QueryGenerator.h>
+#include <actasp/Solver.h>
 #include <actasp/action_utils.h>
 
 #include "LexComparator.h"
@@ -18,7 +18,7 @@ using namespace std;
 
 namespace actasp {
 
-Reasoner::Reasoner(QueryGenerator *queryGenerator, unsigned int max_n, const set<string> &allActions) :
+Reasoner::Reasoner(Solver *queryGenerator, unsigned int max_n, const set<string> &allActions) :
             clingo(queryGenerator), max_n(max_n), allActions(allActions) {}
   
 ActionSet Reasoner::availableActions() const noexcept {
@@ -102,7 +102,8 @@ vector<Plan> Reasoner::computeAllPlans(const vector<AspRule> &goal, double subop
   set< list<AspFluentRef>, LexComparator > badPlans;
   //this object remembers the set of bad plans, cannot be created inside the loop
 
-  IsNotLocallyOptimal isNotLocallyOptimal(&goodPlans, &badPlans,allActions,shortestLength,true);
+  // TODO: Fix isNotLocallyOptimal
+  //IsNotLocallyOptimal isNotLocallyOptimal(&goodPlans, &badPlans,allActions,shortestLength,true);
 
   list<PlanRef> goodPointers(firstAnswerSets.begin(), firstAnswerSets.end());
   while (currentFirst != moreAnswerSets.end()) {
@@ -114,7 +115,7 @@ vector<Plan> Reasoner::computeAllPlans(const vector<AspRule> &goal, double subop
 
     size_t size_pre_copy = goodPointers.size();
 
-    remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
+    //remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
 
     list<PlanRef>::iterator from = goodPointers.begin();
     advance(from,size_pre_copy);
@@ -166,7 +167,7 @@ struct PolicyMerger {
   PolicyMerger(PartialPolicy * policy) :
     policy(policy) {}
 
-  void operator()(const AnswerSet& set) {
+  void operator()(const Plan &set) {
     policy->merge(set);
   }
 
@@ -174,24 +175,6 @@ struct PolicyMerger {
 };
 
 
-
-struct CleanPlan {
-
-  CleanPlan(const set<string> &allActions) : allActions(allActions) {}
-
-  list<AspFluentRef> operator()(const AnswerSet &planWithStates) const {
-    list<AspFluentRef> actionsOnly;
-
-    remove_copy_if(planWithStates.fluents.begin(), planWithStates.fluents.end(),
-                   back_inserter(actionsOnly),not1(IsAnAction(allActions)));
-
-    return actionsOnly;
-
-  }
-
-  const set<string> &allActions;
-
-};
 
 PartialPolicy *Reasoner::computePolicy(const vector<AspRule> &goal, double suboptimality) const noexcept(false) {
 
@@ -231,11 +214,6 @@ void Reasoner::computePolicyHelper(const vector<AspRule> &goal, double suboptima
   //all accepted plans sorted lexicographically
   set< list <AspFluentRef>, LexComparator > goodPlans;
 
-  //remove the states from the plans
-  transform(firstAnswerSets.begin(),firstAnswerSets.end(),inserter(goodPlans,goodPlans.begin()), CleanPlan(allActions));
-
-
-
 //   clock_t kr2_begin = clock();
   vector<Plan> answerSets = clingo->lengthRangePlanQuery(goal, shortestLength + 1, maxLength, 0, nullptr);
 //   clock_t kr2_end = clock();
@@ -243,7 +221,8 @@ void Reasoner::computePolicyHelper(const vector<AspRule> &goal, double suboptima
 
   set< list <AspFluentRef>, LexComparator > badPlans;
   //this object remembers the set of bad plans, cannot be created inside the loop
-  IsNotLocallyOptimal isNotLocallyOptimal(&goodPlans,&badPlans, allActions, shortestLength,false);
+  // TODO: Fix is not locally optimal
+  //IsNotLocallyOptimal isNotLocallyOptimal(&goodPlans,&badPlans, allActions, shortestLength,false);
 
   auto currentFirst = answerSets.begin();
 //   clock_t filter_begin = clock();
@@ -253,12 +232,11 @@ void Reasoner::computePolicyHelper(const vector<AspRule> &goal, double suboptima
 
     auto currentLast = find_if(currentFirst,answerSets.end(),PlanLongerThan(currentFirst->maxTimeStep()));
 
-    list<AnswerSetRef> goodPointers;
-    remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
+    list<PlanRef> goodPointers;
+    //remove_copy_if(currentFirst,currentLast,back_inserter(goodPointers),isNotLocallyOptimal);
 
     for_each(goodPointers.begin(),goodPointers.end(),PolicyMerger(policy));
 
-    transform(goodPointers.begin(),goodPointers.end(),inserter(goodPlans, goodPlans.begin()), CleanPlan(allActions));
 
     currentFirst = currentLast;
 
