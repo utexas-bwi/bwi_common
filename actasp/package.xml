@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>actasp</name>
+  <version>0.1.0</version>
+  <description>The actasp package</description>
+
+  <maintainer email="nswalker@cs.uw.edu">Nick Walker</maintainer>
+  <maintainer email="jiangyuqian@utexas.edu">Yuqian Jiang</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+</package>
