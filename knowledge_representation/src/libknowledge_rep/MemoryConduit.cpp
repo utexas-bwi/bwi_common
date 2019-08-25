@@ -10,7 +10,7 @@ bool knowledge_rep::MemoryConduit::encode(std::vector<PointCloudT::Ptr> &entitie
                                           PointCloudT::Ptr &table) {
     vector<EntityAttribute> facings = Entity(robot_id, ltmc).get_attributes("facing");
     assert(facings.size() == 1);
-    int facing_id = boost::get<int>(facings.at(0).value);
+  uint facing_id = boost::get<int>(facings.at(0).value);
     //TODO: Make sure this is table
     //assert(boost::get<std::string>(ltmc.get_entity_attribute(facing_id, "concept")) == string("table"));
     vector<Entity> candidates = ltmc.get_entities_with_attribute_of_value("is_on", facing_id);

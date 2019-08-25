@@ -6,9 +6,14 @@ Mechanisms for storing information about the world, and for querying this inform
 
 ### Postgresql
 
-    sudo apt install postgresql-server-dev-all
+    sudo apt install postgresql postgresql-server-dev-all libpqxx
+    sudo -u postgres createdb knowledge_base
+    sudo -u postgres psql -d knowledge_base -f sql/schema_postgresql.sql
+    sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'nopass'"
 
-### From script
+Trust local connections in /etc/postgresql/10/main/pg_hba.conf
+
+### MySQL from script
 
 Try running
 
@@ -16,7 +21,7 @@ Try running
 
 Leave the root password blank
 
-### Semi-automatic
+### MySQL Semi-automatic
 
 Try running these commands through, one at a time. Leave the root password blank
 
@@ -39,7 +44,7 @@ Try running these commands through, one at a time. Leave the root password blank
     cd ../src/bwi_common/knowledge_representation
     mysql -u root -p -e "source sql/create_database.sql"
     
-### Manual
+### MySQL Manual
 
 If the above steps don't work, try these:
 

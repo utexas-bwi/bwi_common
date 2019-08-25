@@ -34,6 +34,7 @@ find_library(mysql NAMES libmysqlcppconn8.so)
 
 # Check to see if we have the right version of MySQL Cpp Connector installed
 if(mysql)
+    message("Found MySQL")
     set(MYSQL_AVAILABLE true)
     set(DB_INCLUDES /usr/local/mysql/connector-c++-8.0/include)
     set(DB_LIBS ${mysql})
@@ -42,8 +43,7 @@ elseif(POSTGRESQL_FOUND OR libpqxx)
     message(WARNING "MySQL Connector C++ 8.0 was not found. Using PostgreSQL.")
     set(POSTGRES_AVAILABLE true)
     set(DB_INCLUDES ${PostgreSQL_INCLUDE_DIRS})
-        set(DB_LIBS ${PostgreSQL_LIBRARIES} ${libpqxx})
-    set(DB_LIBS ${mysql})
+    set(DB_LIBS ${PostgreSQL_LIBRARIES} ${libpqxx})
     add_definitions(-DUSE_POSTGRESQL)
 else()
     message(FATAL_ERROR "Neither MySQL nor PostgreSQL found. Please install one.")
@@ -100,8 +100,10 @@ if (MYSQL_AVAILABLE)
     # will not be used alone, so methods in its interface can't really be used.
     ADD_CUSTOM_TARGET(link_target ALL
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/src/libknowledge_rep/mysql/LongTermMemoryConduitMySQL.h ${PROJECT_SOURCE_DIR}/include/knowledge_representation/LongTermMemoryConduit.h)
-elseif(POSTGRESQL_AVAILABLE)
-    set(DB_SOURCES src/libknowledge_rep/postgresql/LongTermMemoryConduit.cpp)
+elseif (POSTGRES_AVAILABLE)
+    set(DB_SOURCES src/libknowledge_rep/postgresql/LongTermMemoryConduitPostgreSQL.cpp)
+    ADD_CUSTOM_TARGET(link_target ALL
+            COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/src/libknowledge_rep/postgresql/LongTermMemoryConduitPostgreSQL.h ${PROJECT_SOURCE_DIR}/include/knowledge_representation/LongTermMemoryConduit.h)
 endif()
 add_library(libknowledge_rep
         ${DB_SOURCES}
@@ -111,7 +113,7 @@ add_library(libknowledge_rep
         ${BISON_parser_OUTPUTS}
         ${FLEX_scanner_OUTPUTS} )
 
-add_dependencies(libknowledge_rep ${knowledge_representation_EXPORTED_TARGETS})
+add_dependencies(libknowledge_rep link_target ${knowledge_representation_EXPORTED_TARGETS})
 target_link_libraries(libknowledge_rep ${DB_LIBS} ${catkin_LIBRARIES})
 
 add_library(_libknowledge_rep_wrapper_cpp src/libknowledge_rep/python_wrapper.cpp)

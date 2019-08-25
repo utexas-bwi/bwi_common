@@ -60,7 +60,7 @@ public:
   };
 
   std::vector<EntityImpl>
-  get_entities_with_attribute_of_value(const std::string &attribute_name, const int other_entity_id) {
+  get_entities_with_attribute_of_value(const std::string &attribute_name, const uint other_entity_id) {
     return static_cast<Impl *>(this)->get_entities_with_attribute_of_value(attribute_name, other_entity_id);
   };
 
@@ -74,7 +74,7 @@ public:
     return static_cast<Impl *>(this)->get_entities_with_attribute_of_value(attribute_name, string_val);
   }
 
-  bool entity_exists(int id) const {
+  bool entity_exists(uint id) const {
     return static_cast<const Impl *>(this)->entity_exists(id);
   };
 
@@ -86,7 +86,7 @@ public:
     return static_cast<const Impl *>(this)->attribute_exists(name);
   };
 
-  void delete_all_entities() {
+  uint delete_all_entities() {
     static_cast<Impl *>(this)->delete_all_entities();
   }
 
@@ -165,7 +165,7 @@ protected:
   }
 
   bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
-                     const int other_entity_id) {
+                     const uint other_entity_id) {
     return static_cast<Impl *>(this)->add_attribute(entity, attribute_name, other_entity_id);
   }
 
@@ -204,7 +204,7 @@ protected:
 
 private:
   // We make the constructor private to make sure people can't build this interface type directly
-  LongTermMemoryConduitInterface() {};
+  LongTermMemoryConduitInterface() = default;;
 };
 
 

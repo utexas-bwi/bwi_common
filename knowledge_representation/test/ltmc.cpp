@@ -147,7 +147,7 @@ TEST_F(EntityTest, StringAttributeWorks) {
 
 
 TEST_F(EntityTest, IntAttributeWorks) {
-  entity.add_attribute("is_concept", 1);
+  entity.add_attribute("is_concept", true);
   auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(int), attrs.at(0).value.type());
     EXPECT_EQ(1, boost::get<int>(attrs.at(0).value));

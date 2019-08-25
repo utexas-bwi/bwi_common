@@ -15,10 +15,11 @@ class LTMCConcept : public LTMCEntity<LTMCImpl> {
   std::string name;
 public:
 
-  LTMCConcept(int entity_id, std::string name, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : name(std::move(name)),
-                                                                                    EntityImpl(entity_id, ltmc) {}
+  LTMCConcept(uint entity_id, std::string name, LongTermMemoryConduitInterface <LTMCImpl> &ltmc) : name(
+    std::move(name)),
+                                                                                                   EntityImpl(entity_id, ltmc) {}
 
-  LTMCConcept(int entity_id, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : EntityImpl(entity_id, ltmc) {}
+  LTMCConcept(uint entity_id, LongTermMemoryConduitInterface <LTMCImpl> &ltmc) : EntityImpl(entity_id, ltmc) {}
 
   std::string get_name() {
     if (!name.empty()) {
