@@ -59,14 +59,14 @@ bool LongTermMemoryConduitPostgreSQL::entity_exists(uint id) const {
 vector<Entity> LongTermMemoryConduitPostgreSQL::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                                      const uint other_entity_id) {
   pqxx::work txn{*conn};
-  // Remove all entities
-  auto result = txn.exec("SELECT * FROM entity_attributes_id WHERE attribute_value=" + txn.quote(other_entity_id) +
-                         " and attribute_name = " + txn.quote(attribute_name));
+  auto result = txn.exec(
+    "SELECT entity_id FROM entity_attributes_id WHERE attribute_value=" + txn.quote(other_entity_id) +
+    " and attribute_name = " + txn.quote(attribute_name));
   txn.commit();
 
   vector<Entity> return_result;
   transform(result.begin(), result.end(), back_inserter(return_result), [this](const pqxx::tuple &row) {
-    return Entity(row["attribute_value"].as<uint>(), *this);
+    return Entity(row["entity_id"].as<uint>(), *this);
   });
   return return_result;
 }
@@ -129,16 +129,14 @@ bool LongTermMemoryConduitPostgreSQL::attribute_exists(const string &name) const
 Concept LongTermMemoryConduitPostgreSQL::get_concept(const string &name) {
   pqxx::work txn{*conn, "get_concept"};
   string query =
-    "SELECT * FROM entity_attributes_str AS eas "
+    "SELECT eas.entity_id FROM entity_attributes_str AS eas "
     "INNER JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
     "WHERE eas.attribute_name = 'name' "
     "AND eas.attribute_value = " + txn.quote(name) + " "
                                                      "AND eab.attribute_name = 'is_concept' "
                                                      "AND eab.attribute_value = true";
-  auto q_result = txn.exec(query);
+  auto result = txn.exec(query);
   txn.commit();
-
-  std::vector<EntityAttribute> result;
 
   if (result.empty()) {
     Entity new_concept = add_entity();
@@ -146,9 +144,11 @@ Concept LongTermMemoryConduitPostgreSQL::get_concept(const string &name) {
     new_concept.add_attribute("is_concept", true);
     return {new_concept.entity_id, name, *this};
   } else {
-    return {result[0].entity_id, name, *this};
+    assert(result.size() == 1);
+    return {result[0]["entity_id"].as<uint>(), name, *this};
   }
 }
+
 
 /**
  * @brief Retrieves an instance of the given name, or creates one with the name if no such instance exists
@@ -265,24 +265,25 @@ vector<std::pair<string, int> > LongTermMemoryConduitPostgreSQL::get_all_attribu
  * @return true if the entity was deleted. False if it could not be, or already was
  */
 bool LongTermMemoryConduitPostgreSQL::delete_entity(Entity &entity) {
-
-  // TODO: Handle failure
   // TODO: Recursively remove entities that are members of directional relations
   if (!entity.is_valid()) {
     return false;
   }
   // Because we've all references to this entity have foreign key relationships with cascade set,
   // this should clear out any references to this entity in other tables as well
-  assert(false);
-
-  // TODO: Actually check that we deleted something
-  return true;
+  try {
+    pqxx::work txn{*conn, "delete_entity"};
+    auto result = txn.exec("DELETE FROM entities WHERE entity_id = " + txn.quote(entity.entity_id));
+    txn.commit();
+    return result.affected_rows() == 1;
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return false;
+  }
 }
 
 bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                     const float float_val) {
-  add_new_attribute(attribute_name, "float");
-
   try {
     pqxx::work txn{*conn, "add_attribute (float)"};
     auto result = txn.exec(
@@ -300,8 +301,6 @@ bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::s
 
 bool
 LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::string &attribute_name, const bool bool_val) {
-  add_new_attribute(attribute_name, "bool");
-
   try {
     pqxx::work txn{*conn, "add_attribute (bool)"};
     auto result = txn.exec(
@@ -319,8 +318,6 @@ LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::string
 
 bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                     const uint other_entity_id) {
-  add_new_attribute(attribute_name, "id");
-
   try {
     pqxx::work txn{*conn, "add_attribute (id)"};
     auto result = txn.exec(
@@ -337,8 +334,6 @@ bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::s
 
 bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::string &attribute_name,
                                                     const std::string &string_val) {
-  add_new_attribute(attribute_name, "string");
-
   try {
     pqxx::work txn{*conn, "add_attribute (str)"};
     auto result = txn.exec(
@@ -368,16 +363,67 @@ int LongTermMemoryConduitPostgreSQL::remove_attribute_of_value(Entity &entity, c
   assert(false);
 }
 
+void unwrap_attribute_rows(pqxx::result rows, vector<EntityAttribute> &entity_attributes) {
+  pqxx::oid type = rows[0]["attribute_value"].type();
+  if (type == 23) {
+    for (const auto &row: rows) {
+      entity_attributes.emplace_back(EntityAttribute(row["entity_id"].as<uint>(), row["attribute_name"].as<string>(),
+                                                     row["attribute_value"].as<int>()));
+    }
+  } else if (type == 1043) {
+    for (const auto &row: rows) {
+      entity_attributes.emplace_back(EntityAttribute(row["entity_id"].as<uint>(), row["attribute_name"].as<string>(),
+                                                     row["attribute_value"].as<string>()));
+    }
+  } else if (type == 701) {
+    for (const auto &row: rows) {
+      entity_attributes.emplace_back(EntityAttribute(row["entity_id"].as<uint>(), row["attribute_name"].as<string>(),
+                                                     row["attribute_value"].as<float>()));
+    }
+  } else if (type == 16) {
+    for (const auto &row: rows) {
+      entity_attributes.emplace_back(EntityAttribute(row["entity_id"].as<uint>(), row["attribute_name"].as<string>(),
+                                                     row["attribute_value"].as<bool>()));
+    }
+  } else {
+    assert(false);
+  }
+}
 
 vector<EntityAttribute>
 LongTermMemoryConduitPostgreSQL::get_attributes(const Entity &entity) const {
-  assert(false);
+  vector<EntityAttribute> attributes;
+  for (const auto &name: table_names) {
+    try {
+      pqxx::work txn{*conn, "get_attributes"};
+      auto result = txn.exec("SELECT * FROM " + name + " WHERE entity_id = " + txn.quote(entity.entity_id));
+      txn.commit();
+      unwrap_attribute_rows(result, attributes);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << std::endl;
+      return {};
+    }
+  }
+  return attributes;
 }
 
 std::vector<EntityAttribute>
 LongTermMemoryConduitPostgreSQL::get_attributes(const Entity &entity, const std::string &attribute_name) const {
-  assert(false);
-
+  vector<EntityAttribute> attributes;
+  for (const auto &name: table_names) {
+    try {
+      pqxx::work txn{*conn, "get_attributes"};
+      auto result = txn.exec(
+        "SELECT * FROM " + name + " WHERE entity_id = " + txn.quote(entity.entity_id) + " AND attribute_name = " +
+        txn.quote(attribute_name));
+      txn.commit();
+      unwrap_attribute_rows(result, attributes);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << std::endl;
+      return {};
+    }
+  }
+  return attributes;
 }
 
 /**
@@ -397,8 +443,22 @@ bool LongTermMemoryConduitPostgreSQL::is_valid(const Entity &entity) const {
  * then get_concepts will return the concepts of both apple and fruit.
  * @return
  */
-std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_concepts(const Instance &instance) {
-  assert(false);
+std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_concepts(const Instance &instance)
+// TODO: Convert this procedure to a function in the schema
+{
+  try {
+    pqxx::work txn{*conn, "get_concepts"};
+    auto result = txn.exec("SELECT get_concepts(" + txn.quote(instance.entity_id) + ")");
+    txn.commit();
+    std::vector<Concept> concepts{};
+    std::transform(result.begin(), result.end(), std::back_inserter(concepts), [this](const pqxx::tuple &row) {
+      return Concept(row["entity_id"].as<uint>(), *this);
+    });
+    return concepts;
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return {};
+  }
 
 }
 

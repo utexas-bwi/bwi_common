@@ -92,31 +92,31 @@ CREATE TABLE entity_attributes_bool
 );
 
 /******************* FUNCTIONS */
-DELIMITER //
+
 /* Counts the number of entities that have the same name */
 CREATE FUNCTION NumSameNames()
-    RETURNS int
-    DETERMINISTIC
-BEGIN
-DECLARE name_same_count INT unsigned DEFAULT 0;
-SELECT count(*)
-FROM entity_attributes_str l
-         INNER JOIN entity_attributes_str r
-                    ON r.attribute_name = "name"
-                        AND l.attribute_value = r.attribute_value
-    INTO name_same_count;
-RETURN name_same_count;
-END //
+    RETURNS BIGINT
+    IMMUTABLE
+    LANGUAGE SQL
+AS
+$$
+SELECT COUNT(*)
+FROM entity_attributes_str
+WHERE attribute_name = 'name'
+  AND attribute_value = 'robot'
+$$;
 
-CREATE PROCEDURE get_concepts(IN object INT)
-BEGIN
+CREATE PROCEDURE get_concepts(INT)
+    LANGUAGE SQL
+AS
+$$
 WITH RECURSIVE cteConcepts (ID)
                    AS
                    (
                        SELECT attribute_value
                        FROM entity_attributes_id
                        WHERE attribute_name = "instance_of"
-                         AND entity_id = object
+                         AND entity_id = $1
 
                        UNION ALL
 
@@ -128,9 +128,7 @@ WITH RECURSIVE cteConcepts (ID)
                    )
 SELECT ID
 FROM cteConcepts;
-END//
-
-DELIMITER;
+$$;
 
 /***** DEFAULT VALUES */
 
