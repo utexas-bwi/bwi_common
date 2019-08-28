@@ -106,7 +106,45 @@ WHERE attribute_name = 'name'
   AND attribute_value = 'robot'
 $$;
 
-CREATE PROCEDURE get_concepts(INT)
+CREATE FUNCTION remove_attribute(INT, varchar(24))
+    RETURNS BIGINT
+    LANGUAGE plpgsql
+AS
+$body$
+DECLARE
+    n_bool_del  bigint;
+    n_float_del bigint;
+    n_id_del    bigint;
+    n_str_del   bigint;
+BEGIN
+    WITH bool_del
+             AS (DELETE FROM entity_attributes_bool WHERE entity_id = $1 AND attribute_name = $2 RETURNING entity_id)
+    SELECT count(*)
+    FROM bool_del
+    INTO n_bool_del;
+    WITH float_del
+             AS (DELETE FROM entity_attributes_float WHERE entity_id = $1 AND attribute_name = $2 RETURNING entity_id)
+    SELECT count(*)
+    FROM float_del
+    INTO n_float_del;
+    WITH id_del AS (DELETE FROM entity_attributes_id WHERE entity_id = $1 AND attribute_name = $2 RETURNING entity_id)
+    SELECT count(*)
+    FROM id_del
+    INTO n_id_del;
+    WITH str_del AS (DELETE FROM entity_attributes_str WHERE entity_id = $1 AND attribute_name = $2 RETURNING entity_id)
+    SELECT count(*)
+    FROM str_del
+    INTO n_str_del;
+    RETURN n_bool_del + n_float_del + n_id_del + n_str_del;
+END
+$body$;
+
+CREATE FUNCTION get_concepts(INT)
+    RETURNS TABLE
+            (
+                entity_id INT
+            )
+    IMMUTABLE
     LANGUAGE SQL
 AS
 $$
@@ -115,7 +153,7 @@ WITH RECURSIVE cteConcepts (ID)
                    (
                        SELECT attribute_value
                        FROM entity_attributes_id
-                       WHERE attribute_name = "instance_of"
+                       WHERE attribute_name = 'instance_of'
                          AND entity_id = $1
 
                        UNION ALL
@@ -123,7 +161,7 @@ WITH RECURSIVE cteConcepts (ID)
                        SELECT a.attribute_value
                        FROM entity_attributes_id a
                                 INNER JOIN cteConcepts b
-                                           ON a.attribute_name = "is_a"
+                                           ON a.attribute_name = 'is_a'
                                                AND a.entity_id = b.ID
                    )
 SELECT ID

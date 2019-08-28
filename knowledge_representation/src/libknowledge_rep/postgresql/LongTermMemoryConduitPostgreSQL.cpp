@@ -165,17 +165,19 @@ Instance LongTermMemoryConduitPostgreSQL::get_instance_named(const string &name)
     "AND eas.attribute_value = " + txn.quote(name) + " "
                                                      "AND ((eab.attribute_name = 'is_concept' AND eab.attribute_value = false) "
                                                      "     OR (eab.entity_id is NULL))";
+  // If there's no "is_concept" marker on an entity, we assume it is not a concept
   auto q_result = txn.exec(query);
   txn.commit();
-  std::vector<EntityAttribute> result;
 
-  if (result.empty()) {
+  if (q_result.empty()) {
     Instance new_entity = Instance(add_entity().entity_id, *this);
     new_entity.add_attribute("name", name);
     new_entity.add_attribute("is_concept", false);
     return new_entity;
   } else {
-    return {result[0].entity_id, *this};
+    // Can only be one instance with a given name
+    assert(q_result.size() == 1);
+    return {q_result[0]["entity_id"].as<uint>(), *this};
   }
 }
 
@@ -350,12 +352,18 @@ bool LongTermMemoryConduitPostgreSQL::add_attribute(Entity &entity, const std::s
 
 int LongTermMemoryConduitPostgreSQL::remove_attribute(Entity &entity, const std::string &attribute_name) {
   int removed_count = 0;
-  for (const auto &table_name: table_names) {
-    // TODO: Rewrite this as SQL query to delete from a join across attribute_name
-    assert(false);
-
+  string query;
+  pqxx::work txn{*conn, "remove_attribute"};
+  try {
+    auto result = txn.exec(
+      "SELECT * FROM remove_attribute(" + txn.quote(entity.entity_id) + ", " + txn.quote(attribute_name) +
+      ") AS count");
+    txn.commit();
+    return result[0]["count"].as<int>();
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return 0;
   }
-  return removed_count;
 }
 
 int LongTermMemoryConduitPostgreSQL::remove_attribute_of_value(Entity &entity, const std::string &attribute_name,
@@ -448,11 +456,11 @@ std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_concepts(const Instanc
 {
   try {
     pqxx::work txn{*conn, "get_concepts"};
-    auto result = txn.exec("SELECT get_concepts(" + txn.quote(instance.entity_id) + ")");
+    auto result = txn.exec("SELECT get_concepts(" + txn.quote(instance.entity_id) + ") AS concept_id");
     txn.commit();
     std::vector<Concept> concepts{};
     std::transform(result.begin(), result.end(), std::back_inserter(concepts), [this](const pqxx::tuple &row) {
-      return Concept(row["entity_id"].as<uint>(), *this);
+      return Concept(row["concept_id"].as<uint>(), *this);
     });
     return concepts;
   } catch (const std::exception &e) {

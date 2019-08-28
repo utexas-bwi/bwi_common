@@ -77,7 +77,9 @@ TEST_F(LTMCTest, ObjectAndConceptNameSpacesAreSeparate) {
     Concept pitcher_con = ltmc.get_concept("soylent pitcher");
     knowledge_rep::Entity pitcher = ltmc.get_instance_named("soylent pitcher");
     EXPECT_NE(ltmc.get_instance_named("soylent pitcher").entity_id, pitcher_con.entity_id);
-    EXPECT_TRUE(ltmc.entity_exists(pitcher.entity_id));
+  // Both should still be valid
+  EXPECT_TRUE(pitcher_con.is_valid());
+  EXPECT_TRUE(pitcher.is_valid());
     // Named entity returns the only entity by that name
     EXPECT_EQ(pitcher, ltmc.get_instance_named("soylent pitcher"));
 }
@@ -142,16 +144,16 @@ TEST_F(EntityTest, StringAttributeWorks) {
   auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(string), attrs.at(0).value.type());
     EXPECT_EQ("test", boost::get<string>(attrs.at(0).value));
-  EXPECT_TRUE(entity.remove_attribute("is_concept"));
+  EXPECT_EQ(1, entity.remove_attribute("is_concept"));
 }
 
 
 TEST_F(EntityTest, IntAttributeWorks) {
-  entity.add_attribute("is_concept", true);
+  entity.add_attribute("is_concept", 1u);
   auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(int), attrs.at(0).value.type());
     EXPECT_EQ(1, boost::get<int>(attrs.at(0).value));
-  EXPECT_TRUE(entity.remove_attribute("is_concept"));
+  EXPECT_EQ(1, entity.remove_attribute("is_concept"));
 }
 
 TEST_F(EntityTest, FloatAttributeWorks) {
@@ -159,7 +161,7 @@ TEST_F(EntityTest, FloatAttributeWorks) {
   auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(float), attrs.at(0).value.type());
     EXPECT_EQ(1, boost::get<float>(attrs.at(0).value));
-  EXPECT_TRUE(entity.remove_attribute("is_concept"));
+  EXPECT_EQ(1, entity.remove_attribute("is_concept"));
 }
 
 TEST_F(EntityTest, BoolAttributeWorks) {
@@ -167,13 +169,13 @@ TEST_F(EntityTest, BoolAttributeWorks) {
   auto attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(bool), attrs.at(0).value.type());
     EXPECT_TRUE(boost::get<bool>(attrs.at(0).value));
-  EXPECT_TRUE(entity.remove_attribute("is_concept"));
+  EXPECT_EQ(1, entity.remove_attribute("is_concept"));
 
   entity.add_attribute("is_concept", false);
   attrs = entity.get_attributes("is_concept");
     ASSERT_EQ(typeid(bool), attrs.at(0).value.type());
     EXPECT_FALSE(boost::get<bool>(attrs.at(0).value));
-  EXPECT_TRUE(entity.remove_attribute("is_concept"));
+  EXPECT_EQ(1, entity.remove_attribute("is_concept"));
 
 }
 

@@ -12,10 +12,12 @@ class LTMCInstance : public LTMCEntity<LTMCImpl> {
     std::string name;
 public:
 
-    LTMCInstance(int entity_id, std::string name, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : name(std::move(name)),
-                                                                                    LTMCEntity<LTMCImpl>(entity_id, ltmc) {}
+  LTMCInstance(uint entity_id, std::string name, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : name(
+    std::move(name)),
+                                                                                                   LTMCEntity<LTMCImpl>(entity_id, ltmc) {}
 
-    LTMCInstance(int entity_id, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : LTMCEntity<LTMCImpl> (entity_id, ltmc) {}
+  LTMCInstance(uint entity_id, LongTermMemoryConduitInterface<LTMCImpl> &ltmc) : LTMCEntity<LTMCImpl>(entity_id,
+                                                                                                      ltmc) {}
 
     boost::optional<std::string> get_name() {
       if (!name.empty()) {

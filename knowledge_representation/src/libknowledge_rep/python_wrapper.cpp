@@ -106,13 +106,13 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
   class_<vector<Instance> >("PyInstanceList")
       .def(vector_indexing_suite<vector<Instance> >());
 
-  class_<Entity>("Entity", init<int, LTMC &>())
+  class_<Entity>("Entity", init<uint, LTMC &>())
       .def_readonly("entity_id", &Entity::entity_id)
       .def("add_attribute_str",
            static_cast<bool (Entity::*)(const string &, const string &)>
            (&Entity::add_attribute))
       .def("add_attribute_int",
-           static_cast<bool (Entity::*)(const string &, int)>
+           static_cast<bool (Entity::*)(const string &, uint)>
            (&Entity::add_attribute))
       .def("add_attribute_float",
            static_cast<bool (Entity::*)(const string &, float)>
@@ -131,7 +131,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("delete", &Entity::delete_entity)
       .def("is_valid", &Entity::is_valid);
 
-  class_<Concept, bases<Entity> >("Concept", init<int, LTMC &>())
+  class_<Concept, bases<Entity> >("Concept", init<uint, LTMC &>())
       .def("remove_instances", &Concept::remove_instances)
       .def("remove_references", &Concept::remove_references)
       .def("get_instances", &Concept::get_instances)
@@ -142,7 +142,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
            static_cast<boost::optional<Instance> (Concept::*)(const string &)> (&Concept::create_instance),
            python::return_value_policy<return_optional>());
 
-  class_<Instance, bases<Entity> >("Instance", init<int, LTMC &>())
+  class_<Instance, bases<Entity> >("Instance", init<uint, LTMC &>())
       .def("make_instance_of", &Instance::make_instance_of)
       .def("get_name", &Instance::get_name,
            python::return_value_policy<return_optional>())
@@ -150,7 +150,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("has_concept", &Instance::has_concept);
 
 
-  class_<EntityAttribute>("EntityAttribute", init<int, string, AttributeValue>())
+  class_<EntityAttribute>("EntityAttribute", init<uint, string, AttributeValue>())
       .def_readonly("entity_id", &EntityAttribute::entity_id)
       .def_readonly("attribute_name", &EntityAttribute::attribute_name)
       .def("get_int_value", &EntityAttribute::get_int_value)
@@ -169,7 +169,7 @@ BOOST_PYTHON_MODULE (_libknowledge_rep_wrapper_cpp) {
       .def("attribute_exists", &LTMC::attribute_exists)
       .def("delete_all_entities", &LTMC::delete_all_entities)
       .def("get_entities_with_attribute_of_value",
-           static_cast<vector<Entity> (LTMC::*)(const string &, const int)>
+           static_cast<vector<Entity> (LTMC::*)(const string &, const uint)>
            (&LTMC::get_entities_with_attribute_of_value))
       .def("select_query_int", static_cast<bool (LTMC::*)(const string &,
                                                           vector<EntityAttribute> &) const>(&LTMC::select_query_int))
