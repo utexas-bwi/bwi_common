@@ -16,6 +16,7 @@
     <depend>libpqxx</depend>
     <depend>pcl_conversions</depend>
     <depend>pcl_ros</depend>
+    <depend>postgresql</depend>
     <depend>roscpp</depend>
     <depend>sensor_msgs</depend>
     <depend>std_msgs</depend>

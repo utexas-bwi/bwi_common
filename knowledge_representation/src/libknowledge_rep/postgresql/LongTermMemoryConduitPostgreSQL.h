@@ -131,33 +131,6 @@ public:
 
 protected:
 
-  /* template<typename T>
-   std::vector<EntityAttribute> unwrap_attribute_rows(std::list<mysqlx::Row> rows) const {
-     std::vector<EntityAttribute> result_map;
-     for (auto &row: rows) {
-       int obj_id = row[0];
-       std::string attribute_name = row[1];
-       T unwrapped = row[2];
-       AttributeValue col_value(unwrapped);
-       result_map.emplace_back(EntityAttribute(obj_id, attribute_name, col_value));
-     }
-     return result_map;
-   }
-
-   std::vector<EntityAttribute>
-   unwrap_attribute_rows(const std::string &table_name, const std::list<mysqlx::Row> &rows) const {
-
-     if (table_name == "entity_attributes_str") {
-       return unwrap_attribute_rows<std::string>(rows);
-     } else if (table_name == "entity_attributes_id") {
-       return unwrap_attribute_rows<int>(rows);
-     } else if (table_name == "entity_attributes_bool") {
-       return unwrap_attribute_rows<bool>(rows);
-     } else if (table_name == "entity_attributes_float") {
-       return unwrap_attribute_rows<float>(rows);
-     }
-   }*/
-
   bool delete_entity(EntityImpl &entity);
 
   bool add_attribute(EntityImpl &entity, const std::string &attribute_name,

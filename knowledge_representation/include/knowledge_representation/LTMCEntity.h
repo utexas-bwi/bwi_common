@@ -12,7 +12,7 @@ namespace knowledge_rep {
   public:
     uint entity_id;
 
-    LTMCEntity(int entity_id, LongTermMemoryConduitInterface<LTMCImpl> &ltmc): entity_id(entity_id), ltmc(ltmc){}
+    LTMCEntity(uint entity_id, LongTermMemoryConduitInterface <LTMCImpl> &ltmc) : entity_id(entity_id), ltmc(ltmc) {}
 
     bool add_attribute(const std::string &attribute_name, const std::string &string_val){
       return ltmc.get().add_attribute(*this, attribute_name, string_val);
