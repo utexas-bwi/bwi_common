@@ -38,11 +38,12 @@ bool LongTermMemoryConduitPostgreSQL::add_entity(int id) {
  * @param allowed_types a bitmask representing the types allowed for the attribute
  * @return whether the attribute was added. Note that addition will fail if the attribute already exists.
  */
-bool LongTermMemoryConduitPostgreSQL::add_new_attribute(const string &name, const std::string &type) {
+bool LongTermMemoryConduitPostgreSQL::add_new_attribute(const string &name, const AttributeValueType type) {
   try {
     pqxx::work txn{*conn};
     pqxx::result result = txn.exec(
-      "INSERT INTO attributes VALUES (" + txn.quote(name) + ", " + txn.quote(type) + ") ON CONFLICT DO NOTHING");
+      "INSERT INTO attributes VALUES (" + txn.quote(name) + ", " + txn.quote(attribute_value_type_to_string[type]) +
+      ") ON CONFLICT DO NOTHING");
     txn.commit();
     return result.affected_rows() == 1;
   } catch (const std::exception &e) {
@@ -103,6 +104,20 @@ std::vector<Entity> LongTermMemoryConduitPostgreSQL::get_all_entities() {
 }
 
 /**
+ * @brief Remove all attributes except those defined in the schema as defaults
+ */
+uint LongTermMemoryConduitPostgreSQL::delete_all_attributes() {
+  pqxx::work txn{*conn};
+
+  // Remove all entities
+  uint num_deleted = txn.exec("DELETE FROM attributes").affected_rows();
+  // Use the baked in function to get the default configuration back
+  txn.exec("SELECT * FROM add_default_attributes()");
+  txn.commit();
+  return num_deleted;
+}
+
+/**
  * @brief Remove all entities and all entity attributes except for the robot
  */
 uint LongTermMemoryConduitPostgreSQL::delete_all_entities() {
@@ -110,13 +125,9 @@ uint LongTermMemoryConduitPostgreSQL::delete_all_entities() {
 
   // Remove all entities
   uint num_deleted = txn.exec("DELETE FROM entities").affected_rows();
+  // Use the baked in function to get the default configuration back
+  txn.exec("SELECT * FROM add_default_entities()");
   txn.commit();
-
-  // Add the robot itself back
-  add_entity(1);
-  auto robot = Entity(1, *this);
-  Concept robot_con = get_concept("robot");
-  robot.add_attribute("instance_of", robot_con);
   assert(entity_exists(1));
   return num_deleted;
 }
@@ -141,13 +152,11 @@ bool LongTermMemoryConduitPostgreSQL::attribute_exists(const string &name) const
  */
 Concept LongTermMemoryConduitPostgreSQL::get_concept(const string &name) {
   pqxx::work txn{*conn, "get_concept"};
-  string query =
-    "SELECT eas.entity_id FROM entity_attributes_str AS eas "
-    "INNER JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
-    "WHERE eas.attribute_name = 'name' "
-    "AND eas.attribute_value = " + txn.quote(name) + " "
-                                                     "AND eab.attribute_name = 'is_concept' "
-                                                     "AND eab.attribute_value = true";
+  string query = "SELECT entity_id FROM entity_attributes_str WHERE attribute_name = 'name' "
+                 "AND attribute_value = " + txn.quote(name) + " "
+                                                              "AND entity_id IN "
+                                                              "(SELECT entity_id FROM entity_attributes_bool "
+                                                              "WHERE attribute_name = 'is_concept' AND attribute_value = true)";
   auto result = txn.exec(query);
   txn.commit();
 
@@ -172,12 +181,12 @@ Concept LongTermMemoryConduitPostgreSQL::get_concept(const string &name) {
 Instance LongTermMemoryConduitPostgreSQL::get_instance_named(const string &name) {
   pqxx::work txn{*conn, "get_instance_named"};
   string query =
-    "SELECT * FROM entity_attributes_str AS eas "
-    "LEFT JOIN entity_attributes_bool AS eab ON eas.entity_id = eab.entity_id "
-    "WHERE eas.attribute_name = 'name' "
-    "AND eas.attribute_value = " + txn.quote(name) + " "
-                                                     "AND ((eab.attribute_name = 'is_concept' AND eab.attribute_value = false) "
-                                                     "     OR (eab.entity_id is NULL))";
+    "SELECT entity_id FROM entity_attributes_str WHERE attribute_name = 'name' "
+    "AND attribute_value = " + txn.quote(name) + " "
+                                                 "AND entity_id NOT IN "
+                                                 "(SELECT entity_id FROM entity_attributes_bool "
+                                                 "WHERE attribute_name = 'is_concept' AND attribute_value = true)";
+
   // If there's no "is_concept" marker on an entity, we assume it is not a concept
   auto q_result = txn.exec(query);
   txn.commit();
@@ -233,15 +242,17 @@ Entity LongTermMemoryConduitPostgreSQL::add_entity() {
  * @return all concepts in the LTMC
  */
 std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_all_concepts() {
-  vector<Concept> concepts;
+  pqxx::work txn{*conn, "get_all_concepts"};
   string query =
-    "SELECT * FROM entity_attributes_bool "
+    "SELECT entity_id FROM entity_attributes_bool "
     "WHERE attribute_name = 'is_concept' "
     "AND attribute_value = true ";
-  std::vector<EntityAttribute> result;
-  select_query<bool>(query, result);
-  transform(result.begin(), result.end(), back_inserter(concepts),
-            [this](EntityAttribute &attr) { return Concept(attr.entity_id, *this); });
+  auto result = txn.exec(query);
+  txn.commit();
+  vector<Concept> concepts;
+  for (const auto &row: result) {
+    concepts.emplace_back(row["entity_id"].as<uint>(), *this);
+  }
   return concepts;
 }
 
@@ -250,16 +261,16 @@ std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_all_concepts() {
  * @return all instances in the LTMC
  */
 std::vector<Instance> LongTermMemoryConduitPostgreSQL::get_all_instances() {
-  vector<Instance> concepts;
-  string query =
-    "SELECT * FROM entity_attributes_bool "
-    "WHERE attribute_name = 'is_concept' "
-    "AND attribute_value = false ";
-  std::vector<EntityAttribute> result;
-  select_query<bool>(query, result);
-  transform(result.begin(), result.end(), back_inserter(concepts),
-            [this](EntityAttribute &attr) { return Instance(attr.entity_id, *this); });
-  return concepts;
+  pqxx::work txn{*conn, "get_all_instances"};
+  auto result = txn.exec("SELECT entity_id FROM entities WHERE entity_id NOT IN ("
+                         "SELECT entity_id FROM entity_attributes_bool "
+                         "WHERE attribute_name = 'is_concept' AND attribute_value = true)");
+  txn.commit();
+  vector<Instance> instances;
+  for (const auto &row: result) {
+    instances.emplace_back(row["entity_id"].as<uint>(), *this);
+  }
+  return instances;
 }
 
 /**
@@ -267,9 +278,15 @@ std::vector<Instance> LongTermMemoryConduitPostgreSQL::get_all_instances() {
  * @return a list of tuples. First element of each is the attribute name, the second is a bitmask representing acceptable
  * types for that attribute
  */
-vector<std::pair<string, int> > LongTermMemoryConduitPostgreSQL::get_all_attributes() const {
-  vector<std::pair<string, int> > attribute_names;
-
+vector<std::pair<string, AttributeValueType> > LongTermMemoryConduitPostgreSQL::get_all_attributes() const {
+  vector<std::pair<string, AttributeValueType> > attribute_names;
+  pqxx::work txn{*conn, "get_all_attributes"};
+  auto result = txn.exec("TABLE attributes");
+  txn.commit();
+  for (const auto &row: result) {
+    attribute_names.emplace_back(row["attribute_name"].as<string>(),
+                                 string_to_attribute_value_type[row["type"].as<string>()]);
+  }
   return attribute_names;
 }
 
@@ -416,7 +433,8 @@ LongTermMemoryConduitPostgreSQL::get_attributes(const Entity &entity) const {
   for (const auto &name: table_names) {
     try {
       pqxx::work txn{*conn, "get_attributes"};
-      auto result = txn.exec("SELECT * FROM " + name + " WHERE entity_id = " + txn.quote(entity.entity_id));
+      auto result = txn.exec(
+        "SELECT * FROM " + std::string(name) + " WHERE entity_id = " + txn.quote(entity.entity_id));
       txn.commit();
       unwrap_attribute_rows(result, attributes);
     } catch (const std::exception &e) {
@@ -434,7 +452,8 @@ LongTermMemoryConduitPostgreSQL::get_attributes(const Entity &entity, const std:
     try {
       pqxx::work txn{*conn, "get_attributes"};
       auto result = txn.exec(
-        "SELECT * FROM " + name + " WHERE entity_id = " + txn.quote(entity.entity_id) + " AND attribute_name = " +
+        "SELECT * FROM " + std::string(name) + " WHERE entity_id = " + txn.quote(entity.entity_id) +
+        " AND attribute_name = " +
         txn.quote(attribute_name));
       txn.commit();
       unwrap_attribute_rows(result, attributes);

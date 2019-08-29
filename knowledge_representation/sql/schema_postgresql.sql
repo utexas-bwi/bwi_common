@@ -9,7 +9,7 @@ CREATE TABLE entities
     PRIMARY KEY (entity_id)
 );
 
-CREATE TYPE attribute_type as ENUM ('bool', 'int', 'id', 'string', 'float');
+CREATE TYPE attribute_type as ENUM ('bool', 'int', 'id', 'str', 'float');
 
 CREATE TABLE attributes
 (
@@ -100,6 +100,7 @@ CREATE FUNCTION NumSameNames()
     LANGUAGE SQL
 AS
 $$
+/* TODO: Fix this and reenable the trigger */
 SELECT COUNT(*)
 FROM entity_attributes_str
 WHERE attribute_name = 'name'
@@ -151,6 +152,7 @@ $$
 WITH RECURSIVE cteConcepts (ID)
                    AS
                    (
+                       /* Get whatever the argument is an instance of, and then every thing that that is a descended concept of*/
                        SELECT attribute_value
                        FROM entity_attributes_id
                        WHERE attribute_name = 'instance_of'
@@ -168,49 +170,66 @@ SELECT ID
 FROM cteConcepts;
 $$;
 
+CREATE FUNCTION add_default_attributes()
+    RETURNS VOID
+    LANGUAGE SQL
+AS
+$$
+
+INSERT INTO attributes
+VALUES ('answer_to', 'int');
+INSERT INTO attributes
+VALUES ('default_location', 'int');
+INSERT INTO attributes
+VALUES ('has', 'int');
+INSERT INTO attributes
+VALUES ('height', 'float');
+INSERT INTO attributes
+VALUES ('instance_of', 'int');
+INSERT INTO attributes
+VALUES ('is_a', 'int');
+INSERT INTO attributes
+VALUES ('is_concept', 'bool');
+INSERT INTO attributes
+VALUES ('is_connected', 'int');
+INSERT INTO attributes
+VALUES ('is_delivered', 'int');
+INSERT INTO attributes
+VALUES ('is_facing', 'int');
+INSERT INTO attributes
+VALUES ('is_holding', 'int');
+INSERT INTO attributes
+VALUES ('is_in', 'int');
+INSERT INTO attributes
+VALUES ('is_near', 'int');
+INSERT INTO attributes
+VALUES ('is_open', 'bool');
+INSERT INTO attributes
+VALUES ('is_placed', 'int');
+INSERT INTO attributes
+VALUES ('name', 'str');
+$$;
+
 /***** DEFAULT VALUES */
+CREATE FUNCTION add_default_entities()
+    RETURNS VOID
+    LANGUAGE SQL
+AS
+$$
 
-insert into attributes(attribute_name, type)
-values ('answer_to', 'int');
-insert into attributes(attribute_name, type)
-values ('default_location', 'int');
-insert into attributes(attribute_name, type)
-values ('has', 'int');
-insert into attributes(attribute_name, type)
-values ('height', 'float');
-insert into attributes(attribute_name, type)
-values ('instance_of', 'int');
-insert into attributes(attribute_name, type)
-values ('is_a', 'int');
-insert into attributes(attribute_name, type)
-values ('is_concept', 'bool');
-insert into attributes(attribute_name, type)
-values ('is_connected', 'int');
-insert into attributes(attribute_name, type)
-values ('is_delivered', 'int');
-insert into attributes(attribute_name, type)
-values ('is_facing', 'int');
-insert into attributes(attribute_name, type)
-values ('is_holding', 'int');
-insert into attributes(attribute_name, type)
-values ('is_in', 'int');
-insert into attributes(attribute_name, type)
-values ('is_near', 'int');
-insert into attributes(attribute_name, type)
-values ('is_open', 'bool');
-insert into attributes(attribute_name, type)
-values ('is_placed', 'int');
-insert into attributes(attribute_name, type)
-values ('name', 'string');
+INSERT INTO entities
+VALUES (1);
+INSERT INTO entities
+VALUES (2);
+INSERT INTO entity_attributes_str
+VALUES (2, 'name', 'robot');
+INSERT INTO entity_attributes_bool
+VALUES (2, 'is_concept', TRUE);
+INSERT INTO entity_attributes_id
+VALUES (1, 'instance_of', 2);
+$$;
 
-
-insert into entities(entity_id)
-values (1);
-insert into entities(entity_id)
-values (2);
-insert into entity_attributes_str(entity_id, attribute_name, attribute_value)
-values (2, 'name', 'robot');
-insert into entity_attributes_bool(entity_id, attribute_name, attribute_value)
-values (2, 'is_concept', TRUE);
-insert into entity_attributes_id(entity_id, attribute_name, attribute_value)
-values (1, 'instance_of', 2);
+SELECT *
+FROM add_default_attributes();
+SELECT *
+FROM add_default_entities();

@@ -3,8 +3,24 @@
 #pragma once
 #include <string>
 #include <boost/variant.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace knowledge_rep {
+
+enum AttributeValueType {
+  Int, Str, Bool, Float
+};
+
+static std::map<std::string, AttributeValueType> string_to_attribute_value_type = {{"int",   Int},
+                                                                                   {"str",   Str},
+                                                                                   {"bool",  Bool},
+                                                                                   {"float", Float}};
+
+static std::map<AttributeValueType, std::string> attribute_value_type_to_string = {{Int,   "int"},
+                                                                                   {Str,   "str"},
+                                                                                   {Bool,  "bool"},
+                                                                                   {Float, "float"}};
+
 
 typedef boost::variant<int, float, bool, std::string> AttributeValue;
 

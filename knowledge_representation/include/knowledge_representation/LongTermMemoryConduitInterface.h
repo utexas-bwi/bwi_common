@@ -34,6 +34,8 @@ class LTMCEntity;
 
 class EntityAttribute;
 
+enum AttributeValueType;
+
 
 template<typename Impl>
 class LongTermMemoryConduitInterface {
@@ -55,8 +57,8 @@ public:
 
   LongTermMemoryConduitInterface &operator=(LongTermMemoryConduitInterface &&that) noexcept = default;
 
-  bool add_attribute(const std::string &name, int allowed_types) {
-    return static_cast<Impl *>(this)->add_attribute(name, allowed_types);
+  bool add_attribute(const std::string &name, const AttributeValueType type) {
+    return static_cast<Impl *>(this)->add_attribute(name, type);
   };
 
   std::vector<EntityImpl>
@@ -87,7 +89,11 @@ public:
   };
 
   uint delete_all_entities() {
-    static_cast<Impl *>(this)->delete_all_entities();
+    return static_cast<Impl *>(this)->delete_all_entities();
+  }
+
+  uint delete_all_attributes() {
+    return static_cast<Impl *>(this)->delete_all_attributes();
   }
 
   std::vector<EntityImpl> get_all_entities() {

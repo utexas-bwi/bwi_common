@@ -12,6 +12,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using knowledge_rep::EntityAttribute;
+using knowledge_rep::AttributeValueType;
 using knowledge_rep::Concept;
 using knowledge_rep::Instance;
 using knowledge_rep::Entity;
@@ -23,6 +24,7 @@ protected:
     }
 
     void SetUp() override {
+      ltmc.delete_all_attributes();
         ltmc.delete_all_entities();
     }
 
@@ -57,7 +59,6 @@ protected:
 // Declare a test
 TEST_F(LTMCTest, InitialConfigurationIsValid) {
 
-    ltmc.delete_all_entities();
     // Robot should exist
     EXPECT_TRUE(ltmc.entity_exists(1));
   Instance robot = {ltmc.get_entity(1).get().entity_id, ltmc};
@@ -67,6 +68,7 @@ TEST_F(LTMCTest, InitialConfigurationIsValid) {
   EXPECT_EQ(ltmc.get_all_entities().size(), 2);
   EXPECT_EQ(ltmc.get_all_concepts().size(), 1);
   EXPECT_EQ(ltmc.get_all_instances().size(), 1);
+  EXPECT_EQ(ltmc.get_all_attributes().size(), 16);
 }
 
 TEST_F(LTMCTest, GetConceptWorks) {
@@ -78,6 +80,8 @@ TEST_F(LTMCTest, GetConceptWorks) {
 TEST_F(LTMCTest, SQLQueryWorks) {
     vector<EntityAttribute> query_result;
     ltmc.select_query_string("SELECT * FROM entity_attributes_str", query_result);
+  // TODO: Actually figure out this interface
+  EXPECT_FALSE(true);
 }
 
 TEST_F(LTMCTest, ObjectAndConceptNameSpacesAreSeparate) {
@@ -131,20 +135,17 @@ TEST_F(LTMCTest, InstanceConceptSumToTotalEntities) {
 
 TEST_F(LTMCTest, GetAllAttributesWorks) {
   int start_num = ltmc.get_all_attributes().size();
-  ltmc.add_new_attribute("neverseenbeforeattr", "string");
+  ltmc.add_new_attribute("neverseenbeforeattr", AttributeValueType::Str);
   EXPECT_EQ(ltmc.get_all_attributes().size(), start_num + 1);
 }
 
 TEST_F(LTMCTest, AddNewAttributeWorks) {
-  EXPECT_TRUE(ltmc.add_new_attribute("neverseenbeforeattr", "string"));
+  EXPECT_TRUE(ltmc.add_new_attribute("neverseenbeforeattr", AttributeValueType::Str));
   // Second add should fail
-  EXPECT_FALSE(ltmc.add_new_attribute("neverseenbeforeattr", "string"));
+  EXPECT_FALSE(ltmc.add_new_attribute("neverseenbeforeattr", AttributeValueType::Str));
   // Even if it's on another type
-  EXPECT_FALSE(ltmc.add_new_attribute("neverseenbeforeattr", "bool"));
-  // Only real types allowed
-  EXPECT_FALSE(ltmc.add_new_attribute("anotherneverseenbefore", "notarealtype"));
+  EXPECT_FALSE(ltmc.add_new_attribute("neverseenbeforeattr", AttributeValueType::Bool));
 }
-
 
 TEST_F(EntityTest, DeleteEntityWorks) {
     concept.delete_entity();

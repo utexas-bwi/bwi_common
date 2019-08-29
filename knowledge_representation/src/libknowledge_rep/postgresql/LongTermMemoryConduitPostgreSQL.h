@@ -3,11 +3,11 @@
 #include <pqxx/pqxx>
 
 namespace knowledge_rep {
-static const std::vector<std::string> table_names = {
+static const char *table_names[] = {
   "entity_attributes_id",
   "entity_attributes_str",
-  "entity_attributes_float",
-  "entity_attributes_bool"};
+  "entity_attributes_bool",
+  "entity_attributes_float"};
 
 
 class LongTermMemoryConduitPostgreSQL : public LongTermMemoryConduitInterface<LongTermMemoryConduitPostgreSQL> {
@@ -36,7 +36,7 @@ public:
   // Move assignment
   LongTermMemoryConduitPostgreSQL &operator=(LongTermMemoryConduitPostgreSQL &&that) noexcept = default;
 
-  bool add_new_attribute(const std::string &name, const std::string &type);
+  bool add_new_attribute(const std::string &name, const AttributeValueType type);
 
   std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const uint other_entity_id);
@@ -55,13 +55,15 @@ public:
 
   uint delete_all_entities();
 
+  uint delete_all_attributes();
+
   std::vector<EntityImpl> get_all_entities();
 
   std::vector<ConceptImpl> get_all_concepts();
 
   std::vector<InstanceImpl> get_all_instances();
 
-  std::vector<std::pair<std::string, int>> get_all_attributes() const;
+  std::vector<std::pair<std::string, AttributeValueType>> get_all_attributes() const;
 
 
   template<typename T>
