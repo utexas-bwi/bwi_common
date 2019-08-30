@@ -8,7 +8,8 @@ env:
     - UPSTREAM_WORKSPACE=file
     - BUILD_PKGS_WHITELIST="bwi_common"
   matrix:
-    - ROS_DISTRO="indigo"
+    - ROS_DISTRO="kinetic"
+    - ROS_DISTRO="melodic"
 install:
   - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
 script:
