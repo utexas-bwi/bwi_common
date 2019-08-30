@@ -65,20 +65,18 @@ public:
 
   std::vector<std::pair<std::string, AttributeValueType>> get_all_attributes() const;
 
-
-  template<typename T>
-  bool select_query_args(const std::string &sql_query, std::vector<EntityAttribute> &result) const {
-    pqxx::work txn{*conn};
-    auto query_result = txn.exec(sql_query);
-    assert(false);
-  }
-
   template<typename T>
   bool select_query(const std::string &sql_query, std::vector<EntityAttribute> &result) const {
-    pqxx::work txn{*conn};
-    auto query_result = txn.exec(sql_query);
-    for (const auto &row: query_result) {
-      std::cout << "hi" << std::endl;
+    try {
+      pqxx::work txn{*conn};
+      auto query_result = txn.exec(sql_query);
+      for (const auto &row: query_result) {
+        result.emplace_back(row["entity_id"].as<uint>(), row["attribute_name"].as<std::string>(),
+                            row["attribute_name"].as<T>());
+      }
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << std::endl;
+      return false;
     }
     return true;
   }

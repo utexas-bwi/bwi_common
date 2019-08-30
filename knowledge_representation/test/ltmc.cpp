@@ -1,5 +1,4 @@
 #include <knowledge_representation/LongTermMemoryConduitInterface.h>
-#include <iostream>
 #include <string>
 #include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
@@ -77,15 +76,31 @@ TEST_F(LTMCTest, GetConceptWorks) {
     EXPECT_EQ(soda.entity_id, ltmc.get_concept("soda").entity_id);
 }
 
-TEST_F(LTMCTest, SQLQueryWorks) {
+TEST_F(LTMCTest, SQLQueryStrWorks) {
     vector<EntityAttribute> query_result;
     ltmc.select_query_string("SELECT * FROM entity_attributes_str", query_result);
-  // TODO: Actually figure out this interface
-  EXPECT_FALSE(true);
+  EXPECT_EQ(query_result.size(), 1);
+}
+
+TEST_F(LTMCTest, SQLQueryIdWorks) {
+  vector<EntityAttribute> query_result;
+  ltmc.select_query_string("SELECT * FROM entity_attributes_id", query_result);
+  EXPECT_EQ(query_result.size(), 1);
+}
+
+TEST_F(LTMCTest, SQLQueryBoolWorks) {
+  vector<EntityAttribute> query_result;
+  ltmc.select_query_string("SELECT * FROM entity_attributes_bool", query_result);
+  EXPECT_EQ(query_result.size(), 1);
+}
+
+TEST_F(LTMCTest, SQLQueryFloatWorks) {
+  vector<EntityAttribute> query_result;
+  ltmc.select_query_float("SELECT * FROM entity_attributes_float", query_result);
+  EXPECT_EQ(query_result.size(), 0);
 }
 
 TEST_F(LTMCTest, ObjectAndConceptNameSpacesAreSeparate) {
-
     Concept pitcher_con = ltmc.get_concept("soylent pitcher");
     knowledge_rep::Entity pitcher = ltmc.get_instance_named("soylent pitcher");
     EXPECT_NE(ltmc.get_instance_named("soylent pitcher").entity_id, pitcher_con.entity_id);

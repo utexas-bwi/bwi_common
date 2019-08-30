@@ -71,22 +71,42 @@ vector<Entity> LongTermMemoryConduitPostgreSQL::get_entities_with_attribute_of_v
   txn.commit();
 
   vector<Entity> return_result;
-  transform(result.begin(), result.end(), back_inserter(return_result), [this](const pqxx::tuple &row) {
-    return Entity(row["entity_id"].as<uint>(), *this);
-  });
+  for (const auto &row: result) {
+    return_result.emplace_back(row["entity_id"].as<uint>(), *this);
+  }
   return return_result;
 }
 
 vector<Entity> LongTermMemoryConduitPostgreSQL::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                                      const bool bool_val) {
-  assert(false);
+  pqxx::work txn{*conn};
+  auto result = txn.exec(
+    "SELECT entity_id FROM entity_attributes_bool WHERE attribute_value=" + txn.quote(bool_val) +
+    " and attribute_name = " + txn.quote(attribute_name));
+  txn.commit();
+
+  vector<Entity> return_result;
+  for (const auto &row: result) {
+    return_result.emplace_back(row["entity_id"].as<uint>(), *this);
+  }
+  return return_result;
 
 }
 
 
 vector<Entity> LongTermMemoryConduitPostgreSQL::get_entities_with_attribute_of_value(const string &attribute_name,
                                                                                      const string &string_val) {
-  assert(false);
+  pqxx::work txn{*conn};
+  auto result = txn.exec(
+    "SELECT entity_id FROM entity_attributes_id WHERE attribute_value=" + txn.quote(string_val) +
+    " and attribute_name = " + txn.quote(attribute_name));
+  txn.commit();
+
+  vector<Entity> return_result;
+  for (const auto &row: result) {
+    return_result.emplace_back(row["entity_id"].as<uint>(), *this);
+  }
+  return return_result;
 
 }
 
@@ -133,8 +153,12 @@ uint LongTermMemoryConduitPostgreSQL::delete_all_entities() {
 }
 
 bool LongTermMemoryConduitPostgreSQL::delete_attribute(string &name) {
-  // TODO: Write
-  return false;
+  pqxx::work txn{*conn};
+
+  // Remove all entities
+  uint num_deleted = txn.exec("DELETE FROM attributes WHERE attribute_name = " + txn.quote(name)).affected_rows();
+  txn.commit();
+  return num_deleted;
 }
 
 bool LongTermMemoryConduitPostgreSQL::attribute_exists(const string &name) const {
@@ -275,8 +299,7 @@ std::vector<Instance> LongTermMemoryConduitPostgreSQL::get_all_instances() {
 
 /**
  * @brief Retrieves all attributes
- * @return a list of tuples. First element of each is the attribute name, the second is a bitmask representing acceptable
- * types for that attribute
+ * @return a list of tuples. First element of each is the attribute name, the second is the allowed type for the attribute
  */
 vector<std::pair<string, AttributeValueType> > LongTermMemoryConduitPostgreSQL::get_all_attributes() const {
   vector<std::pair<string, AttributeValueType> > attribute_names;
@@ -482,9 +505,7 @@ bool LongTermMemoryConduitPostgreSQL::is_valid(const Entity &entity) const {
  * then get_concepts will return the concepts of both apple and fruit.
  * @return
  */
-std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_concepts(const Instance &instance)
-// TODO: Convert this procedure to a function in the schema
-{
+std::vector<Concept> LongTermMemoryConduitPostgreSQL::get_concepts(const Instance &instance) {
   try {
     pqxx::work txn{*conn, "get_concepts"};
     auto result = txn.exec("SELECT get_concepts(" + txn.quote(instance.entity_id) + ") AS concept_id");
