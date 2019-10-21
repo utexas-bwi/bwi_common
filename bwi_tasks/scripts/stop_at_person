@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+import rospy
+import actionlib
+from darksocket_ros.msg import Detections
+from plan_execution.msg import ExecutePlanAction
+from move_base_msgs.msg import MoveBaseAction
+
+def cancel_all_goals():
+	plan_client = actionlib.SimpleActionClient("/plan_executor/execute_plan", ExecutePlanAction)
+	plan_client.cancel_all_goals()
+	move_base_client = actionlib.SimpleActionClient("/move_base/move", MoveBaseAction)
+	move_base_client.cancel_all_goals()
+
+def callback(data):
+	for bbox in data.bboxes:
+		if bbox.Class == "person":
+			if bbox.xmax - bbox.xmin >= 110:
+				print "Detected a person!"
+				cancel_all_goals()
+
+				rospy.sleep(20)
+
+def person_listener():
+	rospy.init_node('stop_at_person', anonymous=False)
+
+	rospy.Subscriber("darksocket_ros/detections", Detections, callback)
+
+	rospy.spin()
+
+if __name__ == '__main__':
+	person_listener()

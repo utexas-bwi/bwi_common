@@ -88,10 +88,10 @@ def get_execute_sm():
         repeat_state = control_flow.RepeatN(0)
         StateMachine.add_auto("RESET_REPEAT", control_flow.ResetRepeat(repeat_state), ["succeeded"])
         StateMachine.add("EXECUTE_GOAL", states.ExecuteGoal(),
-                         transitions={"preempted": "RECOVERY_REPEAT_GATE",
+                         transitions={"preempted": "preempted",
                                       "aborted": "RECOVERY_REPEAT_GATE"})
         StateMachine.add("EXECUTE_RECOVERY_GOAL", states.ExecuteGoal(),
-                         transitions={"preempted": "RECOVERY_REPEAT_GATE",
+                         transitions={"preempted": "preempted",
                                       "aborted": "RECOVERY_REPEAT_GATE"})
         StateMachine.add("RECOVERY_REPEAT_GATE", repeat_state,
                          transitions={"repeat": "RECOVER", "done": "aborted"})

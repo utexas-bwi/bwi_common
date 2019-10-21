@@ -2,6 +2,7 @@ import rospy
 from plan_execution.msg import ExecutePlanAction
 from smach import State
 from smach_ros import SimpleActionState
+from bwi_services.srv import SpeakMessage
 
 from plan_execution.helpers import *
 
@@ -55,3 +56,23 @@ class ExecuteGoal(SimpleActionState):
             if feedback.plan[0].name == "perceive_surface":
                 speech.say("I'm starting to scan.", wait=False)
     """
+
+class Talk(State):
+    def __init__(self, message):
+        State.__init__(self, outcomes=["succeeded", "aborted"])
+        self.message = message
+        self.speak_client = rospy.ServiceProxy("speak_message", SpeakMessage)
+
+    def execute(self, userdata):
+        try:
+            rospy.wait_for_service('speak_message', timeout=10)
+        except rospy.ROSException:
+            rospy.logerr("Couldn't get service speak_message")
+            return "aborted"
+
+        try:
+            self.speak_client(self.message)
+        except rospy.ServiceException():
+            return "aborted"
+
+        return "succeeded"
