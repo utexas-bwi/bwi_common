@@ -7,23 +7,31 @@ from move_base_msgs.msg import MoveBaseAction
 
 def cancel_all_goals():
 	plan_client = actionlib.SimpleActionClient("/plan_executor/execute_plan", ExecutePlanAction)
+	plan_client.wait_for_server()
 	plan_client.cancel_all_goals()
-	move_base_client = actionlib.SimpleActionClient("/move_base/move", MoveBaseAction)
+	move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
+	move_base_client.wait_for_server()
 	move_base_client.cancel_all_goals()
 
 def callback(data):
+	global last_detection
+	if last_detection is not None and rospy.get_time() - last_detection < 20:
+		return
 	for bbox in data.bboxes:
 		if bbox.Class == "person":
-			if bbox.xmax - bbox.xmin >= 110:
+			if bbox.xmax - bbox.xmin >= 100:
 				print "Detected a person!"
+				print bbox
 				cancel_all_goals()
 
-				rospy.sleep(20)
+				last_detection = rospy.get_time()
 
 def person_listener():
 	rospy.init_node('stop_at_person', anonymous=False)
+	global last_detection
+	last_detection = None
 
-	rospy.Subscriber("darksocket_ros/detections", Detections, callback)
+	rospy.Subscriber("darksocket_ros/detections", Detections, callback, queue_size=1)
 
 	rospy.spin()
 

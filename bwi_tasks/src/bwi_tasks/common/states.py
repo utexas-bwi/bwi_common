@@ -3,6 +3,7 @@ from plan_execution.msg import ExecutePlanAction
 from smach import State
 from smach_ros import SimpleActionState
 from bwi_services.srv import SpeakMessage
+from actionlib_msgs.msg import GoalStatus
 
 from plan_execution.helpers import *
 
@@ -39,6 +40,13 @@ class ExecuteGoal(SimpleActionState):
     def result_cb(self, userdata, state, result):
         print (state, result)
         userdata['result'] = result
+
+	if state == GoalStatus.SUCCEEDED:
+		return "succeeded"
+	elif state == GoalStatus.PREEMPTED:
+		return "preempted"
+	else:
+		return "aborted"
 
     """
     def _goal_feedback_cb(self, feedback):

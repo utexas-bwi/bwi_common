@@ -3,11 +3,14 @@
 import knowledge_representation
 import rospy
 import smach_ros
+import rospkg
 
 from knowledge_representation import LongTermMemoryConduit
 from smach import StateMachine, State
 
-from bwi_tasks.common import states, control_flow, task_machine
+from bwi_tasks.common import control_flow, task_machine
+from bwi_tasks.common import states as common_states
+from bwi_tasks.halloween import states as halloween_states
 from bwi_kr_execution import goal_formulators, knowledge
 
 
@@ -22,19 +25,22 @@ def main():
 
     task_machine.get_recover_from_failure_sm(ltmc)
 
+    rospack = rospkg.RosPack()
+
     # Create top state machine
     sm = StateMachine(outcomes=['succeeded', 'preempted', 'aborted'])
     # Open the container
     with sm:
         # Add states
         StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomBwiLocation(ltmc), ["succeeded"])
+	#control_flow.inject_userdata_auto("DECIDE_DESTINATION", "location", "d3_414b1")
         StateMachine.add('GOTO_DOOR', task_machine.generate_goal_based_task_sm(
                               goal_formulators.GoToLocationName(), ["location"]),
                          transitions={"succeeded": "DECIDE_DESTINATION",
                                       "preempted": "TRICK_OR_TREAT",
                                       'aborted': 'DECIDE_DESTINATION'})
-        StateMachine.add_auto("TRICK_OR_TREAT", states.Talk("Happy Halloween!"), ["succeeded"])
-        StateMachine.add("Wait", states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION"})
+        StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound(rospack.get_path("bwi_tasks") + "/data/happy_halloween.mp3"), ["succeeded"])
+        StateMachine.add("Wait", common_states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION"})
 
     if introspect:
         sis = smach_ros.IntrospectionServer('introspection_server', sm, '/SM_ROOT')
