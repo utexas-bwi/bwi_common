@@ -4,6 +4,7 @@ import knowledge_representation
 import rospy
 import smach_ros
 import rospkg
+import random
 
 from knowledge_representation import LongTermMemoryConduit
 from smach import StateMachine, State
@@ -27,6 +28,8 @@ def main():
 
     rospack = rospkg.RosPack()
 
+    sentences = ['careful.mp3', 'costum.mp3', 'happy.mp3', 'hey_human.mp3', 'names.txt', 'spiderbot.mp3', 'spider_robot.mp3', 'spooky.mp3', 'sugars.mp3', 'trick.mp3']
+
     # Create top state machine
     sm = StateMachine(outcomes=['succeeded', 'preempted', 'aborted'])
     # Open the container
@@ -39,7 +42,8 @@ def main():
                          transitions={"succeeded": "DECIDE_DESTINATION",
                                       "preempted": "TRICK_OR_TREAT",
                                       'aborted': 'DECIDE_DESTINATION'})
-        StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound(rospack.get_path("bwi_tasks") + "/data/happy_halloween.mp3"), ["succeeded"])
+        #StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound(rospack.get_path("bwi_tasks") + "/data/happy_halloween.mp3"), ["succeeded"])
+	StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound("/home/bwilab/Downloads/Halloween/", sentences), ["succeeded"])
         StateMachine.add("Wait", common_states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION"})
 
     if introspect:

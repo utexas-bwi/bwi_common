@@ -19,7 +19,7 @@ def callback(data):
 		return
 	for bbox in data.bboxes:
 		if bbox.Class == "person":
-			if bbox.xmax - bbox.xmin >= 100:
+			if bbox.xmax - bbox.xmin >= 100 and bbox.xmin > 120 and bbox.xmin < 500:
 				print "Detected a person!"
 				print bbox
 				cancel_all_goals()
