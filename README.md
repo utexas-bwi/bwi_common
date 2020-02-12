@@ -3,10 +3,12 @@ bwi_common ~ Multi Robot Navigation package
 
 Developing package for two robot navigation system on top of popularly used ROS navigation package.
 This package includes
-1. Chicken strategy
-2. Oneshot Bandit Educated Yielding (OBeY) policy
-3. Centralized simulation codes
-4. De-centralized codes for running on BWI robots.
+1. 1.6m wide simulated Utexas GDC 3 north east Hallway
+2. Baseline policies and trained policy
+ 1) Chicken strategy
+ 2) Oneshot Bandit Educated Yielding (OBeY) policy
+ 3) Centralized simulation codes
+ 4) De-centralized codes for running on BWI robots.
 
 ## Setup
 ### Prerequisites
