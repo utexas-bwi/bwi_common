@@ -40,6 +40,10 @@ python3.7 -m pip install torch torchvision
 ```bash
 python3.7 -m pip install gpytorch
 ```
+- Install other packages
+```bash
+python3.7 -m pip install numpy pandas
+```
 
 **Note**: ROS requires python 2.7 version. Please make sure to install pytorch and gpytorch in a seperate python 3.6+ environment.
 
