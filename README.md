@@ -12,7 +12,7 @@ This package includes
 ### Prerequisites
  - Ubuntu 16.04
  - ROS Kinetic
- - NVIDIA GPU + CUDA CuDNN (For acceleration)
+ - NVIDIA GPU + CUDA (For acceleration) https://developer.nvidia.com/cuda-downloads
  - Python 2.7 (for ROS)
  - Python 3.6+ (for pytorch)
 ### Getting Started
@@ -33,9 +33,16 @@ python3.7 -m pip install pip
 python3.7 -m pip install rospkg catkin_pkg
 ```
 - Install torch and dependencies from https://pytorch.org/
+```bash
+python3.7 -m pip install torch torchvision
+```
 - Install gytorch https://gpytorch.ai/
+```bash
+python3.7 -m pip install gpytorch
+```
 
 **Note**: ROS requires python 2.7 version. Please make sure to install pytorch and gpytorch in a seperate python 3.6+ environment.
+
 - Clone this repo:
 
 ```bash
