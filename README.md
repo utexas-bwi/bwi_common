@@ -15,6 +15,7 @@ This package includes
  - NVIDIA GPU + CUDA (For acceleration) https://developer.nvidia.com/cuda-downloads
  - Python 2.7 (for ROS)
  - Python 3.6+ (for pytorch)
+ - utexas-BWI (https://github.com/utexas-bwi)
 ### Getting Started
 - Install Python3.6+ version alongside with ROS system
 ```bash
