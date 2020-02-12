@@ -17,7 +17,8 @@ This package includes
  - Python 3.6+ (for pytorch)
 ### Getting Started
 - Install torch and dependencies from https://pytorch.org/
-- Install gytorch https://gpytorch.ai/- Clone this repo:
+- Install gytorch https://gpytorch.ai/
+- Clone this repo:
 
 ```bash
 git clone https://github.com/utexas-bwi/bwi_lab.git
