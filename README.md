@@ -18,6 +18,7 @@ This package includes
 ### Getting Started
 - Install torch and dependencies from https://pytorch.org/
 - Install gytorch https://gpytorch.ai/
+**Note**: ROS requires python 2.7 version. Please make sure to install pytorch and gpytorch in a seperate python 3.6+ environment.
 - Clone this repo:
 
 ```bash
