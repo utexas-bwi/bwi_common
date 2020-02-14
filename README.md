@@ -56,11 +56,11 @@ python3.7 -m pip install numpy pandas
 cd ~/catkin_ws/src
 git clone -b multi_robot_navigation https://github.com/utexas-bwi/bwi_common.git
 ```
+- You must unzip the multi_robot_collision_avoidance.tar.gz.
 - Compile packages with given order.
 ```bash
 cd ~/catkin_ws
-catkin build multi_robot_collision_avoidance
-catkin build multi_robot_navigation
+catkin build
 ```
 
 ## How to run
