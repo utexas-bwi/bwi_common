@@ -53,9 +53,8 @@ python3.7 -m pip install numpy pandas
 - Clone this repo:
 
 ```bash
-git clone https://github.com/utexas-bwi/bwi_lab.git
 cd ~/catkin_ws/src
-git clone -b multi_robot_navigation https://github.com/utexas-bwi/bwi_lab.git
+git clone -b multi_robot_navigation https://github.com/utexas-bwi/bwi_common.git
 ```
 - Compile packages with given order.
 ```bash
