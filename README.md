@@ -49,6 +49,7 @@ python3.7 -m pip install numpy pandas
 
 **Note**: ROS requires python 2.7 version. Please make sure to install pytorch and gpytorch in a seperate python 3.6+ environment.
 
+- Make sure to compile original bwi repo before clone this repo.
 - Clone this repo:
 
 ```bash
@@ -56,3 +57,37 @@ git clone https://github.com/utexas-bwi/bwi_lab.git
 cd ~/catkin_ws/src
 git clone -b multi_robot_navigation https://github.com/utexas-bwi/bwi_lab.git
 ```
+- Compile packages with given order.
+```bash
+cd ~/catkin_ws
+catkin build multi_robot_collision_avoidance
+catkin build multi_robot_navigation
+```
+
+## How to run
+```bash
+roslaunch bwi_launch multi_robot_simulation.launch
+```
+If you wants to test learning solution (siren experiment) run below code at seperate terminal.
+```bash
+rosrun multi_robot_collision_avoidance eval_waypoint_server.py
+```
+Then open another terminal and run below.
+```bash
+rosrun multi_robot_navigation exp_handler ${exp_name} ${num_episode}
+```
+exp_name can be one of [ 'raw', 'chicken', 'siren' ]
+num_episode can be any natural number.
+
+## How to modify
+Currently, the parameters should be tuned on the codes itself.
+You can change the location of each episode in 715th line of "multi_robot_navigation/src/exp_hander.cpp".
+
+Definition of each parameters are
+SpawnPose: Where robot are spawned. This is not a start of episode.
+InitPose: Where Episode begins.
+GoalPose: Goal of each agent. By default, it should be same as other robot's InitPose.
+StandbyPose: Where robot will wait for other robots to finish it's journey.
+
+Also, the siren experiment uses epsilon greedy algorithm to learn the policy.
+You can change this episilon value by changing 'epsilon' variable at "multi_robot_collision_avoidance/script/eval_waypoint_server.py".
