@@ -56,7 +56,7 @@ python3.7 -m pip install numpy pandas
 cd ~/catkin_ws/src
 git clone -b multi_robot_navigation https://github.com/utexas-bwi/bwi_common.git
 ```
-- You must unzip the multi_robot_collision_avoidance.tar.gz.
+- You must unzip the multi_robot_collision_avoidance.tar.gz and overwrite the contents. ( I'm still trying to find a way to erase uploaded folders. )
 - Compile packages with given order.
 ```bash
 cd ~/catkin_ws
