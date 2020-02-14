@@ -1,0 +1,4 @@
+geometry_msgs/Pose chicken_pose
+geometry_msgs/Pose bold_pose
+---
+geometry_msgs/Pose waypoint
