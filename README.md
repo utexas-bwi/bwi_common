@@ -90,3 +90,11 @@ StandbyPose: Where robot will wait for other robots to finish it's journey.
 
 Also, the siren experiment uses epsilon greedy algorithm to learn the policy.
 You can change this episilon value by changing 'epsilon' variable at "multi_robot_collision_avoidance/script/eval_waypoint_server.py".
+
+## Caution
+- I found overlaped init_pose of robot with goal of the other robot makes a potential trouble.
+Please use below setting.
+1. distance of spawn_pose -> init_pose within robot : < 4. m
+2. distance of init_pose -> goal_pose within robot  : 12. m
+3. distance of init_pose of two robots              : 10. m
+4. choose the standby in an open area. (if possible) Episode ends when both robot reaches it's goal pose. So editing a standby pose does not affect the result.
