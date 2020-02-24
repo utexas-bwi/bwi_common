@@ -11,6 +11,7 @@ from nav_msgs.srv import GetPlan
 from geometry_msgs.msg import PoseStamped
 
 window = 1
+hallway_idx = [6,18,21,26,29]
 
 def is_valid_point_client(x,y):
     rospy.wait_for_service("/roberto/move_base/NavfnROS/make_plan")
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     segPath = os.path.join(mapPath, 'locations_orig.pgm')
     segment = np.array( Image.open(segPath) ).copy()
 
-    idx = np.argwhere(np.isin(segment, [6,18,21,26,29]))
+    idx = np.argwhere(np.isin(segment, hallway_idx))
     print(segment.shape)
     for i, [py,px] in enumerate(idx):
         if(i%10000 == 0):
@@ -53,7 +54,7 @@ if __name__ == '__main__':
         x,y = pix2pose(px,py)
         length = is_valid_point_client(x,y)
         if(length == 0):
-            mask = np.isin(segment[py-window:py+window+1, px-window:px+window+1], [6,18,21,26,29])
+            mask = np.isin(segment[py-window:py+window+1, px-window:px+window+1], hallway_idx)
             segment[py-window:py+window+1,px-window:px+window+1][mask] = 255.
 
     plt.imsave("new_segmentation.png", segment, cmap='gray')
