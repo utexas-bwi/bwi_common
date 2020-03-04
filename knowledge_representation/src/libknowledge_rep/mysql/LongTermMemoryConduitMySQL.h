@@ -60,7 +60,7 @@ public:
   bool add_new_attribute(const std::string &name, const std::string &type);
 
   std::vector<EntityImpl>
-  get_entities_with_attribute_of_value(const std::string &attribute_name, const int other_entity_id);
+  get_entities_with_attribute_of_value(const std::string &attribute_name, const uint other_entity_id);
 
   std::vector<EntityImpl>
   get_entities_with_attribute_of_value(const std::string &attribute_name, const bool bool_val);
@@ -200,7 +200,7 @@ protected:
   add_attribute(EntityImpl &entity, const std::string &attribute_name, const bool bool_val);
 
   bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
-                     const int other_entity_id);
+                     const uint other_entity_id);
 
   bool add_attribute(EntityImpl &entity, const std::string &attribute_name,
                      const std::string &string_val);

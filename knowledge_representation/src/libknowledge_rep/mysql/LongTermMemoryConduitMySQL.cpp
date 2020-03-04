@@ -100,7 +100,7 @@ bool LongTermMemoryConduitMySQL::entity_exists(int id) const {
 
 
 vector<Entity> LongTermMemoryConduitMySQL::get_entities_with_attribute_of_value(const string &attribute_name,
-                                                                        const int other_entity_id) {
+                                                                        const uint other_entity_id) {
   Table entity_attributes = db->getTable("entity_attributes_id");
   RowResult result = entity_attributes.select("*").where(
       "attribute_value = :id and attribute_name = :attr").bind("id",
@@ -383,7 +383,7 @@ vector<std::pair<string, int> > LongTermMemoryConduitMySQL::get_all_attributes()
 
 
   bool LongTermMemoryConduitMySQL::add_attribute(Entity &entity, const std::string &attribute_name,
-                                                         const int other_entity_id) {
+                                                         const uint other_entity_id) {
     if (!attribute_exists(attribute_name)) {
       add_new_attribute(attribute_name, "id");
     }
