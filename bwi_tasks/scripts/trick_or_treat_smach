@@ -11,7 +11,7 @@ from smach import StateMachine, State
 
 from bwi_tasks.common import control_flow, task_machine
 from bwi_tasks.common import states as common_states
-from bwi_tasks.halloween import states as halloween_states
+from bwi_tasks.interaction import states as interaction_states
 from bwi_kr_execution import goal_formulators, knowledge
 
 
@@ -36,14 +36,12 @@ def main():
     with sm:
         # Add states
         StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomBwiLocation(ltmc), ["succeeded"])
-	#control_flow.inject_userdata_auto("DECIDE_DESTINATION", "location", "d3_414b1")
         StateMachine.add('GOTO_DOOR', task_machine.generate_goal_based_task_sm(
                               goal_formulators.GoToLocationName(), ["location"]),
                          transitions={"succeeded": "DECIDE_DESTINATION",
                                       "preempted": "TRICK_OR_TREAT",
                                       'aborted': 'DECIDE_DESTINATION'})
-        #StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound(rospack.get_path("bwi_tasks") + "/data/happy_halloween.mp3"), ["succeeded"])
-	StateMachine.add_auto("TRICK_OR_TREAT", halloween_states.PlaySound("/home/bwilab/Downloads/Halloween/", sentences), ["succeeded"])
+	StateMachine.add_auto("TRICK_OR_TREAT", interaction_states.PlaySound("/home/bwilab/Downloads/Halloween/", sentences), ["succeeded"])
         StateMachine.add("Wait", common_states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION"})
 
     if introspect:

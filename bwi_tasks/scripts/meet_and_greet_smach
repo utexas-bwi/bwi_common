@@ -11,7 +11,7 @@ from smach import StateMachine, State
 
 from bwi_tasks.common import control_flow, task_machine
 from bwi_tasks.common import states as common_states
-from bwi_tasks.halloween import states as halloween_states
+from bwi_tasks.interaction import states as interaction_states
 from bwi_kr_execution import goal_formulators, knowledge
 from bwi_msgs.srv import QuestionDialog, QuestionDialogRequest
 
@@ -54,7 +54,7 @@ def main():
                          transitions={"succeeded": "DECIDE_DESTINATION1",
                                       "preempted": "SAY_HELLO",
                                       'aborted': 'DECIDE_DESTINATION1'})
-	StateMachine.add_auto("SAY_HELLO", halloween_states.PlaySound("/home/bwilab/Downloads/MeetnGreet/", sentences), ["succeeded"])
+	StateMachine.add_auto("SAY_HELLO", interaction_states.PlaySound("/home/bwilab/Downloads/MeetnGreet/", sentences), ["succeeded"])
         StateMachine.add("Wait", common_states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION1"})
 
     if introspect:
