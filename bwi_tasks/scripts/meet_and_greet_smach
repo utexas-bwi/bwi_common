@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import knowledge_representation
+import rospy
+import smach_ros
+import rospkg
+import random
+
+from knowledge_representation import LongTermMemoryConduit
+from smach import StateMachine, State
+
+from bwi_tasks.common import control_flow, task_machine
+from bwi_tasks.common import states as common_states
+from bwi_tasks.halloween import states as halloween_states
+from bwi_kr_execution import goal_formulators, knowledge
+from bwi_msgs.srv import QuestionDialog, QuestionDialogRequest
+
+
+def main():
+    rospy.init_node("meet_and_greet_smach")
+
+    simulation = rospy.get_param("~simulation", False)
+    introspect = rospy.get_param("~introspect", False)
+    State.simulation = simulation
+
+    ltmc = knowledge_representation.get_default_ltmc()
+
+    task_machine.get_recover_from_failure_sm(ltmc)
+
+    rospack = rospkg.RosPack()
+
+    sentences = ['Hello.mp3']
+
+    rospy.wait_for_service('question_dialog')
+    question_dialog = rospy.ServiceProxy('question_dialog', QuestionDialog)
+    message = "Hello! Please go to the conference room 3.516 for Meet and Greet!"
+    question_dialog(message=message)
+
+    # Create top state machine
+    sm = StateMachine(outcomes=['succeeded', 'preempted', 'aborted'])
+    # Open the container
+    with sm:
+        # Add states
+        #StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomBwiLocation(ltmc), ["succeeded"])
+	control_flow.inject_userdata_auto("DECIDE_DESTINATION1", "location", "d3_508")
+        StateMachine.add('GOTO_DOOR1', task_machine.generate_goal_based_task_sm(
+                              goal_formulators.GoToLocationName(), ["location"]),
+                         transitions={"succeeded": "DECIDE_DESTINATION2",
+                                      "preempted": "SAY_HELLO",
+                                      'aborted': 'DECIDE_DESTINATION2'})
+        control_flow.inject_userdata_auto("DECIDE_DESTINATION2", "location", "d3_500")
+        StateMachine.add('GOTO_DOOR2', task_machine.generate_goal_based_task_sm(
+                              goal_formulators.GoToLocationName(), ["location"]),
+                         transitions={"succeeded": "DECIDE_DESTINATION1",
+                                      "preempted": "SAY_HELLO",
+                                      'aborted': 'DECIDE_DESTINATION1'})
+	StateMachine.add_auto("SAY_HELLO", halloween_states.PlaySound("/home/bwilab/Downloads/MeetnGreet/", sentences), ["succeeded"])
+        StateMachine.add("Wait", common_states.Wait(5), transitions={"succeeded": "DECIDE_DESTINATION1"})
+
+    if introspect:
+        sis = smach_ros.IntrospectionServer('introspection_server', sm, '/SM_ROOT')
+        sis.start()
+
+    # Execute SMACH plan
+    outcome = sm.execute()
+
+    if introspect:
+        rospy.spin()
+        sis.stop()
+
+
+if __name__ == '__main__':
+    main()

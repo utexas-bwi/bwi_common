@@ -28,7 +28,7 @@ def main():
 
     rospack = rospkg.RosPack()
 
-    sentences = ['careful.mp3', 'costum.mp3', 'happy.mp3', 'hey_human.mp3', 'names.txt', 'spiderbot.mp3', 'spider_robot.mp3', 'spooky.mp3', 'sugars.mp3', 'trick.mp3']
+    sentences = ['careful.mp3', 'costum.mp3', 'happy.mp3', 'hey_human.mp3', 'spiderbot.mp3', 'spider_robot.mp3', 'spooky.mp3', 'sugars.mp3', 'trick.mp3']
 
     # Create top state machine
     sm = StateMachine(outcomes=['succeeded', 'preempted', 'aborted'])
