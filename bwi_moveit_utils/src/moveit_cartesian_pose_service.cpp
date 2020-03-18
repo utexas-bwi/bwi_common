@@ -52,9 +52,7 @@ bool service_cb(bwi_moveit_utils::MoveitCartesianPose::Request &req, bwi_moveit_
 int main(int argc, char **argv){
     ros::init(argc, argv, "moveit_cartesian_pose_service");
     ros::NodeHandle nh;
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
-
+    ros::MultiThreadedSpinner spinner(1);
     group = new moveit::planning_interface::MoveGroupInterface("arm");
     group->setGoalTolerance(0.01);
     group->setPoseReferenceFrame("m1n6s200_end_effector");

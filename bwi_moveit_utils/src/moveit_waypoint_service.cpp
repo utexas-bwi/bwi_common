@@ -68,8 +68,7 @@ bool service_cb(bwi_moveit_utils::MoveitWaypoint::Request &req, bwi_moveit_utils
 int main(int argc, char **argv){
     ros::init(argc, argv, "moveit_waypoint_service");
     ros::NodeHandle nh;
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
+    ros::MultiThreadedSpinner spinner(1);
 
     group = new moveit::planning_interface::MoveGroupInterface("arm");
     group->setGoalTolerance(0.01);
