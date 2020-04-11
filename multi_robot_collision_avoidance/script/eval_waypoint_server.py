@@ -34,7 +34,9 @@ def load_data(filename):
 	dataPath = os.path.join(pkgPath, 'data')
 	filepath = os.path.join(dataPath, filename)
 	data = pd.read_csv(filepath, sep=',', header=[0], engine='python')
-	data = data[:-1]
+	data = data#[:5]
+#	data = data[:650]
+	print(f'Number of pre-trained episodes: {data.shape[0]}')
 
 	features = data[['d1','d2','d3','d4']]
 	reward = data['reward']
@@ -51,30 +53,30 @@ def handle_eval_waypoint(req):
 	bold_pix  = mh.pose2pix(bold_pose)
 	coward_pix = mh.pose2pix(coward_pose)
 
-	samples = mh.sampling(coward_pix, [[-80,-80],[80,80]], 1000)
-	waypoints = mh.filter(samples)
+	samples = mh.sampling(coward_pix.astype(int), [[-40,-40],[40,40]],200)
+	#samples = mh.sampling(coward_pix.astype(int), [[-80,-80],[80,160]], 800) #1000
+	waypoints = samples#emh.filter(samples)
 	#print("sampling took {:.3f}s".format((rospy.Time.now() - st).to_sec()))
-	#st = rospy.Time.now()
+	st = rospy.Time.now()
 	# Use position information from request; chicken_pos, bold_pos
 	# to measure the features (4 distances) from given map
 	features = mh.extractFeature(coward_pix, bold_pix, waypoints)
-	#print("feature extraction took {:.3f}s".format((rospy.Time.now() - st).to_sec()))
+	print("feature extraction took {:.3f}s".format((rospy.Time.now() - st).to_sec()))
 
 	#st = rospy.Time.now()
 	with torch.no_grad(), gpytorch.settings.fast_pred_var():
 		expected_reward = likelihood(model(torch.from_numpy(features).type(torch.float)))
 	expected_reward = expected_reward.mean.numpy()
 	#print("GP model took {:.3f}s".format((rospy.Time.now() - st).to_sec()))
-
+	print(samples.shape, waypoints.shape, features.shape)
 	if(np.random.rand()<epsilon):
-		print(epsilon)
 		mode = "explore"
 		best_idx = np.random.randint(features.shape[0])
 	else:
 		mode = "exploit"
-		best_reward = np.max(expected_reward)
+		idx = (expected_reward < -50)
+		best_reward = np.max(expected_reward[idx])
 		best_idx = np.argwhere(expected_reward == best_reward).reshape(-1)
-		print(best_idx)
 		best_idx = best_idx[0]
 		#print("Best expected rewards: {:.3f}".format(best_reward))
 	resp = EvalWaypointResponse()
@@ -99,13 +101,13 @@ def handle_eval_waypoint(req):
 	return resp
 
 def train_GP_model(data_path, likelihood):
-	train_x, train_y = load_data("8m_contextual.txt")
-	train_y = np.clip(train_y, -100, 0)
+	train_x, train_y = load_data(data_path)
+#	train_y = np.clip(train_y, -100, 0)
 	train_x = torch.from_numpy(train_x).type(torch.float)
 	train_y = torch.from_numpy(train_y).type(torch.float)
-
 	model = ExactGPModel(train_x, train_y, likelihood)
-	state_dict = torch.load("{}/model/ExactGPModel_0_prior_100_epoch.pth".format(pkgPath))
+	#state_dict = torch.load("{}/model/ExactGPModel_0_prior_100_epoch.pth".format(pkgPath))
+	state_dict = torch.load("{}/model/setting_1.pth".format(pkgPath))
 	model.load_state_dict(state_dict)
 	return model
 
@@ -118,30 +120,26 @@ def eval_waypoint_server():
 	global update
 	global epsilon
 	update = True
-	epsilon = 0.05
+	epsilon = 0.00 #1.0
 
 	mh = MapHack(True)
 	likelihood = gpytorch.likelihoods.GaussianLikelihood()
-	model = train_GP_model("8m_contextual.txt", likelihood)
+	model = train_GP_model("8m_contextual_video.txt", likelihood)
+	model.eval()
 
 	s = rospy.Service('eval_waypoint', EvalWaypoint, handle_eval_waypoint)
 	print("Ready to evaluate waypoint in map.")
 
 	r = rospy.Rate(10)
+	#model = train_GP_model("8m_contextual_005.txt", likelihood)
+	#model.eval()
+	likelihood.eval()
+	with torch.no_grad(), gpytorch.settings.fast_pred_var():
+		likelihood(model( torch.from_numpy(np.random.rand(1,4)).type(torch.float)))
+	print("READY TO RUN")
 	while not rospy.is_shutdown():
-		if(update == True):
-			st = rospy.Time.now()
-			model = train_GP_model("8m_contextual.txt", likelihood)
-			# Activate evaluation mode and
-			model.eval()
-			likelihood.eval()
-			print("training took {:.3f}s".format((rospy.Time.now()-st).to_sec() ))
-			# Perform dummy evaluation to intialize torch network.
-			with torch.no_grad(), gpytorch.settings.fast_pred_var():
-				likelihood(model( torch.from_numpy(np.random.rand(1,4)).type(torch.float) ))
-			update = False
 		r.sleep()
-	#s.shutdown()
+	s.shutdown()
 
 if __name__ == "__main__":
     eval_waypoint_server()
