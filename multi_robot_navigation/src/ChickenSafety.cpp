@@ -33,6 +33,8 @@ ChickenSafetyProtocol::ChickenSafetyProtocol(string ROBOT_NAME, string HOST_NAME
 
   if(ROBOT_NAME == "") global_frame_id_ = "level_mux_map";
   else global_frame_id_ = "marvin/level_mux_map";
+
+  this->safetyStack = 0;
 };
 void ChickenSafetyProtocol::subscribeMyPlan(const visualization_msgs::MarkerArray plan){
   this->myPlan_.clear();
@@ -190,22 +192,14 @@ void ChickenSafetyProtocol::goToSafeZone(string safeZone){
 
 bool ChickenSafetyProtocol::waitUntilSafe(){
   // return true if it is safe, otherwise return false;
-  bool safe = false;
-  // if robots are 5 meters away
   vector<geometry_msgs::Pose>::iterator my_iter = myPlan_.begin();
   vector<geometry_msgs::Pose>::iterator others_iter = othersPlan_.end();
 
   float distance_between_robot = dist(my_iter->position, (--others_iter)->position);
   //ROS_INFO_STREAM("waitUntilSafe init");
-  if(distance_between_robot > 8.0f){
-    //ROS_INFO_STREAM("Robots are 8.0 M away!");
-    safe = true;
-    return safe;
-  }
-  //ROS_INFO_STREAM("waitUntilSafe distance between robots");
-  if(othersPlan_.size() == 2){
-    // Other robot is stopped and planning for next location.
-    return safe;
+  if(distance_between_robot > 6.0f){
+    ros::Duration(2.0).sleep();
+    return true;
   }
   // if other robot is moving away.
   bool isMovingAway = true;
@@ -229,11 +223,17 @@ bool ChickenSafetyProtocol::waitUntilSafe(){
   }
   //ROS_INFO_STREAM("waitUntilSafe far away finished");
   if(isMovingAway == true){
-    //ROS_INFO_STREAM("Other robot is definately planning to move away!");
-    safe = true;
+    this->safetyStack++;
   }
-
-  return safe;
+  else{
+    this->safetyStack = 0;
+  }
+  if(this->safetyStack > 0){ // 3 for type 1
+    this->safetyStack = 0;
+    ros::Duration(3.0).sleep();
+    return true;
+  }
+  return false;
 };
 
 void ChickenSafetyProtocol::run(string location){

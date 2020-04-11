@@ -25,6 +25,8 @@
 // Write simulation results in file.
 #include <fstream>
 
+#include <random>
+
 #define PI (3.1415926)
 typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
@@ -292,7 +294,7 @@ bool MRH_Experiment::reset_environment(){
 			return false;
 		}
 		timeout = timeout+1;
-		if(timeout>200){
+		if(timeout>300){
 			ROS_INFO_STREAM("Reset environment Timeout");
 			return false;
 		}
@@ -346,20 +348,9 @@ vector<double> MRH_Experiment::run_raw_experiment(int timeout, int delay=0.0){
 	//marvin_ac.sendGoalAndWait(this->marvin_init_pose);
 	//------------------------------------------------------------------------------------
 	this->start_time = ros::Time::now();
-	if(delay == 0){
-		this->move("marvin", marvin_goal_pose);
-		this->move("roberto", roberto_goal_pose);
-	}
-	if(delay<0){
-		this->move("marvin", marvin_goal_pose);
-		ros::Duration(delay).sleep();
-		this->move("roberto", roberto_goal_pose);
-	}
-	else{
-		this->move("roberto", roberto_goal_pose);
-		ros::Duration(delay).sleep();
-		this->move("marvin", marvin_goal_pose);
-	}
+
+	this->move("roberto", roberto_goal_pose);
+	this->move("marvin", marvin_goal_pose);
 
 	int t = 0;
 	bool roberto_check = true;
@@ -367,8 +358,7 @@ vector<double> MRH_Experiment::run_raw_experiment(int timeout, int delay=0.0){
 	while(ros::ok()){
 		// check collision between two robots
 		if(this->checkCollision()){
-			endtime[0] = endtime[1] = 1000.0 + (ros::Time::now() - this->start_time).toSec();
-			return endtime;
+			endtime[0] = endtime[1] = 1000.0 + (ros::Time::now() - this->start_time).toSec();;
 		}
 		// if success, return how long it took
 		if(roberto_ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && roberto_check){
@@ -398,6 +388,11 @@ vector<double> MRH_Experiment::run_raw_experiment(int timeout, int delay=0.0){
 		if(endtime[0]>0 && endtime[1]>0) break;
 		this->rate->sleep();
 	}
+	ofstream log_data;
+	std::string path = ros::package::getPath("multi_robot_collision_avoidance");
+
+	log_data.open(path + "/script/data/8m_contextual.txt", ios::out | ios::app);
+	log_data<<-endtime[0]<<","<<-endtime[1]<<","<<-endtime[0]-endtime[1]<<endl;
 	return endtime;
 };
 vector<double> MRH_Experiment::run_chicken_experiment(int timeout){
@@ -445,7 +440,7 @@ vector<double> MRH_Experiment::run_chicken_experiment(int timeout){
 		}
 		// check collision between two robots
 		if(this->checkCollision()){
-			endtime[0] = endtime[1] = 1000.0;
+			endtime[0] = endtime[1] = 1000.0 + (ros::Time::now() - this->start_time).toSec();
 			return endtime;
 		}
 		// if success, return how long it took
@@ -487,6 +482,11 @@ vector<double> MRH_Experiment::run_chicken_experiment(int timeout){
 		if(endtime[0]>0 && endtime[1]>0) break;
 		this->rate->sleep();
 	}
+	ofstream log_data;
+	std::string path = ros::package::getPath("multi_robot_collision_avoidance");
+
+	log_data.open(path + "/script/data/8m_contextual.txt", ios::out | ios::app);
+	log_data<<-endtime[0]<<","<<-endtime[1]<<","<<-endtime[0]-endtime[1]<<endl;
 	return endtime;
 };
 vector<double> MRH_Experiment::run_siren_experiment(int timeout){
@@ -534,6 +534,7 @@ vector<double> MRH_Experiment::run_siren_experiment(int timeout){
 
 			    wp.target_pose.pose.position.x = srv.response.waypoint.position.x;
 			    wp.target_pose.pose.position.y = srv.response.waypoint.position.y;
+//					wp.target_pose.pose.orientation = srv.response.waypoint.orientation;
 			    wp.target_pose.pose.orientation = marvin_goal_pose.target_pose.pose.orientation;
 			  }
 			  else
@@ -554,7 +555,7 @@ vector<double> MRH_Experiment::run_siren_experiment(int timeout){
 		}
 		// check collision between two robots
 		if(this->checkCollision()){
-			endtime[0] = endtime[1] = 1000.0;
+			endtime[0] = endtime[1] = 1000.0 + (ros::Time::now() - this->start_time).toSec();
 			break;
 		}
 		// if success, return how long it took
@@ -615,13 +616,13 @@ void MRH_Experiment::goToParkingZone(string location){
   if(location=="p3_15"){
     coord.push_back(3.627);
     coord.push_back(10.41);
-    coord.push_back(PI/2);
+    coord.push_back(-PI/2);
     go(coord);
   }
   else if(location=="p3_16"){
     coord.push_back(5.65);
     coord.push_back(10.46);
-    coord.push_back(PI/2);
+    coord.push_back(-PI/2);
     go(coord);
   }
   else if(location=="p3_18"){
@@ -685,6 +686,13 @@ int main(int argc, char** argv){
 		exit(0);
 		ROS_INFO_STREAM("rosrun multi_robot_navigation exp_handler ${exp_type} ${num_exp} ${time_out}");
 	}
+
+	std::random_device rd;
+	std:mt19937 e2(rd());
+	std::uniform_real_distribution<> xrand(-4,4);
+	std::uniform_real_distribution<> yrand(-0.3, 0.3);
+	std::uniform_real_distribution<> wrand(-PI/12, PI/12);
+
 	// Read Gazebo contact topic to decide collision.
 	gazebo::client::setup(argc, argv);
 	gazebo::transport::NodePtr node(new gazebo::transport::Node());
@@ -700,32 +708,65 @@ int main(int argc, char** argv){
 
 	MRH_Experiment eh(&nh);
   // Set initial environment for expermients
-	/*
-	// Hallway no.0
-	eh.setSpawnPose("marvin", 4.8, 18.1, PI);
-  eh.setInitPose("marvin", 9.3, 18.1, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
-	eh.setGoalPose("marvin", 19.3, 18.1, PI/180.*0.);
-	eh.setStandbyPose("marvin", 26.45, 18.15, 0.0);
-	eh.setSpawnPose("roberto", 23.8, 18.1, 0.0);
-  eh.setInitPose("roberto", 19.3, 18.1, PI);
-	eh.setGoalPose("roberto", 9.3, 18.1, PI);
-	eh.setStandbyPose("roberto", 2.15, 18.15, PI);
+  // Hallway No 1.
+/*
+	eh.setSpawnPose("marvin", 8.8, 17.85, PI);
+	eh.setInitPose("marvin", 12.5, 17.85, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
+	eh.setGoalPose("marvin", 28.5, 17.85, PI/180.*0.);
+	eh.setStandbyPose("marvin", 30.45, 17.85, 0.0);
+	eh.setSpawnPose("roberto", 26.8, 17.85, 0.0);
+	eh.setInitPose("roberto", 22.5, 17.85, PI);
+	eh.setGoalPose("roberto", 6.5, 17.85, PI);
+	eh.setStandbyPose("roberto", 2.15, 17.855, PI);
 */
-
-	eh.setSpawnPose("marvin", 8.8, 18.1, PI);
-  eh.setInitPose("marvin", 12.5, 18.1, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
-	eh.setGoalPose("marvin", 22.5, 18.1, PI/180.*0.);
-	eh.setStandbyPose("marvin", 26.45, 18.15, 0.0);
-	eh.setSpawnPose("roberto", 26.8, 18.1, 0.0);
-  eh.setInitPose("roberto", 22.5, 18.1, PI);
-	eh.setGoalPose("roberto", 12.5, 18.1, PI);
-	eh.setStandbyPose("roberto", 2.15, 18.15, PI);
-
+	eh.setSpawnPose("roberto", 8.8, 17.85, PI);
+	eh.setInitPose("roberto", 12.5, 17.85, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
+	eh.setGoalPose("roberto", 28.5, 17.85, PI/180.*0.);
+	eh.setStandbyPose("roberto", 30.45, 17.85, 0.0);
+	eh.setSpawnPose("marvin", 26.8, 17.85, 0.0);
+	eh.setInitPose("marvin", 22.5, 17.85, PI);
+	eh.setGoalPose("marvin", 6.5, 17.85, PI);
+	eh.setStandbyPose("marvin", 2.15, 17.855, PI);
+/*
+	eh.setSpawnPose("marvin", 7.5, 9.5, PI);
+	eh.setInitPose("marvin", 10.5, 9.5, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
+	eh.setGoalPose("marvin", 22.5, 9.5, PI/180.*0.);
+	eh.setStandbyPose("marvin", 30.5, 9.5, 0.0);
+	eh.setSpawnPose("roberto", 23.5, 9.5, 0.0);
+	eh.setInitPose("roberto", 20.5, 9.5, PI);
+	eh.setGoalPose("roberto", 3.5, 9.5, PI);
+	eh.setStandbyPose("roberto", 0., 9.5, PI);
+*//*
+	eh.setSpawnPose("marvin", 29.5, 9.5, PI);
+	eh.setInitPose("marvin", 33.0, 9.5, PI/180.*0.); // Test: -PI/12 0 PI/12  150 each
+	eh.setGoalPose("marvin", 39.0, 15.5, PI/180.*90.);
+	eh.setStandbyPose("marvin", 39.3, 17.5, 0.0);
+	eh.setSpawnPose("roberto", 39.3, 17.5, PI/2);
+	eh.setInitPose("roberto", 39.3, 13.5, -PI/2);
+	eh.setGoalPose("roberto", 31.0, 9.5, PI);
+	eh.setStandbyPose("roberto", 20.0, 9.5, PI);
+*/
   //eh.showInitPose();
 	float delay = 0.0;
 	//Set experiments here
-	double reset_time;
+	double reset_time, xdiff,ydiff,wdiff;
 	for(int i=0; i<atoi(argv[2]); i++){
+		if(ros::ok()!=true) break;
+		// -4 on x
+		xdiff = xrand(e2);
+		ydiff = yrand(e2);
+		wdiff = wrand(e2);
+	  // Hallway No 1.
+		eh.setSpawnPose("marvin", 8.8, 17.85, PI);
+		eh.setInitPose("marvin", 12.5, 17.85+yrand(e2), 0 + wrand(e2)); // Test: -PI/12 0 PI/12  150 each
+		eh.setGoalPose("marvin", 28.5, 17.85+yrand(e2), 0 + wrand(e2));
+		eh.setStandbyPose("marvin", 28.5, 17.85, 0.0);
+//		eh.setStandbyPose("marvin", 30.45, 17.85, 0.0);
+		eh.setSpawnPose("roberto", 26.8, 17.85, 0.0);
+		eh.setInitPose("roberto", 22.5, 17.85+yrand(e2), PI + wrand(e2));
+		eh.setGoalPose("roberto", 6.5, 17.85+yrand(e2), 3.13);
+		eh.setStandbyPose("roberto", 6.5, 17.85, 3.13);
+//		eh.setStandbyPose("roberto", 2.15, 17.855, PI);
 
 		ros::Time start_time = ros::Time::now();
 	  bool success = eh.reset_environment();
@@ -734,13 +775,14 @@ int main(int argc, char** argv){
 			i = i-1;
 			continue;
 		}
+		eh.checkCollision();
 		ROS_INFO_STREAM((i+1)<<"th experiment");
 		reset_time = (ros::Time::now() - start_time).toSec();
 		vector<double> result;
 		if(exp_name == "raw") result = eh.run_raw_experiment(200, delay);
-		else if(exp_name == "chicken") result = eh.run_chicken_experiment(100);
+		else if(exp_name == "chicken") result = eh.run_chicken_experiment(200);
 		else if(exp_name == "siren"){
-			result = eh.run_siren_experiment(100);
+			result = eh.run_siren_experiment(200);
 			if(episode_fail == true){
 				episode_fail = false;
 				i = i - 1;
