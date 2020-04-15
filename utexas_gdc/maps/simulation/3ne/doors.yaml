@@ -83,16 +83,16 @@
     point: [14.042, 16.402, -3.10827165771]
   - from: l3_414
     point: [15.812, 16.402, -0.0333209958782]
-  door_corner_pt_1: [14.927, 16.933]
-  door_corner_pt_2: [14.927, 15.93]
+  door_corner_pt_1: [14.927, 17.133]
+  door_corner_pt_2: [14.927, 15.73]
   name: d3_414a3
 - approach:
   - from: l3_414a
     point: [7.611, 16.107, -1.57079632679]
   - from: l3_400
     point: [7.611, 17.995, 1.57079632679]
-  door_corner_pt_1: [6.608, 17.051]
-  door_corner_pt_2: [8.614, 17.051]
+  door_corner_pt_1: [6.308, 17.051]
+  door_corner_pt_2: [8.914, 17.051]
   name: d3_414a1
 - approach:
   - from: l3_400
@@ -187,7 +187,7 @@
     point: [28.851, 9.558, -1.60203616023]
   - from: l3_414b
     point: [28.851, 11.446, 1.60203616023]
-  door_corner_pt_1: [27.848, 10.502]
+  door_corner_pt_1: [27.248, 10.502]
   door_corner_pt_2: [29.913, 10.502]
   name: d3_414b1
 - approach:
@@ -198,3 +198,11 @@
   door_corner_pt_1: [30.562, 8.614]
   door_corner_pt_2: [31.624, 8.614]
   name: d3_516b
+- approach:
+  - from: l3_510
+    point: [10.266, 7.375, -1.21202565652]
+  - from: l3_500
+    point: [9.971, 9.44, 1.40564764938]
+  door_corner_pt_1: [12.60, 8.90]
+  door_corner_pt_2: [14.60, 8.90]
+  name: bench
