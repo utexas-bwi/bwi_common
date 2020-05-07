@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     ros::ServiceServer srv = nh.advertiseService("joint_pose_service", service_cb);
 
     //TODO: as a rosparam, option for planning time
-    ros::spin();
+    ros::waitForShutdown();
     return 0;
 }
  

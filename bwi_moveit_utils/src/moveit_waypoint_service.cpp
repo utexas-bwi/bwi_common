@@ -78,6 +78,6 @@ int main(int argc, char **argv){
 
     pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/mico_waypoint_service/target_pose", 1, true);
 
-    ros::spin();
+    ros::waitForShutdown();
     return 0;
 }
