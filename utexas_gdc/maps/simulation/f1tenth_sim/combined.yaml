@@ -1,8 +1,12 @@
 maps:
   1stFloor:
-    yaml: package://utexas_gdc/maps/simulation/f1tenth_sim/1/GDC1.yaml
+    yaml: package://utexas_gdc/maps/simulation/f1tenth_sim/1/1.yaml
     origin: [0, 0, 0, 0, 0, 0]
-    data_directory: package://utexas_gdc/maps/f1tenth_sim/1
+    data_directory: package://utexas_gdc/maps/simulation/f1tenth_sim/1
+  2ndFloor:
+    yaml: package://utexas_gdc/maps/simulation/f1tenth_sim/2/2.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/simulation/f1tenth_sim/2
   3rdFloor:
     yaml: package://utexas_gdc/maps/simulation/f1tenth_sim/3ne/3ne.yaml
     origin: [0, 0, 0, 0, 0, 0]
