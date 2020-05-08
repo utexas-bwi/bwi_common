@@ -13,13 +13,14 @@
     </include>
 
       <model name="building-north">
+        <pose>-14.016079 25.739113 0 0 0 0</pose>
         <include>
           <static>true</static>
           <uri>3n_real</uri>
         </include>
       </model>
       <model name="building-east">
-        <pose>0.064993 -34.986198 0 0 0 0</pose>
+        <pose>-13.970314 -9.174326 0 0 0 0</pose>
         <include>
           <static>true</static>
           <uri>3e_real</uri>
