@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<model>
+    <name>3n_real</name>
+    <version>1.0</version>
+    <sdf version="1.4">3n_real.sdf</sdf>
+    <author>
+        <name></name>
+        <email></email>
+    </author>
+    <description></description>
+</model>

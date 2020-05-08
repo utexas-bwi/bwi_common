@@ -12,11 +12,18 @@
       <uri>model://ground_plane</uri>
     </include>
 
-      <model name="building">
+      <model name="building-north">
         <include>
           <static>true</static>
-          <uri>3ne_real</uri>
+          <uri>3n_real</uri>
         </include>
       </model>
-  </world>
+      <model name="building-east">
+        <pose>0.064993 -34.986198 0 0 0 0</pose>
+        <include>
+          <static>true</static>
+          <uri>3e_real</uri>
+        </include>
+      </model>
+   </world>
 </sdf>
