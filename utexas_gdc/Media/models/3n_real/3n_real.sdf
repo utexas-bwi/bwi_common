@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
-<sdf version='1.6'>
-  <model name='3ne_real'>
+<sdf version='1.4'>
+  <model name='3_n'>
     <pose frame=''>-14.229 -33.4428 0 0 -0 0</pose>
     <link name='Wall_100'>
       <collision name='Wall_100_Collision'>
