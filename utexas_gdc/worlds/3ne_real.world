@@ -95,11 +95,12 @@
           <uri>3e_real</uri>
         </include>
     </model>
-    <model name="building-north">
+    <model name="building-north1">
         <pose>-14.016079 25.839033 0 0 0 0</pose>
         <include>
           <static>true</static>
           <uri>3n_real</uri>
         </include>
-    </model></world>
+    </model>
+  </world>
 </sdf>
