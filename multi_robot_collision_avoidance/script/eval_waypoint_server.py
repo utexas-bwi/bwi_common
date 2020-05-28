@@ -34,7 +34,7 @@ def load_data(filename):
 	dataPath = os.path.join(pkgPath, 'data')
 	filepath = os.path.join(dataPath, filename)
 	data = pd.read_csv(filepath, sep=',', header=[0], engine='python')
-	data = data#[:5]
+	data = data[:-1]
 #	data = data[:650]
 	print(f'Number of pre-trained episodes: {data.shape[0]}')
 
@@ -74,8 +74,7 @@ def handle_eval_waypoint(req):
 		best_idx = np.random.randint(features.shape[0])
 	else:
 		mode = "exploit"
-		idx = (expected_reward < -50)
-		best_reward = np.max(expected_reward[idx])
+		best_reward = np.max(expected_reward)
 		best_idx = np.argwhere(expected_reward == best_reward).reshape(-1)
 		best_idx = best_idx[0]
 		#print("Best expected rewards: {:.3f}".format(best_reward))
@@ -119,12 +118,12 @@ def eval_waypoint_server():
 	global model
 	global update
 	global epsilon
-	update = True
-	epsilon = 0.00 #1.0
+	update = False
+	epsilon = 0.1 #0.05 #1.0
 
 	mh = MapHack(True)
 	likelihood = gpytorch.likelihoods.GaussianLikelihood()
-	model = train_GP_model("8m_contextual_video.txt", likelihood)
+	model = train_GP_model("8m_contextual.txt", likelihood)
 	model.eval()
 
 	s = rospy.Service('eval_waypoint', EvalWaypoint, handle_eval_waypoint)
@@ -138,6 +137,10 @@ def eval_waypoint_server():
 		likelihood(model( torch.from_numpy(np.random.rand(1,4)).type(torch.float)))
 	print("READY TO RUN")
 	while not rospy.is_shutdown():
+		if update == True:
+			model = train_GP_model("8m_contextual.txt", likelihood)
+			model.eval()
+			update = False
 		r.sleep()
 	s.shutdown()
 

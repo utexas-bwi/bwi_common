@@ -27,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   plan_execution
   roscpp
+  rosbag
   rospy
   std_msgs
   tf_conversions
@@ -78,6 +79,10 @@ target_link_libraries(exp_parking_spot_orientation_test ${catkin_LIBRARIES})
 add_executable(fixed_marvin src/fixed_marvin.cpp)
 add_dependencies(fixed_marvin ${catkin_EXPORTED_TARGETS})
 target_link_libraries(fixed_marvin ${catkin_LIBRARIES})
+
+add_executable(real_robot src/real_robot.cpp src/ChickenSafety.cpp src/VanillaPolicy.cpp)
+add_dependencies(real_robot ${catkin_EXPORTED_TARGETS})
+target_link_libraries(real_robot ${catkin_LIBRARIES} yaml-cpp)
 
 #############
 ## Install ##

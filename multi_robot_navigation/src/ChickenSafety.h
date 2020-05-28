@@ -21,7 +21,7 @@ using namespace std;
 class ChickenSafetyProtocol{
 
 protected:
-
+  int safetyStack;
   ASPClient *client_;
   LAClient *lac_;
 

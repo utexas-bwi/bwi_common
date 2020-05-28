@@ -1,0 +1,17 @@
+verbose: true
+Num_episode: 10
+# bold coward
+Robot_name : coward
+# vanilla chicken siren
+Policy: chicken
+# simulation real
+Platform: simulation
+
+Bold:
+  init_pose: [22.5, 18.1, 3.14]
+  goal_pose: [10.5, 18.1, 3.14]
+  temp_pose: [2.15, 18.15, 3.14]
+Coward:
+  init_pose: [12.5, 18.1, 0.0]
+  goal_pose: [24.5, 18.1, 0.0]
+  temp_pose: [28.45, 18.15, 0.0]

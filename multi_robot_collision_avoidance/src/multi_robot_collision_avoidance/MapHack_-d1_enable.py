@@ -128,7 +128,8 @@ class MapHack:
         window = search_window/self.metaData['resolution']
         features = np.empty((len(wps), 4))
 
-        features[:,0] = self._dists(coward, wps)
+        sign = np.sign(np.dot(wps-coward, bold-coward))
+        features[:,0] = self._dists(coward, wps) * sign
         features[:,1] = self._dists(bold, wps)
 
         for i, wp in enumerate(wps):

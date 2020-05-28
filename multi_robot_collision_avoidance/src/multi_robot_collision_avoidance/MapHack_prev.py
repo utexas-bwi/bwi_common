@@ -84,14 +84,12 @@ class MapHack:
         ================================
         Return
         Samples (y's,x's)"""
-        bound = np.stack([sample_centre, sample_centre]) + window
+        bound = np.stack([sample_centre, sample_centre])
+        bound = bound + window
         bound = np.clip(bound, [0,0], [self.h, self.w])
-        mask = np.isin(self.segData[bound[0,0]:bound[1,0], bound[0,1]:bound[1,1]], self.hallway_idx)
-        s = np.sum(mask)
-        n = (n_sample if n_sample<s else s)
-        idx = np.random.choice(s, n, replace=False)
+        samples = np.random.uniform(bound[0], bound[1], (n_sample,2))
 
-        return np.argwhere(mask==True)[idx] + bound[0]
+        return samples
 
     def generate_filter(self, index):
         """Generate filter that exclude all the non-hallway sample points

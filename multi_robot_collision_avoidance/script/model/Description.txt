@@ -1,0 +1,3 @@
+ExactGPModel_0_prior_100_epoch.pth : trained with Brian's 8m hallway data set. During training, values are cliped between -100~0. Also, Reward = max(marvin, roberto)
+setting_1 : trained with ~1700 new online learning training data.  5 epoch, no reward clipping & Reward = marvin + roberto
+setting_1 : trained with ~1700 new online learning training data. 10 epoch, no reward clipping & Reward = marvin + roberto

@@ -1,0 +1,19 @@
+- name: footprint_padding_${Number}
+  - marvin:
+    - global_costmap:
+      - robot_radius: 0.34
+      - footprint_padding: ${Number}
+    - local_costmap:
+      - robot_radius: 0.34
+      - footprint_padding: ${Number}
+      - social_passing_layer: disabled
+      - social_proxemic_layer: enabled
+  - roberto:
+    - global_costmap:
+      - robot_radius: 0.34
+      - footprint_padding: ${Number}
+    - local_costmap:
+      - robot_radius: 0.34
+      - footprint_padding: ${Number}
+      - social_passing_layer: disabled
+      - social_proxemic_layer: enabled

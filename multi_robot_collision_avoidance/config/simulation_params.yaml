@@ -1,0 +1,3 @@
+maphack_params:
+  map_dir: "/home/jinsoo/catkin_ws/src/bwi_common/utexas_gdc/maps/simulation/3ne/3ne.pgm"
+  meta_dir: "/home/jinsoo/catkin_ws/src/bwi_common/utexas_gdc/maps/simulation/3ne/3ne.yaml"

@@ -1,0 +1,20 @@
+- name: exp_$NUMBER
+  - marvin:
+    - global_costmap:
+      - robot_radius: $NUMBER
+      - footprint_padding: 0.0
+    - local_costmap:
+      - robot_radius: $NUMBER
+      - footprint_padding: 0.0
+      - social_passing_layer: disabled
+      - social_proxemic_layer: enabled
+  - roberto:
+    - global_costmap:
+      - robot_radius: $NUMBER
+      - footprint_padding: 0.0
+    - local_costmap:
+      - robot_radius: $NUMBER
+      - footprint_padding: 0.0
+      - social_passing_layer: disabled
+      - social_proxemic_layer: enabled
+
