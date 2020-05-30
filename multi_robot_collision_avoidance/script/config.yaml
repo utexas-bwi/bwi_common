@@ -1,16 +1,15 @@
 mode: 'train'
 # GP model parameters
 model: 'setting_1.pth'
-kernel: # ['uniform' or 'seperate'] for lengthscale of the GP model
-  - uniform
-load_from: '8m_contextual.txt'
-save_to: '8m_contextual.txt'
-range: # -1 for 'train' mode 
-  - -1
+kernel: uniform # ['uniform' or 'seperate'] for lengthscale of the GP model
+load_from: '8m_contextual_video.txt' # if mode=='train', use '8m_contextual.txt'
+range: -1 # -1 for 'train' mode 
 features: # features tag
-  - ['d1','d2','d3','d4']
-reward: # reward tag
-  - 'reward'
+  - d1
+  - d2
+  - d3
+  - d4
+reward: reward # What GP model will predict
 reward_clip: [-.Inf,0]
 data_format: # header for data storing
   - type

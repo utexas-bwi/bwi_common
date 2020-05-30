@@ -13,8 +13,10 @@ from multi_robot_collision_avoidance.MapHack import MapHack
 from geometry_msgs.msg import Pose
 # Read configuration file
 import yaml
-with open('config.yaml') as f:
-	config = yaml.load(f, Loader = yaml.FullLoader)
+pkgPath = rospkg.RosPack().get_path("multi_robot_collision_avoidance")
+pkgPath = os.path.join(pkgPath, 'script')
+with open('{}/config.yaml'.format(pkgPath)) as f:
+	config = yaml.load(f)
 	if config['mode'] == "train":
 		config['save_to'] = config['load_from']
 # gpytorch GP model
@@ -25,7 +27,7 @@ class ExactGPModel(gpytorch.models.ExactGP):
 		if config['kernel'] == 'uniform':
 			self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
 		elif config['kernel'] == 'seperate':
-			self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel(has_lengthscale = True, ard_num_dims = len(config['features'][0])))
+			self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel(has_lengthscale = True, ard_num_dims = len(config['features'])))
 
 	def forward(self, x):
 		mean_x = self.mean_module(x)
@@ -34,10 +36,6 @@ class ExactGPModel(gpytorch.models.ExactGP):
 
 def load_data():
 	"""Load pre-build data from pkg/data/$filename"""
-	rospack = rospkg.RosPack()
-	global pkgPath
-	pkgPath = rospack.get_path('multi_robot_collision_avoidance')
-	pkgPath = os.path.join(pkgPath, 'script')
 	dataPath = os.path.join(pkgPath, 'data')
 	filepath = os.path.join(dataPath, config['load_from'])
 	data = pd.read_csv(filepath, sep=',', header=[0], engine='python')
@@ -88,11 +86,7 @@ def handle_eval_waypoint(req):
 	#print(best_idx)
 	#print(waypoints[best_idx])
 	x,y = mh.pix2pose(waypoints[best_idx])
-	# if save_to does not exist, make
-	if not os.path.exists():
-		with open("{}/data{}".format(pkgPath, config['save_to']), 'w') as f:
-			f.write(",".join(config['data_format']))
-	with open("{}/data/{}".format(pkgPath, config['save_to']), 'a') as f:
+	with open("{}/data/{}".format(pkgPath, '8m_contextual.txt'), 'a') as f:
 		f.write("{},{:.3f},{:.3f},".format(mode,x,y))
 		f.write("{:.3f},{:.3f},{:.3f},{:.3f},".format(features[best_idx,0],features[best_idx,1],features[best_idx,2],features[best_idx,3]))
 		f.write("{},".format(expected_reward[best_idx]))
