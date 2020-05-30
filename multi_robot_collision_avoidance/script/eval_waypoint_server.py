@@ -1,19 +1,22 @@
 #!/usr/bin/env python3.7
 import numpy as np
-
 import os
 import pandas as pd
-
+# GP model
 import torch
 import gpytorch
-
+# Ros related packages
+import rospy
+import rospkg
 from multi_robot_collision_avoidance.srv import EvalWaypoint,EvalWaypointResponse
 from multi_robot_collision_avoidance.MapHack import MapHack
 from geometry_msgs.msg import Pose
-
-import rospy
-import rospkg
-
+# Read configuration file
+import yaml
+with open('config.yaml') as f:
+	config = yaml.load(f, Loader = yaml.FullLoader)
+	if config['mode'] == "train":
+		config['save_to'] = config['load_from']
 # gpytorch GP model
 class ExactGPModel(gpytorch.models.ExactGP):
 	def __init__(self, train_x, train_y, likelihood):
@@ -25,21 +28,21 @@ class ExactGPModel(gpytorch.models.ExactGP):
 		mean_x = self.mean_module(x)
 		covar_x = self.covar_module(x)
 		return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-def load_data(filename):
+
+def load_data():
 	"""Load pre-build data from pkg/data/$filename"""
 	rospack = rospkg.RosPack()
 	global pkgPath
 	pkgPath = rospack.get_path('multi_robot_collision_avoidance')
 	pkgPath = os.path.join(pkgPath, 'script')
 	dataPath = os.path.join(pkgPath, 'data')
-	filepath = os.path.join(dataPath, filename)
+	filepath = os.path.join(dataPath, config['load_from'])
 	data = pd.read_csv(filepath, sep=',', header=[0], engine='python')
-	data = data[:-1]
-#	data = data[:650]
-	print(f'Number of pre-trained episodes: {data.shape[0]}')
+	data = data[:config['range']]
+	print(f'Number of data: {data.shape[0]}')
 
-	features = data[['d1','d2','d3','d4']]
-	reward = data['reward']
+	features = data[config['features']]
+	reward = data[config['reward']]
 	return features.to_numpy(), reward.to_numpy()
 
 def pose2arr(pose):
@@ -53,7 +56,7 @@ def handle_eval_waypoint(req):
 	bold_pix  = mh.pose2pix(bold_pose)
 	coward_pix = mh.pose2pix(coward_pose)
 
-	samples = mh.sampling(coward_pix.astype(int), [[-40,-40],[40,40]],200)
+	samples = mh.sampling(coward_pix.astype(int), config['sample_range'], config['n_samples'])
 	#samples = mh.sampling(coward_pix.astype(int), [[-80,-80],[80,160]], 800) #1000
 	waypoints = samples#emh.filter(samples)
 	#print("sampling took {:.3f}s".format((rospy.Time.now() - st).to_sec()))
@@ -82,7 +85,11 @@ def handle_eval_waypoint(req):
 	#print(best_idx)
 	#print(waypoints[best_idx])
 	x,y = mh.pix2pose(waypoints[best_idx])
-	with open("{}/data/8m_contextual.txt".format(pkgPath), 'a') as f:
+	# if save_to does not exist, make
+	if not os.path.exists():
+		with open("{}/data{}".format(pkgPath, config['save_to']), 'w') as f:
+			f.write(",".join(config['data_format']))
+	with open("{}/data/{}".format(pkgPath, config['save_to']), 'a') as f:
 		f.write("{},{:.3f},{:.3f},".format(mode,x,y))
 		f.write("{:.3f},{:.3f},{:.3f},{:.3f},".format(features[best_idx,0],features[best_idx,1],features[best_idx,2],features[best_idx,3]))
 		f.write("{},".format(expected_reward[best_idx]))
@@ -99,14 +106,14 @@ def handle_eval_waypoint(req):
 	#resp.E_reward = best_reward
 	return resp
 
-def train_GP_model(data_path, likelihood):
-	train_x, train_y = load_data(data_path)
+def train_GP_model(likelihood):
+	train_x, train_y = load_data()
 #	train_y = np.clip(train_y, -100, 0)
 	train_x = torch.from_numpy(train_x).type(torch.float)
 	train_y = torch.from_numpy(train_y).type(torch.float)
 	model = ExactGPModel(train_x, train_y, likelihood)
 	#state_dict = torch.load("{}/model/ExactGPModel_0_prior_100_epoch.pth".format(pkgPath))
-	state_dict = torch.load("{}/model/setting_1.pth".format(pkgPath))
+	state_dict = torch.load("{}/model/{}".format(pkgPath, config['model']))
 	model.load_state_dict(state_dict)
 	return model
 
@@ -119,11 +126,11 @@ def eval_waypoint_server():
 	global update
 	global epsilon
 	update = False
-	epsilon = 0.1 #0.05 #1.0
+	epsilon = config['epsilon'] #0.05 #1.0
 
 	mh = MapHack(True)
 	likelihood = gpytorch.likelihoods.GaussianLikelihood()
-	model = train_GP_model("8m_contextual.txt", likelihood)
+	model = train_GP_model(likelihood)
 	model.eval()
 
 	s = rospy.Service('eval_waypoint', EvalWaypoint, handle_eval_waypoint)
@@ -137,8 +144,8 @@ def eval_waypoint_server():
 		likelihood(model( torch.from_numpy(np.random.rand(1,4)).type(torch.float)))
 	print("READY TO RUN")
 	while not rospy.is_shutdown():
-		if update == True:
-			model = train_GP_model("8m_contextual.txt", likelihood)
+		if config['mode']=='train' and update == True:
+			model = train_GP_model(likelihood)
 			model.eval()
 			update = False
 		r.sleep()

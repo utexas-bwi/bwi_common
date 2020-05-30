@@ -1,0 +1,29 @@
+mode: 'train'
+# GP model parameters
+model: 'setting_1.pth'
+load_from: '8m_contextual.txt'
+save_to: '8m_contextual.txt'
+range: # -1 for 'train' mode 
+  - -1
+features: # features tag
+  - ['d1','d2','d3','d4']
+reward: # reward tag
+  - 'reward'
+data_format: # header for data storing
+  - "type"
+  - "wx"
+  - "wy"
+  - "d1"
+  - "d2"
+  - "d3"
+  - "d4"
+  - "E_reward"
+  - "roberto_reward"
+  - "marvin_reward"
+  - "reward"
+n_samples: 200
+sample_range: # lower left pt, upper right pt
+  - [-40,-40]
+  - [ 40, 40]
+# Define Bandit params
+epsilon: 0.1
