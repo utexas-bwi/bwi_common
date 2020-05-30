@@ -22,7 +22,10 @@ class ExactGPModel(gpytorch.models.ExactGP):
 	def __init__(self, train_x, train_y, likelihood):
 		super(ExactGPModel, self).__init__(train_x, train_y, likelihood)
 		self.mean_module = gpytorch.means.ConstantMean()
-		self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+		if config['kernel'] == 'uniform':
+			self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+		elif config['kernel'] == 'seperate':
+			self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel(has_lengthscale = True, ard_num_dims = len(config['features'][0])))
 
 	def forward(self, x):
 		mean_x = self.mean_module(x)
@@ -108,7 +111,7 @@ def handle_eval_waypoint(req):
 
 def train_GP_model(likelihood):
 	train_x, train_y = load_data()
-#	train_y = np.clip(train_y, -100, 0)
+	train_y = np.clip(train_y, config['reward_clip'][0], config['reward_clip'][1])
 	train_x = torch.from_numpy(train_x).type(torch.float)
 	train_y = torch.from_numpy(train_y).type(torch.float)
 	model = ExactGPModel(train_x, train_y, likelihood)
