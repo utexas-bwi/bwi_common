@@ -36,8 +36,7 @@
  *
  **/
 
-#ifndef VORONOI_POINT_JI6FXE0K
-#define VORONOI_POINT_JI6FXE0K
+#pragma once
 
 #include <vector>
 #include <nav_msgs/OccupancyGrid.h>
@@ -88,5 +87,3 @@ namespace bwi_mapper {
   }; /* VoronoiPoint */
   
 } /* bwi_mapper */
-
-#endif /* end of include guard: VORONOI_POINT_JI6FXE0K */

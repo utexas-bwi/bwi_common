@@ -32,8 +32,7 @@
  *
  **/
 
-#ifndef BWI_MAPPER_PATH_FINDER_H_
-#define BWI_MAPPER_PATH_FINDER_H_
+#pragma once
 
 #include <nav_msgs/OccupancyGrid.h>
 #include <bwi_mapper/structures/point.h>
@@ -49,8 +48,8 @@ namespace bwi_mapper {
 
     public:
 
-      static const int OBSTACLE = -2;
-      static const int NOT_CONNECTED = -1;
+      static const int OBSTACLE;
+      static const int NOT_CONNECTED;
       
       PathFinder(const nav_msgs::OccupancyGrid& map, const Point2d& start_pt);
       
@@ -65,5 +64,3 @@ namespace bwi_mapper {
   };
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: BWI_MAPPER_PATH_FINDER_H_ */

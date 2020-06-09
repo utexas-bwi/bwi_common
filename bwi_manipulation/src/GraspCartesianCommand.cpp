@@ -1,9 +1,12 @@
 #include <bwi_manipulation/GraspCartesianCommand.h>
 #include <Eigen/Dense>
+#ifdef AGILE_GRASP_AVAILABLE
 #include <agile_grasp/Grasp.h>
+#endif
 #include <eigen_conversions/eigen_msg.h>
 
 namespace bwi_manipulation {
+#ifdef AGILE_GRASP_AVAILABLE
     GraspCartesianCommand GraspCartesianCommand::from_agile_grasp(const agile_grasp::Grasp &grasp,
                                                                                 const float offset_approach,
                                                                                 const float offset_grasp,
@@ -50,7 +53,7 @@ namespace bwi_manipulation {
 
         return gc;
     }
-
+#endif
     GraspCartesianCommand
     GraspCartesianCommand::from_grasp_pose(const geometry_msgs::PoseStamped &grasp_pose,
                                                          const double offset_approach) {

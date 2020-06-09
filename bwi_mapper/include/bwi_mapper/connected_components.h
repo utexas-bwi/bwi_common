@@ -37,8 +37,7 @@
  *
  **/
 
-#ifndef CONNECTED_COMPONENTS_DVJRQLHV
-#define CONNECTED_COMPONENTS_DVJRQLHV
+#pragma once
 
 #include <opencv/cv.h>
 #include <vector>
@@ -82,5 +81,3 @@ namespace bwi_mapper {
   }; /* ConnectedComponents */
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: CONNECTED_COMPONENTS_DVJRQLHV */

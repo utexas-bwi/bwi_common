@@ -35,8 +35,7 @@
  *
  **/
 
-#ifndef GRAPH_E8QGZKSM
-#define GRAPH_E8QGZKSM
+#pragma once
 
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -130,5 +129,3 @@ namespace bwi_mapper {
       std::vector<size_t>& visible_vertices, float visibility_range = 0.0f);
 
 } /* bwi_mapper */
-
-#endif /* end of include guard: GRAPH_E8QGZKSM */

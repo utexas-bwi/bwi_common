@@ -37,8 +37,7 @@
  *
  **/
 
-#ifndef VORONOI_APPROXIMATOR_IVSRUILH
-#define VORONOI_APPROXIMATOR_IVSRUILH
+#pragma once
 
 #include <bwi_mapper/map_loader.h>
 #include <bwi_mapper/map_inflator.h>
@@ -113,5 +112,3 @@ namespace bwi_mapper {
   }; /* VoronoiApproximator */
   
 } /* bwi_mapper */
-
-#endif /* end of include guard: VORONOI_APPROXIMATOR_IVSRUILH */

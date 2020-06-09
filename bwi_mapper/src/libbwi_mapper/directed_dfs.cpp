@@ -97,8 +97,8 @@ namespace bwi_mapper {
       std::vector<Point2d> &neighbours, bool in_obstacle_space) {
 
     size_t neighbour_count = 8;
-    uint32_t x_offset[] = {-1, 0, 1, -1, 1, -1, 0, 1};
-    uint32_t y_offset[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int8_t x_offset[] = {1, 0, 1, -1, 1, -1, 0, 1};
+    int8_t y_offset[] = {-1, -1, -1, 0, 0, 1, 1, 1};
     neighbours.clear();
     for (size_t i = 0; i < neighbour_count; ++i) {
       // Check if neighbours are still on map
