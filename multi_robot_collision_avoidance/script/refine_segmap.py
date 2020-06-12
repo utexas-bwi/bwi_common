@@ -43,7 +43,7 @@ if __name__ == '__main__':
     rospack = rospkg.RosPack()
     pkgPath = rospack.get_path('utexas_gdc')
     mapPath = os.path.join(pkgPath, 'maps','simulation','3ne')
-    segPath = os.path.join(mapPath, 'locations_orig.pgm')
+    segPath = os.path.join(mapPath, 'locations.pgm')
     segment = np.array( Image.open(segPath) ).copy()
 
     idx = np.argwhere(np.isin(segment, hallway_idx))
