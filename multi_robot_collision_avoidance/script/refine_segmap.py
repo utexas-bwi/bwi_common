@@ -4,6 +4,7 @@ import os, sys
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import yaml
 
 import rospy, rospkg
 
@@ -32,9 +33,14 @@ def is_valid_point_client(x,y):
     except rospy.ServiceException as e:
         print("service call failed: {}".format(e))
 
+pkg_path = rospkg.RosPack().get_path('utexas_gdc')
+config_path = os.path.join(pkg_path, 'maps', 'simulation', '3ne')
+config = None
+with open( os.path.join(config_path, '3ne.yaml'), 'r') as f:
+    config = yaml.load(f)
 def pix2pose(px,py):
-    x = px * 0.05 - 15.515
-    y = (610 - py) * 0.05 -2.45
+    x = px * 0.05 + config['origin'][0]
+    y = (610 - py) * 0.05 + config['origin'][1]
     return x, y
 
 if __name__ == '__main__':
