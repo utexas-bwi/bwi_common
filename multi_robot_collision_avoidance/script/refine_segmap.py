@@ -33,15 +33,12 @@ def is_valid_point_client(x,y):
     except rospy.ServiceException as e:
         print("service call failed: {}".format(e))
 
-pkg_path = rospkg.RosPack().get_path('utexas_gdc')
-config_path = os.path.join(pkg_path, 'maps', 'simulation', '3ne')
-config = None
-with open( os.path.join(config_path, '3ne.yaml'), 'r') as f:
-    config = yaml.load(f)
-def pix2pose(px,py):
-    x = px * 0.05 + config['origin'][0]
-    y = (610 - py) * 0.05 + config['origin'][1]
-    return x, y
+def pix2pose_generator(segment, config):
+    def pix2pose(px,py):
+        x = px * 0.05 + config['origin'][0]
+        y = (segment.shape[0] - py) * 0.05 + config['origin'][1]
+        return x, y
+    return pix2pose
 
 if __name__ == '__main__':
     rospy.init_node('exclude_invalid_points', anonymous=True)
@@ -50,8 +47,14 @@ if __name__ == '__main__':
     pkgPath = rospack.get_path('utexas_gdc')
     mapPath = os.path.join(pkgPath, 'maps','simulation','3ne')
     segPath = os.path.join(mapPath, 'locations.pgm')
+    configPath = os.path.join(mapPath, '3ne.yaml')
+    config = None
+    
     segment = np.array( Image.open(segPath) ).copy()
-
+    with open( configPath, 'r' ) as f:
+        config = yaml.load(f)
+    pix2pose = pix2pose_generator(segment, config)
+    
     idx = np.argwhere(np.isin(segment, hallway_idx))
     print(segment.shape)
     for i, [py,px] in enumerate(idx):
