@@ -17,7 +17,7 @@ bool OpenSimulatedDoor::checkDoorOpen() {
 
   if (open_srv.response.value) {
     ROS_INFO_STREAM("Door " << door_name << " is open");
-    door_entity.add_attribute("is_open", true);
+    door_entity.addAttribute("is_open", true);
 
     return true;
   }
@@ -30,18 +30,18 @@ void OpenSimulatedDoor::run() {
 
   if (!requestSent) {
 
-    if (!door_entity.is_valid()) {
+    if (!door_entity.isValid()) {
       failed = true;
       return;
     }
-    auto attrs = door_entity.get_attributes("name");
+    auto attrs = door_entity.getAttributes("name");
     
     if (attrs.size() != 1) {
       failed = true;
       return;
     }
 
-    door_name = attrs.at(0).get_string_value();
+    door_name = attrs.at(0).getStringValue();
 
     doorStateClient = n.serviceClient<bwi_msgs::CheckBool>("/sense_door_state");
 

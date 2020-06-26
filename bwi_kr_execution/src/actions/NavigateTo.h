@@ -9,7 +9,7 @@ namespace bwi_krexec {
 
     class NavigateTo : public LogicalNavigation {
     public:
-        NavigateTo(int location_id, knowledge_rep::LongTermMemoryConduit &ltmc);
+        NavigateTo(uint location_id, knowledge_rep::LongTermMemoryConduit &ltmc);
 
         void run() override;
 
@@ -32,7 +32,7 @@ namespace bwi_krexec {
         }
 
     private:
-        int location_id;
+        uint location_id;
 
         void onFinished(bool success, const bwi_msgs::LogicalNavResult &result) override;
     };

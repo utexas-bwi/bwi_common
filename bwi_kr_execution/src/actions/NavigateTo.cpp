@@ -4,6 +4,7 @@
 
 #include "actasp/AnswerSet.h"
 #include <knowledge_representation/convenience.h>
+#include <knowledge_representation/LTMCEntity.h>
 
 #include <ros/ros.h>
 
@@ -15,7 +16,7 @@ using namespace actasp;
 namespace bwi_krexec {
 
 
-    NavigateTo:: NavigateTo(int location_id, knowledge_rep::LongTermMemoryConduit &ltmc):
+    NavigateTo:: NavigateTo(uint location_id, knowledge_rep::LongTermMemoryConduit &ltmc):
 LogicalNavigation("navigate_to", ltmc),
             location_id(location_id) {
     }
@@ -32,14 +33,14 @@ LogicalNavigation("navigate_to", ltmc),
     }
 
     boost::optional<std::vector<std::string> > NavigateTo::prepareGoalParameters() const {
-        knowledge_rep::Entity location(location_id, ltmc);
+        knowledge_rep::Entity location = {location_id, ltmc};
         // FIXME: Fail more gracefully here
-        assert(location.is_valid());
-        auto attrs = location.get_attributes("name");
+        assert(location.isValid());
+        auto attrs = location.getAttributes("name");
         // FIXME: Fail more gracefully here
         assert(attrs.size() == 1);
         vector<string> parameters;
-        parameters.push_back(attrs.at(0).get_string_value());
+        parameters.push_back(attrs.at(0).getStringValue());
         return parameters;
     }
 

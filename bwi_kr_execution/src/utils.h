@@ -1,7 +1,6 @@
 #ifndef BWI_KR_EXECUTION_UTILS_H
 #define BWI_KR_EXECUTION_UTILS_H
 
-#include <knowledge_representation/MemoryConduit.h>
 #include <knowledge_representation/convenience.h>
 #include <iostream>
 #include <actasp/AspFluent.h>
@@ -9,10 +8,8 @@
 
 namespace bwi_krexec {
 std::string memoryConduitToAsp() {
-  std::vector<int> relevant_objs;
-  knowledge_rep::MemoryConduit memory;
-  std::vector <knowledge_rep::EntityAttribute> entity_attributes = memory.relevant_to(
-      relevant_objs);
+  knowledge_rep::LongTermMemoryConduit ltmc = knowledge_rep::getDefaultLTMC();
+  std::vector <knowledge_rep::EntityAttribute> entity_attributes = ltmc.getAllEntityAttributes();
 
   std::set<int> all_objs;
   for (const auto &obj_attr: entity_attributes) {

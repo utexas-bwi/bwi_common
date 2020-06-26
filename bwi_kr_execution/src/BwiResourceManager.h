@@ -6,7 +6,7 @@
 
 struct BwiResourceManager: public actasp::ResourceManager {
 
-	BwiResourceManager() : ltmc(knowledge_rep::get_default_ltmc()) {}
+	BwiResourceManager() : ltmc(knowledge_rep::getDefaultLTMC()) {}
 
   knowledge_rep::LongTermMemoryConduit ltmc;
 };

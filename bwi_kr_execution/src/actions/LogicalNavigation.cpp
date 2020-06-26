@@ -35,26 +35,26 @@ boost::optional<bwi_msgs::LogicalNavGoal> LogicalNavigation::prepareGoal() {
 
 void LogicalNavigation::onFinished(bool succeeded, const bwi_msgs::LogicalNavResult &result) {
     // Dump observations somewhere
-    Instance self = ltmc.get().get_robot();
-    self.remove_attribute("is_in");
-    self.remove_attribute("is_near");
-    self.remove_attribute("is_facing");
+    Instance self = ltmc.get().getRobot();
+    self.removeAttribute("is_in");
+    self.removeAttribute("is_near");
+    self.removeAttribute("is_facing");
 
     ROS_INFO_STREAM(result.observations);
 
     if (!result.observations.room.empty()) {
-        vector<Entity> rooms = ltmc.get().get_entities_with_attribute_of_value("name", result.observations.room);
+        vector<Entity> rooms = ltmc.get().getEntitiesWithAttributeOfValue("name", result.observations.room);
         if (!rooms.empty()) {
-            self.add_attribute("is_in", rooms[0]);
+            self.addAttribute("is_in", rooms[0]);
         }
     }
     for (int i = 0; i < result.observations.nearby_locations.size(); i++) {
         auto location_name = result.observations.nearby_locations.at(i);
-        vector<Entity> locations = ltmc.get().get_entities_with_attribute_of_value("name", location_name);
+        vector<Entity> locations = ltmc.get().getEntitiesWithAttributeOfValue("name", location_name);
         if (!locations.empty()) {
-            self.add_attribute("is_near", locations[0]);
+            self.addAttribute("is_near", locations[0]);
             if (result.observations.facing.at(i)) {
-                self.add_attribute("is_facing", locations[0]);
+                self.addAttribute("is_facing", locations[0]);
             }
         } else {
             ROS_WARN_STREAM("Logical navigation state says robot is near " << location_name << " but no location with that map_name exists in the knowledge base.");

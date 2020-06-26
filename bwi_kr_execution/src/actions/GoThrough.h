@@ -9,7 +9,7 @@ namespace bwi_krexec {
 
 class GoThrough : public LogicalNavigation {
 public:
-  GoThrough(const int door_id, knowledge_rep::LongTermMemoryConduit &ltmc);
+  GoThrough(const uint door_id, knowledge_rep::LongTermMemoryConduit &ltmc);
 
   Action *cloneAndInit(const actasp::AspFluent &fluent) const override {
     return nullptr;
@@ -32,7 +32,7 @@ public:
   }
 
 private:
-  int door_id;
+  uint door_id;
 
   void onFinished(bool success, const bwi_msgs::LogicalNavResult &result) override;
 };

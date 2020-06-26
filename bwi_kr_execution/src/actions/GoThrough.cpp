@@ -1,6 +1,7 @@
 #include "GoThrough.h"
 
 #include <knowledge_representation/convenience.h>
+#include <knowledge_representation/LTMCEntity.h>
 
 #include <ros/ros.h>
 
@@ -10,7 +11,7 @@ using namespace std;
 
 namespace bwi_krexec {
 
-GoThrough::GoThrough(int door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : door_id(door_id),
+GoThrough::GoThrough(uint door_id, knowledge_rep::LongTermMemoryConduit &ltmc) : door_id(door_id),
               LogicalNavigation("go_through", ltmc){}
 
 
@@ -22,17 +23,17 @@ std::vector<std::string> GoThrough::getParameters() const {
 
 boost::optional<std::vector<std::string> > GoThrough::prepareGoalParameters() const {
 
-  knowledge_rep::Entity location(door_id, ltmc);
-  if (!location.is_valid()) {
+  knowledge_rep::Entity location = {door_id, ltmc};
+  if (!location.isValid()) {
     return boost::none;
   }
-  auto attrs = location.get_attributes("name");
+  auto attrs = location.getAttributes("name");
   
   if (attrs.size() != 1) {
     return boost::none;
   }
 
-  std::string door_name = attrs.at(0).get_string_value();
+  std::string door_name = attrs.at(0).getStringValue();
 
   vector<string> params;
   params.push_back(door_name);
