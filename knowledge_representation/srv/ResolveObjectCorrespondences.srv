@@ -1,4 +1,0 @@
-int32[] candidates
-sensor_msgs/PointCloud2 objects
----
-int32[] correspondences

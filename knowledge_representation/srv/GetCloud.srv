@@ -1,3 +1,0 @@
-bool include_ground
----
-sensor_msgs/PointCloud2 cloud
