@@ -1,9 +1,9 @@
 #program base.
 
-is_a(C1, C3) :- is_a(C1, C2), is_a(C2, C3).
-instance_of_recursive(O, C1) :- instance_of(O, C2), is_a(C2, C1).
-instance_of_recursive(O, C) :- instance_of(O, C).
-has_concept(O, C) :- instance_of_recursive(O, C_id), name(C_id, C).
+%is_a(C1, C3) :- is_a(C1, C2), is_a(C2, C3).
+%instance_of_recursive(O, C1) :- instance_of(O, C2), is_a(C2, C1).
+%instance_of_recursive(O, C) :- instance_of(O, C).
+%has_concept(O, C) :- instance_of_recursive(O, C_id), concept_name(C_id, C).
 
 is_connected(L1, L3) :- is_connected(L1, L2), is_connected(L2, L3).
 

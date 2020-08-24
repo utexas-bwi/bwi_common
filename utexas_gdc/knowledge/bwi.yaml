@@ -14,4 +14,7 @@ entities:
       - name: "has"
         value:
           instance: ["l3_414b", "room"]
+      - name: "has"
+        value:
+          instance: ["l3_414a", "room"]
 

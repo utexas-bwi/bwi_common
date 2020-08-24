@@ -47,7 +47,8 @@ class GetRandomDoor(State):
         self.ltmc = ltmc
 
     def execute(self, userdata):
-        entities = self.ltmc.get_entities_with_attribute_of_value("instance_of", self.ltmc.get_concept("door").entity_id)
+        door = self.ltmc.get_concept("door")
+        entities = door.get_instances()
         if entities:
             name_attrs = random.choice(entities).get_attributes("name")
             if not name_attrs:
@@ -63,48 +64,44 @@ class GetRandomBwiLocation(State):
         self.ltmc = ltmc
 
     def execute(self, userdata):
-        bwi_id = self.ltmc.get_concept("bwi").entity_id
-        room_concept_id = self.ltmc.get_concept("room").entity_id
-        person_concept_id = self.ltmc.get_concept("person").entity_id
-        door_concept_id = self.ltmc.get_concept("door").entity_id
-        cubicle_concept_id = self.ltmc.get_concept("cubicle").entity_id
+        lab_concept = self.ltmc.get_concept("lab")
+        bwi_id = lab_concept.get_instance_named("bwi").entity_id
 
-        def instances_of(concept_id):
-            return """SELECT entity_id FROM entity_attributes_id
-                WHERE attribute_name = 'instance_of' 
-                AND attribute_value = {}
-            """.format(concept_id)
+        def instances_of(concept):
+            return """SELECT entity_id FROM instance_of
+                WHERE concept_name = '{}'
+            """.format(concept)
 
         bwi_people = """SELECT attribute_value FROM entity_attributes_id
             WHERE attribute_name = 'has'
             AND entity_id = {}
             AND attribute_value IN ({})
-        """.format(bwi_id, instances_of(person_concept_id))
+        """.format(bwi_id, instances_of("person"))
 
         locations_owned_by_bwi_people = """SELECT attribute_value FROM entity_attributes_id
             WHERE attribute_name = 'has'
             AND entity_id IN ({})
             AND attribute_value IN ({})
-        """.format(bwi_people, instances_of(cubicle_concept_id))
+        """.format(bwi_people, instances_of("location"))
 
         rooms_owned_by_bwi_people = """SELECT attribute_value FROM entity_attributes_id
             WHERE attribute_name = 'has'
             AND entity_id IN ({})
             AND attribute_value IN ({})
-        """.format(bwi_people, instances_of(room_concept_id))
+        """.format(bwi_people, instances_of("room"))
 
         rooms_owned_by_bwi = """SELECT attribute_value FROM entity_attributes_id
             WHERE attribute_name = 'has'
             AND entity_id IN ({})
             AND attribute_value IN ({})
-        """.format(bwi_id, instances_of(room_concept_id))
+        """.format(bwi_id, instances_of("room"))
 
         # Gets things that bwi rooms have
         doors_owned_by_bwi_rooms = """SELECT attribute_value FROM entity_attributes_id
               WHERE attribute_name = 'has'
               AND entity_id IN (({}) UNION ({}))
               AND attribute_value IN ({})
-        """.format(rooms_owned_by_bwi, rooms_owned_by_bwi_people, instances_of(door_concept_id))
+        """.format(rooms_owned_by_bwi, rooms_owned_by_bwi_people, instances_of("door"))
 
         # Gets names of doors that BWI has
         query = """SELECT * FROM entity_attributes_str
