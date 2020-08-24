@@ -1,3 +1,4 @@
+version: 1
 entities:
     - concept: "lab"
     - instance: ["yuqian", "person"]
