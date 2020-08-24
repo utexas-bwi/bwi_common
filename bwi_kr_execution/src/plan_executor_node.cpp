@@ -38,7 +38,7 @@ const static std::string memory_log_path = string("/tmp/villa_action_execution_l
 
 std::string working_memory_path;
 void updateFacts() {
-  string as_string = memoryConduitToAsp();
+  string as_string = knowledgeBaseToAsp();
   std::ofstream working_memory(working_memory_path.c_str());
   working_memory << as_string;
   working_memory.close();

@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+import knowledge_representation
+from knowledge_representation import LongTermMemoryConduit
+import argparse
+import sys
+import os
+import yaml
+
+
+def populate(ltmc, files_path):
+    map_name = os.path.basename(files_path)
+    connectivity_file_path = os.path.join(files_path, "connectivity.yaml")
+    if not os.path.isfile(connectivity_file_path):
+        print(
+            "Connectivity file not found at " + connectivity_file_path + ".")
+        exit(1)
+    doors_file_path = os.path.join(files_path, "doors.yaml")
+    if not os.path.isfile(doors_file_path):
+        print(
+            "Doors file not found at " + doors_file_path + ".")
+        exit(1)
+    # FIXME: This file's name is outdated. It should eventually be changed to locations.yaml when the
+    # annotation tool is updated
+    locations_file_path = os.path.join(files_path, "objects.yaml")
+    if not os.path.isfile(locations_file_path):
+        print(
+            "Locations file not found at " + locations_file_path + ".")
+        exit(1)
+    connectivity_data = read_yaml_from_file(connectivity_file_path)
+    doors_data = read_yaml_from_file(doors_file_path)
+    locations_data = read_yaml_from_file(locations_file_path)
+    door_con = ltmc.get_concept("door")
+    location_con = ltmc.get_concept("location")
+    door_con.add_attribute("is_a", location_con)
+    room_con = ltmc.get_concept("room")
+
+    for location in locations_data:
+        location_entity = location_con.create_instance(location["name"])
+
+    room_name_to_entity = {}
+    for room, _ in connectivity_data.items():
+        room_entity = room_con.create_instance(room)
+        room_name_to_entity[room] = room_entity
+
+    # Rooms connected by doors are not directly connected. Remove
+    # them from the connectivity map
+    for door in doors_data:
+        room_one, room_two = door["approach"][0]["from"], door["approach"][1]["from"]
+        if room_two in connectivity_data[room_one]:
+            connectivity_data[room_one].remove(room_two)
+        else:
+            print(
+                "WARNING: {} is not connected to {}, "
+                "even though there is a door between them. This is an error in region annotation".format(
+                    room_one, room_two))
+        if room_one in connectivity_data[room_two]:
+            connectivity_data[room_two].remove(room_one)
+        else:
+            print(
+                "WARNING: {} is not connected to {}, "
+                "even though there is a door between them. This is an error in region annotation".format(
+                    room_two, room_one))
+        door_entity = door_con.create_instance(door["name"])
+
+        room_name_to_entity[room_one].add_attribute("has", door_entity)
+        room_name_to_entity[room_two].add_attribute("has", door_entity)
+
+    for room, neighbors in connectivity_data.items():
+        room_entity = room_name_to_entity[room]
+        for neighbor in neighbors:
+            neighbor_entity = room_name_to_entity[neighbor]
+            room_entity.add_attribute("is_connected", neighbor_entity)
+
+
+def read_yaml_from_file(file_path):
+    with open(file_path, 'r') as stream:
+        try:
+            contents = yaml.load(stream)
+            return contents
+        except yaml.YAMLError:
+            print("File found at " + file_path + ", but cannot be parsed by YAML parser.")
+            exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("files_path", type=str)
+    args = parser.parse_args()
+    ltmc = knowledge_representation.get_default_ltmc()
+    dir(args)
+    populate(ltmc, args.files_path)
+
+
+if __name__ == "__main__":
+    main()

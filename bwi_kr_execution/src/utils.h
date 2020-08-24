@@ -7,7 +7,7 @@
 
 
 namespace bwi_krexec {
-std::string memoryConduitToAsp() {
+std::string knowledgeBaseToAsp() {
   knowledge_rep::LongTermMemoryConduit ltmc = knowledge_rep::getDefaultLTMC();
   std::vector <knowledge_rep::EntityAttribute> entity_attributes = ltmc.getAllEntityAttributes();
 

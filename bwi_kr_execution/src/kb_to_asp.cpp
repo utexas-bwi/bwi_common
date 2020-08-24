@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle n;
 
     cout << "Current knowledge state:" << endl;
-    cout <<  bwi_krexec::memoryConduitToAsp();
+    cout <<  bwi_krexec::knowledgeBaseToAsp();
     return 0;
 
 }
