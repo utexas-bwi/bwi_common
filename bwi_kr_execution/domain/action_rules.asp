@@ -5,7 +5,7 @@
 % action navigate_to
 is_near(self, T, n) :- navigate_to(T, n).
 is_facing(self, T, n) :- navigate_to(T, n).
-is_in(self, R2, n) :- navigate_to(T, n), has_concept(T, "door"), has(R2, T), is_in(self, R1, n - 1), is_connected(R1, R2).
+is_in(self, R2, n) :- navigate_to(T, n), has_concept(T, "door"), has(R2, T), is_in(self, R1, n - 1), is_connected(R1, R2), R1 != R2.
 is_in(self, R1, n) :- navigate_to(T, n), is_in(T, R1).
 -is_near(self, F, n) :- navigate_to(T, n), is_near(self, F, n - 1), T != F.
 :- navigate_to(T, n), is_in(T, R1), is_in(self, R2, n - 1), not is_connected(R1, R2).

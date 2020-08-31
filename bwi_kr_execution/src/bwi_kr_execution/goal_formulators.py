@@ -44,12 +44,21 @@ class GoToRoomOrLocationName(FormulateGoal):
         else:
             to_go = self.default_location
 
-        to_go_entity = self.ltmc.get_instance_named(to_go)
         room_con = self.ltmc.get_concept("room")
+        door_con = self.ltmc.get_concept("door")
+        to_go_room = room_con.get_instance_named(to_go)
+        to_go_door = door_con.get_instance_named(to_go)
+        if to_go_room:
+            head = "not is_in"
+            goal_rule = to_asp_rule_body(head, [1, to_go_room.entity_id])
+        elif to_go_door:
+            head = "not is_near"
+            goal_rule = to_asp_rule_body(head, [1, to_go_door.entity_id])
+        else:
+            print ("Location not found!")
 
-        head = "not is_in" if to_go_entity.has_concept(room_con) else "not is_near"
-
-        goal_rule = to_asp_rule_body(head, [1, to_go_entity.entity_id])
+        #head = "not is_in" if to_go_entity.has_concept(room_con) else "not is_near"
+        #goal_rule = to_asp_rule_body(head, [1, to_go_entity.entity_id])
         goal.aspGoal = [goal_rule]
 
 

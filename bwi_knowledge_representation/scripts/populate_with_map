@@ -47,14 +47,20 @@ def populate(ltmc, files_path):
     for door in doors_data:
         room_one, room_two = door["approach"][0]["from"], door["approach"][1]["from"]
         if room_two in connectivity_data[room_one]:
-            connectivity_data[room_one].remove(room_two)
+            # connectivity_data[room_one].remove(room_two)
+            print(
+                "{} is connected to {}. ".format(
+                    room_one, room_two))
         else:
             print(
                 "WARNING: {} is not connected to {}, "
                 "even though there is a door between them. This is an error in region annotation".format(
                     room_one, room_two))
         if room_one in connectivity_data[room_two]:
-            connectivity_data[room_two].remove(room_one)
+            # connectivity_data[room_two].remove(room_one)
+            print(
+                "{} is connected to {}. ".format(
+                    room_two, room_one))
         else:
             print(
                 "WARNING: {} is not connected to {}, "
