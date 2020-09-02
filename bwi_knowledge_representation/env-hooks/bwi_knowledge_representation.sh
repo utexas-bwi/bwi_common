@@ -27,7 +27,7 @@ prepare_knowledge_bwi_ahg() {
     rosrun bwi_knowledge_representation populate_with_map $yaml_files_path
 
     #Load additional knowledge
-    #knowledge_file_path=$(rospack find utexas_gdc)/knowledge/bwi.yaml &&
-    #rosrun knowledge_representation populate_with_knowledge $knowledge_file_path
+    knowledge_file_path=$(rospack find utexas_ahg)/knowledge/bwi.yaml &&
+    rosrun knowledge_representation populate_with_knowledge $knowledge_file_path
 
 }

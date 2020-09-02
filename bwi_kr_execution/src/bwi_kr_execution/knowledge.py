@@ -58,6 +58,24 @@ class GetRandomDoor(State):
 
         return 'aborted'
 
+class GetRandomVisitableLocation(State):
+    def __init__(self, ltmc):
+        State.__init__(self, output_keys=["location"], outcomes=['succeeded', 'aborted'])
+        self.ltmc = ltmc
+
+    def execute(self, userdata):
+        door = self.ltmc.get_concept("visitable")
+        entities = door.get_instances()
+        if entities:
+            name_attrs = random.choice(entities).get_attributes("name")
+            if not name_attrs:
+                return 'failed'
+            userdata["location"] = name_attrs[0].get_string_value()
+            print (name_attrs[0].get_string_value())
+            return 'succeeded'
+
+        return 'aborted'
+
 class GetRandomBwiLocation(State):
     def __init__(self, ltmc):
         State.__init__(self, output_keys=["location"], outcomes=['succeeded', 'aborted'])
