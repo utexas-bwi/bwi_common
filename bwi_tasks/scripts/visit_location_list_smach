@@ -14,6 +14,7 @@ from bwi_kr_execution import goal_formulators, knowledge
 def main():
     rospy.init_node("visit_door_list_smach")
 
+    visitable = rospy.get_param("~visitable", "visitable_1s")
     simulation = rospy.get_param("~simulation", False)
     introspect = rospy.get_param("~introspect", False)
     State.simulation = simulation
@@ -27,8 +28,8 @@ def main():
     # Open the container
     with sm:
         # Add states
-        StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomVisitableLocation(ltmc), ["succeeded"])
-        StateMachine.add('GOTO_DOOR', task_machine.generate_goal_based_task_sm(
+        StateMachine.add_auto("DECIDE_DESTINATION", knowledge.GetRandomVisitableLocation(ltmc, visitable), ["succeeded"])
+        StateMachine.add('GOTO_lOCATION', task_machine.generate_goal_based_task_sm(
                               goal_formulators.GoToLocationName(), ["location"]),
                          transitions={"succeeded": "DECIDE_DESTINATION",
                                       'aborted': 'DECIDE_DESTINATION'})
