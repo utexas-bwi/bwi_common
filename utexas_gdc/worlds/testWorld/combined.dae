@@ -419,16 +419,16 @@
   </library_effects>
   <library_images>
     <image id="__auto_1_jpg" name="__auto_1_jpg">
-      <init_from>__auto_1.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto_2_jpg" name="__auto_2_jpg">
-      <init_from>__auto_2.jpg</init_from>
+      <init_from>intWall.jpg</init_from>
     </image>
     <image id="__auto_4_jpg" name="__auto_4_jpg">
       <init_from>__auto_4.jpg</init_from>
     </image>
     <image id="__auto_5_jpg" name="__auto_5_jpg">
-      <init_from>__auto_5.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto_6_jpg" name="__auto_6_jpg">
       <init_from>__auto_6.jpg</init_from>

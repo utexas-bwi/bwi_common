@@ -227,33 +227,6 @@
         </technique>
       </profile_COMMON>
     </effect>
-    <effect id="my-material-effect">
-      <profile_COMMON>
-        <newparam sid="__auto_2_jpg-surface">
-          <surface type="2D">
-            <init_from>__auto_2_jpg</init_from>
-          </surface>
-        </newparam>
-        <newparam sid="__auto_2_jpg-sampler">
-          <sampler2D>
-            <source>__auto_2_jpg-surface</source>
-          </sampler2D>
-        </newparam>
-        <technique sid="common">
-          <lambert>
-            <emission>
-              <color sid="emission">0 0 0 1</color>
-            </emission>
-            <diffuse>
-              <texture texture="__auto_2_jpg-sampler" texcoord="ID2028"/>
-            </diffuse>
-            <index_of_refraction>
-              <float sid="ior">1.45</float>
-            </index_of_refraction>
-          </lambert>
-        </technique>
-      </profile_COMMON>
-    </effect>
     <effect id="__auto_5-effect">
       <profile_COMMON>
         <newparam sid="__auto_5_jpg-surface">
