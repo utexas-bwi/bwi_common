@@ -74,6 +74,8 @@
           </geometry>
           <material>
             <script>
+              <uri>model://walls/materials/scripts</uri>
+              <uri>model://walls/materials/textures</uri>
               <uri>file://repeated.material</uri>
               <name>RepeatedTexture</name>
             </script>
@@ -121,8 +123,9 @@
           </geometry>
           <material>
             <script>
-              <name>__default__</name>
-              <uri>__default__</uri>
+              <uri>model://walls/materials/scripts</uri>
+            <uri>model://walls/materials/textures</uri>
+           
             </script>
           </material>
           <cast_shadows>0</cast_shadows>

@@ -139,7 +139,7 @@
         </technique>
       </profile_COMMON>
     </effect>
-    <effect id="__auto_1-effect">
+    <!-- <effect id="__auto_1-effect">
       <profile_COMMON>
         <newparam sid="__auto_1_jpg-surface">
           <surface type="2D">
@@ -182,7 +182,7 @@
           </lambert>
         </technique>
       </profile_COMMON>
-    </effect>
+    </effect> -->
     <effect id="material-effect">
       <profile_COMMON>
         <technique sid="common">
@@ -200,7 +200,7 @@
         </technique>
       </profile_COMMON>
     </effect>
-    <effect id="__auto_2-effect">
+    <!-- <effect id="__auto_2-effect">
       <profile_COMMON>
         <newparam sid="__auto_2_jpg-surface">
           <surface type="2D">
@@ -415,7 +415,7 @@
           </lambert>
         </technique>
       </profile_COMMON>
-    </effect>
+    </effect> -->
   </library_effects>
   <library_images>
     <image id="__auto_1_jpg" name="__auto_1_jpg">
