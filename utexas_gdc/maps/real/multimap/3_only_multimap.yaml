@@ -1,0 +1,5 @@
+maps:
+  3rdFloor:
+    yaml: package://utexas_gdc/maps/real/3ne/3ne.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://utexas_gdc/maps/real/3ne
