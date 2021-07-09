@@ -2,8 +2,7 @@ language: generic
 
 env:
   global:
-    - CATKIN_CONFIG='--no-install'  # work around kinova-ros install bug
-    - ROS_DISTRO="kinetic"
+    - ROS_DISTRO="melodic"
     - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
     - UPSTREAM_WORKSPACE=file
     - BUILD_PKGS_WHITELIST="bwi_common"
