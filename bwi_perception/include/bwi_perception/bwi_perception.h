@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <ros/ros.h>
 #include <signal.h>
 #include <iostream>

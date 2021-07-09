@@ -37,6 +37,3 @@ struct Clingo {
 };
 
 }
-
-
-
