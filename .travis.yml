@@ -1,5 +1,7 @@
 language: generic
 
+dist: bionic
+
 env:
   global:
     - ROS_DISTRO="melodic"
@@ -8,7 +10,6 @@ env:
     - BUILD_PKGS_WHITELIST="bwi_common"
     - DB_BACKEND="PostgreSQL"
   matrix:
-    - ROS_DISTRO="kinetic"
     - ROS_DISTRO="melodic"
 
 services:
