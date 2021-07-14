@@ -93,7 +93,7 @@ install(TARGETS bwikractions
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 
 install(TARGETS
-          asp_formatter
+          # asp_formatter
           plan_executor_node
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
