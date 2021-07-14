@@ -9,10 +9,11 @@ cache:
 env:
   global:
     - CCACHE_DIR=$HOME/.ccache # enables C/C++ caching in industrial_ci
-    # - ROS_DISTRO="melodic"
-    # - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
+    - ROS_DISTRO="melodic"
+    - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
     - UPSTREAM_WORKSPACE=file
-    # - DB_BACKEND="PostgreSQL"
+    - BUILD_PKGS_WHITELIST="bwi_common"
+    - DB_BACKEND="PostgreSQL"
   matrix:
     - ROS_DISTRO="melodic"
 
@@ -20,6 +21,6 @@ services:
   - postgresql
 
 install:
-  - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci -b master
+  - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci -b legacy
 script:
   - .industrial_ci/travis.sh
