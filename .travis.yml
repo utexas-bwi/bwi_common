@@ -24,3 +24,6 @@ install:
   - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci -b legacy
 script:
   - .industrial_ci/travis.sh
+before_cache:
+  - sudo chown -R travis:travis $HOME/.ccache
+  - ccache -s
