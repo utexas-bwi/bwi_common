@@ -1,8 +1,4 @@
 - git:
     local-name: agile_grasp
     uri: https://github.com/utexas-bwi/agile_grasp.git
-    version: melodic-devel
-- git:
-    local-name: knowledge_representation
-    uri: https://github.com/utexas-bwi/knowledge_representation.git
-    version: master
+    version: travis-debug
