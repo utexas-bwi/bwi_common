@@ -11,7 +11,7 @@ env:
     - CCACHE_DIR=$HOME/.ccache # enables C/C++ caching in industrial_ci
     # - ROS_DISTRO="melodic"
     # - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
-    # - UPSTREAM_WORKSPACE=file
+    - UPSTREAM_WORKSPACE=file
     # - DB_BACKEND="PostgreSQL"
   matrix:
     - ROS_DISTRO="melodic"
