@@ -1,52 +1,30 @@
-sudo: required
+
+language: generic
+
 dist: bionic
-language: minimal
+
 cache:
   directories:
     - $HOME/.ccache
-compiler:
-  - gcc
-services:
-  - docker
-git:
-  submodules: false
+
 env:
   global:
+    - CCACHE_DIR=$HOME/.ccache # enables C/C++ caching in industrial_ci
     - ROS_DISTRO="melodic"
-    - SSH_ORG_PREFIX=git@github.com:utexas-bwi
-    - IMAGE="registry.hsr.io/utaustin/villa_docker:latest"
-before_install:
-    - ccache -s
-    # We want to fail fast and install can take a while, so check files first
-    - $TRAVIS_BUILD_DIR/.travis/check_files.sh $TRAVIS_BUILD_DIR/.travis/file_whitelist.txt
-    # Install gitmodules
-    - git submodule init && git submodule sync && git submodule update
-    # Start Docker container
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin registry.hsr.io
-    - mkdir -p ~/catkin_ws/src
-    # Noisy process, ignore output
-    - sudo docker pull $IMAGE
-    - sudo docker run --name=travis -dit -v ~/catkin_ws:/root/catkin_ws -v ~/.ccache:/root/.ccache -v $TRAVIS_BUILD_DIR:/root/travis $IMAGE
-    - shopt -s expand_aliases
-    - alias RUN="sudo docker exec -it travis /bin/bash -c"
-    - RUN "sudo apt update"
-install:
-    - git clone $SSH_ORG_PREFIX/bwi_common.git ~/catkin_ws/src/bwi_common
-    - RUN "cd ~/catkin_ws/src/bwi_common && git submodule update --init --recursive && cd ~"
-    # Install any ROS dependencies
-    - RUN "source /ros_entrypoint.sh && rosdep update"
-    - RUN 'source /ros_entrypoint.sh && rosdep install -q -r --from-paths ~/catkin_ws --ignore-packages-from-source -y --rosdistro $ROS_DISTRO'
-    # Setup catkin workspace (without RIS)
-    - RUN "source /ros_entrypoint.sh && cd ~/catkin_ws && catkin init"
-before_script:
-    # Link RIS repo to the catkin workspace
-    - RUN 'ln -s ~/travis ~/catkin_ws/src'
-    - RUN 'source /ros_entrypoint.sh && rosdep install -q -r --from-paths ~/catkin_ws --ignore-packages-from-source -y --rosdistro $ROS_DISTRO'
-script:
+    - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
+    - UPSTREAM_WORKSPACE=file
+    # - BUILD_PKGS_WHITELIST="bwi_common"
+    # - DB_BACKEND="PostgreSQL"
+  matrix:
+    - ROS_DISTRO="melodic"
 
-    - export packages=$($TRAVIS_BUILD_DIR/.travis/get_ws_packages.sh $TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR/.travis/package_blacklist.txt)
-    - echo ${packages}
-    - RUN "source /ros_entrypoint.sh && cd ~/catkin_ws && catkin build ${packages} --no-status --summarize"
+services:
+  - postgresql
+
+install:
+  - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
+script:
+  - .industrial_ci/travis.sh
 before_cache:
-    - sudo chown -R travis:travis $HOME/.ccache
-    - ccache -s
+  - sudo chown -R travis:travis $HOME/.ccache
+  - ccache -s
