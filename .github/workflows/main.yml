@@ -17,6 +17,8 @@ jobs:
         run: |
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws
+          rosdep init
+          rosdep update
           rosdep install --from-paths src --ignore-src -r -y
           /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin build" 
           
