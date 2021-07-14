@@ -1,6 +1,4 @@
-
-#ifndef actasp_AnyPlan_h__guard
-#define actasp_AnyPlan_h__guard
+#pragma once
 
 #include <actasp/Planner.h>
 
@@ -15,7 +13,7 @@ public:
 	//doesn't own
 	AnyPlan(actasp::MultiPlanner *actualPlanner, double suboptimality = 1.);
 	
-	AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error);
+	AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const;
 private:
 	MultiPlanner *actualPlanner;
   double suboptimality;
@@ -25,4 +23,4 @@ private:
 }
 
 
-#endif
+

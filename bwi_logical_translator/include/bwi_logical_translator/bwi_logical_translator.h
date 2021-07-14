@@ -48,6 +48,9 @@
 #include <bwi_tools/point.h>
 #include <nav_msgs/GetPlan.h>
 
+#include <pcl/point_cloud.h>
+#include <pcl/kdtree/kdtree_flann.h>
+
 namespace bwi_logical_translator {
 
   class BwiLogicalTranslator {
@@ -56,44 +59,61 @@ namespace bwi_logical_translator {
 
       BwiLogicalTranslator();
 
-      bool isDoorOpen(size_t idx);
+      bool initialize();
 
-      bool getApproachPoint(size_t idx, 
-          const bwi::Point2f& current_location,
-          bwi::Point2f& point, float &yaw);
+      bool isDoorOpen(const std::string &door_name);
 
-      bool getThroughDoorPoint(size_t idx, 
-          const bwi::Point2f& current_location,
-          bwi::Point2f& point, float& yaw);
+      bool getApproachPoint(const std::string &door_name,
+                            const bwi::Point2f &current_location,
+                            bwi::Point2f &point, float &yaw);
+
+      bool getThroughDoorPoint(const std::string &door_name,
+                               const bwi::Point2f &current_location,
+                               bwi::Point2f &point, float &yaw);
 
       bool isRobotFacingDoor(
-          const bwi::Point2f& current_location,
-          float yaw, float threshold, size_t idx);
+              const bwi::Point2f &current_location,
+              float yaw, float threshold, const std::string &door_name);
+
+      bool getRobotFacingDoor(
+              const bwi::Point2f &current_location,
+              float yaw, float threshold, std::string &door_name);
+
       bool isRobotBesideDoor(
+              const bwi::Point2f &current_location,
+              float yaw, float threshold, const std::string &door_name);
+
+      bool isRobotFacingLocation(
+          const bwi::Point2f &current_location,
+          float yaw, float threshold, const std::string &object_name);
+
+      bool isRobotBesideObject(
           const bwi::Point2f& current_location,
-          float yaw, float threshold, size_t idx);
-      bool initialize();
+          float yaw, float threshold, std::string& object_name);
 
       bool isObjectApproachable(const std::string& object_name, 
           const bwi::Point2f& current_location);
 
       inline bool getObjectApproachLocation(const std::string& object_name,
           geometry_msgs::Pose& pose) {
-        if (object_approach_map_.find(object_name) ==
-            object_approach_map_.end()) {
+        if (location_approach_map_.find(object_name) ==
+            location_approach_map_.end()) {
           return false; 
         }
-        pose = object_approach_map_[object_name];
+        pose = location_approach_map_[object_name];
         return true;
       }
 
-      size_t getLocationIdx(
-          const bwi::Point2f& current_location);
+      bool getNearbyLocations(const bwi::Point2f &near_to, float threshold,
+                              std::vector<std::string> &nearby_location_names);
 
-      inline size_t getLocationIdx(
-          const std::string& loc_str) const {
-        for (size_t i = 0; i < locations_.size(); ++i) {
-          if (locations_[i] == loc_str) {
+      size_t getRegionIdx(
+          const bwi::Point2f& region_pt);
+
+      inline size_t getRegionIdx(
+          const std::string& region_str) const {
+        for (size_t i = 0; i < regions_.size(); ++i) {
+          if (regions_[i] == region_str) {
             return i;
           }
         }
@@ -109,15 +129,19 @@ namespace bwi_logical_translator {
         return (size_t)-1;
       }
 
-      inline std::string getLocationString(size_t idx) const {
-        if (idx >= locations_.size())
+      inline std::string getRegionString(size_t idx) const {
+        if (idx >= regions_.size()) {
+          ROS_WARN_STREAM("Queried region name for non-existent index " << idx);
           return "";
-        return locations_[idx];
+        }
+        return regions_[idx];
       }
 
       inline std::string getDoorString(size_t idx) const {
-        if (idx >= doors_.size())
+        if (idx >= doors_.size()) {
+          ROS_WARN_STREAM("Queried door name for non-existent index " << idx);
           return "";
+        }
         return doors_[idx].name;
       }
 
@@ -125,18 +149,28 @@ namespace bwi_logical_translator {
         return doors_.size();
       }
 
+      bool is_door(const std::string& door_name) const {
+          return name_to_door.find(door_name) != name_to_door.end();
+      }
+
     protected:
 
       std::string global_frame_id_;
 
       std::vector<bwi_planning_common::Door> doors_;
-      std::map<int, boost::shared_ptr<bwi_mapper::PathFinder> > door_approachable_space_1_; 
-      std::map<int, boost::shared_ptr<bwi_mapper::PathFinder> > door_approachable_space_2_; 
+      std::map<std::string, bwi_planning_common::Door> name_to_door;
+      std::map<std::string, boost::shared_ptr<bwi_mapper::PathFinder> > door_approachable_space_1_;
+      std::map<std::string, boost::shared_ptr<bwi_mapper::PathFinder> > door_approachable_space_2_;
 
-      std::vector<std::string> locations_;
-      std::vector<int32_t> location_map_;
-      std::map<std::string, geometry_msgs::Pose> object_approach_map_;
-      std::map<std::string, boost::shared_ptr<bwi_mapper::PathFinder> > object_approachable_space_;
+      std::vector<std::string> regions_;
+      std::vector<int32_t> region_map_;
+      std::map<std::string, geometry_msgs::Pose> location_approach_map_;
+
+      pcl::PointCloud<pcl::PointXY>::Ptr location_points;
+      pcl::KdTreeFLANN<pcl::PointXY> location_tree;
+      std::map<int, std::string> index_to_name;
+
+      std::map<std::string, boost::shared_ptr<bwi_mapper::PathFinder> > location_approachable_space_;
 
       nav_msgs::OccupancyGrid map_;
       nav_msgs::OccupancyGrid map_with_doors_;

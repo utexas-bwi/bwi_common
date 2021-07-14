@@ -1,5 +1,4 @@
-#ifndef plan_execution_msgs_utils_h__guard
-#define plan_execution_msgs_utils_h__guard
+#pragma once
 
 #include "plan_execution/AspFluent.h"
 #include "plan_execution/AspRule.h"
@@ -30,6 +29,3 @@ struct TranslateAnswerSet {
 };
 
 }
-
-
-#endif

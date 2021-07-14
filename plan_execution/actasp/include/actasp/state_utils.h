@@ -1,7 +1,4 @@
-
-
-#ifndef actasp_state_util_h__guard
-#define actasp_state_util_h__guard
+#pragma once
 
 #include <actasp/AspFluent.h>
 
@@ -54,4 +51,4 @@ struct stateEquals {
 
 }
 
-#endif
+

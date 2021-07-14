@@ -1,7 +1,5 @@
 
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
-#include "plan_execution/StaticFacts.h"
 
 #include "learning/SarsaActionSelector.h"
 #include "learning/TimeReward.h"
@@ -15,7 +13,7 @@
 #include <actasp/reasoners/Clingo.h>
 
 #include "actions/ActionFactory.h"
-#include "plan_execution/LogicalAction.h"
+
 
 
 #include <actionlib/server/simple_action_server.h>
@@ -43,7 +41,7 @@ using namespace plan_exec;
 
 typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 
-ActionExecutor *executor;
+PlanExecutor *executor;
 SarsaActionSelector *selector;
 ActionLogger *action_logger;
 
@@ -61,18 +59,18 @@ struct PrintFluent {
 
 struct Observer : public ExecutionObserver {
 
-  void actionStarted(const AspFluent& action) throw() {
+  void actionStarted(const AspFluent& action) noexcept {
     ROS_INFO_STREAM("Starting execution: " << action.toString());
   }
 
-  void actionTerminated(const AspFluent& action) throw() {
+  void actionTerminated(const AspFluent& action) noexcept {
     ROS_INFO_STREAM("Terminating execution: " << action.toString());
   }
   
     
-  void goalChanged(std::vector<actasp::AspRule> newGoalRules) throw() {}
+  void goalChanged(std::vector<actasp::AspRule> newGoalRules) noexcept {}
   
-  void policyChanged(PartialPolicy* policy) throw() {}
+  void policyChanged(PartialPolicy* policy) noexcept {}
 
 };
 
@@ -235,9 +233,6 @@ int main(int argc, char**argv) {
   if (domainDirectory.at(domainDirectory.size()-1) != '/')
     domainDirectory += '/';
 
-//  create initial state
-  LogicalAction setInitialState("noop");
-  setInitialState.run();
 
  
 
@@ -252,10 +247,7 @@ int main(int argc, char**argv) {
 
   boost::filesystem::create_directories(queryDirectory);
   
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
-  FilteringKR *reasoner = new RemoteReasoner(generator,MAX_N,actionMapToSet(ActionFactory::actions()));
-
-  StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
+  FilteringQueryGenerator *reasoner = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()),20);
 
   TimeReward<SarsaActionSelector::State> *reward = new TimeReward<SarsaActionSelector::State>();
   DefaultActionValue *timeValue = new DefaultTimes();

@@ -3,6 +3,7 @@
 from functools import partial
 import os.path
 import rospy
+import copy
 import yaml
 
 from python_qt_binding.QtCore import QPoint, QSize, Qt
@@ -13,7 +14,43 @@ except ImportError:                     # else use Qt5 modules
     from python_qt_binding.QtWidgets import QLabel, QLineEdit, QPushButton
 
 from .utils import clearLayoutAndFixHeight, getLocationsImageFileLocationFromDataDirectory, \
-                   scalePoint, scalePolygon
+                   scalePoint, scalePolygon, getConnectivityFileLocationFromDataDirectory
+
+
+def makeConnectivityMap(polygons):
+    connectivity = {}
+    for polygon in polygons:
+        potential_neighbors = copy.copy(polygons)
+        potential_neighbors.remove(polygon)
+        connectivity[polygon] = checkConnectivity(polygon, potential_neighbors)
+    return connectivity
+
+
+def checkConnectivity(polygon, other_polygons):
+    neighbors = []
+    inflated_polygon = inflatePolygon(polygon)
+    for potential_neighbor in other_polygons:
+        if not potential_neighbor.intersected(inflated_polygon).isEmpty():
+            neighbors.append(potential_neighbor)
+    return neighbors
+
+
+def inflatePolygon(polygon):
+    union = QPolygon()
+    # grid on [-1, 1]
+    for x, y in zip(range(-1, 2), range(-1, 2)):
+        union = union.united(polygon.translated(x, y))
+    return union
+
+
+def makeNeighborsString(polygon, all_locations):
+    poly_to_name = {poly: name for name, poly in all_locations.items()}
+    neighbors = checkConnectivity(polygon, all_locations.values())
+    # Don't allow the polygon to border on itself
+    if polygon in neighbors:
+        neighbors.remove(polygon)
+    as_names = [poly_to_name[p] for p in neighbors]
+    return  "[" + ", ".join(as_names) + "]"
 
 class LocationFunction(object):
 
@@ -23,6 +60,7 @@ class LocationFunction(object):
 
     def __init__(self,
                  location_file,
+                 connectivity_file,
                  map,
                  widget,
                  subfunction_layout,
@@ -57,6 +95,7 @@ class LocationFunction(object):
         self.configuration_layout = configuration_layout
 
         self.location_file = location_file
+        self.connectivity_file = connectivity_file
         self.map_size = QSize(map.map.info.width, map.map.info.height)
         self.readLocationsFromFile()
 
@@ -90,16 +129,33 @@ class LocationFunction(object):
 
     def saveConfiguration(self):
         self.writeLocationsToFile()
+        self.writeConnectivityToFile()
+
+    def writeConnectivityToFile(self):
+        connectivity = makeConnectivityMap(self.locations.values())
+        out_dict = {}
+        poly_to_name = {poly: name for name, poly in self.locations.items()}
+
+        for location_poly, neighbor_poly in connectivity.items():
+            sorted_list = sorted([poly_to_name[p] for p in neighbor_poly])
+            out_dict[poly_to_name[location_poly]] = sorted_list
+
+        stream = open(self.connectivity_file, 'w')
+        yaml.dump(out_dict, stream)
+        stream.close()
+
 
     def writeLocationsToFile(self):
 
         out_dict = {}
         out_dict["locations"] = self.locations.keys()
+        out_dict["locations"] = sorted(out_dict["locations"])
         out_dict["polygons"] = []
-        for index, location in enumerate(self.locations):
+        for index, key in enumerate(sorted(self.locations)):
             out_dict["polygons"].append([])
-            for i in range(self.locations[location].size()):
-                pt = self.locations[location].point(i)
+            polygon = self.locations[key]
+            for i in range(polygon.size()):
+                pt = polygon.point(i)
                 scaled_pt = scalePoint(pt, self.image_size, self.map_size)
                 out_dict["polygons"][index].append(scaled_pt.x())
                 out_dict["polygons"][index].append(scaled_pt.y())
@@ -112,12 +168,12 @@ class LocationFunction(object):
         location_image = QImage(self.map_size, QImage.Format_RGB32)
         location_image.fill(Qt.white)
         painter = QPainter(location_image) 
-        for index, location in enumerate(self.locations):
+        for index, key in enumerate(self.locations):
             if index > 254:
                 rospy.logerr("You have more than 254 locations, which is unsupported by the bwi_planning_common C++ code!")
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(index, index, index))
-            scaled_polygon = scalePolygon(self.locations[location], self.image_size, self.map_size)
+            scaled_polygon = scalePolygon(self.locations[key], self.image_size, self.map_size)
             painter.drawPolygon(scaled_polygon)
         painter.end()
         location_image.save(image_file)
@@ -196,6 +252,8 @@ class LocationFunction(object):
             button = QPushButton(button_text, self.widget)
             button.clicked[bool].connect(partial(self.endAreaEdit, button_text))
             self.configuration_layout.addWidget(button)
+        self.current_selection_label = QLabel(self.widget)
+        self.configuration_layout.addWidget(self.current_selection_label)
         self.configuration_layout.addStretch(1)
 
         self.edit_area_button[LocationFunction.ADD_LOCATION_AREA].setEnabled(False)
@@ -212,6 +270,7 @@ class LocationFunction(object):
         # QPolygons to track current location.
         self.current_selection = None
         self.new_selection = None
+        self.current_selection_label = None
         self.subtract_new_selection = None
 
     def endAreaEdit(self, button_text):
@@ -269,7 +328,8 @@ class LocationFunction(object):
         # Construct the configuration layout.
         clearLayoutAndFixHeight(self.configuration_layout)
 
-        self.update_name_label = QLabel("Location (" + self.edit_properties_location + ")      New Name: ", self.widget)
+        neighbors_str = makeNeighborsString(self.locations[self.edit_properties_location], self.locations)
+        self.update_name_label = QLabel("Location (" + self.edit_properties_location + " - " + neighbors_str + ")      New Name: ", self.widget)
         self.configuration_layout.addWidget(self.update_name_label)
 
         self.update_name_textedit = QLineEdit(self.widget)
@@ -371,15 +431,24 @@ class LocationFunction(object):
     def mouseReleaseEvent(self, event):
         if self.editing_area:
             self.mouseMoveEvent(event)
+            locations_sans_selection = copy.copy(self.locations)
             if self.new_selection is not None:
-                if self.current_selection is None and self.subtract_new_selection == False:
+                if self.current_selection is None and self.subtract_new_selection is False:
                     self.current_selection = self.new_selection
                 if self.subtract_new_selection:
                     self.current_selection = self.current_selection.subtracted(self.new_selection)
                 else:
                     self.current_selection = self.current_selection.united(self.new_selection)
+
+            if self.edit_existing_location:
+                del locations_sans_selection[self.edit_existing_location]
+
             self.new_selection = None
             self.subtract_new_selection = None
+
+            neighbor_str = makeNeighborsString(self.current_selection, locations_sans_selection)
+            self.current_selection_label.setText(neighbor_str)
+
 
     def mouseMoveEvent(self, event):
 

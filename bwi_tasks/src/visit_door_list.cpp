@@ -10,7 +10,7 @@ typedef actionlib::SimpleActionClient<plan_execution::ExecutePlanAction> Client;
 using namespace std;
 
 int main(int argc, char**argv) {
-  ros::init(argc, argv, "between_doors");
+  ros::init(argc, argv, "visit_door_list");
   ros::NodeHandle n;
 
   ros::NodeHandle privateNode("~");
@@ -32,7 +32,7 @@ int main(int argc, char**argv) {
   doors.push_back("d3_418");
   int current_door = 0;
 
-  Client client("/action_executor/execute_plan", true);
+  Client client("/plan_executor/execute_plan", true);
   client.waitForServer();
 
   bool fromAtoB = true;
@@ -52,9 +52,10 @@ int main(int argc, char**argv) {
 
     plan_execution::AspRule rule;
     plan_execution::AspFluent fluent;
-    fluent.name = "not facing";
+    fluent.name = "not is_near_name";
 
-    fluent.variables.push_back(location);
+    fluent.variables.push_back("1");
+    fluent.variables.push_back("\"" + location + "\"");
 
     rule.body.push_back(fluent);
     goal.aspGoal.push_back(rule);
