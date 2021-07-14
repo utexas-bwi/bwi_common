@@ -25,7 +25,7 @@ before_install:
     - shopt -s expand_aliases
     - alias RUN="sudo docker exec -it travis /bin/bash -c"
     - RUN "sudo apt update"
-    - RUN "sudo apt-get install python-catkin-tools"
+    - RUN "sudo apt-get install python-catkin-tools -y"
 install:
     - git clone $REPO_GIT_URL ~/catkin_ws/src/bwi_common
     - RUN "cd ~/catkin_ws/src/bwi_common && git submodule update --init --recursive && cd ~"
