@@ -36,7 +36,6 @@ install:
     - RUN "source /opt/ros/melodic/setup.bash  && cd ~/catkin_ws && catkin init"
 before_script:
     # Link RIS repo to the catkin workspace
-    - RUN 'ln -s ~/travis ~/catkin_ws/src'
     - RUN 'source /opt/ros/melodic/setup.bash  && rosdep install -q -r --from-paths ~/catkin_ws --ignore-packages-from-source -y --rosdistro $ROS_DISTRO'
 script:
 
