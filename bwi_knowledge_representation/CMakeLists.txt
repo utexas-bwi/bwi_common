@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
 )
 
-catkin_python_setup()
+# catkin_python_setup()
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
