@@ -78,6 +78,7 @@ target_link_libraries(test_plan_executor
         ${catkin_LIBRARIES})
 
 add_executable(asp_formatter src/asp_formatter.cpp)
+add_dependencies(asp_formatter ${bwi_kr_execution_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(asp_formatter ${catkin_LIBRARIES})
 
 
