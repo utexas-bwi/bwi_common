@@ -26,7 +26,7 @@ before_install:
     - alias RUN="sudo docker exec -it travis /bin/bash -c"
     - RUN "sudo apt update"
 install:
-    - git clone REPO_GIT_URL ~/catkin_ws/src/bwi_common
+    - git clone $REPO_GIT_URL ~/catkin_ws/src/bwi_common
     - RUN "cd ~/catkin_ws/src/bwi_common && git submodule update --init --recursive && cd ~"
     # Install any ROS dependencies
     - RUN "source /opt/ros/melodic/setup.bash && rosdep update"
