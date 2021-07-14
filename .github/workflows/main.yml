@@ -26,6 +26,5 @@ jobs:
       - name: Build package
         run: |
           cd ~/catkin_ws/src
-          source /opt/ros/$ROS_DISTRO/setup.bash
-          catkin build
+          /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash && catkin build"
 
