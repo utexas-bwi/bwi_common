@@ -13,7 +13,7 @@ git:
 env:
   global:
     - ROS_DISTRO="melodic"
-    - SSH_ORG_PREFIX=git@github.com:utexas-bwi
+    - REPO_GIT_URL="https://github.com/utexas-bwi/bwi_common.git"
     - IMAGE="ros:melodic-perception"
 before_install:
     # Install gitmodules
@@ -26,7 +26,7 @@ before_install:
     - alias RUN="sudo docker exec -it travis /bin/bash -c"
     - RUN "sudo apt update"
 install:
-    - git clone $SSH_ORG_PREFIX/bwi_common.git ~/catkin_ws/src/bwi_common
+    - git clone REPO_GIT_URL ~/catkin_ws/src/bwi_common
     - RUN "cd ~/catkin_ws/src/bwi_common && git submodule update --init --recursive && cd ~"
     # Install any ROS dependencies
     - RUN "source /opt/ros/melodic/setup.bash && rosdep update"
