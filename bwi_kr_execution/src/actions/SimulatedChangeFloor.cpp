@@ -2,7 +2,6 @@
 
 #include <boost/foreach.hpp>
 
-#include "ActionFactory.h"
 #include "plan_execution/StaticFacts.h"
 
 #include "plan_execution/UpdateFluents.h"
@@ -163,9 +162,5 @@ actasp::Action *SimulatedChangeFloor::cloneAndInit(const actasp::AspFluent & flu
 std::vector<std::string> SimulatedChangeFloor::getParameters() const {
   return std::vector<std::string>(1, dest_room);
 }
-
-//if you want the action to be available only in simulation, or only
-//on the robot, use the constructor that also takes a boolean.
-ActionFactory simulatedChangeFloor(new SimulatedChangeFloor(), true);
 
 }

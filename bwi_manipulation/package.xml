@@ -17,6 +17,7 @@
     <depend>agile_grasp</depend>
     <depend>bwi_moveit_utils</depend>
     <depend>bwi_perception</depend>
+    <depend>eigen_conversions</depend>
     <depend>geometry_msgs</depend>
     <depend>moveit_ros_planning_interface</depend>
     <depend>moveit_msgs</depend>

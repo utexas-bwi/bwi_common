@@ -10,7 +10,10 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf_conversions
+  knowledge_representation
 )
+
+catkin_python_setup()
 
 catkin_package(CATKIN_DEPENDS actionlib_msgs bwi_msgs std_msgs plan_execution)
 
@@ -72,9 +75,9 @@ add_executable(visit_and_ask_list_node src/visit_and_ask_list.cpp)
 add_dependencies(visit_and_ask_list_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(visit_and_ask_list_node ${catkin_LIBRARIES})
 
-add_executable(hri_tasks_node src/hri_tasks.cpp)
-add_dependencies(hri_tasks_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(hri_tasks_node ${catkin_LIBRARIES})
+#add_executable(hri_tasks_node src/hri_tasks.cpp)
+#add_dependencies(hri_tasks_node ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(hri_tasks_node ${catkin_LIBRARIES})
 
 install(TARGETS
           back_and_forth_node
@@ -91,6 +94,6 @@ install(TARGETS
           visit_door_list
           visit_door_list_gui
           visit_and_ask_list_node
-          hri_tasks_node
+          #hri_tasks_node
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

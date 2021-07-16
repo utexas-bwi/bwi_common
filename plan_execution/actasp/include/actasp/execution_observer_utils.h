@@ -1,47 +1,36 @@
+#pragma once
 
-#ifndef actasp_execution_observer_utiles_h__guard
-#define actasp_execution_observer_utiles_h__guard
+#include <utility>
 
 #include <actasp/AspFluent.h>
 #include <actasp/ExecutionObserver.h>
 
 namespace actasp {
 
-  
-struct NotifyActionTermination {
-  
-  NotifyActionTermination(const AspFluent& action) : action(action) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->actionTerminated(action);
-  }
-  
-  AspFluent action;
-};
 
 struct NotifyActionStart {
-  
-  NotifyActionStart(const AspFluent& action) : action(action) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->actionStarted(action);
+
+  NotifyActionStart(AspFluent action) : action(std::move(action)) {}
+
+  void operator()(ExecutionObserver &observer) {
+    observer.actionStarted(action);
   }
-  
+
   AspFluent action;
 };
 
 struct NotifyGoalChanged {
-  
-  NotifyGoalChanged(const std::vector<actasp::AspRule>& goalRules) : goalRules(goalRules) {}
-  
-  void operator()(ExecutionObserver *observer) {
-    observer->goalChanged(goalRules);
+
+  NotifyGoalChanged(const std::vector<actasp::AspRule> &goalRules) : goalRules(goalRules) {}
+
+  void operator()(ExecutionObserver &observer) {
+    observer.goalChanged(goalRules);
   }
-  
-  const std::vector<actasp::AspRule>& goalRules;
+
+  const std::vector<actasp::AspRule> &goalRules;
 };
 
 
 }
 
-#endif
+

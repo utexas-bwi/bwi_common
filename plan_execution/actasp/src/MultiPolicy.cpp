@@ -11,7 +11,7 @@ namespace actasp {
   
 MultiPolicy::MultiPolicy(const ActionSet& actions) : policy(), allActions(actions) {}
 	
-ActionSet MultiPolicy::actions(const std::set<AspFluent>& state) const throw() {
+ActionSet MultiPolicy::actions(const std::set<AspFluent>& state) const noexcept {
   
 	std::map<set<AspFluent>, ActionSet >::const_iterator acts = policy.find(state);
 
@@ -24,13 +24,13 @@ ActionSet MultiPolicy::actions(const std::set<AspFluent>& state) const throw() {
 
 void MultiPolicy::merge(const PartialPolicy* otherPolicy) {
     const MultiPolicy *other = dynamic_cast<const MultiPolicy*>(otherPolicy);
-    if(other != NULL)
+    if(other != nullptr)
       merge(other);
     else 
       throw runtime_error("method not implemented for a partial policy other than MultiPolicy");
 }
 
-void MultiPolicy::merge(const AnswerSet& plan) throw(logic_error) {
+void MultiPolicy::merge(const AnswerSet& plan) {
 
 
   //ignore the last time step becuase it's the final state and has no actions
@@ -92,7 +92,7 @@ void MultiPolicy::merge(const MultiPolicy* otherPolicy) {
   for_each(otherPolicy->policy.begin(),otherPolicy->policy.end(),MergeActions(policy));
 }
 
-bool MultiPolicy::empty() const throw() {
+bool MultiPolicy::empty() const noexcept {
 	return policy.empty();
 }
 

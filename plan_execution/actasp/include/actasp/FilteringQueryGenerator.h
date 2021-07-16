@@ -1,5 +1,4 @@
-#ifndef actasp_FilteringQueryGenerator_h__guard
-#define actasp_FilteringQueryGenerator_h__guard
+#pragma once
 
 #include <actasp/QueryGenerator.h>
 
@@ -19,6 +18,6 @@ struct FilteringQueryGenerator : public QueryGenerator{
 }
 
 
-#endif
+
   
   

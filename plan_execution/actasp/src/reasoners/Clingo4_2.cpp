@@ -13,80 +13,36 @@
 #include <iostream>
 #include <limits>
 
-#define CURRENT_STATE_FILE std::string("/tmp/current.asp")
-
+#include <boost/filesystem.hpp>
+#include <actasp/filesystem_utils.h>
 using namespace std;
 
 namespace actasp {
 
 Clingo4_2::Clingo4_2(const std::string& incrementalVar,
-                      const std::string& queryDir,
-                      const std::string& domainDir,
-                      const ActionSet& allActions,
-                      unsigned int max_time
-                    ) throw() :
-  incrementalVar(incrementalVar),
-  max_time(max_time),
-  queryDir(queryDir),
-  domainDir(domainDir),
-  allActions(allActions),
-  currentFilePath(CURRENT_STATE_FILE) {
-
-  if (max_time > 0 && !system("timeout 2>/dev/null")) //make sure timeout is available
-    max_time = 0;
-  
-  //make sure directory ends with '/'
-  
-  if (this->queryDir.find_last_of("/") != (this->queryDir.length() -1))
-    this->queryDir += "/";
-
-  if ((this->domainDir.find_last_of("/")) != (this->domainDir.length() -1))
-    this->domainDir += "/";
-
-  //TODO test the existance of the directories
-
-  //create current file
-  ifstream currentFile(currentFilePath.c_str());
-  if (!currentFile.good()) //doesn't exist, create it or clingo will go mad
-    setCurrentState(set<AspFluent>());
-
-  currentFile.close();
-}
-
-Clingo4_2::Clingo4_2(const std::string& incrementalVar,
-                     const std::string& queryDir,
-                     const std::string& domainDir,
-                     const ActionSet& allActions,
-                     const std::string& currentFilePath,
+                     const std::vector<std::string>& linkFiles,
+                     const std::vector<std::string>& copyFiles,
+                     const ActionSet& actions,
                      unsigned int max_time
-                    ) throw() :
+                     ) noexcept :
   incrementalVar(incrementalVar),
   max_time(max_time),
-  queryDir(queryDir),
-  domainDir(domainDir),
-  allActions(allActions),
-  currentFilePath(currentFilePath) {
+  linkFiles(linkFiles),
+  copyFiles(copyFiles),
+  allActions(actions) {
 
   if (max_time > 0 && !system("timeout 2>/dev/null")) //make sure timeout is available
     max_time = 0;
 
-  //make sure directory ends with '/'
+  for (const auto &linkFile: linkFiles) {
+    assert(boost::filesystem::is_regular_file(linkFile));
+  }
 
-  if (this->queryDir.find_last_of("/") != (this->queryDir.length() -1))
-    this->queryDir += "/";
-
-  if ((this->domainDir.find_last_of("/")) != (this->domainDir.length() -1))
-    this->domainDir += "/";
-
-  //TODO test the existance of the directories
-
-  //create current file
-  ifstream currentFile((currentFilePath).c_str());
-  if (!currentFile.good()) //doesn't exist, create it or clingo will go mad
-    setCurrentState(set<AspFluent>());
-
-  currentFile.close();
+  for (const auto &copyFile: copyFiles) {
+    assert(boost::filesystem::is_regular_file(copyFile));
+  }
 }
+
 
 struct RuleToString4_2 {
   RuleToString4_2(unsigned int timeStepNum) {
@@ -244,7 +200,7 @@ static string aspString(const std::vector<actasp::AspRule>& query, unsigned int 
   return aspString(query,vs.str());
 }
 
-static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) throw() {
+static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) noexcept {
 
   stringstream predicateLine(answerSetContent);
 
@@ -259,7 +215,7 @@ static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) 
 }
 
 
-static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) throw() {
+static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) noexcept {
 
   ifstream file(filePath.c_str());
 
@@ -296,7 +252,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
   return allSets;
 }
 
-static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const bool minimum) throw() {
+static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const bool minimum) noexcept {
 
   ifstream file(filePath.c_str());
 
@@ -349,7 +305,7 @@ static actasp::AnswerSet readOptimalAnswerSet(const std::string& filePath, const
   return optimalAnswer;
 }
 
-string Clingo4_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const throw() {
+string Clingo4_2::generatePlanQuery(std::vector<actasp::AspRule> goalRules) const noexcept {
   stringstream goal;
   goal << "#program volatile(" << incrementalVar << ")." << endl;
   goal << "#external query(" << incrementalVar << ")." << endl;
@@ -381,11 +337,11 @@ static list<AnswerSet> filterPlans(const list<AnswerSet> unfiltered_plans, const
 std::list<actasp::AnswerSet> Clingo4_2::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules);
 
-  list<AnswerSet> answers = genericQuery(planquery,0,max_plan_length,"planQuery",answerset_number,true);
+  list<AnswerSet> answers = genericQuery(planquery, 0, max_plan_length, "planQuery", answerset_number);
 
   if (filterActions)
     return filterPlans(answers,allActions);
@@ -409,13 +365,14 @@ std::list<actasp::AnswerSet> Clingo4_2::lengthRangePlanQuery(const std::vector<a
     bool filterActions,
     unsigned int min_plan_length,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules);
 
   //cout << "min " << min_plan_length << " max " << max_plan_length << endl;
 
-  std::list<actasp::AnswerSet> allplans =  genericQuery(planquery,max_plan_length,max_plan_length,"planQuery",answerset_number,true);
+  std::list<actasp::AnswerSet> allplans = genericQuery(planquery, max_plan_length, max_plan_length, "planQuery",
+                                                       answerset_number);
 
   //clingo 3 generates all plans up to a maximum length anyway, we can't avoid the plans shorter than min_plan_length to be generated
   //we can only filter them out afterwards
@@ -433,11 +390,11 @@ actasp::AnswerSet Clingo4_2::optimalPlanQuery(const std::vector<actasp::AspRule>
     bool filterActions,
     unsigned int  max_plan_length,
     unsigned int answerset_number,
-    bool minimum) const throw() {
+    bool minimum) const noexcept {
 
   string planquery = generatePlanQuery(goalRules);
 
-  string outputFilePath = makeQuery(planquery,max_plan_length,max_plan_length,"planQuery",answerset_number,true);
+  string outputFilePath = makeQuery(planquery, max_plan_length, max_plan_length, "planQuery", answerset_number);
 
   AnswerSet optimalPlan = readOptimalAnswerSet(outputFilePath,minimum);
 
@@ -450,8 +407,8 @@ actasp::AnswerSet Clingo4_2::optimalPlanQuery(const std::vector<actasp::AspRule>
     return optimalPlan;
 }
 
-AnswerSet Clingo4_2::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
-  list<AnswerSet> sets = genericQuery(aspString(query,0),0,0,"stateQuery",1,true);
+AnswerSet Clingo4_2::currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
+  list<AnswerSet> sets = genericQuery(aspString(query, 0), 0, 0, "stateQuery", 1);
 
   return (sets.empty())? AnswerSet() : *(sets.begin());
 }
@@ -470,7 +427,7 @@ struct HasTimeStepZeroInHead4_2 : unary_function<const AspRule&,bool> {
 std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::AspRule>& query,
     unsigned int timeStep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
 
   std::vector<actasp::AspRule> base;
   remove_copy_if(query.begin(),query.end(),back_inserter(base), not1(HasTimeStepZeroInHead4_2()));
@@ -487,12 +444,12 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::vector<actasp::A
   thequery << endl << "#program cumulative(" << incrementalVar << ")." << endl;
   thequery << cumulative_part << endl;
 
-  return genericQuery(thequery.str(),timeStep,timeStep,fileName,answerSetsNumber,true);
+  return genericQuery(thequery.str(), timeStep, timeStep, fileName, answerSetsNumber);
 
 }
 
 std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& goalRules,
-    const AnswerSet& plan) const throw() {
+    const AnswerSet& plan) const noexcept {
    string planQuery = generatePlanQuery(goalRules);
 
   stringstream monitorQuery(planQuery, ios_base::app | ios_base::out);
@@ -518,13 +475,14 @@ std::string Clingo4_2::generateMonitorQuery(const std::vector<actasp::AspRule>& 
 }
 
 std::list<actasp::AnswerSet> Clingo4_2::monitorQuery(const std::vector<actasp::AspRule>& goalRules,
-    const AnswerSet& plan) const throw() {
+    const AnswerSet& plan) const noexcept {
 
   //   clock_t kr1_begin = clock();
       
   string monitorQuery = generateMonitorQuery(goalRules,plan);
 
-  list<actasp::AnswerSet> result = genericQuery(monitorQuery,plan.getFluents().size(),plan.getFluents().size(),"monitorQuery",1,true);
+  list<actasp::AnswerSet> result = genericQuery(monitorQuery, plan.getFluents().size(), plan.getFluents().size(),
+                                                "monitorQuery", 1);
 
   result.remove_if(MaxTimeStepLessThan4_2(plan.getFluents().size()));
 
@@ -534,19 +492,16 @@ std::list<actasp::AnswerSet> Clingo4_2::monitorQuery(const std::vector<actasp::A
   return result;
 }
 
-std::string Clingo4_2::makeQuery(const std::string& query,
-                                 unsigned int initialTimeStep,
-                                 unsigned int finalTimeStep,
-                                 const std::string& fileName,
-                                 unsigned int answerSetsNumber,
-                                 bool useCurrentState
-                                ) const  throw() {
+std::string Clingo4_2::makeQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                                 const std::string &fileName, unsigned int answerSetsNumber) const  noexcept {
   //this depends on our way of representing stuff.
   //iclingo starts from 1, while we needed the initial state and first action to be at time step 0
   initialTimeStep++;
   finalTimeStep++;
 
   //cout << "initialTimeStep is " << initialTimeStep << " ; finalTimeStep is " << finalTimeStep << endl;
+  string queryDir = getQueryDirectory(linkFiles, copyFiles);
+  populateDirectory(queryDir, linkFiles, copyFiles);
 
   string queryPath = queryDir + fileName + ".asp";
 
@@ -567,9 +522,7 @@ std::string Clingo4_2::makeQuery(const std::string& query,
 //   if ( finalTimeStep > initialTimeStep ) //when max and initial are the same, we do not want max
     iterations << " -cimax=" << finalTimeStep;
 
-  commandLine << "clingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp ";
-  if(useCurrentState)
-    commandLine<< (currentFilePath);
+  commandLine << "clingo " << iterations.str() << queryDir << "*.asp ";
   
   commandLine << " > " << outputFilePath << " " << answerSetsNumber;
 
@@ -581,14 +534,10 @@ std::string Clingo4_2::makeQuery(const std::string& query,
   return outputFilePath;
 }
 
-std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::string& query,
-    unsigned int initialTimeStep,
-    unsigned int finalTimeStep,
-    const std::string& fileName,
-    unsigned int answerSetsNumber,
-    bool useCurrentState ) const throw() {
+std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::string &query, unsigned int initialTimeStep, unsigned int finalTimeStep,
+                                                     const std::string &fileName, unsigned int answerSetsNumber) const noexcept {
 
-  string outputFilePath = makeQuery(query,initialTimeStep,finalTimeStep,fileName,answerSetsNumber,useCurrentState);
+  string outputFilePath = makeQuery(query, initialTimeStep, finalTimeStep, fileName, answerSetsNumber);
 
   list<AnswerSet> allAnswers = readAnswerSets(outputFilePath);
 
@@ -598,9 +547,9 @@ std::list<actasp::AnswerSet> Clingo4_2::genericQuery(const std::string& query,
 std::list< std::list<AspAtom> > Clingo4_2::genericQuery(const std::string& query,
     unsigned int timestep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
 
-  string outputFilePath = makeQuery(query,timestep,timestep,fileName,answerSetsNumber,true);
+  string outputFilePath = makeQuery(query, timestep, timestep, fileName, answerSetsNumber);
 
   ifstream file(outputFilePath.c_str());
 
@@ -638,19 +587,6 @@ std::list< std::list<AspAtom> > Clingo4_2::genericQuery(const std::string& query
 
 }
 
-void Clingo4_2::setCurrentState(const std::set<actasp::AspFluent>& newState) {
-
-  //copy the current state in a file
-  ofstream currentFile((currentFilePath).c_str());
-
-  set<AspFluent>::const_iterator stateIt = newState.begin();
-  for (; stateIt != newState.end(); ++stateIt)
-    currentFile << stateIt->toString(0) << "." << endl;
-
-  currentFile.close();
-
-}
-
 std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentState, const AnswerSet& plan,const std::vector<actasp::AspRule>& goals) {
 
   //generate a string with all the fluents "0{fluent}1."
@@ -659,7 +595,7 @@ std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentS
 
   fluentsString << "#program base." << endl;
 
-  std::vector<actasp::AspFluent>::const_iterator fluent = currentState.getFluents().begin();
+  auto fluent = currentState.getFluents().begin();
   for (; fluent != currentState.getFluents().end(); ++fluent) {
     fluentsString << "0{" << fluent->toString() << "}1." << endl;
     minimizeString  << ":~ " << fluent->toString() << ". [1]" << endl;
@@ -675,8 +611,17 @@ std::list<actasp::AnswerSet> Clingo4_2::filteringQuery(const AnswerSet& currentS
   total << fluentsString.str() << std::endl << monitorString << endl << minimizeString.str() << endl;
 
   //make a query that only uses the domain and what I created, not current.asp
-  return  genericQuery(total.str(),plan.getFluents().size(),plan.getFluents().size(),"filterState",0,false);
+  return genericQuery(total.str(), plan.getFluents().size(), plan.getFluents().size(), "filterState", 0);
 
+}
+
+actasp::AnswerSet
+Clingo4_2::optimizationQuery(const std::string &query, const std::string &fileName) const noexcept {
+  string outputFilePath = makeQuery(query, 0, 0, fileName, 0);
+
+  AnswerSet optimalAnswer = readOptimalAnswerSet(outputFilePath, true);
+
+  return optimalAnswer;
 }
 
 

@@ -5,6 +5,7 @@ import math
 import os.path
 import rospy
 import yaml
+from operator import itemgetter
 
 from python_qt_binding.QtCore import QPoint, QPointF, QRect, Qt
 from python_qt_binding.QtGui import QPainter, QPolygon
@@ -89,7 +90,7 @@ class ObjectFunction(object):
                     object_key = object["name"]
                     object_location = QPointF(object["point"][0], object["point"][1])
                     object_location = transformPointToPixelCoordinates(object_location, self.map, self.image_size)
-                    object_orientation = float(object["point"][2])
+                    object_orientation = -float(object["point"][2])
                     self.objects[object_key] = Object(object_location, object_orientation)
                     self.draw_object[object_key] = True
             except yaml.YAMLError, KeyError:
@@ -110,10 +111,11 @@ class ObjectFunction(object):
             object_location = transformPointToRealWorldCoordinates(object.location, self.map, self.image_size)
             object_dict = {}
             object_dict["name"] = object_name
-            object_dict["point"] = [object_location.x(), object_location.y(), object.orientation]
+            object_dict["point"] = [object_location.x(), object_location.y(), -object.orientation]
             out_list.append(object_dict)
 
         stream = open(self.object_file, 'w')
+        out_list = sorted(out_list, key=itemgetter('name'))
         yaml.dump(out_list, stream)
         stream.close()
 

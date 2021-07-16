@@ -1,5 +1,4 @@
-#ifndef actasp_IsNotLocallyOptimal_h__guard
-#define actasp_IsNotLocallyOptimal_h__guard
+#pragma once
 
 #include "LexComparator.h"
 
@@ -49,4 +48,4 @@ private:
   
 }
 
-#endif
+

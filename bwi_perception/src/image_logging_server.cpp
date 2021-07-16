@@ -15,7 +15,6 @@
 #endif
 #include <opencv/highgui.h>
 #include <cv_bridge/cv_bridge.h>
-#include <opencv2/imgcodecs.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/io.h>

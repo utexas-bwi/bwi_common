@@ -5,6 +5,7 @@ import math
 import os.path
 import rospy
 import yaml
+from operator import itemgetter
 
 from python_qt_binding.QtCore import QPoint, QPointF, QSize, Qt
 from python_qt_binding.QtGui import QImage, QPainter, QPolygon
@@ -171,6 +172,8 @@ class DoorFunction(object):
                 door_dict["approach"].append(approach_pt_dict)
             out_list.append(door_dict)
 
+
+        out_list = sorted(out_list, key=itemgetter('name'))
         stream = open(self.door_file, 'w')
         yaml.dump(out_list, stream)
         stream.close()

@@ -1,6 +1,4 @@
-
-#ifndef actasp_MultiPlanner_h__guard
-#define actasp_MultiPlanner_h__guard
+#pragma once
 
 #include <actasp/Planner.h>
 #include <actasp/AspRule.h>
@@ -16,14 +14,14 @@ class Action;
 
 struct MultiPlanner : public actasp::Planner {
 
-virtual std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error)=0;
+virtual std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) =0;
 
-virtual PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error)=0;
+virtual PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false)=0;
 
-virtual ~MultiPlanner(){}
+  ~MultiPlanner() override = default;
 
 };
 
 }
 
-#endif
+

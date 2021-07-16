@@ -1,26 +1,22 @@
-#program cumulative(n).
+#include <incmode>.
+#program step(n).
 
 1{
-approach(D1,I) : door(D1);
-gothrough(D2,I) : door(D2);
-opendoor(D3,I) : door(D3);
-goto(O,I) : object(O);
-callelevator(E,U,I) : elevator(E) , orientation(U); 
-changefloor(R,I) : room(R);
-knock(D,I) : door(D);
-searchperson(P,R,O,I): person(P), room(R), object(O);
-searchperson(P,R,D,I): person(P), room(R), door(D);
-delivermessage(P,M,I): message(P,M,I)
-}1 :- not noop(I), I>0, I=n-1.
+navigate_to(T, n) : has_concept(T, "location"); % TODO: change this to navigable
+go_through(D, n) : has_concept(D, "door");
+open_door(D, n) : has_concept(D, "door");
+pick_up(O, L, n) : has_concept(O, "object"), has_concept(L, "placement"); % TODO: change object to graspable
+put_down(O, L, n) : has_concept(O, "object"), has_concept(L, "placement");
+hand_over(O, P, n) : has_concept(O, "object"), has_concept(P, "person");
+perceive_surface(O, L, n) : has_concept(O, "object"), has_concept(L, "placement");
+find_person(P, L, n) : has_concept(P, "person"), has_concept(L, "beacon")
+}1.
 
-noop(I) :- noop(I), I>0, I=n-1.
-
-#show approach/2.
-#show gothrough/2.
-#show opendoor/2.
-#show goto/2.
-#show callelevator/3.
-#show changefloor/2.
-#show knock/2.
-#show searchperson/4.
-#show delivermessage/3.
+#show navigate_to/2.
+#show go_through/2.
+#show open_door/2.
+#show pick_up/3.
+#show put_down/3.
+#show hand_over/3.
+#show perceive_surface/3.
+#show find_person/3.

@@ -1,7 +1,4 @@
 #include "DeliverMessage.h"
-
-#include "ActionFactory.h"
-
 #include "CallGUI.h"
 
 #include "plan_execution/AspFluent.h"
@@ -138,6 +135,4 @@ std::vector<std::string> DeliverMessage::getParameters() const {
 }
 
 
-ActionFactory DeliverMessageFactory(new DeliverMessage());
-  
 }

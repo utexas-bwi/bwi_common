@@ -173,7 +173,6 @@ namespace bwi_planning_common {
       doc[i]["point"][1] >> pose.position.y;
       pose.position.z = 0;
       doc[i]["point"][2] >> yaw;
-      yaw += M_PI;
       tf::quaternionTFToMsg(                                                     
           tf::createQuaternionFromYaw(yaw), pose.orientation);
       object_approach_map[name] = pose;

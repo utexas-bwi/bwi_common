@@ -1,10 +1,7 @@
 
 #include "plan_execution/msgs_utils.h"
-#include "plan_execution/RemoteReasoner.h"
-#include "plan_execution/StaticFacts.h"
-
 #include "actasp/action_utils.h"
-#include "actasp/executors/ReplanningActionExecutor.h"
+#include "actasp/executors/ReplanningPlanExecutor.h"
 #include "actasp/planners/AnyPlan.h"
 #include "actasp/ExecutionObserver.h"
 #include "actasp/PlanningObserver.h"
@@ -15,7 +12,7 @@
 #include "plan_execution/ExecutePlanAction.h"
 
 #include "actions/ActionFactory.h"
-#include "plan_execution/LogicalAction.h"
+
 
 #include <actionlib/server/simple_action_server.h>
 
@@ -39,7 +36,7 @@ using namespace plan_exec;
 typedef actionlib::SimpleActionServer<plan_execution::ExecutePlanAction> Server;
 
 
-ActionExecutor *executor;
+PlanExecutor *executor;
 
 struct PrintFluent {
   
@@ -134,8 +131,7 @@ int main(int argc, char**argv) {
     domainDirectory += '/';
 
 //  create initial state
-  LogicalAction setInitialState("noop");
-  setInitialState.run();
+
 
 
   bool simulating;
@@ -144,13 +140,12 @@ int main(int argc, char**argv) {
   
   boost::filesystem::create_directories(queryDirectory);
 
-  FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
-  AspKR *reasoner = new RemoteReasoner(generator, MAX_N,actionMapToSet(ActionFactory::actions()));
-  StaticFacts::retrieveStaticFacts(reasoner, domainDirectory);
+  FilteringQueryGenerator *reasoner = Clingo::getQueryGenerator("n",queryDirectory,domainDirectory,actionMapToSet(ActionFactory::actions()));
+
   Planner *planner = new AnyPlan(reasoner,1.);
   
   //need a pointer to the specific type for the observer
-  ReplanningActionExecutor *replanner = new ReplanningActionExecutor(reasoner,planner,ActionFactory::actions());
+  ReplanningPlanExecutor *replanner = new ReplanningPlanExecutor(reasoner,planner,ActionFactory::actions());
   executor = replanner;
   
   Observer observer;

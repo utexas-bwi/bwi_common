@@ -1,7 +1,6 @@
-#ifndef actasp_MultiPolicyExecutor_h__guard
-#define actasp_MultiPolicyExecutor_h__guard
+#pragma once
 
-#include <actasp/ActionExecutor.h>
+#include <actasp/PlanExecutor.h>
 #include <actasp/PartialPolicy.h>
 #include <actasp/AspRule.h>
 
@@ -10,59 +9,67 @@
 #include <map>
 
 namespace actasp {
-	
+
 class Action;
+
 class AspKR;
+
 class MultiPlanner;
+
 class ActionSelector;
+
 class ExecutionObserver;
+
 class PlanningObserver;
 
-class PartialPolicyExecutor : public ActionExecutor {
+class PartialPolicyExecutor : public PlanExecutor {
 public:
-	
-  PartialPolicyExecutor(AspKR* kr, MultiPlanner *planner, ActionSelector *selector, 
-                      const std::map<std::string, Action * >& actionMap, double suboptimality);
-  
-  using ActionExecutor::setGoal;
-  void setGoal(const std::vector<actasp::AspRule>& goalRules) throw();
 
-	bool goalReached() const throw();
-	bool failed() const throw();
+  PartialPolicyExecutor(AspKR &kr, MultiPlanner &planner, ActionSelector &selector,
+                        const std::map<std::string, Action *> &actionMap, double suboptimality);
 
-	void executeActionStep();
-  
-  void addExecutionObserver(ExecutionObserver *observer) throw();
-  void removeExecutionObserver(ExecutionObserver *observer) throw();
-  
-  ~PartialPolicyExecutor();
- 
+  using PlanExecutor::setGoal;
+
+  void setGoal(const std::vector<actasp::AspRule> &goalRules) noexcept;
+
+  bool goalReached() const noexcept;
+
+  bool failed() const noexcept;
+
+  void executeActionStep();
+
+  void addExecutionObserver(ExecutionObserver &observer) noexcept;
+
+  void removeExecutionObserver(ExecutionObserver &observer) noexcept;
+
+  ~PartialPolicyExecutor() override;
+
 private:
-  
-	//state
+
+  //state
   bool isGoalReached;
-	bool hasFailed;
+  bool hasFailed;
   unsigned int actionCounter;
   bool newAction;
   Action *active;
-  
+
   //KR stuff
-  AspKR* kr;
-  MultiPlanner *planner;
-	std::vector<actasp::AspRule> goalRules;
-  
-	PartialPolicy* policy;
+  AspKR &kr;
+  MultiPlanner &planner;
+  std::vector<actasp::AspRule> goalRules;
+
+  PartialPolicy *policy;
 
   //customization
   double suboptimality;
-  ActionSelector *selector;
-  std::map<std::string, Action * > actionMap;
-  
+  ActionSelector &selector;
+  std::map<std::string, Action *> actionMap;
+
   //observers
-  std::list<ExecutionObserver*> executionObservers;
+  std::list<std::reference_wrapper<ExecutionObserver>> executionObservers;
 
 };
 
 }
 
-#endif 
+

@@ -11,51 +11,41 @@
 #include <cstdlib>
 #include <iostream>
 
-#define CURRENT_FILE_HOME queryDir // was  std::string("/tmp/")
-#define CURRENT_STATE_FILE std::string("current.asp")
+#include <boost/filesystem.hpp>
+#include <actasp/filesystem_utils.h>
 
 using namespace std;
 
 namespace actasp {
   
 Clingo3::Clingo3(const std::string& incrementalVar,
-         const std::string& queryDir,
-         const std::string& domainDir,
-         const ActionSet& allActions,
-         unsigned int max_time
-        ) throw() :
+                 const std::vector<std::string>& linkFiles,
+                 const std::vector<std::string>& copyFiles,
+                 const ActionSet& actions,
+                 unsigned int max_time
+        ) noexcept :
   incrementalVar(incrementalVar),
   max_time(max_time),
-  queryDir(queryDir),
-  domainDir(domainDir),
+  linkFiles(linkFiles),
+  copyFiles(copyFiles),
   actionFilter() {
 
   if (max_time > 0 && !system("timeout 2>/dev/null")) //make sure timeout is available
     max_time = 0;
 
-  //make sure directory ends with '/'
+  for (const auto &linkFile: linkFiles) {
+    assert(boost::filesystem::is_regular_file(linkFile));
+  }
 
-  if (this->queryDir.find_last_of("/") != (this->queryDir.length() -1))
-    this->queryDir += "/";
-
-  if ((this->domainDir.find_last_of("/")) != (this->domainDir.length() -1))
-    this->domainDir += "/";
-
-  //TODO test the existance of the directories
-  
-  //create current file
-  ifstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
-  if(!currentFile.good()) //doesn't exist, create it or clingo will go mad
-    setCurrentState(set<AspFluent>());
-  
-  currentFile.close();
+  for (const auto &copyFile: copyFiles) {
+    assert(boost::filesystem::is_regular_file(copyFile));
+  }
 
   stringstream filterStream;
   filterStream << "#hide." << endl;
 
-  std::set<AspFluent>::const_iterator actIt = allActions.begin();
-  for (; actIt != allActions.end(); ++actIt) {
-    filterStream << "#show " << actIt->getName() << "/" << actIt->arity() << "." << endl;
+  for (const auto &action: actions) {
+    filterStream << "#show " << action.getName() << "/" << action.arity() << "." << endl;
   }
 
   actionFilter = filterStream.str();
@@ -126,7 +116,7 @@ static string aspString(const std::vector<actasp::AspRule>& query, unsigned int 
   return aspString(query,vs.str());
 }
 
-static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) throw() {
+static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) noexcept {
 
   stringstream predicateLine(answerSetContent);
 
@@ -141,7 +131,7 @@ static std::list<AspFluent> parseAnswerSet(const std::string& answerSetContent) 
 }
 
 
-static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) throw() {
+static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) noexcept {
 
   ifstream file(filePath.c_str());
 
@@ -177,7 +167,7 @@ static std::list<actasp::AnswerSet> readAnswerSets(const std::string& filePath) 
 }
 
 string Clingo3::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
-                                bool filterActions) const throw() {
+                                bool filterActions) const noexcept {
   stringstream goal;
   goal << "#volatile " << incrementalVar << "." << endl;
   //I don't like this -1 too much, but it makes up for the incremental variable starting at 1
@@ -194,7 +184,7 @@ string Clingo3::generatePlanQuery(std::vector<actasp::AspRule> goalRules,
 std::list<actasp::AnswerSet> Clingo3::minimalPlanQuery(const std::vector<actasp::AspRule>& goalRules,
     bool filterActions,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules, filterActions);
 
@@ -217,7 +207,7 @@ std::list<actasp::AnswerSet> Clingo3::lengthRangePlanQuery(const std::vector<act
     bool filterActions,
     unsigned int min_plan_length,
     unsigned int  max_plan_length,
-    unsigned int answerset_number) const throw() {
+    unsigned int answerset_number) const noexcept {
 
   string planquery = generatePlanQuery(goalRules, filterActions);
 
@@ -232,7 +222,7 @@ std::list<actasp::AnswerSet> Clingo3::lengthRangePlanQuery(const std::vector<act
 
 }
 
-AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) const throw() {
+AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept {
   list<AnswerSet> sets = genericQuery(aspString(query,0),0,0,"stateQuery",1);
 
   return (sets.empty())? AnswerSet() : *(sets.begin());
@@ -241,13 +231,13 @@ AnswerSet Clingo3::currentStateQuery(const std::vector<actasp::AspRule>& query) 
 std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::vector<actasp::AspRule>& query,
     unsigned int timeStep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
   return genericQuery(aspString(query,""),timeStep,timeStep,fileName,answerSetsNumber);
 
 }
 
 std::list<actasp::AnswerSet> Clingo3::monitorQuery(const std::vector<actasp::AspRule>& goalRules,
-    const AnswerSet& plan) const throw() {
+    const AnswerSet& plan) const noexcept {
 
   //   clock_t kr1_begin = clock();
 
@@ -275,11 +265,14 @@ std::string Clingo3::makeQuery(const std::string& query,
                                unsigned int initialTimeStep, 
                                unsigned int finalTimeStep, 
                                const std::string& fileName,
-                              unsigned int answerSetsNumber) const  throw() {
+                              unsigned int answerSetsNumber) const  noexcept {
   //this depends on our way of representing stuff.
   //iclingo starts from 1, while we needed the initial state and first action to be at time step 0
   initialTimeStep++;
   finalTimeStep++;
+
+  string queryDir = getQueryDirectory(linkFiles, copyFiles);
+  populateDirectory(queryDir, linkFiles, copyFiles);
 
   string queryPath = queryDir + fileName + ".asp";
 
@@ -298,7 +291,7 @@ std::string Clingo3::makeQuery(const std::string& query,
   stringstream iterations;
   iterations << "--imin=" << initialTimeStep << " --imax=" << finalTimeStep;
 
-  commandLine << "iclingo " << iterations.str() << " " << queryPath << " " << domainDir << "*.asp " << (CURRENT_FILE_HOME + CURRENT_STATE_FILE) << " > " << outputFilePath << " " << answerSetsNumber;
+  commandLine << "iclingo " << iterations.str() << " " << queryDir << "*.asp " <<  " > " << outputFilePath << " " << answerSetsNumber;
 
 
   if (!system(commandLine.str().c_str())) {
@@ -312,7 +305,7 @@ std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::string& query,
     unsigned int initialTimeStep,
     unsigned int finalTimeStep,
     const std::string& fileName,
-    unsigned int answerSetsNumber) const throw() {
+    unsigned int answerSetsNumber) const noexcept {
 
   string outputFilePath = makeQuery(query,initialTimeStep,finalTimeStep,fileName,answerSetsNumber);
 
@@ -324,7 +317,7 @@ std::list<actasp::AnswerSet> Clingo3::genericQuery(const std::string& query,
 std::list< std::list<AspAtom> > Clingo3::genericQuery(const std::string& query,
       unsigned int timestep,
       const std::string& fileName,
-      unsigned int answerSetsNumber) const throw() {
+      unsigned int answerSetsNumber) const noexcept {
         
 string outputFilePath = makeQuery(query,timestep,timestep,fileName,answerSetsNumber);
 
@@ -363,19 +356,5 @@ ifstream file(outputFilePath.c_str());
  return allSets;
         
 }
-
-void Clingo3::setCurrentState(const std::set<actasp::AspFluent>& newState) {
-
-  //copy the current state in a file
-  ofstream currentFile((CURRENT_FILE_HOME + CURRENT_STATE_FILE).c_str());
-
-  set<AspFluent>::const_iterator stateIt = newState.begin();
-  for (; stateIt != newState.end(); ++stateIt)
-    currentFile << stateIt->toString(0) << "." << endl;
-
-  currentFile.close();
-
-}
-
 
 }

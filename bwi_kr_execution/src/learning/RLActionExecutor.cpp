@@ -36,7 +36,7 @@ RLActionExecutor::~RLActionExecutor() {
 }
   
   
-void  RLActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) throw() {
+void  RLActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) noexcept {
 
   this->goalRules = goalRules;
 
@@ -49,11 +49,11 @@ void  RLActionExecutor::setGoal(const std::vector<actasp::AspRule>& goalRules) t
 
 }
 
-bool RLActionExecutor::goalReached() const throw() {
+bool RLActionExecutor::goalReached() const noexcept {
   return isGoalReached;
 }
 
-bool RLActionExecutor::failed() const throw() {
+bool RLActionExecutor::failed() const noexcept {
   return false;
 }
 

@@ -1,6 +1,4 @@
-
-#ifndef actasp_Reasoner_h__guard
-#define actasp_Reasoner_h__guard
+#pragma once
 
 #include <actasp/AspKR.h>
 
@@ -13,45 +11,38 @@ class PartialPolicy;
   
 struct Reasoner : public AspKR {
   
-  Reasoner(QueryGenerator *actualReasoner,unsigned int max_n,const ActionSet& allActions);
+  Reasoner(QueryGenerator *queryGenerator,unsigned int max_n,const ActionSet& allActions);
   
-  ActionSet availableActions() const throw();
+  ActionSet availableActions() const noexcept override;
   
-  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const throw();
-  
-  bool updateFluents(const std::vector<actasp::AspFluent> &observations) throw();
-  
-  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const throw();
-  
-  void resetCurrentState() throw();
+  AnswerSet currentStateQuery(const std::vector<actasp::AspRule>& query) const noexcept override;
 
-  void setCurrentState(const std::set<actasp::AspFluent>& newState) throw();
-  
-  AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const throw (std::logic_error) ;
-  
-  std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
+  bool isPlanValid(const AnswerSet& plan, const std::vector<actasp::AspRule>& goal)  const noexcept override;
 
-  AnswerSet computeOptimalPlan(const std::vector<actasp::AspRule>& goal, bool filterActions, double suboptimality, bool minimum) const throw (std::logic_error);
+  AnswerSet computePlan(const std::vector<actasp::AspRule>& goal) const noexcept(false) override;
   
-  virtual PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const throw (std::logic_error);
+  std::vector< AnswerSet > computeAllPlans(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
+
+  AnswerSet computeOptimalPlan(const std::vector<actasp::AspRule>& goal, bool filterActions, double suboptimality, bool minimum) const noexcept(false);
+
+  PartialPolicy* computePolicy(const std::vector<actasp::AspRule>& goal, double suboptimality) const noexcept(false) override;
   
-  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const throw();
+  std::list< std::list<AspAtom> > query(const std::string &queryString, unsigned int timestep) const noexcept override;
   
-  void setMaxTimeStep(unsigned int max_n) throw() {
+  void setMaxTimeStep(unsigned int max_n) noexcept {
     this->max_n = max_n;
   }
-  
-  virtual ~Reasoner() {}
-  
+
+  ~Reasoner() override = default;
+
 protected:
   QueryGenerator *clingo;
   unsigned int max_n;
   ActionSet allActions;
   
-  void computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* p) const throw (std::logic_error);
+  void computePolicyHelper(const std::vector<actasp::AspRule>& goal, double suboptimality, PartialPolicy* p) const noexcept(false);
   
 };
   
 }
 
-#endif

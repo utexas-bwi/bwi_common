@@ -64,7 +64,7 @@ std::vector<PointCloudT::Ptr > clusters_on_plane;
 
 sensor_msgs::PointCloud2 cloud_ros;
 
-ros::Publisher cloud_pub;
+ros::Publisher objects_cloud_pub;
 
 //true if Ctrl-C is pressed
 bool g_caught_sigint=false;
@@ -359,7 +359,7 @@ bool seg_cb(bwi_perception::ButtonDetection::Request &req, bwi_perception::Butto
 
 		pcl::toROSMsg(*clusters_on_plane.at(max_index),cloud_ros);
 		cloud_ros.header.frame_id = cloud->header.frame_id;
-		cloud_pub.publish(cloud_ros);
+        objects_cloud_pub.publish(cloud_ros);
 
 		//fill in response
 	    res.button_found = true;
@@ -411,7 +411,7 @@ int main (int argc, char** argv)
 	ros::Subscriber sub = nh.subscribe (param_topic, 1, cloud_cb);
 
 	//debugging publisher
-	cloud_pub = nh.advertise<sensor_msgs::PointCloud2>("segbot_arm_button_detector/cloud", 10);
+    objects_cloud_pub = nh.advertise<sensor_msgs::PointCloud2>("segbot_arm_button_detector/cloud", 10);
 
 	//service
 	ros::ServiceServer service = nh.advertiseService("segbot_arm_button_detector/detect", seg_cb); 

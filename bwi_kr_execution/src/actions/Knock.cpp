@@ -1,7 +1,5 @@
 #include "Knock.h"
 
-#include "ActionFactory.h"
-
 #include "CallGUI.h"
 
 #include "plan_execution/AspFluent.h"
@@ -75,6 +73,4 @@ std::vector<std::string> Knock::getParameters() const {
   return param;
 }
 
-ActionFactory KnockFactory(new Knock());
-  
 }

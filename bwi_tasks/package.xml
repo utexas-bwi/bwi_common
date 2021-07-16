@@ -24,7 +24,9 @@
   <depend>bwi_msgs</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
+  <depend>tf_conversions</depend>
   <depend>std_msgs</depend>
   <depend>espeak</depend>  
+  <depend>knowledge_representation</depend>
 
 </package>

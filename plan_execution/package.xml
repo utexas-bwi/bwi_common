@@ -11,8 +11,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>actionlib</depend>
-  <depend>actionlib_msgs</depend> 
-  <depend>bwi_logical_translator</depend>
+  <depend>actionlib_msgs</depend>
   <depend>bwi_msgs</depend> 
   <depend>gringo</depend>
   <depend>roscpp</depend>

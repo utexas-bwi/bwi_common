@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(plan_execution)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+
+if("$ENV{ROS_DISTRO}" STREQUAL "indigo")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+    set(CMAKE_CXX_STANDARD 11)
+endif()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs 
   message_generation
   roscpp
-  bwi_logical_translator
   bwi_msgs
   std_msgs
   std_srvs
@@ -50,7 +53,9 @@ add_service_files(
     GetHriMessage.srv)
 
 ## Generate actions in the 'action' folder
-add_action_files(FILES ExecutePlan.action)
+add_action_files(FILES ExecutePlan.action ExecuteSmachStateMachine.action)
+
+catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -83,7 +88,7 @@ generate_messages(
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
+## INCLUDE_DIRS: uncomment this42 if your package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
@@ -158,11 +163,6 @@ install(TARGETS plan_execution
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_plan_execution.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+catkin_add_gtest(test_actasp test/actasp.cpp)
+add_dependencies(test_actasp ${plan_execution_EXPORTED_TARGETS})
+target_link_libraries(test_actasp actasp ${catkin_LIBRARIES})
