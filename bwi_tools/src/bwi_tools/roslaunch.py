@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import subprocess
 
 def start_roslaunch_process(package, binary, args=None, log=None):
@@ -11,7 +12,7 @@ def start_roslaunch_process(package, binary, args=None, log=None):
         command_args = ['roslaunch', binary]
     command_args.extend([key + ':=' + value for key, value in args.iteritems()])
     command_args.append('--screen')
-    print "Running command: " + ' '.join(command_args)
+    print ("Running command: " + ' '.join(command_args))
     return (subprocess.Popen(command_args, stdout=log, stderr=subprocess.STDOUT)
             if log != None else subprocess.Popen(command_args))
 

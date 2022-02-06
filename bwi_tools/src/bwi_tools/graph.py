@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import collections
 import copy
 import numpy as np
@@ -77,12 +78,12 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
     for i in range(top_level_methods):
         for j in range(second_level_methods):
             m, h = calculate_mean_and_standard_error(samples2[i][j])
-            print str(top_level_names[i]) + ",",
+            print (str(top_level_names[i]) + ",",)
             if second_level_names is not None:
-                print str(second_level_names[j]), 
+                print (str(second_level_names[j]),)
             else:
-                print j,
-            print ": " + "%.2f"%m + "+-" + "%.2f"%h
+                print (j,)
+            print (": " + "%.2f"%m + "+-" + "%.2f"%h)
             is_sig = True
             for k in range(second_level_methods):
                 if j == k:
@@ -91,7 +92,7 @@ def draw_bar_chart(samples, top_level_names, second_level_names=None,
                 if not is_sig:
                     break
             if is_sig:
-                print "  is significantly different from all other methods in the group."
+                print ("  is significantly different from all other methods in the group.")
             means[i].append(m)
             confs[i].append(h)
 
@@ -286,7 +287,7 @@ def draw_3d_bar_chart(samples, top_level_names=None, second_level_names=None,
     tick_multiplier = int(math.ceil(float(top_level_methods)/float(len(top_level_names))))
     ax.set_xticks(tick_multiplier * np.arange(len(top_level_names)) + 0.5)
 
-    xtickrotation = raw_input("Specify rotation for xticklabels [hit enter to use zero]: ")
+    xtickrotation = input("Specify rotation for xticklabels [hit enter to use zero]: ")
     if xtickrotation is not None and xtickrotation != "":
         xtickrotation = float(xtickrotation)
     else:
@@ -342,7 +343,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
 
     # Check if the output column exists in the data frame.
     if output not in data:
-        print "Output column name not in data!"
+        print ("Output column name not in data!")
         return
 
     # Get primary and secondary filters.
@@ -397,7 +398,7 @@ def draw_from_data_frame(filename, output, plot_type, filter=None, secondary_fil
                 continue
 
             combination_name = get_formatted_combination_name(combination_name_dict, name_mappings)
-            entered_name = raw_input("Suggested combincation name (Hit Enter to use default, Enter 'skip' to skip this combination)[" + combination_name + "]: ")
+            entered_name = input("Suggested combincation name (Hit Enter to use default, Enter 'skip' to skip this combination)[" + combination_name + "]: ")
             if entered_name is not None and entered_name != "":
                 if entered_name == 'skip':
                     continue
