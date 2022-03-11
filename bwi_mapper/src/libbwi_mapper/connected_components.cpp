@@ -62,12 +62,12 @@ namespace bwi_mapper {
     std::vector<cv::Vec4i> hierarchy;
 
     cv::findContours(src, contours, hierarchy, 
-        CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+        cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
     number_components_ = 0;
     for(int idx = 0; idx >= 0; idx = hierarchy[idx][0]) {
       cv::Scalar color(number_components_ + 1);
-      cv::drawContours(dst, contours, idx, color, CV_FILLED, 8, hierarchy);
+      cv::drawContours(dst, contours, idx, color, cv::FILLED, 8, hierarchy);
       number_components_++;
     }
 

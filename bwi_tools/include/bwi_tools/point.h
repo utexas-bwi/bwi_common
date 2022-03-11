@@ -1,7 +1,7 @@
 #ifndef BWI_TOOLS_POINT_H
 #define BWI_TOOLS_POINT_H
 
-#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 
 namespace bwi {
 

@@ -42,7 +42,7 @@
 
 #include <boost/foreach.hpp>
 
-#include <opencv/highgui.h>
+#include <opencv2/highgui.hpp>
 #include <opencv2/opencv_modules.hpp>
 #ifdef HAVE_OPENCV_IMGCODECS
 // this is OpenCV 3 and we need extra includes
@@ -329,7 +329,7 @@ namespace bwi_mapper {
     // connected regions
     cv::Mat component_map_color;
     drawMap(component_map_color, inflated_map_);
-    cvtColor(component_map_color, component_image_, CV_RGB2GRAY);
+    cvtColor(component_map_color, component_image_, cv::COLOR_BGR2GRAY);
     drawCriticalLines(component_image_);
 
     component_map_.resize(
@@ -1041,7 +1041,7 @@ namespace bwi_mapper {
               cv::Point(orig_x + p1.x, orig_y + p1.y),
               cv::Point(orig_x + p2.x, orig_y + p2.y), 
               color,
-              2, CV_AA); // draw a 4 connected line
+              2, cv::LINE_AA); // draw a 4 connected line
         }
       }
     }
