@@ -33,8 +33,10 @@ def main():
     # Open the container
     with sm:
         control_flow.inject_userdata_auto("INJECT_LOCATION", "location", target)
-        StateMachine.add('GOTO_Location', task_machine.generate_goal_based_task_sm(
-            goal_formulators.GoToRoomOrLocationName(ltmc), ["location"]))
+        StateMachine.add('GOTO_lOCATION', task_machine.generate_goal_based_task_sm(
+                              goal_formulators.GoToLocationName(), ["location"]),
+                         transitions={"succeeded": "INJECT_LOCATION",
+                                      'aborted': 'INJECT_LOCATION'})
 
     if introspect:
         sis = smach_ros.IntrospectionServer('introspection_server', sm, '/SM_ROOT')

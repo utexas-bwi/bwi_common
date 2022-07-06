@@ -65,8 +65,9 @@ class GetRandomVisitableLocation(State):
         self.visitable = visitable
 
     def execute(self, userdata):
-        door = self.ltmc.get_concept(self.visitable)
-        entities = door.get_instances()
+        concept = self.ltmc.get_concept(self.visitable)
+	print (concept)
+        entities = concept.get_instances()
         if entities:
             name_attrs = random.choice(entities).get_attributes("name")
             if not name_attrs:
