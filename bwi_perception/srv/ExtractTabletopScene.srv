@@ -1,6 +1,0 @@
-sensor_msgs/PointCloud2 cloud
----
-bool is_plane_found
-sensor_msgs/PointCloud2 cloud_plane
-float32[4] cloud_plane_coef
-sensor_msgs/PointCloud2[] cloud_clusters

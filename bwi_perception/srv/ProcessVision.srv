@@ -1,5 +1,0 @@
-int64 start
-string generalImageFilePath
-string generalDepthImagePath
----
-bool success

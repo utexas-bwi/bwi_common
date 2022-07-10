@@ -1,4 +1,0 @@
-sensor_msgs/PointCloud2 cloud
-int8[] params_int
----
-float64[] feature_vector
