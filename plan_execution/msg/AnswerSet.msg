@@ -1,2 +1,0 @@
-AspFluent[] fluents
-bool satisfied
