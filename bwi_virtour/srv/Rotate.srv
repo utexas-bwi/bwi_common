@@ -1,4 +1,0 @@
-float32 rotateDelta
-string user
----
-int32 result
