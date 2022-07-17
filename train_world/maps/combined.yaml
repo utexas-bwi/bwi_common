@@ -1,0 +1,21 @@
+maps:
+  empty:
+    yaml: package://train_world/maps/empty/empty.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://train_world/maps/dummy
+  L-shape-1.6m:
+    yaml: package://train_world/maps/L-shape-1.6m/L-shape-1.6m.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://train_world/maps/dummy
+  L-shape-1.8m:
+    yaml: package://train_world/maps/L-shape-1.8m/L-shape-1.8m.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://train_world/maps/dummy
+  L-shape-combined-1:
+    yaml: package://train_world/maps/L-shape-combined-1/L-shape-combined-1.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://train_world/maps/dummy
+  L-shape-combined-2:
+    yaml: package://train_world/maps/L-shape-combined-2/L-shape-combined-2.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://train_world/maps/dummy
