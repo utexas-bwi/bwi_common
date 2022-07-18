@@ -15,29 +15,15 @@
 
   <exec_depend>bwi_gazebo_entities</exec_depend>
   <exec_depend>bwi_interruptable_action_server</exec_depend>
-  <exec_depend>bwi_joystick_teleop</exec_depend>
-  <exec_depend>bwi_kr_execution</exec_depend>
-  <exec_depend>bwi_logging</exec_depend>
   <exec_depend>bwi_logical_translator</exec_depend>
-  <!-- comment out to avoid compiling agile_grasp
-  <exec_depend>bwi_manipulation</exec_depend>
-  -->
   <exec_depend>bwi_mapper</exec_depend>
-  <exec_depend>bwi_moveit_utils</exec_depend>
   <exec_depend>bwi_msgs</exec_depend>
-  <exec_depend>bwi_perception</exec_depend>
   <exec_depend>bwi_planning_common</exec_depend>
-  <exec_depend>bwi_rqt_plugins</exec_depend>
-  <exec_depend>bwi_scavenger</exec_depend>
-  <exec_depend>bwi_services</exec_depend>
-  <exec_depend>bwi_tasks</exec_depend>
   <exec_depend>bwi_tools</exec_depend>
-  <exec_depend>bwi_virtour</exec_depend>
   <exec_depend>multi_level_map_msgs</exec_depend>
   <exec_depend>multi_level_map_server</exec_depend>
   <exec_depend>multi_level_map_utils</exec_depend>
-  <exec_depend>stop_base</exec_depend>
-  <exec_depend>utexas_gdc</exec_depend>
+  <exec_depend>train_world</exec_depend>
 
   <export>
     <metapackage/>
