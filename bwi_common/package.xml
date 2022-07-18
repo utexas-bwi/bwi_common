@@ -13,7 +13,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>bwi_gazebo_entities</exec_depend>
   <exec_depend>bwi_interruptable_action_server</exec_depend>
   <exec_depend>bwi_logical_translator</exec_depend>
   <exec_depend>bwi_mapper</exec_depend>
