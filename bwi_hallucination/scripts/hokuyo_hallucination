@@ -18,6 +18,11 @@ def quat2yaw(q):
 
 class HAL_Hokuyo(object):
     def __init__(self):
+        # Define variables before the callback function
+        self._th = None
+        self._map_frame_id = None
+        self._sensor_frame_id = None
+
         self._tfBuffer   = tf2_ros.Buffer()
         self._listener   = tf2_ros.TransformListener(self._tfBuffer)
         self._sub_odom   = rospy.Subscriber("odom", Odometry, self.odom_cb)
@@ -26,19 +31,14 @@ class HAL_Hokuyo(object):
         self._pub_scan   = rospy.Publisher ("scan_hallucinated", LaserScan, queue_size=1)
         self._sub_add_vo = rospy.Subscriber("add_circles", PolygonStamped, self.add_cb)
 
-        self._th = None
-        self._map_frame_id = None
-        self._sensor_frame_id = None
-
-        # self.circles = []   # [center_x, center_y, radius, expire_time]
-        self.circles = np.array([]).reshape(0, 4)
+        self.circles = np.array([]).reshape(0, 4)   # [center_x, center_y, radius, expire_time]
         self.pose = Pose(0., 0., 0.) # [x, y, yaw]
         self._to_sec = np.vectorize( lambda t: t.to_sec(), otypes=[float] )
 
     def add_cb(self, msg):
         # INPUT: PolygonStamped
         
-        if not self.circles:                            # if self.circles is empty
+        if not np.any(self.circles):                    # if self.circles is empty
             self.circles = self.circles.reshape(-1,4)   # reshape for np.vstack
         
         death = msg.header.stamp
