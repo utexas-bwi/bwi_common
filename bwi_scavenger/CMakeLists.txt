@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_scavenger)
 
-set(CMAKE_CXX_STANDARD 11)
+## Compile as C++14
+add_compile_options(-std=c++14)
 
-find_package(PCL 1.7 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
 find_package(OpenCV)
 
 find_package(PkgConfig REQUIRED)

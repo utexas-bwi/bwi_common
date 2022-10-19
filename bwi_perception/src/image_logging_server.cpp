@@ -13,7 +13,7 @@
 #elif CV_MAJOR_VERSION == 3
   #include <opencv2/imgcodecs.hpp>      // for cv::imwrite()
 #endif
-#include <opencv/highgui.h>
+#include <opencv2/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>

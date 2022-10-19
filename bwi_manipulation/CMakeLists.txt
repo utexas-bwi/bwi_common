@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_manipulation)
 
-set(CMAKE_CXX_STANDARD 11)
+## Compile as C++14
+add_compile_options(-std=c++14)
 
 # We'll ignore any missing packages at this point and
 # rely on compile errors to highlight any real problems
@@ -27,7 +28,7 @@ if (agile_grasp_FOUND)
     add_definitions(-DAGILE_GRASP_AVAILABLE)
 endif()
 
-find_package(PCL 1.7 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
 
 
 include_directories(${PCL_INCLUDE_DIRS})
