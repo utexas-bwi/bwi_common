@@ -6,6 +6,7 @@ import numpy as np
 
 import rospy
 import tf2_ros
+from std_srvs.srv import Empty, EmptyResponse
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PolygonStamped
@@ -31,10 +32,16 @@ class HAL_Hokuyo(object):
         self._pub_scan   = rospy.Publisher ("scan_hallucinated", LaserScan, queue_size=1)
         self._sub_add_vo = rospy.Subscriber("add_circles", PolygonStamped, self.add_cb)
 
+        self._srv_clear_circles = rospy.Service("clear_virtual_circles", Empty, self.clear_cb)
+        
         self.circles = np.array([]).reshape(0, 4)   # [center_x, center_y, radius, expire_time]
         self.pose = Pose(0., 0., 0.) # [x, y, yaw]
         self._to_sec = np.vectorize( lambda t: t.to_sec(), otypes=[float] )
 
+    def clear_cb(self, req):
+        self.circles = np.array([]).reshape(0, 4)
+        return EmptyResponse()
+        
     def add_cb(self, msg):
         # INPUT: PolygonStamped
         
@@ -86,7 +93,6 @@ class HAL_Hokuyo(object):
         if len(self.circles) == 0:                      # if self.circles is empty
             self._pub_scan.publish(msg)                 # publish given message as hallucinated message
             return
-        print(self.circles)
 
         # perform hallucination
         new_msg = copy.deepcopy(msg)
@@ -121,5 +127,4 @@ if __name__ == "__main__":
 
     rospy.spin()
     while not rospy.is_shutdown():
-        rospy.loginfo("spin")
         rospy.sleep(1.0)
