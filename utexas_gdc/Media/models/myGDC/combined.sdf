@@ -1,0 +1,30 @@
+<?xml version='1.0'?>
+<sdf version='1.5'>
+  <model name='myGDC'>
+    <static>true</static>
+    <link name="curve1">
+        <material>
+          <script>
+            <!-- <uri>model://myGDC/materials/scripts</uri> -->
+            <!-- <uri>model://myGDC/materials/textures</uri> -->
+            <name>myGDC/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="visual">
+            <geometry>
+                <mesh>
+                    <uri>file://combined.dae</uri>
+                </mesh>
+            </geometry>
+        </visual>
+        <collision name="collision">
+            <geometry>
+                <mesh>
+                    <uri>file://combined.dae</uri>
+                </mesh>
+            </geometry>
+        </collision>
+    </link>
+  </model>
+</sdf>

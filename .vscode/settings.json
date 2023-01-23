@@ -1,0 +1,33 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/harsha/catkin_ws/devel_isolated/bwi_virtour/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_services/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/plan_execution/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/stop_base/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/segway_ros/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/segway_rmp/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/segway_msgs/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/segbot_sensors/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/segbot_arm_manipulation/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/frontier_exploration/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/multi_level_map_utils/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/multi_level_map_msgs/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/mask_rcnn_ros/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/kinova_demo/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/kinova_driver/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/kinova_msgs/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/exploration_msgs/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/camera1394/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_rqt_plugins/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_moveit_utils/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_msgs/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_planning_common/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_tools/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_perception/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/bwi_logging/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel_isolated/agile_grasp/lib/python2.7/dist-packages",
+        "/home/harsha/catkin_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ],
+    "cmake.configureOnOpen": true
+}

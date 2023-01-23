@@ -139,7 +139,7 @@
         </technique>
       </profile_COMMON>
     </effect>
-    <effect id="__auto_1-effect">
+    <!-- <effect id="__auto_1-effect">
       <profile_COMMON>
         <newparam sid="__auto_1_jpg-surface">
           <surface type="2D">
@@ -182,7 +182,7 @@
           </lambert>
         </technique>
       </profile_COMMON>
-    </effect>
+    </effect> -->
     <effect id="material-effect">
       <profile_COMMON>
         <technique sid="common">
@@ -200,7 +200,7 @@
         </technique>
       </profile_COMMON>
     </effect>
-    <effect id="__auto_2-effect">
+    <!-- <effect id="__auto_2-effect">
       <profile_COMMON>
         <newparam sid="__auto_2_jpg-surface">
           <surface type="2D">
@@ -415,32 +415,32 @@
           </lambert>
         </technique>
       </profile_COMMON>
-    </effect>
+    </effect> -->
   </library_effects>
   <library_images>
     <image id="__auto_1_jpg" name="__auto_1_jpg">
-      <init_from>__auto_1.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto_2_jpg" name="__auto_2_jpg">
-      <init_from>__auto_2.jpg</init_from>
+      <init_from>intWall.jpg</init_from>
     </image>
     <image id="__auto_4_jpg" name="__auto_4_jpg">
-      <init_from>__auto_4.jpg</init_from>
+      <init_from>__auto_.jpg</init_from>
     </image>
     <image id="__auto_5_jpg" name="__auto_5_jpg">
-      <init_from>__auto_5.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto_6_jpg" name="__auto_6_jpg">
-      <init_from>__auto_6.jpg</init_from>
+      <init_from>__auto_.jpg</init_from>
     </image>
     <image id="__auto_7_jpg" name="__auto_7_jpg">
-      <init_from>__auto_7.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto_8_jpg" name="__auto_8_jpg">
-      <init_from>__auto_8.jpg</init_from>
+      <init_from>__auto_.jpg</init_from>
     </image>
     <image id="__auto_9_jpg" name="__auto_9_jpg">
-      <init_from>__auto_9.jpg</init_from>
+      <init_from>floorText2.jpg</init_from>
     </image>
     <image id="__auto__jpg" name="__auto__jpg">
       <init_from>__auto_.jpg</init_from>

@@ -1,0 +1,16 @@
+material RepeatedTexture
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        // Relative to the location of the material script
+        texture carpet.jpg
+        // Repeat the texture over the surface (4 per face)
+        scale 0.02 0.02
+      }
+    }
+  }
+}
