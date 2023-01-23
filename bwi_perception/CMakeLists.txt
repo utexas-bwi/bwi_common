@@ -73,7 +73,7 @@ target_link_libraries(horizontal_surface_detector libbwi_perception ${catkin_LIB
 
 add_executable(image_logging_server src/image_logging_server.cpp)
 add_dependencies(image_logging_server ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(image_logging_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(image_logging_server ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_executable(obstacle_cloud_manager src/obstacle_cloud_manager.cpp)
 add_dependencies(obstacle_cloud_manager ${bwi_perception_EXPORTED_TARGETS})
