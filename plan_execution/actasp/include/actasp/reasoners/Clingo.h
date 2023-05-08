@@ -31,6 +31,10 @@ struct Clingo {
 		if (ros_distro == "melodic") {
 			return new Clingo5_2(incrementalVar, dirToAllAspFilesInDir(linkDir), copyFiles, actions, max_time);
 		}
+
+		if (ros_distro == "noetic") {
+			return new Clingo5_2(incrementalVar, dirToAllAspFilesInDir(linkDir), copyFiles, actions, max_time);
+		}
 		assert(false);
 	}
 

@@ -93,7 +93,7 @@ class ObjectFunction(object):
                     object_orientation = -float(object["point"][2])
                     self.objects[object_key] = Object(object_location, object_orientation)
                     self.draw_object[object_key] = True
-            except yaml.YAMLError, KeyError:
+            except (yaml.YAMLError, KeyError):
                 rospy.logerr("File found at " + self.object_file + ", but cannot be parsed by YAML parser. I'm starting objects from scratch.")
 
             stream.close()

@@ -139,7 +139,7 @@ class DoorFunction(object):
                                                 approach_pt_1,
                                                 approach_pt_2)
                     self.draw_door[door_key] = True
-            except yaml.YAMLError, KeyError:
+            except (yaml.YAMLError, KeyError):
                 rospy.logerr("File found at " + self.door_file + ", but cannot be parsed by YAML parser. I'm starting doors from scratch.")
 
             stream.close()

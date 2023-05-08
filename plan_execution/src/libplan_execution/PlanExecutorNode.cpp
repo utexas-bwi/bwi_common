@@ -44,10 +44,13 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   fs.open(working_memory_path, ios::out);
   fs.close();
 
+  std::cout << "Got current.asp" << std::endl;
+
   FilteringQueryGenerator *generator = Clingo::getQueryGenerator("n", domain_directory, {working_memory_path},
                                                                  actionMapToSet(action_map),
                                                                  PLANNER_TIMEOUT);
   planningReasoner = unique_ptr<actasp::AspKR>(new Reasoner(generator, MAX_N, actionMapToSet(action_map)));
+  std::cout << "Got Reasoner" << std::endl;
   auto diagnosticsPath = boost::filesystem::path(domain_directory) / "diagnostics";
   if (boost::filesystem::is_directory(diagnosticsPath)) {
     auto diagnosticReasoner = std::unique_ptr<actasp::QueryGenerator>(actasp::Clingo::getQueryGenerator("n", diagnosticsPath.string(), {working_memory_path}, {}, PLANNER_TIMEOUT));
@@ -55,6 +58,9 @@ PlanExecutorNode::PlanExecutorNode(const string &domain_directory, map<string, A
   } else {
     ros_observer = std::unique_ptr<RosActionServerInterfaceObserver>(new RosActionServerInterfaceObserver(server));
   }
+
+  std::cout << "Got observer" << std::endl;
+
   {
     //need a pointer to the specific type for the observer
     auto replanner = new ReplanningPlanExecutor(*planningReasoner, *planningReasoner, action_map, resourceManager);

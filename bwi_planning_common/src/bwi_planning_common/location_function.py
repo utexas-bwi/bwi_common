@@ -16,16 +16,6 @@ except ImportError:                     # else use Qt5 modules
 from .utils import clearLayoutAndFixHeight, getLocationsImageFileLocationFromDataDirectory, \
                    scalePoint, scalePolygon, getConnectivityFileLocationFromDataDirectory
 
-
-def makeConnectivityMap(polygons):
-    connectivity = {}
-    for polygon in polygons:
-        potential_neighbors = copy.copy(polygons)
-        potential_neighbors.remove(polygon)
-        connectivity[polygon] = checkConnectivity(polygon, potential_neighbors)
-    return connectivity
-
-
 def checkConnectivity(polygon, other_polygons):
     neighbors = []
     inflated_polygon = inflatePolygon(polygon)
@@ -44,13 +34,13 @@ def inflatePolygon(polygon):
 
 
 def makeNeighborsString(polygon, all_locations):
-    poly_to_name = {poly: name for name, poly in all_locations.items()}
-    neighbors = checkConnectivity(polygon, all_locations.values())
+    neighbors = []
+    inflated_polygon = inflatePolygon(polygon)
+    for potential_neighbor_name, potential_neighbor in all_locations.items():
+        if polygon != potential_neighbor and not potential_neighbor.intersected(inflated_polygon).isEmpty():
+            neighbors.append(potential_neighbor_name)
     # Don't allow the polygon to border on itself
-    if polygon in neighbors:
-        neighbors.remove(polygon)
-    as_names = [poly_to_name[p] for p in neighbors]
-    return  "[" + ", ".join(as_names) + "]"
+    return  "[" + ", ".join(neighbors) + "]"
 
 class LocationFunction(object):
 
@@ -132,16 +122,20 @@ class LocationFunction(object):
         self.writeConnectivityToFile()
 
     def writeConnectivityToFile(self):
-        connectivity = makeConnectivityMap(self.locations.values())
-        out_dict = {}
-        poly_to_name = {poly: name for name, poly in self.locations.items()}
-
-        for location_poly, neighbor_poly in connectivity.items():
-            sorted_list = sorted([poly_to_name[p] for p in neighbor_poly])
-            out_dict[poly_to_name[location_poly]] = sorted_list
+        connectivity = {}
+        #poly_to_name = {poly: name for name, poly in self.locations.items()}
+        for name, polygon in self.locations.items():
+            potential_neighbors = copy.copy(list(self.locations.values()))
+            potential_neighbors.remove(polygon)
+            neighbors = []
+            inflated_polygon = inflatePolygon(polygon)
+            for potential_neighbor_name, potential_neighbor in self.locations.items():
+                if name != potential_neighbor_name and not potential_neighbor.intersected(inflated_polygon).isEmpty():
+                    neighbors.append(potential_neighbor_name)
+            connectivity[name] = sorted(neighbors)
 
         stream = open(self.connectivity_file, 'w')
-        yaml.dump(out_dict, stream)
+        yaml.dump(connectivity, stream)
         stream.close()
 
 

@@ -81,7 +81,7 @@ def populate(ltmc, files_path):
 def read_yaml_from_file(file_path):
     with open(file_path, 'r') as stream:
         try:
-            contents = yaml.load(stream)
+            contents = yaml.load(stream, Loader=yaml.Loader)
             return contents
         except yaml.YAMLError:
             print("File found at " + file_path + ", but cannot be parsed by YAML parser.")
