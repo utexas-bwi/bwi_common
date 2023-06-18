@@ -87,8 +87,12 @@ class HAL_Hokuyo(object):
             self._sensor_frame_id = msg.header.frame_id
 
         # remove all expired objects
-        alive = (self._to_sec(self.circles[:, -1] - rospy.Time.now()) > 0.)
-        self.circles = self.circles[alive]
+        try:
+            alive = (self._to_sec(self.circles[:, -1] - rospy.Time.now()) > 0.)
+            self.circles = self.circles[alive]
+        except IndexError as e:
+            alive = (self._to_sec(self.circles[:, -1] - rospy.Time.now()) > 0.)
+            self.circles = self.circles[alive]
 
         if len(self.circles) == 0:                      # if self.circles is empty
             self._pub_scan.publish(msg)                 # publish given message as hallucinated message
