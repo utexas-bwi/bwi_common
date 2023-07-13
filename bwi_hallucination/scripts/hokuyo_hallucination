@@ -14,8 +14,7 @@ from geometry_msgs.msg import PolygonStamped
 Pose = namedtuple("Pose", "x y yaw")
 
 def quat2yaw(q):
-    # this function only works with unit quaternion with only yaw changes.
-    return np.arctan2(2.0 * q.w * q.z, 1.0 - 2.0 * q.z * q.z)
+    return np.arctan2(2. * (q.w*q.z + q.x*q.y), 1. - 2. * (q.y*q.y + q.z*q.z))
 
 class HAL_Hokuyo(object):
     def __init__(self):
