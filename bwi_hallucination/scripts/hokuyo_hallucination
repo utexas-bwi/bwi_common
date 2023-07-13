@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+import os
+import copy
+from collections import namedtuple
+import numpy as np
+
+import rospy
+import tf2_ros
+from std_srvs.srv import Empty, EmptyResponse
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PolygonStamped
+
+Pose = namedtuple("Pose", "x y yaw")
+
+def quat2yaw(q):
+    # this function only works with unit quaternion with only yaw changes.
+    return np.arctan2(2.0 * q.w * q.z, 1.0 - 2.0 * q.z * q.z)
+
+class HAL_Hokuyo(object):
+    def __init__(self):
+        # Define variables before the callback function
+        self._th = None
+        self._map_frame_id = None
+        self._sensor_frame_id = None
+
+        self._tfBuffer   = tf2_ros.Buffer()
+        self._listener   = tf2_ros.TransformListener(self._tfBuffer)
+        self._sub_odom   = rospy.Subscriber("odom", Odometry, self.odom_cb)
+
+        self._sub_scan   = rospy.Subscriber("scan_filtered", LaserScan, self.scan_cb)
+        self._pub_scan   = rospy.Publisher ("scan_hallucinated", LaserScan, queue_size=1)
+        self._sub_add_vo = rospy.Subscriber("add_circles", PolygonStamped, self.add_cb)
+
+        self._srv_clear_circles = rospy.Service("clear_virtual_circles", Empty, self.clear_cb)
+        
+        self.circles = np.array([]).reshape(0, 4)   # [center_x, center_y, radius, expire_time]
+        self.pose = Pose(0., 0., 0.) # [x, y, yaw]
+        self._to_sec = np.vectorize( lambda t: t.to_sec(), otypes=[float] )
+
+    def clear_cb(self, req):
+        self.circles = np.array([]).reshape(0, 4)
+        return EmptyResponse()
+        
+    def add_cb(self, msg):
+        # INPUT: PolygonStamped
+        
+        if not np.any(self.circles):                    # if self.circles is empty
+            self.circles = self.circles.reshape(-1,4)   # reshape for np.vstack
+        
+        death = msg.header.stamp
+
+        for c in msg.polygon.points:
+            # x: x coordinate of the center
+            # y: y coordinate of the center
+            # z: radius of the circle
+            self.circles = np.vstack((self.circles, [c.x, c.y, c.z, death]))
+
+    def odom_cb(self, msg):
+        if self._sensor_frame_id is None:
+            return
+
+        while True:
+            try:
+                trans = self._tfBuffer.lookup_transform(
+                    self._map_frame_id,
+                    self._sensor_frame_id,
+                    rospy.Time()
+                )
+            except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                pass
+            else:
+                break
+
+        x   = trans.transform.translation.x
+        y   = trans.transform.translation.y
+        # yaw = quat2yaw( msg.pose.pose.orientation )
+        yaw = quat2yaw( trans.transform.rotation )
+        self.pose = Pose(x, y, yaw)
+
+    def scan_cb(self, msg):
+        if self._th is None:
+            n_pts = len(msg.ranges)
+            self._th = np.linspace(msg.angle_min, msg.angle_max, n_pts)[::-1] # BWIbot uses flipped hokuyo sensor
+
+            ns = os.path.dirname(msg.header.frame_id)
+            self._map_frame_id = os.path.join(ns, "level_mux_map")
+            self._sensor_frame_id = msg.header.frame_id
+
+        # remove all expired objects
+        try:
+            alive = (self._to_sec(self.circles[:, -1] - rospy.Time.now()) > 0.)
+            self.circles = self.circles[alive]
+        except IndexError as e:
+            alive = (self._to_sec(self.circles[:, -1] - rospy.Time.now()) > 0.)
+            self.circles = self.circles[alive]
+
+        if len(self.circles) == 0:                      # if self.circles is empty
+            self._pub_scan.publish(msg)                 # publish given message as hallucinated message
+            return
+
+        # perform hallucination
+        new_msg = copy.deepcopy(msg)
+        cx  = self.circles[:,0].astype(np.float) - self.pose.x
+        cy  = self.circles[:,1].astype(np.float) - self.pose.y
+
+        k = cx**2 + cy**2
+
+        r0  = np.sqrt( cx**2 + cy**2 )
+        c   = (r0**2 - self.circles[:, 2].astype(np.float)**2)
+        th0 = np.arctan2(cy, cx)
+
+        th  = self._th[:, None] - th0 + self.pose.yaw # May need to revert?
+        r   = np.full_like(th, fill_value=np.inf)
+
+        b   = r0 * np.cos(th)
+        ind = b*b - c 
+
+        valid = np.logical_and(ind >= 0., b >= 0.)
+        r[valid] = b[valid] - np.sqrt(ind[valid])
+
+        r = np.maximum(r.min(axis=1), 0.2)
+
+        new_msg.ranges = np.minimum(r, new_msg.ranges)
+
+        self._pub_scan.publish( new_msg )
+
+if __name__ == "__main__":
+    rospy.init_node('hokuyo_hallucination_py', anonymous=True)
+    rospy.sleep(1.0)
+    agent = HAL_Hokuyo()
+
+    rospy.spin()
+    while not rospy.is_shutdown():
+        rospy.sleep(1.0)
