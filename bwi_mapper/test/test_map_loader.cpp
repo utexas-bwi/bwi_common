@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   cv::Mat image;
   ml.drawMap(image, 10, 10);
 
-  cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("Display window", CV_WINDOW_AUTOSIZE);
   cv::imshow("Display window", image);                
 
   cv::waitKey(0); // Wait for a keystroke in the window
