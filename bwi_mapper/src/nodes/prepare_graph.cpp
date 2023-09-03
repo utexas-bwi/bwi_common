@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
   mapper.drawMap(image);
   drawElementsFile(argv[3], image, graph, info);
 
-  cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("Display window", CV_WINDOW_AUTOSIZE);
   cv::imshow("Display window", image);                
   cv::imwrite("out.png", image);                
 
