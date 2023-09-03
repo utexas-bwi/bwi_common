@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
   mapper.drawMap(image);
   bwi_mapper::drawGraph(image, graph);
 
-  cv::namedWindow("Display window", cv::WINDOW_NORMAL);
+  cv::namedWindow("Display window", CV_WINDOW_NORMAL);
   cv::imshow("Display window", image);
 
   cv::waitKey(0); // Wait for a keystroke in the window
