@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
   voronoi4.drawVoronoiPoints(image);
   cv::imwrite("voronoi_naive_4.png", image);
 
-  cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("Display window", CV_WINDOW_AUTOSIZE);
   cv::imshow("Display window", display_image);                
 
   cv::waitKey(0); // Wait for a keystroke in the window
