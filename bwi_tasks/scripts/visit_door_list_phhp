@@ -91,19 +91,21 @@ class BWIbot:
         self.opponent_location[1] = amcl.pose.pose.position.y
     
     def wifi_cb(self, wifi_msg):
-        if not wifi_msg in [str(True), str(False)]:
+        if not wifi_msg.data in [str(True), str(False)]:
             raise ValueError("{} is not a valid /iswifion msg. Please check $comms_log_pkg.".format(wifi_msg))
+        wifi_connection = wifi_msg.data
 
         # Convert mode when wifi status is changed
-        if self.mode=="baseline" and wifi_msg == str(True):
+        if self.mode=="baseline" and wifi_connection == str(True):
             # Use PHHP mode and remove all virtual obstacles placed during the baseline mode
-            self.clear_hallucination_srv()
+            self.clear_hallucination()
             rospy.sleep(0.5)    # Make sure vos are completely removed.
             self.mode = "phhp"
             self.vo_installed = False
-        elif self.mode=="phhp" and wifi_msg == str(False):
+        elif self.mode=="phhp" and wifi_connection == str(False):
             # Use baseline mode
             self.mode = "baseline"
+            self.clear_costmaps()
 
     def clear_costmaps(self):
         rospy.wait_for_service("/move_base/clear_costmaps")
