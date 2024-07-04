@@ -17,7 +17,7 @@
   <build_depend>roslint</build_depend>
   <depend>bwi_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>python-catkin-pkg</depend>
+  <depend>python3-catkin-pkg</depend>
   <exec_depend>rospy</exec_depend>
 
   <test_depend>rostest</test_depend>
