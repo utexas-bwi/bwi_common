@@ -44,7 +44,7 @@
 #include <nav_msgs/GetMap.h>
 #include <nav_msgs/GetMapResponse.h>
 #include <yaml-cpp/yaml.h>
-#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 
 namespace bwi_mapper {
 

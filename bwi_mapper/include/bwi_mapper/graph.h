@@ -42,7 +42,7 @@
 #include <boost/graph/labeled_graph.hpp>
 #include <bwi_mapper/structures/point.h>
 
-#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 #include <nav_msgs/MapMetaData.h>
 #include <nav_msgs/OccupancyGrid.h>
 

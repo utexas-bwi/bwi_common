@@ -239,7 +239,7 @@ namespace bwi_mapper {
     for (size_t i = 0; i < voronoi_points_.size(); ++i) {
       VoronoiPoint &vp = voronoi_points_[i];
       cv::Point p(vp.x + orig_x, orig_y + vp.y);
-      cv::circle(image, p, 1, cv::Scalar(255,0,0), -1, CV_AA);
+      cv::circle(image, p, 1, cv::Scalar(255,0,0), -1, cv::LINE_AA);
       // image.at<cv::Vec3b>
       //   (orig_y + vp.y, vp.x + orig_x) = 
       //   cv::Vec3b(255,0,0);

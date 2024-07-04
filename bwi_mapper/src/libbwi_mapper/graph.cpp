@@ -105,7 +105,7 @@ namespace bwi_mapper {
             cv::Point end_shift = end_pt + shift_ratio * (start_pt - end_pt);
             cv::line(image, start_shift, end_shift,
                 cv::Scalar(160, 160, 255),
-                4, CV_AA); // draw an anti aliased line
+                4, cv::LINE_AA); // draw an anti aliased line
           }
         }
       }
@@ -123,10 +123,10 @@ namespace bwi_mapper {
           text_loc = text_loc + cv::Point(-7,0);
         }
         cv::putText(image, boost::lexical_cast<std::string>(count), text_loc,
-            cv::FONT_HERSHEY_SIMPLEX, 0.7, cvScalar(0,0,255), 2, CV_AA);
+            cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255), 2, cv::LINE_AA);
       } else {
         size_t vertex_size = 13; // + graph[*vi].pixels / 10;
-        cv::circle(image, vertex_loc, vertex_size, cv::Scalar(0,0,255), -1, CV_AA);
+        cv::circle(image, vertex_loc, vertex_size, cv::Scalar(0,0,255), -1, cv::LINE_AA);
       }
       count++;
     }
@@ -142,7 +142,7 @@ namespace bwi_mapper {
       cv::Point2f(size * cosf(orientation + M_PI/2),
                   size * sinf(orientation + M_PI/2));
 
-    cv::line(image, arrow_start, arrow_end, color, thickness, CV_AA);
+    cv::line(image, arrow_start, arrow_end, color, thickness, cv::LINE_AA);
 
     // http://mlikihazar.blogspot.com/2013/02/draw-arrow-opencv.html
     cv::Point p(arrow_start), q(arrow_end);
@@ -151,12 +151,12 @@ namespace bwi_mapper {
     float angle = atan2f(p.y - q.y, p.x - q.x);
     p.x = (int) (q.x + (size/2 - 1) * cos(angle + M_PI/4));
     p.y = (int) (q.y + (size/2 - 1) * sin(angle + M_PI/4));
-    cv::line(image, p, q, color, thickness, CV_AA);
+    cv::line(image, p, q, color, thickness, cv::LINE_AA);
 
     //Draw the second segment
     p.x = (int) (q.x + (size/2 + 1) * cos(angle - M_PI/4));
     p.y = (int) (q.y + (size/2 + 1) * sin(angle - M_PI/4));
-    cv::line(image, p, q, color, thickness, CV_AA);
+    cv::line(image, p, q, color, thickness, cv::LINE_AA);
 
   }
 
@@ -186,7 +186,7 @@ namespace bwi_mapper {
       uint32_t orig_x, uint32_t orig_y) {
     Point2f loc = getLocationFromGraphId(node, graph);
     cv::Point circle_loc(loc.x + orig_x, loc.y + orig_y);
-    cv::circle(image, circle_loc, 15, color, 2, CV_AA);
+    cv::circle(image, circle_loc, 15, color, 2, cv::LINE_AA);
   }
 
   void drawSquareOnGraph(cv::Mat &image, const Graph& graph,
@@ -195,7 +195,7 @@ namespace bwi_mapper {
     Point2f loc = getLocationFromGraphId(node, graph);
     cv::Point square_loc(loc.x + orig_x, loc.y + orig_y);
     cv::Rect rect(square_loc.x - size/2, square_loc.y - size/2, size, size);
-    cv::rectangle(image, rect, color, thickness, CV_AA);
+    cv::rectangle(image, rect, color, thickness, cv::LINE_AA);
   }
 
   void writeGraphToFile(const std::string &filename,
