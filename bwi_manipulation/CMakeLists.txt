@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_manipulation)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 # We'll ignore any missing packages at this point and
 # rely on compile errors to highlight any real problems

@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(bwi_perception)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+
+set(OPENNI_INCLUDE_DIR "/usr/include/ni")
+set(OPENNI_LIBS "/usr/lib/libOpenNI.so")
 
 find_package( OpenCV REQUIRED)
 
@@ -54,6 +57,7 @@ include_directories(
 	include
 	${catkin_INCLUDE_DIRS}
 	${OpenCV_INCLUDE_DIRS}
+	${OPENNI_INCLUDE_DIR}
 )
 
 
@@ -69,7 +73,7 @@ add_dependencies(libbwi_perception ${bwi_perception_EXPORTED_TARGETS})
 
 add_executable(horizontal_surface_detector src/horizontal_surface_detector.cpp)
 add_dependencies(horizontal_surface_detector ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(horizontal_surface_detector libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(horizontal_surface_detector libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 
 add_executable(image_logging_server src/image_logging_server.cpp)
 add_dependencies(image_logging_server ${bwi_perception_EXPORTED_TARGETS})
@@ -77,22 +81,22 @@ target_link_libraries(image_logging_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(obstacle_cloud_manager src/obstacle_cloud_manager.cpp)
 add_dependencies(obstacle_cloud_manager ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(obstacle_cloud_manager ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(obstacle_cloud_manager ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 
 add_executable(pointcloud_feature_server src/pointcloud_feature_server.cpp)
 add_dependencies(pointcloud_feature_server ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(pointcloud_feature_server ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(pointcloud_feature_server ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 
 add_executable(tabletop_scene_perception_node src/tabletop_scene_perception_node.cpp)
 add_dependencies(tabletop_scene_perception_node ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(tabletop_scene_perception_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(tabletop_scene_perception_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 
 add_executable(table_change_detection_node src/table_change_detection_node.cpp)
 add_dependencies(table_change_detection_node ${bwi_perception_EXPORTED_TARGETS})
-target_link_libraries(table_change_detection_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(table_change_detection_node libbwi_perception ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 
 add_executable(button_detection_srv_node src/button_detection_srv_node.cpp)
-target_link_libraries(button_detection_srv_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(button_detection_srv_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OPENNI_LIBS})
 add_dependencies(button_detection_srv_node ${bwi_perception_EXPORTED_TARGETS})
 
 
