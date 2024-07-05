@@ -19,7 +19,7 @@
   <run_depend>multi_level_map_utils</run_depend>
   <run_depend>nav_msgs</run_depend>
   <run_depend>python-imaging</run_depend>
-  <run_depend>python-rospkg</run_depend>
+  <run_depend>python3-rospkg</run_depend>
   <run_depend>python-yaml</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>tf</run_depend>
