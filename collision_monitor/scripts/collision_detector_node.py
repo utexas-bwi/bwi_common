@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+#---------------------------------------------------------------------------------
+# Make sure to change the email address and password in this code before executing
+#---------------------------------------------------------------------------------
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 import math
@@ -72,9 +75,9 @@ class CollisionDetector:
                 self.pub_collision_status.publish(str(False))
 
     def send_email(self):
-        sender_email = 'nikunjparmar828@gmail.com'
-        sender_password = 'xhdu ypdp dbxv leey'
-        receiver_email = 'nikunjparmar828@gmail.com'
+        sender_email = 'xyz@gmail.com'
+        sender_password = ["PASSWORD GOES HERE"]
+        receiver_email = 'xyz@gmail.com'
         # Create the email
         msg = MIMEMultipart()
         msg['From'] = sender_email
