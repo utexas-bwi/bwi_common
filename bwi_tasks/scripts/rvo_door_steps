@@ -1,0 +1,339 @@
+#!/usr/bin/env python
+import rospy
+import numpy as np
+import math
+from geometry_msgs.msg import Twist
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from actionlib import SimpleActionClient
+from nav_msgs.srv import GetPlan, GetPlanRequest
+from nav_msgs.msg import Odometry
+from std_msgs.msg import String
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from actionlib_msgs.msg import GoalStatusArray
+import random
+from sensor_msgs.msg import LaserScan
+from collections import deque
+
+class BWIbot:
+    def __init__(self):
+        self.opponent_location = np.zeros(2)  # (x, y)
+        self.robot_pose = None
+        self.other_robot_pose = None
+        self.robot_vel = Twist()
+        self.other_robot_prev_pose = None
+        self.other_robot_vel = Twist()
+        self.other_robot_last_time = rospy.Time.now()
+
+        self.move_base = SimpleActionClient("/move_base", MoveBaseAction)
+        connected = self.move_base.wait_for_server(timeout=rospy.Duration(60.0))
+        if not connected:
+            raise TimeoutError("MoveBase does not respond! Please retry after reboot segway base.")
+        self.goal = MoveBaseGoal()
+        self.goal.target_pose.header.frame_id = "level_mux_map"
+
+        self.make_plan_srv = rospy.ServiceProxy("/move_base/NavfnROS/make_plan", GetPlan)
+
+        self.__sub_opponent_amcl = rospy.Subscriber("/comms/amcl_pose", PoseWithCovarianceStamped, self.amcl_cb)
+        self.__sub_wifi_condition = rospy.Subscriber("/iswifion", String, self.wifi_cb)
+        self.__sub_robot_amcl = rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.robot_amcl_cb)
+        self.__sub_move_base_status = rospy.Subscriber('/move_base/status', GoalStatusArray, self.move_base_status_cb)
+
+        self.__sub_robot_cmd_vel = rospy.Subscriber('/cmd_vel', Twist, self.robot_vel_callback)
+        self.vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+
+        self.is_wifi_on = False
+        self.robot_moving = False
+        self.was_stopped = False
+        self.rvo_active = False
+        self.detection_range = 8.0
+
+        # Safety check
+        self.SAFE_DISTANCE = 0.5 
+        self.SCAN_HISTORY_SIZE = 5
+        self.scan_history = deque(maxlen=self.SCAN_HISTORY_SIZE)
+
+        self.__sub_laser_scan = rospy.Subscriber('/scan', LaserScan, self.laser_scan_callback)
+
+        self.index_was_called = False
+        self.on_path = False
+
+    def laser_scan_callback(self, scan_msg):
+        self.scan_history.append(scan_msg)
+
+    def robot_vel_callback(self, msg):
+        self.robot_vel = msg
+
+    def amcl_cb(self, msg):
+        self.other_robot_prev_pose = self.other_robot_pose
+        self.other_robot_pose = msg.pose.pose
+
+        self.opponent_location[0] = msg.pose.pose.position.x
+        self.opponent_location[1] = msg.pose.pose.position.y
+
+        if self.other_robot_prev_pose:
+            current_time = rospy.Time.now()
+            dt = (current_time - self.other_robot_last_time).to_sec()
+
+            self.other_robot_last_time = current_time
+
+            dx = self.other_robot_pose.position.x - self.other_robot_prev_pose.position.x
+            dy = self.other_robot_pose.position.y - self.other_robot_prev_pose.position.y
+
+            self.other_robot_vel.linear.x = dx / dt
+            self.other_robot_vel.linear.y = dy / dt
+
+    def robot_amcl_cb(self, msg):
+        self.robot_pose = msg.pose.pose
+
+    def wifi_cb(self, wifi_msg):
+        if wifi_msg.data in [str(True), str(False)]:
+            self.is_wifi_on = wifi_msg.data == str(True)
+
+            if not self.is_wifi_on and self.robot_moving:
+                rospy.loginfo("WiFi dropped, canceling the goal")
+                self.move_base.cancel_goal()
+                self.was_stopped = True
+                rospy.sleep(3.0)
+
+            if self.is_wifi_on and not self.robot_moving and self.was_stopped:
+                self.was_stopped = False
+
+    def move_base_status_cb(self, msg):
+        self.robot_moving = any(goal_status.status == 1 for goal_status in msg.status_list)
+
+    def send_goal_and_wait(self, x, y, yaw):
+        self.goal.target_pose.header.stamp = rospy.Time.now()
+        self.goal.target_pose.pose.position.x = x
+        self.goal.target_pose.pose.position.y = y
+        self.goal.target_pose.pose.orientation.z = math.sin(yaw / 2.0)
+        self.goal.target_pose.pose.orientation.w = math.cos(yaw / 2.0)
+
+        self.move_base.send_goal(self.goal, feedback_cb=self.feedback_cb)
+        self.move_base.wait_for_result()
+
+        if self.index_was_called:
+            print("Resending the goal because INdex was called \n")
+            self.index_was_called = False
+            self.move_base.send_goal(self.goal, feedback_cb=self.feedback_cb)
+            self.move_base.wait_for_result()
+
+    # def feedback_cb(self, feedback):
+    #     curr_pose = self.robot_pose
+    #     plan = self.get_plan_to_goal(curr_pose)
+
+    #     try:
+    #         idx = np.argwhere(np.linalg.norm(plan - self.opponent_location, axis=1) < 0.5)[0][0]
+    #         dist = np.linalg.norm(plan[1:idx+1] - plan[0:idx], axis=1).sum()
+    #         if dist < self.detection_range:
+    #             if not self.rvo_active:
+    #                 rospy.loginfo("Other robot detected within range. Enabling RVO collision avoidance.")
+    #                 self.rvo_active = True
+    #                 self.move_base.cancel_goal()
+    #                 rospy.sleep(1)
+
+    #             while dist < self.detection_range:
+    #                 other_robot_position = np.array([self.other_robot_pose.position.x, self.other_robot_pose.position.y]) if self.other_robot_pose else None
+    #                 other_robot_velocity = np.array([self.other_robot_vel.linear.x, self.other_robot_vel.linear.y]) if self.other_robot_pose else None
+    #                 radius = 0.5  # Adjust as needed
+    #                 max_speed = 0.75  # Adjust as needed
+    #                 new_velocity = self.rvo_collision_avoidance(other_robot_position, other_robot_velocity, radius, max_speed)
+
+    #                 if new_velocity is not None:
+    #                     twist = Twist()
+    #                     twist.linear.x = new_velocity[0]
+    #                     twist.linear.y = new_velocity[1]
+    #                     twist.angular.z = new_velocity[2]
+    #                     self.vel_pub.publish(twist)
+    #                 else:
+    #                     rospy.loginfo("No safe velocity found, stopping the robot for 5 seconds.")
+    #                     twist = Twist()
+    #                     self.vel_pub.publish(twist)
+    #                     rospy.sleep(5.0)
+
+    #                 rospy.sleep(1)  # Small sleep to simulate control loop timing
+
+    #                 plan = self.get_plan_to_goal(self.robot_pose)
+    #                 idx = np.argwhere(np.linalg.norm(plan - self.opponent_location, axis=1) < 0.5)[0][0]
+    #                 dist = np.linalg.norm(plan[1:idx+1] - plan[0:idx], axis=1).sum()
+
+    #             rospy.loginfo("--> No conflict detected. Disabling RVO and resuming move_base goal to {}.".format(self.goal.target_pose.pose.position.y))
+    #             self.rvo_active = False
+    #             print("Still on the same goal \n")
+    #             self.move_base.send_goal(self.goal, feedback_cb=self.feedback_cb)
+    #     except IndexError:
+    #         self.rvo_active = False
+    #         self.index_was_called = True
+
+    def feedback_cb(self, feedback):
+        # curr_pose = self.robot_pose
+        plan = self.get_plan_to_goal(self.robot_pose)
+
+        try:
+            idx = np.argwhere(np.linalg.norm(plan - self.opponent_location, axis=1) < 0.5)[0][0]
+            dist = np.linalg.norm(plan[1:idx+1] - plan[0:idx], axis=1).sum()
+            if dist < self.detection_range:
+                if not self.rvo_active:
+                    rospy.loginfo("Other robot detected within range. Enabling RVO collision avoidance.")
+                    self.rvo_active = True
+                    self.move_base.cancel_goal()
+                    rospy.sleep(1)
+
+                while dist < self.detection_range:
+                    self.on_path = True
+                    other_robot_position = np.array([self.other_robot_pose.position.x, self.other_robot_pose.position.y]) if self.other_robot_pose else None
+                    other_robot_velocity = np.array([self.other_robot_vel.linear.x, self.other_robot_vel.linear.y]) if self.other_robot_pose else None
+                    radius = 0.5  # Adjust as needed
+                    max_speed = 0.75  # Adjust as needed
+                    new_velocity = self.rvo_collision_avoidance(other_robot_position, other_robot_velocity, radius, max_speed)
+
+                    if new_velocity is not None:
+                        # Set heading to the direction of the new_velocity
+                        twist = Twist()
+                        twist.angular.z = math.atan2(new_velocity[1], new_velocity[0]) - self.robot_pose.orientation.z
+                        if twist.angular.z > math.pi:
+                            twist.angular.z -= 2 * math.pi
+                        elif twist.angular.z < -math.pi:
+                            twist.angular.z += 2 * math.pi
+                        # Move in the direction of new_velocity
+                        twist.linear.x = new_velocity[0]
+                        twist.linear.y = new_velocity[1]
+                        self.vel_pub.publish(twist)
+                        print("Adjsuting Velocities \n")
+                    else:
+                        # rospy.loginfo("No safe velocity found, stopping the robot for 5 seconds.")
+                        twist = Twist()
+                        self.vel_pub.publish(twist)
+                        rospy.sleep(5.0)
+
+                    rospy.sleep(1)  # Small sleep to simulate control loop timing
+
+                    plan = self.get_plan_to_goal(self.robot_pose)
+                    idx = np.argwhere(np.linalg.norm(plan - self.opponent_location, axis=1) < 0.5)[0][0]
+                    dist = np.linalg.norm(plan[1:idx+1] - plan[0:idx], axis=1).sum()
+
+                rospy.loginfo("--> No conflict detected. Disabling RVO and resuming move_base goal to {}.".format(self.goal.target_pose.pose.position.y))
+                self.rvo_active = False
+                print("Still on the same goal \n")
+                self.move_base.send_goal(self.goal, feedback_cb=self.feedback_cb)
+        except IndexError:
+            # print("Index is called!!  \n")
+            # self.rvo_active = False
+            # self.index_was_called = True
+            if self.on_path:
+                self.on_path = False
+                rospy.loginfo("--> No conflict detected. Disabling RVO and resuming move_base goal to {}.".format(self.goal.target_pose.pose.position.y))
+                self.rvo_active = False
+                print("Still on the same goal \n")
+                self.move_base.send_goal(self.goal, feedback_cb=self.feedback_cb)
+            else:
+                pass
+
+    def rvo_collision_avoidance(self, other_robot_position, other_robot_velocity, radius, max_speed):
+        preferred_velocity = np.array([self.robot_vel.linear.x, self.robot_vel.linear.y])
+        if other_robot_position is not None and other_robot_velocity is not None:
+            relative_position = other_robot_position - np.array([self.robot_pose.position.x, self.robot_pose.position.y])
+            relative_velocity = other_robot_velocity - preferred_velocity
+            rvo_velocities = self.compute_rvo(preferred_velocity, relative_velocity, relative_position, radius)
+        else:
+            rvo_velocities = [preferred_velocity]
+
+        new_velocity = self.select_new_velocity(preferred_velocity, rvo_velocities, max_speed)
+        if self.is_velocity_safe(new_velocity):
+            return new_velocity
+        return None
+
+
+    def get_plan_to_goal(self, curr_pose):
+        req = GetPlanRequest()
+        req.start.header.frame_id = "level_mux_map"
+        req.goal.header.frame_id = "level_mux_map"
+        req.start.pose = curr_pose
+        req.goal.pose = self.goal.target_pose.pose
+
+        rospy.wait_for_service("/move_base/NavfnROS/make_plan")
+        try:
+            plan_msg = self.make_plan_srv(req)
+            plan = np.array([[p.pose.position.x, p.pose.position.y] for p in plan_msg.plan.poses])
+            return plan
+        except rospy.ServiceException:
+            rospy.logerr("Make plan service call failed.")
+            return np.array([])
+
+    # def rvo_collision_avoidance(self, other_robot_position, other_robot_velocity, radius, max_speed):
+    #     preferred_velocity = np.array([self.robot_vel.linear.x, self.robot_vel.linear.y, self.robot_vel.angular.z])
+    #     if other_robot_position is not None and other_robot_velocity is not None:
+    #         relative_position = other_robot_position - np.array([self.robot_pose.position.x, self.robot_pose.position.y])
+    #         relative_velocity = other_robot_velocity - preferred_velocity
+    #         rvo_velocities = self.compute_rvo(preferred_velocity, relative_velocity, relative_position, radius)
+    #     else:
+    #         rvo_velocities = [preferred_velocity]
+
+    #     new_velocity = self.select_new_velocity(preferred_velocity, rvo_velocities, max_speed)
+    #     if self.is_velocity_safe(new_velocity):
+    #         return new_velocity
+    #     return None
+
+    def compute_rvo(self, preferred_velocity, relative_velocity, relative_position, radius):
+        combined_radius = 2 * radius
+        relative_distance = np.linalg.norm(relative_position)
+        if relative_distance < combined_radius:
+            relative_distance = combined_radius
+
+        collision_time = relative_distance / np.linalg.norm(relative_velocity)
+        safe_velocity = relative_position / collision_time
+        adjusted_velocity = preferred_velocity + safe_velocity
+
+        theta = np.linspace(0, 2 * np.pi, 36)  # Generate 36 potential velocities around the preferred velocity
+        potential_velocities = []
+        for angle in theta:
+            x_v = adjusted_velocity[0] + max_speed * np.cos(angle)
+            y_v = adjusted_velocity[1] + max_speed * np.sin(angle)
+            potential_velocities.append([x_v, y_v, adjusted_velocity[2]])
+
+        return potential_velocities
+
+    def select_new_velocity(self, preferred_velocity, potential_velocities, max_speed):
+        safe_velocity = preferred_velocity
+        min_distance = float('inf')
+        for velocity in potential_velocities:
+            distance = np.linalg.norm(velocity[:2] - preferred_velocity[:2])
+            if distance < min_distance:
+                min_distance = distance
+                safe_velocity = velocity
+        return safe_velocity
+
+    def is_velocity_safe(self, velocity):
+        # Implement safety checks if needed
+        return True
+
+# if __name__ == "__main__":
+#     rospy.init_node("bwi_bot")
+#     bot = BWIbot()
+#     rospy.spin()
+     
+        
+# Hallway inside AHG 2.202
+DOOR_LIST = dict(
+    d2_124a=[6.57340180371, -3.8912084219, 0.686708693059],
+    d2_124b=[6.57021787292, 12.5941815672, 0.745292404596]
+)
+
+if __name__ == '__main__':
+    rospy.init_node("robot_to_door_list_ahg_multiple")
+    robot = BWIbot()
+    try:
+        prev_door = None
+        while not rospy.is_shutdown():
+            if robot.is_wifi_on and not robot.robot_moving:
+                next_door = random.choice(list(DOOR_LIST.keys()))
+                if prev_door == next_door:
+                    continue
+
+                prev_door = next_door
+                x, y, yaw = DOOR_LIST[next_door]
+                rospy.loginfo("Heading to {}".format(next_door))
+                rospy.loginfo("Current goal --> {}".format(y))
+                robot.send_goal_and_wait(x, y, yaw)
+                rospy.sleep(5.0)
+    finally:
+        pass

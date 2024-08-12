@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+from math import sin, cos
+import rospy
+import random
+from actionlib import SimpleActionClient
+from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
+
+DOOR_LIST = dict(
+    d2_124a=[-38.75, -8.35, -1.5385494443596446],
+    d2_124b=[-44.75, -8.55, -1.5707963267948966],
+    d2_202x=[-6.35, -10.45,  1.6020361602251632],
+    d2_202y=[-5.15,  -0.35, -3.104572537715862],
+    d2_202z=[-7.70,  26.35,  3.141592653589793],
+    d2_304a=[-62.9,  -8.40, -0.07130746478528853],
+    d2_318=[-53.75,  25.65, -3.0676536159318575],
+    d2_324=[-53.80,  13.95, -3.0750244898139685],
+    d2_326=[-53.90,   3.60, -3.079173843593835]
+)
+
+
+if __name__ == "__main__":
+    rospy.init_node("visit_door_list_ahg_full_py")
+    
+    move_base = SimpleActionClient("/move_base", MoveBaseAction)
+    move_base.wait_for_server()
+
+    while not rospy.is_shutdown():
+        next_door = random.choice( DOOR_LIST.keys() )
+        x, y, yaw = DOOR_LIST[ next_door ]
+        rospy.loginfo("Heading to {}".format(next_door))
+        
+        goal = MoveBaseGoal()
+        goal.target_pose.header.stamp = rospy.Time.now()
+        goal.target_pose.header.frame_id = "level_mux_map"
+        goal.target_pose.pose.position.x = x
+        goal.target_pose.pose.position.y = y
+        goal.target_pose.pose.orientation.z = sin(yaw/2.)
+        goal.target_pose.pose.orientation.w = cos(yaw/2.)
+        
+        move_base.send_goal_and_wait(goal)
+        rospy.sleep(5.0)
+	

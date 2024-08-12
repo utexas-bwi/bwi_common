@@ -75,6 +75,9 @@ add_executable(visit_and_ask_list_node src/visit_and_ask_list.cpp)
 add_dependencies(visit_and_ask_list_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(visit_and_ask_list_node ${catkin_LIBRARIES})
 
+catkin_install_python(PROGRAMS scripts/visit_door_list_ahg
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 #add_executable(hri_tasks_node src/hri_tasks.cpp)
 #add_dependencies(hri_tasks_node ${catkin_EXPORTED_TARGETS})
 #target_link_libraries(hri_tasks_node ${catkin_LIBRARIES})
