@@ -4,6 +4,7 @@
   <arg name="gui" default="true" />
   <arg name="world" default="gazebo" />
   <arg name="debug" default="false" />
+  <arg name="realistic" default="false" />
 
   <arg unless="$(arg debug)" name="gazebo_binary" value="gzserver" />
   <arg if="$(arg debug)" name="gazebo_binary" value="debug" />
@@ -14,7 +15,14 @@
   </group>
 
   <!-- start world -->
-  <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/3ne.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+  <group if="$(arg realistic)">
+      <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/3ne_real.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+  </group>
+
+  <group unless="$(arg realistic)">
+      <node name="$(arg world)" pkg="gazebo_ros" type="$(arg gazebo_binary)" args="$(find utexas_gdc)/worlds/3ne.world" respawn="false" output="screen" launch-prefix="$(optenv OPTIRUN_LAUNCH_PREFIX)" />
+  </group>
+
 
   <!-- start gui -->
   <group if="$(arg gui)">

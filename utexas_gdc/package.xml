@@ -25,7 +25,9 @@
   <test_depend>roslaunch</test_depend>
 
   <export>
-    <gazebo_ros gazebo_media_path="${prefix}"/>
+      <gazebo_ros 
+          gazebo_media_path="${prefix}"
+          gazebo_model_path="${prefix}/../Media/models/"/>
   </export>
 
 </package>
